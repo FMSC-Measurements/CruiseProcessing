@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>UpdateingProjectFiles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* Solarized (Dark) */
+/* Authors: Ethan Schoonover: http://ethanschoonover.com/solarized, CodeCatalyst: http://codecatalyst.com/ */
+/* Version: d9a83f4e7a47432baff86e1e7946d9e066cf3d1b (modified) */
+/* https://github.com/CodeCatalyst/mou-theme-solarized */
+
+html,
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+ol,
+ul,
+li,
+img {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+html * {
+  font-family: "ff-din-web-pro-1", "ff-din-web-pro-2", sans-serif;
+  font-size: 16px;
+  line-height: 19.2px;
+  color-profile: sRGB;
+}
+body {
+  min-width: 32em;
+  max-width: 52em;
+  margin: 10px;
+}
+p {
+  font-weight: lighter;
+  margin-bottom: 20px;
+}
+strong {
+  font-weight: bold;
+}
+ol,
+ul {
+  margin-left: 2em;
+  margin-bottom: 20px;
+}
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+  margin-top: 10px;
+}
+li {
+  margin-bottom: 10px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: lighter;
+  text-transform: capitalize;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+h1 {
+  font-size: 24.624px;
+  line-height: 29.548799999999996px;
+}
+h2 {
+  font-size: 24.624px;
+  line-height: 29.548799999999996px;
+}
+h3 {
+  font-size: 23.44px;
+  line-height: 28.128px;
+}
+h4 {
+  font-size: 22.16px;
+  line-height: 26.592px;
+}
+h5 {
+  font-size: 22.16px;
+  line-height: 26.592px;
+}
+h6 {
+  font-size: 22.16px;
+  line-height: 26.592px;
+}
+img {
+  margin-bottom: 20px;
+}
+h1 img,
+h2 img,
+h3 img,
+h4 img,
+h5 img,
+h6 img,
+p img {
+  margin-bottom: 0;
+}
+pre {
+  margin-bottom: 20px;
+}
+pre,
+code {
+  font-family: monospace;
+}
+pre {
+  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding: 15px;
+}
+h1 {
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: 1px solid;
+}
+h2 {
+  border-bottom: 1px solid;
+}
+h3,
+h4,
+h5,
+h6 {
+  border-bottom: none;
+}
+html * {
+  color: #839496;
+}
+html body {
+  background-color: #002b36;
+}
+html h1,
+html h2,
+html h3,
+html h4,
+html h5,
+html h6 {
+  color: #93a1a1;
+  border-color: #839496;
+}
+html a,
+html a:active,
+html a:visited {
+  color: #93a1a1;
+}
+html a:hover {
+  background-color: #073642;
+}
+html pre {
+  color: #93a1a1;
+  background-color: #073642;
+}
+html a,
+html a:active,
+html a:visited,
+html code.url {
+  color: #b58900;
+}
+html h1 {
+  color: #b58900;
+}
+html h2,
+html h3,
+html h4,
+html h5,
+html h6 {
+  color: #b58900;
+}
+
+/*
+LICENSE
+
+Solarized Theme for Mou
+
+Copyright (c) 2012 CodeCatalyst, LLC
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Solarized
+
+Copyright (c) 2011 Ethan Schoonover
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+</style>
+<style type="text/css">
+.highlight  { background: #ffffff; }
+.highlight .c { color: #999988; font-style: italic } /* Comment */
+.highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+.highlight .k { font-weight: bold } /* Keyword */
+.highlight .o { font-weight: bold } /* Operator */
+.highlight .cm { color: #999988; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #999999; font-weight: bold } /* Comment.Preproc */
+.highlight .c1 { color: #999988; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #999999; font-weight: bold; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #000000; background-color: #ffdddd } /* Generic.Deleted */
+.highlight .gd .x { color: #000000; background-color: #ffaaaa } /* Generic.Deleted.Specific */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #aa0000 } /* Generic.Error */
+.highlight .gh { color: #999999 } /* Generic.Heading */
+.highlight .gi { color: #000000; background-color: #ddffdd } /* Generic.Inserted */
+.highlight .gi .x { color: #000000; background-color: #aaffaa } /* Generic.Inserted.Specific */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #555555 } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #aaaaaa } /* Generic.Subheading */
+.highlight .gt { color: #aa0000 } /* Generic.Traceback */
+.highlight .kc { font-weight: bold } /* Keyword.Constant */
+.highlight .kd { font-weight: bold } /* Keyword.Declaration */
+.highlight .kp { font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #445588; font-weight: bold } /* Keyword.Type */
+.highlight .m { color: #009999 } /* Literal.Number */
+.highlight .s { color: #d14 } /* Literal.String */
+.highlight .na { color: #008080 } /* Name.Attribute */
+.highlight .nb { color: #0086B3 } /* Name.Builtin */
+.highlight .nc { color: #445588; font-weight: bold } /* Name.Class */
+.highlight .no { color: #008080 } /* Name.Constant */
+.highlight .ni { color: #800080 } /* Name.Entity */
+.highlight .ne { color: #990000; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #990000; font-weight: bold } /* Name.Function */
+.highlight .nn { color: #555555 } /* Name.Namespace */
+.highlight .nt { color: #000080 } /* Name.Tag */
+.highlight .nv { color: #008080 } /* Name.Variable */
+.highlight .ow { font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mf { color: #009999 } /* Literal.Number.Float */
+.highlight .mh { color: #009999 } /* Literal.Number.Hex */
+.highlight .mi { color: #009999 } /* Literal.Number.Integer */
+.highlight .mo { color: #009999 } /* Literal.Number.Oct */
+.highlight .sb { color: #d14 } /* Literal.String.Backtick */
+.highlight .sc { color: #d14 } /* Literal.String.Char */
+.highlight .sd { color: #d14 } /* Literal.String.Doc */
+.highlight .s2 { color: #d14 } /* Literal.String.Double */
+.highlight .se { color: #d14 } /* Literal.String.Escape */
+.highlight .sh { color: #d14 } /* Literal.String.Heredoc */
+.highlight .si { color: #d14 } /* Literal.String.Interpol */
+.highlight .sx { color: #d14 } /* Literal.String.Other */
+.highlight .sr { color: #009926 } /* Literal.String.Regex */
+.highlight .s1 { color: #d14 } /* Literal.String.Single */
+.highlight .ss { color: #990073 } /* Literal.String.Symbol */
+.highlight .bp { color: #999999 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #008080 } /* Name.Variable.Class */
+.highlight .vg { color: #008080 } /* Name.Variable.Global */
+.highlight .vi { color: #008080 } /* Name.Variable.Instance */
+.highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+.pl-c {
+    color: #969896;
+}
+
+.pl-c1,.pl-mdh,.pl-mm,.pl-mp,.pl-mr,.pl-s1 .pl-v,.pl-s3,.pl-sc,.pl-sv {
+    color: #0086b3;
+}
+
+.pl-e,.pl-en {
+    color: #795da3;
+}
+
+.pl-s1 .pl-s2,.pl-smi,.pl-smp,.pl-stj,.pl-vo,.pl-vpf {
+    color: #333;
+}
+
+.pl-ent {
+    color: #63a35c;
+}
+
+.pl-k,.pl-s,.pl-st {
+    color: #a71d5d;
+}
+
+.pl-pds,.pl-s1,.pl-s1 .pl-pse .pl-s2,.pl-sr,.pl-sr .pl-cce,.pl-sr .pl-sra,.pl-sr .pl-sre,.pl-src,.pl-v {
+    color: #df5000;
+}
+
+.pl-id {
+    color: #b52a1d;
+}
+
+.pl-ii {
+    background-color: #b52a1d;
+    color: #f8f8f8;
+}
+
+.pl-sr .pl-cce {
+    color: #63a35c;
+    font-weight: bold;
+}
+
+.pl-ml {
+    color: #693a17;
+}
+
+.pl-mh,.pl-mh .pl-en,.pl-ms {
+    color: #1d3e81;
+    font-weight: bold;
+}
+
+.pl-mq {
+    color: #008080;
+}
+
+.pl-mi {
+    color: #333;
+    font-style: italic;
+}
+
+.pl-mb {
+    color: #333;
+    font-weight: bold;
+}
+
+.pl-md,.pl-mdhf {
+    background-color: #ffecec;
+    color: #bd2c00;
+}
+
+.pl-mdht,.pl-mi1 {
+    background-color: #eaffea;
+    color: #55a532;
+}
+
+.pl-mdr {
+    color: #795da3;
+    font-weight: bold;
+}
+
+.pl-mo {
+    color: #1d3e81;
+}
+.task-list {
+padding-left:10px;
+margin-bottom:0;
+}
+
+.task-list li {
+    margin-left: 20px;
+}
+
+.task-list-item {
+list-style-type:none;
+padding-left:10px;
+}
+
+.task-list-item label {
+font-weight:400;
+}
+
+.task-list-item.enabled label {
+cursor:pointer;
+}
+
+.task-list-item+.task-list-item {
+margin-top:3px;
+}
+
+.task-list-item-checkbox {
+display:inline-block;
+margin-left:-20px;
+margin-right:3px;
+vertical-align:1px;
+}
+</style>
+</head>
+<body>
+<h1 id="updating-project-files-to-vs-2017-sdk-style-projects">updating project files to VS 2017 sdk style projects</h1>
+<p>In this tutorial we will be updating a older style Visual Studio solution to a VS 2017 solution using the new sky style project file.<br>This is typically not a very complex conversion. The new sdk style project file is primarily a slimmed down version of the older style project file and most of our work involves removing the unnecessary stuff. </p>
+<h2 id="step-1-clean-up-your-existing-project">Step 1 - clean up your existing project</h2>
+<p>First thing we want to do is clean up your source code folders. With your existing project open in Visual Studio take a look at the list of code file in your project in the Solution Explorer. At the top of the solution Explorer<br>there is a button to show/hide all files. Set it so that all files are visible. This will make it so that all files in your project directory are visible.<br>Files and folders that aren&#39;t included in your project will appear will a ghosted icon next to them. Go through and take note of all code files that are in your project directory that aren&#39;t a part of your solution. Ignore the <code>bin</code> and <code>obj</code> directories. These might code files that you had been working on but are now long forgotten or something you mean to comeback to at a later date.<br>If you have any of these such files, change the file extension so that they don&#39;t end with a code (.cs, .xaml, .xml) extension and distinguish unused code files. I prefer the convention of adding a squiggle <code>~</code> to the end of such files. This is also the convention used in git repositories to indicate that a file should be ignored.<br>The reason why we are doing this bit of clean up right now is because the new project style assumes that all code files are a part of your project unless stated otherwise. This will save us some time down the road but its also feels nice to have an organized work space.</p>
+<h2 id="step-2-create-your-new-solution-and-project-files">Step 2 - create your new solution and project files</h2>
+<h3 id="2-1">2.1</h3>
+<p>In the same folder as your existing project files create a new <code>.csproj</code> file.</p>
+<p>You can rename your old solution file and name the new one the same as your old one, if you like, but if you prefer the comfort of knowing you can fall back on the old one, you can give the new solution and project files unique file names.</p>
+<p>Create the new project file by creating a new empty text file and adding the following contents</p>
+<pre><code>&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;
+
+  &lt;PropertyGroup Label=&quot;Assembily Info&quot;&gt;
+    &lt;AssemblyName&gt;{your library/program name&lt;/AssemblyName&gt;
+    &lt;Version&gt;{your version here}&lt;/Version&gt;
+    &lt;Copyright&gt;{your copyright info here}&lt;/Copyright&gt;
+    &lt;Company&gt;USDA FS FMSC&lt;/Company&gt;
+    &lt;Authors&gt;{your name here}&lt;/Authors&gt;
+  &lt;/PropertyGroup&gt;
+
+  &lt;PropertyGroup Label=&quot;Build Config&quot;&gt;
+    &lt;TargetFramework&gt;net35&lt;/TargetFramework&gt;
+    &lt;Platform&gt;Any Cpu&lt;/Platform&gt;
+    &lt;OutputType&gt;WinExe&lt;/OutputType&gt;
+    &lt;StartupObject&gt;$(RootNamespace).Program&lt;/StartupObject&gt;
+    &lt;ApplicationIcon&gt;{path to your icon (ex ./icons/myIcon.ico)}&lt;/ApplicationIcon&gt;
+  &lt;/PropertyGroup&gt;
+
+  &lt;!--Required for System.Data.Sqlite See: https://stackoverflow.com/questions/32639630/sqlite-interop-dll-files-does-not-copy-to-project-output-path-when-required-by-r/32639631#32639631--&gt;
+  &lt;PropertyGroup&gt;
+    &lt;ContentSQLiteInteropFiles&gt;true&lt;/ContentSQLiteInteropFiles&gt;
+    &lt;CopySQLiteInteropFiles&gt;false&lt;/CopySQLiteInteropFiles&gt;
+    &lt;CleanSQLiteInteropFiles&gt;false&lt;/CleanSQLiteInteropFiles&gt;
+    &lt;CollectSQLiteInteropFiles&gt;false&lt;/CollectSQLiteInteropFiles&gt;
+  &lt;/PropertyGroup&gt;
+
+  &lt;ItemGroup&gt;
+    &lt;Reference Include=&quot;System.Windows.Forms&quot; /&gt;
+  &lt;/ItemGroup&gt;
+
+  &lt;ItemGroup&gt;
+    &lt;None Remove=&quot;Properties\AssemblyInfo.cs&quot; /&gt;
+  &lt;/ItemGroup&gt;
+
+&lt;/Project&gt;
+</code></pre><p>Go ahead and fill in the bits that need to be filled in. Most of this info can be found in your <code>Properties/AssemblyInfo.cs</code> file. The new project style generates the AssemblyInfo.cs based on the info in your project file.</p>
+<h3 id="2-2">2.2</h3>
+<p>In the same folder as your existing solution file, create a new <code>.sln</code> file and add the following contents.</p>
+<pre><code>Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.10
+MinimumVisualStudioVersion = 10.0.40219.1
+</code></pre><h3 id="2-3-add-your-project-to-your-new-solution-file">2.3 - add your project to your new solution file</h3>
+<p>Open the newly created solution file. It should open using Visual Studio 2017. If it doesn&#39;t, open Visual Studio 2017 and open it manually. </p>
+<p>In the Solution Explorer right click the solution, go to <code>Add-&gt;Existing Project</code> and add the new project file we created in the first step. At this point your project might not build but don&#39;t worry, as long as it is loading correctly we are happy.</p>
+<p>If you got a message saying that the project could not be loaded, right click the project in the solution explorer and select the entry that says <code>Edit {your project file name}</code>. If there are any errors in the project file you might be able to see them now. </p>
+<h2 id="step-3-adding-references">Step 3 - adding references</h2>
+<p>!!! for all CruiseDAL users !!!<br>In the same folder as your solution create a new text file and name it <code>NuGet.config</code> and add the following contents </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;configuration&gt;
+  &lt;packageSources&gt;
+    &lt;add key=&quot;SolutionNugetRepository&quot; value=&quot;local-packages&quot; /&gt;
+    &lt;add key=&quot;sqlbuilder&quot; value=&quot;https://ci.appveyor.com/nuget/backpack-sqlbuilder-x7uemlx3fbb7&quot; /&gt;
+  &lt;/packageSources&gt;
+&lt;/configuration&gt;
+</code></pre><p>Create a new <code>local-packages</code> folder in your solution directory and copy the CruiseDAL.{version}.nupkg and FMSC.ORM.{version}.nupkg into it. </p>
+<p>Note: you may need to restart visual studio at this point. </p>
+<p>From the Solution Explorer right click on your project and click <code>Manage Nuget Packages</code>. In the package manager window make sure the Package source drop-down in the top right is set to <code>All</code>. Go to the Browse tab and enter CruiseDAL into the search bar. Select the CruiseDAL package and hit Install. </p>
+<p>!!! specifically for Cruise Processing !!!</p>
+<p>Install the following packages</p>
+<pre><code>- ZedGraph - version 5.1.5
+- iTextSharp - version 5.4.2
+</code></pre><p>You may be using the System.Data.Sqlite library directly but you don&#39;t need to add a reference because it will be pulled in by the CruiseDAL reference</p>
+<h2 id="step-4-clean-up-after">Step 4 - clean up after</h2>
+<p>Once you have everything running all nicely and feel confidant enough to clean up the old project files - no use letting them lay around gathering dust. </p>
+<p>Delete the bin and obj directories in your project directory. These folders are automatically generated and its good to make sure nothing is lurking in them that doesn&#39;t need to be there.</p>
+<p>Consider deleting those unused code files from step 1. </p>
+<p>Delete the now unused  Properties/AssemblyInfo.cs file - you can also remove the section from the project file that says to ignore the AssemblyInfo file</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

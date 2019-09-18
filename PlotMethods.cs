@@ -1,0 +1,89 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using System.Text;
+using CruiseDAL.DataObjects;
+using CruiseDAL.Schema;
+
+
+namespace CruiseProcessing
+{
+    public static class PlotMethods
+    {
+        //  methods pertaining to the plot table
+        public static IEnumerable<PlotDO> GetStrata(IEnumerable<PlotDO> pList, string currST)
+        {
+            return pList.Where(pd => pd.Stratum.Code == currST);
+
+            //List<PlotDO> rtrnList = pList.FindAll(
+            //    delegate(PlotDO pd)
+            //    {
+            //        return pd.Stratum.Code == currST;
+            //    });
+            //return rtrnList;
+        }   //  end GetStrata
+
+
+        public static int FindDuplicatePlots(IEnumerable<PlotDO> pList, string currST, string currCU, long currPL)
+        {
+            return pList.Any(pd => pd.PlotNumber == currPL && pd.CuttingUnit.Code == currCU &&
+                pd.Stratum.Code == currST) ? 7 : 0;
+
+            //List<PlotDO> rtrnList = pList.FindAll(pd => pd.PlotNumber == currPL && pd.CuttingUnit.Code == currCU && pd.Stratum.Code == currST);
+            //if (rtrnList.Count > 1)
+            //    return 7;
+            //else if (rtrnList.Count <= 0)
+            //    return 0;
+
+            //return 0;
+        }   //  end FindDuplicatePlots
+
+
+        public static ArrayList buildPrintArray(PlotDO pl, string cruiseName, string stratumCode, 
+                                                    string unitCode)
+        {
+            ArrayList plotArray = new ArrayList();
+            plotArray.Add("     ");
+            plotArray.Add(cruiseName.PadRight(5, ' '));
+            plotArray.Add(pl.PlotNumber.ToString().PadLeft(4, ' '));
+            plotArray.Add(unitCode.PadLeft(3, ' '));
+            plotArray.Add(stratumCode.PadLeft(2, ' '));
+            plotArray.Add(pl.Slope.ToString().PadLeft(6,' '));
+            plotArray.Add(pl.Aspect.ToString().PadLeft(3,' '));
+            plotArray.Add(pl.KPI.ToString().PadLeft(6, ' '));
+            if (pl.IsEmpty == "1" || pl.IsEmpty == "True")
+                plotArray.Add("YES");
+            else plotArray.Add("   ");
+
+            return plotArray;
+        }   //  end buildPrintArray
+
+        public static ArrayList buildPrintArray(PlotDO pl, string stratumCode, string unitCode)
+        {
+            //  overloaded to build array for report A13 (A14) -- plot page
+            ArrayList plotArray = new ArrayList();
+            string fieldFormat1 = "{0,10:F2}";
+            string fieldFormat2 = "{0,9:F2}";
+          
+            //  print plot table
+            if (pl.XCoordinate != 0.0)
+            {
+                plotArray.Add("");
+                plotArray.Add(pl.PlotNumber.ToString().PadLeft(4, ' '));
+                plotArray.Add(unitCode.PadLeft(3, ' '));
+                plotArray.Add(stratumCode.PadLeft(2, ' '));
+                plotArray.Add(Utilities.FormatField(pl.XCoordinate, fieldFormat1).ToString());
+                if (pl.YCoordinate == 0.0)
+                    plotArray.Add("---------");
+                else plotArray.Add(Utilities.FormatField(pl.YCoordinate, fieldFormat2).ToString());
+                if (pl.ZCoordinate == 0.0)
+                    plotArray.Add("---------");
+                else plotArray.Add(Utilities.FormatField(pl.ZCoordinate, fieldFormat1).ToString());
+                plotArray.Add(pl.MetaData??(" "));
+            }   //  endif coordinates exist
+            return plotArray;
+        }   //  end buildPrintArray
+
+    }
+}
