@@ -21,6 +21,7 @@ namespace CruiseProcessing
         private string currSaleName;
         private string currDate;
         private StringBuilder ReportTitle = new StringBuilder();
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
         public int OutputLocalVolume(string fileName)
         {
@@ -34,9 +35,9 @@ namespace CruiseProcessing
             }   //  endif file doesn't exists
 
             //  Pull regression results table
-            IEnumerable<RegressionDO> resultsList = Global.BL.getRegressionResults();
+            List<RegressionDO> resultsList = bslyr.getRegressionResults();
 
-            if (!resultsList.Any())
+            if (resultsList.Count == 0)
             {
                 MessageBox.Show("No regression results.\nCannot produce reports.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return -1;
@@ -44,18 +45,26 @@ namespace CruiseProcessing
             // Initialize report title
             ReportTitle.Append("LOCAL VOLUME TABLE REPORT - ");
             //  need sale info to complete the heading
-            SaleDO sale = Global.BL.getSale().First();
-            currSale = sale.SaleNumber;
-            currSaleName = sale.Name;
+            List<SaleDO> sList = bslyr.getSale();
+            currSale = sList[0].SaleNumber;
+            currSaleName = sList[0].Name;
             currDate = DateTime.Now.ToString();
 
             
             // first primary
-            List<RegressionDO> justPrimary = resultsList.Where(rr => rr.rVolType == "Primary").ToList();
+            List<RegressionDO> justPrimary = resultsList.FindAll(
+                delegate(RegressionDO rr)
+                {
+                    return rr.rVolType == "Primary";
+                });
             //  create page one
             writePageOne(outFile, justPrimary);
             // separate secondary list
-            List<RegressionDO> justSecondary = resultsList.Where(rr => rr.rVolType == "Secondary").ToList();
+            List<RegressionDO> justSecondary = resultsList.FindAll(
+                delegate(RegressionDO rr)
+                {
+                    return rr.rVolType == "Secondary";
+                });
 
             if (justSecondary.Count > 0)
             {

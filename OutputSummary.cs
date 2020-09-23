@@ -23,8 +23,8 @@ namespace CruiseProcessing
         private int[] fieldLengths;
         private ArrayList prtFields;
         private string[] completeHeader = new string[14];
-        //private List<LCDDO> lcdList = new List<LCDDO>();
-        //private List<StratumDO> sList = new List<StratumDO>();
+        private List<LCDDO> lcdList = new List<LCDDO>();
+        private List<StratumDO> sList = new List<StratumDO>();
         private int hgtOne = 0;
         private int hgtTwo = 0;
         private int[] sourceFlag = new int[3];
@@ -38,13 +38,17 @@ namespace CruiseProcessing
             numOlines = 0;
             List<LCDDO> currentGroup = new List<LCDDO>();
             //  pull stratum table to process reports
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
+            sList = bslyr.getStratum();
             //  Need tree list to finish height headers
-            List<TreeDO> tList = Global.BL.getTrees().ToList();
+            List<TreeDO> tList = bslyr.getTrees();
             //  check for data before continuing
-            //List<LCDDO> lcdList = Global.BL.getLCD();
-            LCDDO lcddo = Global.BL.getLCD().FirstOrDefault(l => l.CutLeave == currCL);
-            if (lcddo != null)
+            List<LCDDO> lcdList = bslyr.getLCD();
+            int nthRow = lcdList.FindIndex(
+                delegate(LCDDO l)
+                {
+                    return l.CutLeave == currCL;
+                });
+            if (nthRow < 0)
             {
                 noDataForReport(strWriteOut, currentReport, " >>>> No data for report ");
                 return;
@@ -52,7 +56,7 @@ namespace CruiseProcessing
 
             foreach (StratumDO s in sList)
             {
-                totalStrataAcres = Utilities.ReturnCorrectAcres(s.Code, (long) s.Stratum_CN);
+                totalStrataAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long) s.Stratum_CN);
                 currMethod = s.Method;
                 //  pull groups to process by report
                 switch (currentReport)
@@ -61,45 +65,45 @@ namespace CruiseProcessing
                     case "VPA1":      //  (B2)
                     case "VAL1":      //  (B3)
                     case "VSM6":
-                        currentGroup = Global.BL.GetLCDgroup(s.Code, 1, currCL).ToList();
+                        currentGroup = bslyr.GetLCDgroup(s.Code, 1, currCL);
                         //  override total strata acres for certain reports
                         if (currentReport == "VPA1")
                         {
                             totalStrataAcres = 1.0;
                             if(s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, s.Code);
+                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
                         }   //  endif
                         if (currentReport == "VAL1")
                         {
                             totalPerAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, s.Code);
+                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
                         }   //  endif
                         break;
                     case "VSM2":      //  Sample group volume summary (CP1)
                     case "VPA2":        //  (CP2)
                     case "VAL2":        //  (CP3)
                     case "LV01":         //  Leave trees only
-                        currentGroup = Global.BL.GetLCDgroup(s.Code, 2, currCL).ToList();
+                        currentGroup = bslyr.GetLCDgroup(s.Code, 2, currCL);
                         //  override total strata acres for certain reports
                         if (currentReport == "VPA2")
                         {
                             totalStrataAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, s.Code);
+                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
                         }   //  endif
                         if (currentReport == "VAL2")
                         {
                             totalPerAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, s.Code);
+                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
                         }   //  endif
                         break;
                     case "VSM3":      //  Stratum volume summary (CS1)
                     case "VPA3":        //  (CS2)
                     case "VAL3":        //  (CS3)
                     case "LV02":         //  Leave trees only
-                        currentGroup = Global.BL.GetLCDgroup(s.Code, 3, currCL).ToList();
+                        currentGroup = bslyr.GetLCDgroup(s.Code, 3, currCL);
                         if (currentGroup.Count == 0 && currentReport != "LV02")
                         {
                             //  changed slightly since this refers to stratum and not the report
@@ -118,13 +122,13 @@ namespace CruiseProcessing
                         {
                             totalStrataAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, s.Code);
+                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
                         }   //  endif
                         if (currentReport == "VAL3")
                         {
                             totalPerAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, s.Code);
+                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
                         }   //  endif
                         break;
                 }   //  end switch
@@ -168,7 +172,7 @@ namespace CruiseProcessing
                             //  September 2016 -- per K.Cormier -- dropping contract species from LCD identifier
                             //sb.Append("TreeGrade = ? AND ContractSpecies = ? AND STM = ?");
                             sb.Append("TreeGrade = ? AND STM = ?");
-                            currentData = Global.BL.GetLCDdata(sb.ToString(), lcd, 1, "").ToList();
+                            currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 1, "");
                             //  need to get sourceFlag
                             FindSourceFlag(currentData);
                             //  write current group
@@ -205,7 +209,7 @@ namespace CruiseProcessing
                                 StringBuilder sb = new StringBuilder();
                                 sb.Append("WHERE Stratum = ? AND PrimaryProduct = ? AND UOM = ? AND CutLeave = ? ");
                                 sb.Append("AND SampleGroup = ? AND STM = ?");
-                                currentData = Global.BL.GetLCDdata(sb.ToString(), lcd, 2, currCL).ToList();
+                                currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 2, currCL);
                                 //  set sourceflag
                                 FindSourceFlag(currentData);
                                 //  write current group
@@ -243,7 +247,7 @@ namespace CruiseProcessing
                             {
                                 StringBuilder sb = new StringBuilder();
                                 sb.Append("WHERE Stratum = ? AND PrimaryProduct = ? AND UOM = ? AND CutLeave = ?");
-                                currentData = Global.BL.GetLCDdata(sb.ToString(), lcd, 3, currCL).ToList();
+                                currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 3, currCL);
                                 //  set sourceflag
                                 FindSourceFlag(currentData);
                                 //  write current group
@@ -375,7 +379,7 @@ namespace CruiseProcessing
             StringBuilder sb = new StringBuilder();
             for (int k = 0; k < summaryColumns.Count();k++)
             {
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(lowLevelColumns[k]);
                 sb.Append(summaryColumns[k]);
                 completeHeader[k] = sb.ToString();
@@ -394,7 +398,7 @@ namespace CruiseProcessing
             StringBuilder sb = new StringBuilder();
             for (int k = 0; k < leftHandSide.Count(); k++)
             {
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(leftHandSide[k]);
                 sb.Append(rightHandSide[k]);
                 completeHeader[k] = sb.ToString();
@@ -680,7 +684,7 @@ namespace CruiseProcessing
                     strWriteOut.WriteLine("                        QUAD                                         EST.         ************** VOLUME ***************");
 
                     //  build subtotal lines for mean height values
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append("           PRODUCT      MEAN      MEAN    ");
                     switch (hgtOne)
                     {
@@ -702,7 +706,7 @@ namespace CruiseProcessing
                     }   //  end switch for any second height
                     sb.Append("       # OF         **** GROSS ****       ***** NET *****");
                     strWriteOut.WriteLine(sb.ToString());
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     //  second line
                     sb.Append("  PRODUCT  SOURCE       DBH       DBH     ");
                     switch (hgtOne)
@@ -752,7 +756,7 @@ namespace CruiseProcessing
                     strWriteOut.WriteLine("  TOTALS ------");
                     strWriteOut.WriteLine("                   QUAD                             GROSS     NET       EST.      ************** VOLUME  ***************");
                     //  build subtotal lines for mean height values
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append("           PRODUCT MEAN  MEAN   ");
                     switch (hgtOne)
                     {
@@ -780,7 +784,7 @@ namespace CruiseProcessing
                     }   //  end switch for any second height
                     sb.Append("BF/CF     BF/CF     # OF      ***** GROSS *****     *****  NET *****");
                     strWriteOut.WriteLine(sb.ToString());
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     //  second line
                     sb.Append("  PRODUCT  SOURCE  DBH   DBH   ");
                     switch (hgtOne)

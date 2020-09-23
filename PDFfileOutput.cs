@@ -23,6 +23,7 @@ namespace CruiseProcessing
             private string PDFoutFile;
             private ArrayList graphReports = new ArrayList();
             private string[] graphFlag = new string[9];
+            public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public PDFfileOutput()
@@ -49,7 +50,8 @@ namespace CruiseProcessing
             //  are there any graph files to add to the PDF file?
             if (CheckForGraphReports() == true)
             {
-                string currSaleName = Global.BL.getSale().First().Name;
+                List<SaleDO> saleList = bslyr.getSale();
+                string currSaleName = saleList[0].Name;
                 string dirPath = System.IO.Path.GetDirectoryName(fileName);
                 dirPath += "\\Graphs\\";
                 dirPath += currSaleName;
@@ -250,18 +252,15 @@ namespace CruiseProcessing
 
         private bool CheckForGraphReports()
         {
-
-            return Global.BL.GetSelectedReports().FirstOrDefault(r => r.ReportID.Substring(0, 2) == "GR") != null;
-
-            //List<ReportsDO> selReports = Global.BL.GetSelectedReports();
-            //int nthRow = selReports.FindIndex(
-            //    delegate(ReportsDO r)
-            //    {
-            //        return r.ReportID.Substring(0, 2) == "GR";
-            //    });
-            //if (nthRow >= 0)
-            //    return true;
-            //else return false;
+            List<ReportsDO> selReports = bslyr.GetSelectedReports();
+            int nthRow = selReports.FindIndex(
+                delegate(ReportsDO r)
+                {
+                    return r.ReportID.Substring(0, 2) == "GR";
+                });
+            if (nthRow >= 0)
+                return true;
+            else return false;
         }   //  end CheckForGraphReports
 
         

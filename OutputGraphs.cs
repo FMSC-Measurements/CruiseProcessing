@@ -20,22 +20,23 @@ namespace CruiseProcessing
         private List<LCDDO> speciesTotal = new List<LCDDO>();
         private List<TreeDO> treesByDBH = new List<TreeDO>();
         private List<TreeDO> justMeasured = new List<TreeDO>();
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
 
         public void createGraphs()
         {
-            List<TreeDO> tList = Global.BL.getTrees().ToList();
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
-            List<LCDDO> justSpecies = Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "").ToList();
+            List<TreeDO> tList = bslyr.getTrees();
+            List<LCDDO> lcdList = bslyr.getLCD();
+            List<StratumDO> sList = bslyr.getStratum();
+            List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
             //  pull salename and number to put in graph title
             //  also need it to create subfolder for graphs
-            SaleDO sale = Global.BL.getSale().First();
-            string currSaleName = sale.Name;
+            List<SaleDO> saleList = bslyr.getSale();
+            string currSaleName = saleList[0].Name;
             if (currSaleName.Length > 25)
                 currSaleName = currSaleName.Remove(25, currSaleName.Length);
-            string currSaleNumber = sale.SaleNumber;
+            string currSaleNumber = saleList[0].SaleNumber;
             // pull data needed and call appropriate graph routine for report
             switch (currentReport)
             {
@@ -43,7 +44,11 @@ namespace CruiseProcessing
                     foreach (LCDDO js in justSpecies)
                     {
                         //  pull all trees for each species
-                        List<TreeDO> justTrees = tList.FindAll(td => td.Species == js.Species && td.CountOrMeasure == "M");
+                        List<TreeDO> justTrees = tList.FindAll(
+                            delegate(TreeDO td)
+                            {
+                                return td.Species == js.Species && td.CountOrMeasure == "M";
+                            });
                         currTitle.Append("DBH AND TOTAL HEIGHT BY ");
                         if (justTrees.Count == 0)
                         {
@@ -134,10 +139,11 @@ namespace CruiseProcessing
                     gf.ShowDialog();
                     break;
                 case "GR04":
+                    List<LCDDO> justProduct = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY PrimaryProduct", "C", "");
+
                     speciesTotal.Clear();
                     //  total net CUFT volume for sawtimber only
-                    foreach (LCDDO jp in
-                        Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY PrimaryProduct", "C", ""))
+                    foreach (LCDDO jp in justProduct)
                     {
                         List<LCDDO> productGroup = lcdList.FindAll(
                             delegate(LCDDO l)
@@ -173,14 +179,17 @@ namespace CruiseProcessing
                     else whichLength = getLength.lengthSelected;
                     //  pull by species for separate graphs
                     List<LogStockDO> logsTotal = new List<LogStockDO>();
-                    //List<LogStockDO> lsList = Global.BL.getLogStock();
+                    List<LogStockDO> lsList = bslyr.getLogStock();
                     //  need to expand also
                     foreach (LCDDO js in justSpecies)
                     {
                         // pull all logs
-                        IEnumerable<LogStockDO> justSelectLogs = Global.BL.getLogStock()
-                            .Where(lsd => lsd.Length == whichLength && lsd.Tree.Species == js.Species);
-                        if (!justSelectLogs.Any())
+                        List<LogStockDO> justSelectLogs = lsList.FindAll(
+                            delegate(LogStockDO lsd)
+                            {
+                                return lsd.Length == whichLength && lsd.Tree.Species == js.Species;
+                            });
+                        if (justSelectLogs.Count == 0)
                         {
                             MessageBox.Show("Graph cannot be created.\nNo logs found.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             break;
@@ -305,23 +314,31 @@ namespace CruiseProcessing
                     //  need values from TreEstimate table
                     //  if that table is empty, it means no 3P strata or the file was created
                     //  prior to March 2015 when the table was implemented.
-                    //List<TreeEstimateDO> treeEstimates = Global.BL.getTreeEstimates();
-                    if (!Global.BL.getTreeEstimates().Any())
+                    List<TreeEstimateDO> treeEstimates = bslyr.getTreeEstimates();
+                    if (treeEstimates.Count == 0)
                     {
                         MessageBox.Show("No estimate data is available for GR09.\nCannot produce this graph.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }   //  endif
-                    //List<TreeDO> uniqueSpecies = Global.BL.GetUniqueSpecies();
-                    List<CountTreeDO> cList = Global.BL.getCountTrees().ToList();
+                    List<TreeDO> uniqueSpecies = bslyr.GetUniqueSpecies();
+                    List<CountTreeDO> cList = bslyr.getCountTrees();
                     List<CreateTextFile.ReportSubtotal> graphData = new List<CreateTextFile.ReportSubtotal>();
-                    foreach (TreeDO u in Global.BL.GetUniqueSpecies())
+                    foreach (TreeDO u in uniqueSpecies)
                     {
                         //  pull all tree default value for current species
+                        List<CountTreeDO> countSpecies = cList.FindAll(
+                            delegate(CountTreeDO ct)
+                            {
+                                return ct.TreeDefaultValue_CN == u.TreeDefaultValue_CN;
+                            });
                         //  accumulate all count tree cn in TreeEstimate for this species
-                        foreach (CountTreeDO c in cList.FindAll(ct => ct.TreeDefaultValue_CN == u.TreeDefaultValue_CN))
+                        foreach (CountTreeDO c in countSpecies)
                         {
-                            List<TreeEstimateDO> justEst = Global.BL.getTreeEstimates().Where(
-                                te => te.CountTree_CN == c.CountTree_CN).ToList();
+                            List<TreeEstimateDO> justEst = treeEstimates.FindAll(
+                                delegate(TreeEstimateDO te)
+                                {
+                                    return te.CountTree_CN == c.CountTree_CN;
+                                });
                             if(justEst.Count > 0) buildKPIdata(justEst, graphData);
                         }   //  end foreach loop
                         //  reset categories based on Ken's logic
@@ -360,13 +377,20 @@ namespace CruiseProcessing
                         if(s.BasalAreaFactor > 0)
                         {
                             //  Pull plots for this stratum
-                            double numplots = Global.BL.GetStrataPlots(s.Code).Count();
+                            List<PlotDO> pList = bslyr.GetStrataPlots(s.Code);
+                            double numplots = pList.Count;
 
                             //  Pull tree data for this stratum
-                                List<TreeDO> treeList = Global.BL.getTrees().ToList();
+                                List<TreeDO> treeList = bslyr.getTrees();
                             //  Pull stratum from LCD to get species in the stratum
+                            List<LCDDO> lList = bslyr.getLCD();
+                            List<LCDDO> justStratum = lList.FindAll(
+                                delegate(LCDDO ld)
+                                {
+                                    return ld.Stratum == s.Code;
+                                });
                             //  Then find number of trees for the stratum and each species in the stratum
-                            foreach(LCDDO js in Global.BL.getLCD().Where(ld => ld.Stratum == s.Code))
+                            foreach(LCDDO js in justStratum)
                             {
                                 List<TreeDO> justTrees = treeList.FindAll(
                                     delegate(TreeDO td)
@@ -424,24 +448,28 @@ namespace CruiseProcessing
                     break;
                 case "GR11":
                     //  pull data by sample group
-                    //List<SampleGroupDO> sgList = Global.BL.getSampleGroups();
+                    List<SampleGroupDO> sgList = bslyr.getSampleGroups();
                     float numPlots = 0;
                     //  find all trees for each group
-                    foreach (SampleGroupDO sg in Global.BL.getSampleGroups())
+                    foreach (SampleGroupDO sg in sgList)
                     {
                         if (sg.Stratum.BasalAreaFactor > 0)
                         {
                             //  find all strata for this group in LCD
-                            //List<LCDDO> lList = Global.BL.getLCD();
-                            //List<LCDDO> justStrata = Global.BL.getLCD().Where(l => l.SampleGroup == sg.Code);
+                            List<LCDDO> lList = bslyr.getLCD();
+                            List<LCDDO> justStrata = lList.FindAll(
+                                delegate(LCDDO l)
+                                {
+                                    return l.SampleGroup == sg.Code;
+                                });
                             //  find number of plots for the strata
                             string currST = "*";
-                            foreach (LCDDO js in Global.BL.getLCD().Where(l => l.SampleGroup == sg.Code))
+                            foreach (LCDDO js in justStrata)
                             {
                                 if (currST != js.Stratum)
                                 {
-                                    //List<PlotDO> pList = Global.BL.GetStrataPlots(js.Stratum);
-                                    numPlots += Global.BL.GetStrataPlots(js.Stratum).Count();
+                                    List<PlotDO> pList = bslyr.GetStrataPlots(js.Stratum);
+                                    numPlots += pList.Count();
                                     currST = js.Stratum;
                                 }   //  endif
                             }   //  end foreach loop
@@ -517,22 +545,22 @@ namespace CruiseProcessing
                     {
                         return s.Code == lte.Stratum.Code;
                     });
-                double currAC = Utilities.ReturnCorrectAcres(lte.Stratum.Code, (long)sList[nthRow].Stratum_CN);
+                double currAC = Utilities.ReturnCorrectAcres(lte.Stratum.Code,bslyr,(long)sList[nthRow].Stratum_CN);
                 //if (sList[nthRow].Method == "3P")
                     // do what?
                 //    calcValue = 0;
                 //else calcValue = lte.ExpansionFactor * currAC;
                 calcValue = lte.ExpansionFactor * currAC;
                 //  find DBH class to load
-                TreeDO to = findDBHindex(treesByDBH, lte.DBH);
-                to.ExpansionFactor += (float)calcValue;
+                int mthRow = findDBHindex(treesByDBH, lte.DBH);
+                treesByDBH[mthRow].ExpansionFactor += (float)calcValue;
             }   //  end foreach loop
             
             return;
         }   //  end expandData for tree list
 
 
-        private void expandData(IEnumerable<LCDDO> listToExpand, string valueToExpand, IEnumerable<StratumDO> sList,
+        private void expandData(List<LCDDO> listToExpand, string valueToExpand, List<StratumDO> sList,
                                                     string currSP)
         {
             //  expands valueToExpand in LCD data
@@ -540,12 +568,16 @@ namespace CruiseProcessing
             foreach (LCDDO lte in listToExpand)
             {
                 //  need strata acres to complete value
-                StratumDO stratum = sList.First(s => s.Code == lte.Stratum);
-                double currAC = Utilities.ReturnCorrectAcres(lte.Stratum, (long)stratum.Stratum_CN);
+                int nthRow = sList.FindIndex(
+                    delegate(StratumDO s)
+                    {
+                        return s.Code == lte.Stratum;
+                    });
+                double currAC = Utilities.ReturnCorrectAcres(lte.Stratum, bslyr, (long)sList[nthRow].Stratum_CN);
                 switch (valueToExpand)
                 {
                     case "EXPFAC":
-                        if (stratum.Method == "3P")
+                        if (sList[nthRow].Method == "3P")
                             calcValue += lte.TalliedTrees;
                         else calcValue += lte.SumExpanFactor * currAC;
                         break;
@@ -599,11 +631,15 @@ namespace CruiseProcessing
         }   ///  end LoadDIBclass
 
 
-        private TreeDO findDBHindex(List<TreeDO> listToSearch, double currDBH)
+        private int findDBHindex(List<TreeDO> listToSearch, double currDBH)
         {
             float DBHtoFind = (float)Math.Round(currDBH);
-            return listToSearch.FirstOrDefault(lts => lts.DBH == DBHtoFind);
-            //return rowToLoad;
+            int rowToLoad = listToSearch.FindIndex(
+                delegate(TreeDO lts)
+                {
+                    return lts.DBH == DBHtoFind;
+                });
+            return rowToLoad;
         }   //  end findDBHindex
 
 
@@ -637,19 +673,29 @@ namespace CruiseProcessing
         }   //  end noDataForGraph
 
 
-        private List<LogStockDO> LoadLogs(IEnumerable<LogStockDO> justSixteens, string currSP, IEnumerable<StratumDO> sList)
+        private List<LogStockDO> LoadLogs(List<LogStockDO> justSixteens, string currSP, List<StratumDO> sList)
         {
             List<LogStockDO> returnLogs = new List<LogStockDO>();
-            //List<LogStockDO> justDIBs = Global.BL.getLogDIBs();
-            foreach (LogStockDO jd in Global.BL.getLogDIBs())
+            List<LogStockDO> justDIBs = bslyr.getLogDIBs();
+            foreach (LogStockDO jd in justDIBs)
             {
+                //  find all logs for DIB class
+                List<LogStockDO> justLogs = justSixteens.FindAll(
+                    delegate(LogStockDO l)
+                    {
+                        return l.DIBClass == jd.DIBClass;
+                    });
                 //  expand and sum
                 double calcValue = 0;
-                foreach(LogStockDO jl in justSixteens.Where(l => l.DIBClass == jd.DIBClass))
+                foreach(LogStockDO jl in justLogs)
                 {
                     // find acres
-                    StratumDO st = sList.First(s => s.Code == jl.Tree.Stratum.Code);
-                    double currAC = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, (long)st.Stratum_CN);
+                    int nthRow = sList.FindIndex(
+                        delegate(StratumDO s)
+                        {
+                            return s.Code == jl.Tree.Stratum.Code;
+                        });
+                    double currAC = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, bslyr, (long)sList[nthRow].Stratum_CN);
                     calcValue += (float)jl.Tree.ExpansionFactor * currAC;
                 }   //  end foreach loop
                 //  load DIB class into report list
@@ -668,7 +714,7 @@ namespace CruiseProcessing
 
 
         //  this works just for graph 9 -- by KPI
-        private void buildKPIdata(IEnumerable<TreeEstimateDO> KPIgroups, List<CreateTextFile.ReportSubtotal> graphData)
+        private void buildKPIdata(List<TreeEstimateDO> KPIgroups, List<CreateTextFile.ReportSubtotal> graphData)
         {
             //  total up number of trees from tree estimate data for each KPI/species group
             foreach (TreeEstimateDO kg in KPIgroups)

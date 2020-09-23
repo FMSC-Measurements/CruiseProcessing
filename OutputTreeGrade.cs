@@ -29,7 +29,7 @@ namespace CruiseProcessing
 
             numOlines = 0;
             //  need data from LCD; cut trees only; ordered by primary product, species and tree grade
-            IEnumerable<LCDDO> lcdList = LCDmethods.GetCutGroupedBy("", "", 8);
+            List<LCDDO> lcdList = LCDmethods.GetCutGroupedBy("", "", 8, bslyr);
 
             string volType = "";
             double volSum = 0;
@@ -46,7 +46,7 @@ namespace CruiseProcessing
             }   //  endif
             if (volSum == 0)
             {
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(">> No ");
                 sb.Append(volType);
                 sb.Append(" volume for report ");
@@ -179,9 +179,9 @@ namespace CruiseProcessing
             else if (volType == "CUFT")
                 currentValue = lcd.SumNCUFT;
             //  also need strata acres to expand volume
-            //long currStrCN = StratumMethods.GetStratumCN(lcd.Stratum, Global.BL.getStratum());
-            double currAcres = Utilities.ReturnCorrectAcres(lcd.Stratum,
-                StratumMethods.GetStratumCN(lcd.Stratum, Global.BL.getStratum())?.Stratum_CN ?? -1);
+            List<StratumDO> sList = bslyr.getStratum();
+            long currStrCN = StratumMethods.GetStratumCN(lcd.Stratum, sList);
+            double currAcres = Utilities.ReturnCorrectAcres(lcd.Stratum, bslyr, currStrCN);
             switch (lcd.TreeGrade)
             {
                 case "0":

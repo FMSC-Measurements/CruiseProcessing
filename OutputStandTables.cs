@@ -19,7 +19,7 @@ namespace CruiseProcessing
         private double currEF = 0;
         private string[] columnHeader = new string[3];
         private List<StandTables> reportData = new List<StandTables>();
-        //private List<TreeCalculatedValuesDO> treeData = new List<TreeCalculatedValuesDO>();
+        private List<TreeCalculatedValuesDO> treeData = new List<TreeCalculatedValuesDO>();
         private string StratumOrSale;
         private string GroupedBy;
         private string whatValue;
@@ -40,7 +40,8 @@ namespace CruiseProcessing
             //  This will change depending on the stand table report
             string currentTitle = fillReportTitle(currentReport);
             //  get current sale number for those reports by sale
-            currSale = Global.BL.getSale().First().SaleNumber;
+            List<SaleDO> sList = bslyr.getSale();
+            currSale = sList[0].SaleNumber;
             //  what is the cut/leave code?
             if (currentReport.Substring(0, 2) == "TC")
                 whatCutCode = "C";
@@ -123,8 +124,7 @@ namespace CruiseProcessing
                 orderedBy = "Species,PrimaryProduct,UOM";
             else if (StratumOrSale == "SALE" && GroupedBy == "S")
                 orderedBy = "Species";
-
-            List<TreeCalculatedValuesDO> treeData = Global.BL.getTreeCalculatedValues(whatCutCode, orderedBy, StratumOrSale).ToList();
+            treeData = bslyr.getTreeCalculatedValues(whatCutCode, orderedBy, StratumOrSale);
 
             if (treeData.Count == 0)
             {
@@ -139,11 +139,11 @@ namespace CruiseProcessing
             {
                 case "STRATUM":
                     CalculateAndPrintStratum(classInterval, currentTitle, strWriteOut, 
-                                            ref pageNumb, rh, treeData);
+                                            ref pageNumb, rh);
                     break;
                 case "SALE":
                     CalculateAndPrintSale(classInterval, currentTitle, strWriteOut,
-                                            ref pageNumb,rh, treeData);
+                                            ref pageNumb,rh);
                     break;
             }   //  end switch
 
@@ -153,21 +153,25 @@ namespace CruiseProcessing
 
         private void CalculateAndPrintStratum(int classInterval, 
                                             string currentTitle, StreamWriter strWriteOut,
-                                            ref int pageNumb, reportHeaders rh,
-                                            IEnumerable<TreeCalculatedValuesDO> treeData)
+                                            ref int pageNumb, reportHeaders rh)
         {
             //  header and column headers are stratum dependent so loop by stratum
-            foreach (StratumDO s in Global.BL.getStratum())
+            List<StratumDO> strList = bslyr.getStratum();
+            foreach (StratumDO s in strList)
             {
                 reportData.Clear();
                 //  Load DIB classes for the current stratum
-                if (Global.BL.getTreeDBH(whatCutCode, s.Code, "M").Any())
+                List<TreeDO> justDIBs = bslyr.getTreeDBH(whatCutCode, s.Code, "M");
+                if (justDIBs.Count > 0)
                 {
-                    LoadTreeDIBclasses(Global.BL.getTreeDBH(whatCutCode, s.Code, "M").Last().DBH, reportData, classInterval);
+                    LoadTreeDIBclasses(justDIBs[justDIBs.Count - 1].DBH, reportData, classInterval);
 
                     //  need strata data from all tree data
-                    IEnumerable<TreeCalculatedValuesDO> justStrataData = treeData.Where(
-                        tcv => tcv.Tree.Stratum.Code == s.Code);
+                    List<TreeCalculatedValuesDO> justStrataData = treeData.FindAll(
+                        delegate(TreeCalculatedValuesDO tcv)
+                        {
+                            return tcv.Tree.Stratum.Code == s.Code;
+                        });
                     //  update current title
                     string strataTitle = currentTitle.Replace("X", s.Code);
                     //  set secondary header appropriately
@@ -197,13 +201,13 @@ namespace CruiseProcessing
                             break;
                     }   //  end switch
                     //  load column headers here
-                    IEnumerable<LCDDO> justGroups;
+                    List<LCDDO> justGroups = new List<LCDDO>();
                     if (whatProduct == "BOTH")
-                        justGroups = Global.BL.getLCDOrdered("WHERE Stratum = ?", "GROUP BY Stratum,Species", s.Code, whatCutCode);
+                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = ?", "GROUP BY Stratum,Species", s.Code, whatCutCode);
                     else
-                        justGroups = Global.BL.getLCDOrdered("WHERE Stratum = ?", "GROUP BY Stratum,Species,PrimaryProduct,UOM", s.Code, whatCutCode);
+                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = ?", "GROUP BY Stratum,Species,PrimaryProduct,UOM", s.Code, whatCutCode);
                     //  loop through calculated data to fill stand table
-                    processGroups(justGroups.ToList(), strWriteOut, rh, ref pageNumb, justStrataData, classInterval, s.Code);
+                    processGroups(justGroups, strWriteOut, rh, ref pageNumb, justStrataData, classInterval, s.Code);
 
                 }
                 else
@@ -215,13 +219,14 @@ namespace CruiseProcessing
 
 
         private void CalculateAndPrintSale(int classInterval, string currentTitle, StreamWriter strWriteOut,
-                                            ref int pageNumb, reportHeaders rh, IEnumerable<TreeCalculatedValuesDO> treeData)
+                                            ref int pageNumb, reportHeaders rh)
         {
             //  Header and colums are sale dependent
             reportData.Clear();
 
             //  DIB classes will be the same for each page so load 'em up
-            LoadTreeDIBclasses(Global.BL.getTreeDBH(whatCutCode).Last().DBH, reportData, classInterval);
+            List<TreeDO> justDIBs = bslyr.getTreeDBH(whatCutCode);
+            LoadTreeDIBclasses(justDIBs[justDIBs.Count - 1].DBH, reportData, classInterval);
 
             //  update current title
             string saleTitle = currentTitle.Replace("X", currSale);
@@ -253,24 +258,24 @@ namespace CruiseProcessing
             }   //  end switch
 
             //  how many species groups?  Determines how many pages
-            IEnumerable<LCDDO> speciesGroups = null;
+            List<LCDDO> speciesGroups = new List<LCDDO>();
             switch (GroupedBy)
             {
                 case "SPU":
-                    speciesGroups = Global.BL.getLCDOrdered("", "GROUP BY Species,PrimaryProduct,UOM", whatCutCode, "");
+                    speciesGroups = bslyr.getLCDOrdered("", "GROUP BY Species,PrimaryProduct,UOM", whatCutCode, "");
                     break;
                 case "S":
-                    speciesGroups = Global.BL.getLCDOrdered("", "GROUP BY Species", whatCutCode, "");
+                    speciesGroups = bslyr.getLCDOrdered("", "GROUP BY Species", whatCutCode, "");
                     break;
             }   //  end switch on GroupedBy
 
-            processGroups(speciesGroups?.ToList() ?? new List<LCDDO>(), strWriteOut, rh, ref pageNumb, treeData, classInterval, "");
+            processGroups(speciesGroups, strWriteOut, rh, ref pageNumb, treeData, classInterval, "");
             return;
         }   //  end CalculateAndPrintSale
 
 
         private void processGroups(List<LCDDO> groupsToPrint, StreamWriter strWriteout, reportHeaders rh, 
-                                    ref int pageNumb, IEnumerable<TreeCalculatedValuesDO> currentData,
+                                    ref int pageNumb, List<TreeCalculatedValuesDO> currentData,
                                     int classInterval, string currST)
         {
             numPages = (int)Math.Ceiling((decimal)groupsToPrint.Count / 10);
@@ -310,9 +315,10 @@ namespace CruiseProcessing
                 int tableColumn = 0;
                 for (int k = begGroup; k < endGroup; k++)
                 {
-                    foreach (TreeCalculatedValuesDO cgd in GetCurrentGroup(currentData, groupsToPrint[k]))
+                    List<TreeCalculatedValuesDO> currentGroupData = GetCurrentGroup(currentData, groupsToPrint[k]);
+                    foreach (TreeCalculatedValuesDO cgd in currentGroupData)
                     {
-                        strAcres = Utilities.ReturnCorrectAcres(cgd.Tree.Stratum.Code, (long)cgd.Tree.Stratum_CN);
+                        strAcres = Utilities.ReturnCorrectAcres(cgd.Tree.Stratum.Code, bslyr, (long)cgd.Tree.Stratum_CN);
                         currEF = cgd.Tree.ExpansionFactor;
                         LoadStandTable(cgd, reportData, groupsToPrint, classInterval, tableColumn);
                     }   //  end foreach loop
@@ -372,19 +378,29 @@ namespace CruiseProcessing
         }   //  end LoadColumnHeader
 
 
-        private IEnumerable<TreeCalculatedValuesDO> GetCurrentGroup(IEnumerable<TreeCalculatedValuesDO> treeData, LCDDO jg)
+        private List<TreeCalculatedValuesDO> GetCurrentGroup(List<TreeCalculatedValuesDO> treeData, LCDDO jg)
         {
+            List<TreeCalculatedValuesDO> groupToReturn = new List<TreeCalculatedValuesDO>();
             switch (GroupedBy)
             {
                 case "SPU":
-                    return treeData.Where(
-                        tcv => tcv.Tree.Species == jg.Species &&
+                    groupToReturn = treeData.FindAll(
+                        delegate(TreeCalculatedValuesDO tcv)
+                        {
+                            return tcv.Tree.Species == jg.Species &&
                                 tcv.Tree.SampleGroup.PrimaryProduct == jg.PrimaryProduct &&
-                                tcv.Tree.SampleGroup.UOM == jg.UOM);
+                                tcv.Tree.SampleGroup.UOM == jg.UOM;
+                        });
+                    break;
                 case "S":
-                    return treeData.Where(tcv => tcv.Tree.Species == jg.Species);
+                    groupToReturn = treeData.FindAll(
+                        delegate(TreeCalculatedValuesDO tcv)
+                        {
+                            return tcv.Tree.Species == jg.Species;
+                        });
+                    break;
             }   //  end switch
-            return new List<TreeCalculatedValuesDO>();
+            return groupToReturn;
         }   //  end GetCurrentGroup
 
         private void LoadStandTable(TreeCalculatedValuesDO jsd, List<StandTables> listToLoad, 
@@ -393,8 +409,8 @@ namespace CruiseProcessing
             //  Which row?
             nthRow = FindTreeDIBindex(listToLoad, jsd.Tree.DBH, classInterval);
 
-            //string currMeth = Utilities.MethodLookup(justGroups[whichColumn].Stratum);
-            string currMeth = Utilities.MethodLookup(jsd.Tree.Stratum.Code);
+            //string currMeth = Utilities.MethodLookup(justGroups[whichColumn].Stratum, bslyr);
+            string currMeth = Utilities.MethodLookup(jsd.Tree.Stratum.Code, bslyr);
 
             //  Sum up appropriate value and products
             //  first sum up primary product then check whatProduct to add in secondary
@@ -424,10 +440,14 @@ namespace CruiseProcessing
                                 LoadProperColumn(listToLoad, jsd.Tree.ExpansionFactor, whichColumn);
                             else
                             {
-                                List<LCDDO> allGroups = Global.BL.getLCD().Where(
-                                    l => l.Stratum == jsd.Tree.Stratum.Code &&
+                                List<LCDDO> lcdList = bslyr.getLCD();
+                                List<LCDDO> allGroups = lcdList.FindAll(
+                                    delegate(LCDDO l)
+                                    {
+                                        return l.Stratum == jsd.Tree.Stratum.Code &&
                                         l.SampleGroup == jsd.Tree.SampleGroup.Code &&
-                                            l.Species == jsd.Tree.Species).ToList();
+                                            l.Species == jsd.Tree.Species;
+                                    });
 
                                 double allTallied = allGroups.Sum(ag => ag.TalliedTrees);
                                 double allExpanFac = allGroups.Sum(ag => ag.SumExpanFactor);

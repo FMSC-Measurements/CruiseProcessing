@@ -144,10 +144,11 @@ namespace CruiseProcessing
         }   //  end NumberOfMeasuredPlots
 
 
-        public static double NumberOfPlots(string currST, string fileName)
+        public static double NumberOfPlots(string currST, string fileName, CPbusinessLayer bslyr)
         {
             //  Finds total number of plots
-            return Global.BL.GetStrataPlots(currST).Count();
+            List<PlotDO> pList = bslyr.GetStrataPlots(currST);
+            return pList.Count();
         }   //  end NumberOfPlots
 
 

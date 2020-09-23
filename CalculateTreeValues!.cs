@@ -565,6 +565,7 @@ namespace CruiseProcessing
                 tcvList[nthRow].CordsSP = VOL[8];
                 tcvList[nthRow].GrossBDFTSP = VOL[11];
                 tcvList[nthRow].NetBDFTSP = VOL[12];
+                tcvList[nthRow].TipwoodVolume = VOL[14];
             }
             else if(SecondVolFlag == 0)
             {
@@ -574,10 +575,8 @@ namespace CruiseProcessing
                 tcvList[nthRow].CordsSP = 0;
                 tcvList[nthRow].GrossBDFTSP = 0;
                 tcvList[nthRow].NetBDFTSP = 0;
+                tcvList[nthRow].TipwoodVolume = 0;
             }   //  endif SecondVolFlag
-
-            // save tipwood volume regardless of secondary flag status
-            tcvList[nthRow].TipwoodVolume = VOL[14];
 
             //  save international calcs and number of logs
             tcvList[nthRow].GrossBDFTIntl = VOL[9];
@@ -671,6 +670,7 @@ namespace CruiseProcessing
                 tcvdo.CordsSP = VOL[8];
                 tcvdo.GrossBDFTSP = VOL[11];
                 tcvdo.NetBDFTSP = VOL[12];
+                tcvdo.TipwoodVolume = VOL[14];
 
             }
             else if(SecondVolFlag == 0)
@@ -681,10 +681,8 @@ namespace CruiseProcessing
                 tcvdo.CordsSP = 0;
                 tcvdo.GrossBDFTSP = 0;
                 tcvdo.NetBDFTSP = 0;
+                tcvdo.TipwoodVolume = 0;
             }   //  endif SecondVolFlag
-
-            //  save tipwood volume regardless of secondary flag status
-            tcvdo.TipwoodVolume = VOL[14];
 
             //  save international calcs and number of logs
             tcvdo.GrossBDFTIntl = VOL[9];

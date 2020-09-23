@@ -15,6 +15,7 @@ namespace CruiseProcessing
     {
         #region
         public List<StewProductCosts> stewList = new List<StewProductCosts>();
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public StewardshipProductCosts()
@@ -25,7 +26,8 @@ namespace CruiseProcessing
         public void setupDialog()
         {
             //  pull unique cutting unit, species and primary product to put in stewList
-            foreach (TreeDO js in Global.BL.getUniqueStewardGroups())
+            List<TreeDO> justSpecies = bslyr.getUniqueStewardGroups();
+            foreach (TreeDO js in justSpecies)
             {
                 StewProductCosts spc = new StewProductCosts();
                 spc.costUnit = js.CuttingUnit.Code;
@@ -66,7 +68,7 @@ namespace CruiseProcessing
             }
             else
             {
-                Global.BL.SaveStewCosts(stewList);
+                bslyr.SaveStewCosts(stewList);
                 Close();
                 return;
             }   //  endif no groups included

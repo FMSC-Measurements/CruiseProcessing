@@ -12,40 +12,50 @@ namespace CruiseProcessing
     public static class StratumMethods
     {
         //  edit check functions
-        public static int IsEmpty(IEnumerable<StratumDO> strList)
+        public static int IsEmpty(List<StratumDO> strList)
         {
-            return strList.Any() ? 0 : 25;
             //  checks for empty table
-            //if (strList.Count == 0)
-            //    return 25;
-            //else return 0;
+            if (strList.Count == 0)
+                return 25;
+            else return 0;
         }   //  end IsEmpty
 
 
 
         //  methods pertaining to stratum table
-        public static double CheckMethod(IEnumerable<StratumDO> sList, string currST)
+        public static double CheckMethod(List<StratumDO> sList, string currST)
         {
             //  returns fixed plot size or basal area factor for the current stratum
-            StratumDO sdo = sList.Where(st => st.Code == currST).FirstOrDefault();
-            if (sdo != null)
+            List<StratumDO> rtrnList = sList.FindAll(
+                delegate(StratumDO st)
+                {
+                    return st.Code == currST;
+                });
+            if (rtrnList != null)
             {
-                if (sdo.Method == "F3P" || sdo.Method == "FIX" || 
-                    sdo.Method == "FIXCNT" || sdo.Method == "FCM")
-                    return Convert.ToDouble(sdo.FixedPlotSize);
-                else if (sdo.Method == "P3P" || sdo.Method == "PNT" ||
-                         sdo.Method == "PCMTRE" || sdo.Method == "PCM" ||
-                          sdo.Method == "3PPNT")
-                    return Convert.ToDouble(sdo.BasalAreaFactor);
+                if (rtrnList[0].Method == "F3P" || rtrnList[0].Method == "FIX" || 
+                    rtrnList[0].Method == "FIXCNT" || rtrnList[0].Method == "FCM")
+                    return Convert.ToDouble(rtrnList[0].FixedPlotSize);
+                else if (rtrnList[0].Method == "P3P" || rtrnList[0].Method == "PNT" ||
+                         rtrnList[0].Method == "PCMTRE" || rtrnList[0].Method == "PCM" ||
+                          rtrnList[0].Method == "3PPNT")
+                    return Convert.ToDouble(rtrnList[0].BasalAreaFactor);
                 else return 1;
             }   //  endif rtrnList not null
             return 0;
         }   //  end CheckMethod
 
 
-        public static StratumDO GetStratumCN(string currST, IEnumerable<StratumDO> sList)
+        public static int GetStratumCN(string currST, List<StratumDO> sList)
         {
-            return sList.FirstOrDefault(s => s.Code == currST);
+            int nthRow = sList.FindIndex(
+                delegate(StratumDO s)
+                {
+                    return s.Code == currST;
+                });
+            if (nthRow >= 0)
+                return (int)sList[nthRow].Stratum_CN;
+            return -1;
         }   //  end GetStratumCN
 
 

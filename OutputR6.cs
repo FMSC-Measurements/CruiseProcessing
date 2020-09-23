@@ -40,8 +40,9 @@ namespace CruiseProcessing
                  case "R602":
                      //  June 2017 -- this report uses logging method so if it is blank or null
                      //  cannot generate the report
+                     List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
                      int noMethod = 0;
-                     foreach (CuttingUnitDO ct in Global.BL.getCuttingUnits())
+                     foreach (CuttingUnitDO ct in cutList)
                      {
                          if (ct.LoggingMethod == "" || ct.LoggingMethod == " " || ct.LoggingMethod == null)
                          {
@@ -55,15 +56,17 @@ namespace CruiseProcessing
                          numOlines = 0;
                          fieldLengths = new int[] { 1, 6, 6, 12, 8, 10, 8, 6, 21, 10 };
                          rh.createReportTitle(currentTitle, 7, 41, 0, reportConstants.FCTO, "");
+                         List<CuttingUnitDO> justPaymentUnits = bslyr.getPaymentUnits();
                          // because of the way this report works, each group is written to the output file
                          // in the following function
-                         AccumulatePaymentUnits(Global.BL.getPaymentUnits(), strWriteOut, ref pageNumb, rh);
+                         AccumulatePaymentUnits(justPaymentUnits, strWriteOut, ref pageNumb, rh);
                      }  //  endif noMethod
                      break;
                  case "R604":       case "R605":
                      //  need species list as each table will be a species
+                     List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
                      //  and log records
-                     List<LogStockDO> logList = Global.BL.getCutLogs().ToList();
+                     List<LogStockDO> logList = bslyr.getCutLogs();
 
                      fieldLengths = new int[] { 1, 7, 13, 10, 13, 12, 10, 13, 10, 16, 14, 9 };
                      if (currentReport == "R605")
@@ -74,7 +77,7 @@ namespace CruiseProcessing
                      rh.createReportTitle(currentTitle, 6, 0, 0,
                              "LOG STOCK TABLE  FOR CUT TREES ONLY", volumeType);
                      //  loop through species list to calculate table values
-                     foreach (LCDDO sl in Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", ""))
+                     foreach (LCDDO sl in speciesList)
                      {
                          numOlines = 0;
                          //  pull species from log list
@@ -113,7 +116,7 @@ namespace CruiseProcessing
          }  //  end CreateR6reports
 
 
-         private void AccumulatePaymentUnits(IEnumerable<CuttingUnitDO> justPaymentUnits, StreamWriter strWriteOut,
+         private void AccumulatePaymentUnits(List<CuttingUnitDO> justPaymentUnits, StreamWriter strWriteOut,
                                                 ref int pageNumb, reportHeaders rh)
          {
              //  R602
@@ -127,14 +130,18 @@ namespace CruiseProcessing
              double totalNET08 = 0;
              double payUnitAcres = 0;
 
-             List<PRODO> proList = Global.BL.getPRO().ToList();
-             //List<LCDDO> lcdList = Global.BL.getLCD();
-             IEnumerable<LogStockDO> allLogs = Global.BL.getCutLogs();
+             List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+             List<PRODO> proList = bslyr.getPRO();
+             List<LCDDO> lcdList = bslyr.getLCD();
+             List<LogStockDO> allLogs = bslyr.getCutLogs();
              foreach (CuttingUnitDO jpu in justPaymentUnits)
              {
                  //  find all cutting units for the current payment unit
-                 IEnumerable<CuttingUnitDO> justUnits = Global.BL.getCuttingUnits().Where(
-                     c => c.PaymentUnit == jpu.PaymentUnit);
+                 List<CuttingUnitDO> justUnits = cutList.FindAll(
+                     delegate(CuttingUnitDO c)
+                     {
+                         return c.PaymentUnit == jpu.PaymentUnit;
+                     });
                  payUnitAcres = justUnits.Sum(j => j.Area);
                  double proratFac = 0.0;
                  string prevUOM = "*";
@@ -144,6 +151,9 @@ namespace CruiseProcessing
                      ju.Strata.Populate();
                      foreach (StratumDO stratum in ju.Strata)
                      {
+                         //  need species for the strata
+                         List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
+                                                    "ORDER BY Species", "C", stratum.Code);
                          //  process by species
                          string prevSP = "*";
                          string prevPP = "*";
@@ -154,8 +164,7 @@ namespace CruiseProcessing
                          totalNET08 = 0;
                          //  July 2014 -- need to know the cruise  method to get correct logs/trees
                          string currMeth = stratum.Method;
-                         foreach (LCDDO js in Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
-                                                    "ORDER BY Species", "C", stratum.Code))
+                         foreach (LCDDO js in justSpecies)
                          {
                              //  Store accumulated values for current species as needed
                              if (prevSP == "*")
@@ -222,33 +231,42 @@ namespace CruiseProcessing
                              }  //  endif no species match
 
                              //  find proration factor for current group
-                             PRODO prodo = proList.FirstOrDefault(
-                                 p => p.Stratum == js.Stratum && p.CuttingUnit == ju.Code &&
+                             int nthRow = proList.FindIndex(
+                                 delegate(PRODO p)
+                                 {
+                                     return p.Stratum == js.Stratum && p.CuttingUnit == ju.Code &&
                                          p.SampleGroup == js.SampleGroup && p.CutLeave == "C" &&
-                                         p.PrimaryProduct == js.PrimaryProduct && p.STM == js.STM);
-                             if (prodo != null)
-                                 proratFac = prodo.ProrationFactor;
-                             else
+                                         p.PrimaryProduct == js.PrimaryProduct && p.STM == js.STM;
+                                 });
+                             if (nthRow >= 0)
+                                 proratFac = proList[nthRow].ProrationFactor;
+                             else if (nthRow < 0)
                                  proratFac = 0.0;
 
-                            //  pull logs and sum
-                            IEnumerable<LogStockDO> justLogs;
+                             //  pull logs and sum
+                             List<LogStockDO> justLogs = new List<LogStockDO>();
                              if (currMeth == "100" || js.STM == "Y")
                              {
                                  // need logs from the cutting unit only and not the entire stratum as they aren't truly prorated
-                                 justLogs = allLogs.Where(
-                                     ls => ls.Tree.Stratum.Code == js.Stratum && ls.Tree.CuttingUnit.Code == ju.Code &&
+                                 justLogs = allLogs.FindAll(
+                                     delegate(LogStockDO ls)
+                                     {
+                                         return ls.Tree.Stratum.Code == js.Stratum && ls.Tree.CuttingUnit.Code == ju.Code &&
                                              ls.Tree.Species == js.Species && ls.Tree.SampleGroup.Code == js.SampleGroup &&
                                              ls.Tree.SampleGroup.PrimaryProduct == js.PrimaryProduct &&
-                                             ls.Tree.STM == js.STM);
+                                             ls.Tree.STM == js.STM;
+                                     });
                              }
                              else
                              {
-                                 justLogs = allLogs.Where(
-                                    ls => ls.Tree.Stratum.Code == js.Stratum && ls.Tree.Species == js.Species &&
+                                 justLogs = allLogs.FindAll(
+                                    delegate(LogStockDO ls)
+                                     {
+                                         return ls.Tree.Stratum.Code == js.Stratum && ls.Tree.Species == js.Species &&
                                                 ls.Tree.SampleGroup.Code == js.SampleGroup &&
                                                 ls.Tree.SampleGroup.PrimaryProduct == js.PrimaryProduct &&
-                                                ls.Tree.STM == js.STM);
+                                                ls.Tree.STM == js.STM;
+                                     });
                              }  //  endif on method
                              //  sum by log grade
                              foreach (LogStockDO jl in justLogs)
@@ -348,7 +366,7 @@ namespace CruiseProcessing
                  //  get strata acres if change in strata
                  if (currST != js.Tree.Stratum.Code)
                  {
-                     currAC = Utilities.ReturnCorrectAcres(js.Tree.Stratum.Code, (long)js.Tree.Stratum_CN);
+                     currAC = Utilities.ReturnCorrectAcres(js.Tree.Stratum.Code, bslyr, (long)js.Tree.Stratum_CN);
                      currST = js.Tree.Stratum.Code;
                  }  //  endif on stratum
 
@@ -699,8 +717,12 @@ namespace CruiseProcessing
          private double CalculateAverageDBH(string currSP,string currCL)
          {
              //  need all current species from LCD
-             List<LCDDO> justSpecies = Global.BL.getLCD().Where(
-                l => l.Species == currSP && l.CutLeave == currCL).ToList();
+             List<LCDDO> lcdList = bslyr.getLCD();
+             List<LCDDO> justSpecies = lcdList.FindAll(
+                 delegate(LCDDO l)
+                 {
+                     return l.Species == currSP && l.CutLeave == currCL;
+                 });
              double DBHsum = justSpecies.Sum(j => j.SumDBHOB);
              double EFsum = justSpecies.Sum(j => j.SumExpanFactor);
              if (EFsum > 0)

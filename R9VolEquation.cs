@@ -17,6 +17,7 @@ namespace CruiseProcessing
     {
         #region
         public string fileName;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         ArrayList topwoodSpecies = new ArrayList();
         ArrayList topwoodFlags = new ArrayList();
@@ -36,7 +37,7 @@ namespace CruiseProcessing
         {
             //  Initially, set default equations to whatever is in the volume equation table
             //  if empty, set to Clark
-            volList = Global.BL.getVolumeEquations().ToList();
+            volList = bslyr.getVolumeEquations();
             if (volList.Count > 0)
             {
                 foreach (VolumeEquationDO vel in volList)
@@ -55,14 +56,14 @@ namespace CruiseProcessing
             {
                 //  Need to save equations before user can specify topwood
                 //  Remove all equations as they are rebuilt with either of these calls
-                Global.BL.SaveVolumeEquations(volList);
+                bslyr.SaveVolumeEquations(volList);
                 if (taperEquations.Checked == true)
                     CreateEquations("900CLKE");
                 else if (oldEquations.Checked == true)
                     CreateEquations("900DVEE");
 
                 //  Save equations
-                Global.BL.SaveVolumeEquations(volList);  
+                bslyr.SaveVolumeEquations(volList);  
             }   //  endif equations exist
 
             //  load lists for topwood portion
@@ -96,17 +97,19 @@ namespace CruiseProcessing
             //  Need to save equations before user can change DIBs
             //  Remove all equations as they are rebuilt with either of these calls
             //volList.Clear();
-            //Global.BL.fileName = fileName;
-            //Global.BL.SaveVolumeEquations(volList);
+            //bslyr.fileName = fileName;
+            //bslyr.SaveVolumeEquations(volList);
             //if (taperEquations.Checked == true)
             //    CreateEquations("900CLKE");
             //else if (oldEquations.Checked == true)
             //    CreateEquations("900DVEE");
 
             //  Save equations
-            Global.BL.SaveVolumeEquations(volList);
+            bslyr.SaveVolumeEquations(volList);
             R9TopDIB r9DIB = new R9TopDIB();
             r9DIB.fileName = fileName;
+            r9DIB.bslyr.fileName = fileName;
+            r9DIB.bslyr.DAL = bslyr.DAL;
             r9DIB.setupDialog();
             r9DIB.Show();
             jstDIBs = r9DIB.jstDIB;
@@ -129,18 +132,20 @@ namespace CruiseProcessing
         {
             //  Remove all equations as they are rebuilt with either of these calls
             volList.Clear();
-            Global.BL.SaveVolumeEquations(volList);
+            bslyr.SaveVolumeEquations(volList);
             if (taperEquations.Checked == true)
                 CreateEquations("900CLKE");
             else if (oldEquations.Checked == true)
                 CreateEquations("900DVEE");
 
             //  Save equations
-            Global.BL.SaveVolumeEquations(volList);
+            bslyr.SaveVolumeEquations(volList);
             if(calcBiomass.Checked == true)
             {
                 VolumeEquations ve = new VolumeEquations();
+                ve.bslyr.fileName = fileName;
                 ve.fileName = fileName;
+                ve.bslyr.DAL = bslyr.DAL;
                 ve.updateBiomass(volList);
             }   //  endif calculate biomass
             Close();
@@ -155,11 +160,11 @@ namespace CruiseProcessing
             string currentSpecies;
 
             //  Need to capture DIBs before creating equations
-            List<JustDIBs> oldDIBs = Global.BL.GetJustDIBs().ToList();
+            List<JustDIBs> oldDIBs = bslyr.GetJustDIBs();
 
             //  Grab tree data grouped by unique species and products
             string[,] speciesProduct;
-            speciesProduct = Global.BL.GetUniqueSpeciesProduct();
+            speciesProduct = bslyr.GetUniqueSpeciesProduct();
 
             StringBuilder sb = new StringBuilder();
             double updatedPrimaryDIB = 0.0;
@@ -187,7 +192,7 @@ namespace CruiseProcessing
                     currentSpecies = speciesProduct[k, 0];
 
                     //  build equation
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append(eqnPrefix);
                     //  Fix species code as needed
                     if (currentSpecies.Length == 2)

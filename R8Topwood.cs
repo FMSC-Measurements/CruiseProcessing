@@ -14,6 +14,7 @@ namespace CruiseProcessing
     {
         #region
         public string[] checkStatus = new string[30];
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
 
@@ -139,7 +140,7 @@ namespace CruiseProcessing
                 checkStatus[k] = "0";
 
             // Add species code to checkbox text area and set check to true
-            ArrayList justSpecies = Global.BL.GetJustSpecies("Tree");
+            ArrayList justSpecies = bslyr.GetJustSpecies("Tree");
             
             for (int k = 0; k < justSpecies.Count; k++)
             {

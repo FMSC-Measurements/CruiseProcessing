@@ -21,6 +21,7 @@ namespace CruiseProcessing
 	                                                   "<H2><A name=XXXX>XX</A></H2>",
 	                                                   "<H2><A href=\"#Index\">Back to Index</A></H2>",
 	                                                   "</pre>"};
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public void CreateHTMLfile()
@@ -30,13 +31,13 @@ namespace CruiseProcessing
             string HTMLoutFile;
 
             //  need list of reports selected to build index
-            List<ReportsDO> reportsSelected = Global.BL.GetSelectedReports().ToList();
+            List<ReportsDO> reportsSelected = bslyr.GetSelectedReports();
 
             //  check for equation tables with records to output
-            List<VolumeEquationDO> veList = Global.BL.getVolumeEquations().ToList();
-            List<ValueEquationDO> vaList = Global.BL.getValueEquations().ToList();
-            List<QualityAdjEquationDO> qaList = Global.BL.getQualAdjEquations().ToList();
-            List<BiomassEquationDO> bsList = Global.BL.getBiomassEquations().ToList();
+            List<VolumeEquationDO> veList = bslyr.getVolumeEquations();
+            List<ValueEquationDO> vaList = bslyr.getValueEquations();
+            List<QualityAdjEquationDO> qaList = bslyr.getQualAdjEquations();
+            List<BiomassEquationDO> bsList = bslyr.getBiomassEquations();
 
             if (veList.Count > 0) eqTables[0] = 1;
             if (vaList.Count > 0) eqTables[1] = 1;

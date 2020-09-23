@@ -10,55 +10,99 @@ namespace CruiseProcessing
     public static class POPmethods
     {
         //  methods pertaining to the POP table
-        public static IEnumerable<POPDO> GetCutTrees(IEnumerable<POPDO> POPlist)
+        public static List<POPDO> GetCutTrees(List<POPDO> POPlist)
         {
-            return POPlist.Where(P => P.CutLeave == "C");
+            List<POPDO> rtrnList = POPlist.FindAll(
+                delegate(POPDO P)
+                {
+                    return P.CutLeave == "C";
+                });
+            if(rtrnList != null)
+                return rtrnList;
+
+            return rtrnList;
         }   //  end GetCutTrees
 
 
-        public static IEnumerable<POPDO> GetStratumData(IEnumerable<POPDO> POPlist, string currST, string currCL)
+        public static List<POPDO> GetStratumData(List<POPDO> POPlist, string currST, string currCL)
         {
+            List<POPDO> rtrnList = new List<POPDO>();
             if (currCL != "")
             {
-                return POPlist.Where(p => p.Stratum == currST && p.CutLeave == currCL);
+                rtrnList = POPlist.FindAll(
+                    delegate(POPDO P)
+                    {
+                        return P.Stratum == currST && P.CutLeave == currCL;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }
             else if (currCL == "")
             {
-                return POPlist.Where(p => p.Stratum == currST);
+                rtrnList = POPlist.FindAll(
+                    delegate(POPDO P)
+                    {
+                        return P.Stratum == currST;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif CutLeave
-            return new List<POPDO>();
+            return rtrnList;
         }   //  end GetStratumData
 
-        public static IEnumerable<POPDO> GetStratumData(IEnumerable<POPDO> popList, string currST, string currPP, 
+        public static List<POPDO> GetStratumData(List<POPDO> popList, string currST, string currPP, 
                                                     string currUOM, string currSP, string currSG)
         {
-            return popList.Where(p => p.Stratum == currST && p.CutLeave == "C" && p.PrimaryProduct == currPP &&
-                            p.SecondaryProduct == currSP && p.UOM == currUOM && p.SampleGroup == currSG);
+            List<POPDO> lGroup = popList.FindAll(
+                delegate(POPDO p)
+                {
+                    return p.Stratum == currST && p.CutLeave == "C" && p.PrimaryProduct == currPP &&
+                            p.SecondaryProduct == currSP && p.UOM == currUOM && p.SampleGroup == currSG;
+                });
+            return lGroup;
         }   //  end GetStratumData
 
 
-        public static IEnumerable<POPDO> GetMultipleData(IEnumerable<POPDO> POPlist, string currST, string currSG, 
+        public static List<POPDO> GetMultipleData(List<POPDO> POPlist, string currST, string currSG, 
                                             string currPP, string currSP, string currUOM, string currCL)
         {
+            List<POPDO> rtrnList = new List<POPDO>();
             if (currSP != "")           //  current secondary product
             {
                 //  find records with multiple values
-                return POPlist.Where(P => P.Stratum == currST && P.SampleGroup == currSG && P.PrimaryProduct == currPP && 
-                                P.SecondaryProduct == currSP && P.UOM == currUOM);
+                rtrnList = POPlist.FindAll(
+                    delegate(POPDO P)
+                    {
+                        return P.Stratum == currST && P.SampleGroup == currSG && P.PrimaryProduct == currPP && 
+                                P.SecondaryProduct == currSP && P.UOM == currUOM;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif currSP
 
             if (currCL != "" && currST != "" && currPP != "" && currUOM != "")           //  current cutleave
             {
-                return POPlist.Where(P => P.CutLeave == currCL && P.Stratum == currST && P.SampleGroup == currSG && P.PrimaryProduct == currPP && P.UOM == currUOM);
+                rtrnList = POPlist.FindAll(
+                    delegate(POPDO P)
+                    {
+                        return P.CutLeave == currCL && P.Stratum == currST && P.SampleGroup == currSG && P.PrimaryProduct == currPP && P.UOM == currUOM;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif currCL
 
             //  multiple values
             if (currST != "" && currUOM != "" && currCL != "")
             {
-                return POPlist.Where(p => p.CutLeave == currCL && p.Stratum == currST && p.SampleGroup == currSG && p.UOM == currUOM);
+                rtrnList = POPlist.FindAll(
+                    delegate(POPDO p)
+                    {
+                        return p.CutLeave == currCL && p.Stratum == currST && p.SampleGroup == currSG && p.UOM == currUOM;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif
-
-            return new List<POPDO>();
+            return rtrnList;
         }   //  end GetMultipleData
 
     }

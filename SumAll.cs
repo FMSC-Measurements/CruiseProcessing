@@ -46,42 +46,53 @@ namespace CruiseProcessing
         private double theDenom;
         private double theExpanFac;
         private List<TempPOPvalues> tpopList = new List<TempPOPvalues>();
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
-        public void SumAllValues(string currST, string currMeth, long currST_CN, IEnumerable<StratumDO> sList, IEnumerable<PlotDO> pList,
-                                        IEnumerable<LCDDO> lcdList, IEnumerable<POPDO> popList, IEnumerable<PRODO> proList)
+        public void SumAllValues(string currST, string currMeth, int currST_CN, List<StratumDO> sList, List<PlotDO> pList,
+                                        List<LCDDO> justCurrentLCD, List<POPDO> justCurrentPOP, List<PRODO> justCurrentPRO)
         {
+            string[] listOfields = new string[36] {"GBDFTP","NBDFTP","GBDFTS","NBDFTS","GCUFTP","NCUFTP",
+                                                    "GCUFTS","NCUFTS","TIP","CORDP","CORDS","BDFTR","CUFTR",
+                                                    "CORDR","BDFTREMP","CUFTREMP","TOTCUFT",
+                                                    "BIOMSP","BIOMSS","BIOTS","BIOF","BIOLB","BIODB","BIOTIP",
+                                                    "VALP","VALS","VALR","DBHSUM","DBHSQD","LOGMS",
+                                                    "EXPFAC","TOTHTSUM","MHPSUM","MHSSUM","HUSDSUM","LOGSTOP"};
             //  loops through current LCD for groups to sum
             //  need all tree calculated values too for this stratum
-            //List<TreeCalculatedValuesDO> justThisGroup = new List<TreeCalculatedValuesDO>();
-            foreach (LCDDO ldo in lcdList.Where(lcd => lcd.Stratum == currST))
+            List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues(currST_CN);
+            List<TreeCalculatedValuesDO> justThisGroup = new List<TreeCalculatedValuesDO>();
+            foreach (LCDDO ldo in justCurrentLCD)
             {
                 //  Well, stupid, you need just the current ldo record from the calculated values list
                 //  Plus if the method is FIXCNT, there aren't any records in calculated values because no volume is calculated
                 if (currMeth == "FIXCNT")
                 {
-                    SumUpJustFixcnt(currST_CN, ldo);
+                    SumUpJustFixcnt(currST_CN, ldo, tcvList);
                 }
                 else
                 {
                     //  get just trees for current LCD group
-                    //justThisGroup = Global.BL.GetLCDtrees(currST, ldo, "M");
+                    justThisGroup = bslyr.GetLCDtrees(currST, ldo, "M");
                     //  loop through list of fields to sum
-                    SumUpValues(currST, ldo);
+                    for (int k = 0; k < 35; k++)
+                    {
+                        SumUpValues(ldo, listOfields[k], justThisGroup);
+                    }   //  end for k loop
                 }   //  endif
             }   //  end foreach loop
 
-            // Global.BL.SaveLCD(lcdList);
+            bslyr.SaveLCD(justCurrentLCD);
 
             //  Calculate ratio, plot values, etc. for statistics in POP table
-            foreach (POPDO pdo in POPmethods.GetStratumData(popList, currST, ""))
+            foreach (POPDO pdo in justCurrentPOP)
             {
                 //  Get all trees for this group
-                List<TreeCalculatedValuesDO> currPOPtrees = Global.BL.GetPOPtrees(pdo,currST, "M").ToList();
+                List<TreeCalculatedValuesDO> currPOPtrees = bslyr.GetPOPtrees(pdo,currST, "M");
                 //  Determine if there is recoverable product to accumulate
                 double sumRecover = currPOPtrees.Sum(tcv => tcv.Tree.RecoverablePrimary);
                 //  Also for POP make sure there is secondary to accumulate
-                double sumSecondary = lcdList.Where(lcd => lcd.Stratum == currST).Sum(ld => ld.SumNCUFTtop);
+                double sumSecondary = justCurrentLCD.Sum(ld => ld.SumNCUFTtop);
                 
                 if (currMeth == "3P" || currMeth == "S3P" || currMeth == "F3P" ||
                     currMeth == "P3P" || currMeth == "PCM" || currMeth == "PCMTRE")
@@ -102,8 +113,12 @@ namespace CruiseProcessing
                     //  get fixed plot size for current stratum if FIX or F3P
                     if (currMeth == "FIX" || currMeth == "F3P")
                         theExpanFac = StratumMethods.CheckMethod(sList, currST);
-                    CalculatePlotValues(currMeth, pdo, sumRecover, currPOPtrees,
-                        pList.Where(plt => plt.Stratum_CN == currST_CN));
+                    List<PlotDO> justPlots = pList.FindAll(
+                        delegate(PlotDO plt)
+                        {
+                            return plt.Stratum_CN == currST_CN;
+                        });
+                    CalculatePlotValues(currMeth, pdo, sumRecover, currPOPtrees, justPlots);
                     if (currMeth == "FCM")
                         //  accumulate stage2
                         AccumulateStage2(currPOPtrees, currMeth, pdo, sumRecover);
@@ -119,7 +134,8 @@ namespace CruiseProcessing
                 {
                     //  stage 1 is sum of all plot KPIs so pull stratum from plot table
                     //  and the method will need a separate function since table to sum will be a PlotDO
-                    Accumulate3PPNTstage1(Global.BL.GetStrataPlots(pdo.Stratum), pdo, sumRecover, sumSecondary);
+                    List<PlotDO> currentPlots = bslyr.GetStrataPlots(pdo.Stratum);
+                    Accumulate3PPNTstage1(currentPlots, pdo, sumRecover, sumSecondary);
                     //  stage 2 also needs to be summed for this method
                     AccumulateStage2(currPOPtrees, currMeth, pdo, sumRecover);
                 }
@@ -129,194 +145,190 @@ namespace CruiseProcessing
                 tpopList.Clear();
             }   //  end foreach loop
 
-            //Global.BL.SavePOP(popList);
+            bslyr.SavePOP(justCurrentPOP);
             
             //  Calculate proration factors for this stratum
             double unitAcres = 0;
-            foreach (PRODO prdo in Global.BL.getPRO(currST))
+            foreach (PRODO prdo in justCurrentPRO)
             {
                 //  get unit acres
-                unitAcres = CuttingUnitMethods.GetUnitAcres(Global.BL.getCuttingUnits(), prdo.CuttingUnit);
-                CalculateProration(prdo, unitAcres, currMeth);
+                List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+                unitAcres = CuttingUnitMethods.GetUnitAcres(cutList, prdo.CuttingUnit);
+                CalculateProration(prdo, justCurrentLCD, justCurrentPOP, unitAcres, currMeth);
             }   //  end foreach loop
 
-            Global.BL.SavePRO(proList);
+            bslyr.SavePRO(justCurrentPRO);
 
             return;
         }   //  end SumAllValues
 
 
-        private void SumUpValues(string currST, LCDDO ldo)
+        private void SumUpValues(LCDDO ldo, string fieldToSum, List<TreeCalculatedValuesDO> tcvList)
         {
-            string[] listOfields = new string[36] {"GBDFTP","NBDFTP","GBDFTS","NBDFTS","GCUFTP","NCUFTP",
-                                                    "GCUFTS","NCUFTS","TIP","CORDP","CORDS","BDFTR","CUFTR",
-                                                    "CORDR","BDFTREMP","CUFTREMP","TOTCUFT",
-                                                    "BIOMSP","BIOMSS","BIOTS","BIOF","BIOLB","BIODB","BIOTIP",
-                                                    "VALP","VALS","VALR","DBHSUM","DBHSQD","LOGMS",
-                                                    "EXPFAC","TOTHTSUM","MHPSUM","MHSSUM","HUSDSUM","LOGSTOP"};
-
-            //  sums up field to sum and stores in current object 
-            //int cnt = 0;
+            //  sums up field to sum and stores in current object  
             //  for merch height primary and secondary, need to find by height type
-            var tcvList = Global.BL.GetLCDtrees(currST, ldo, "M");
-
-            var justFeet = tcvList.Where(tv => tv.Tree.TreeDefaultValue.MerchHeightType == "F" ||
+            List<TreeCalculatedValuesDO> justFeet = tcvList.FindAll(
+                delegate(TreeCalculatedValuesDO tv)
+                {
+                    return tv.Tree.TreeDefaultValue.MerchHeightType == "F" ||
                         tv.Tree.TreeDefaultValue.MerchHeightType == "f" ||
                         tv.Tree.TreeDefaultValue.MerchHeightType == "" ||
-                        tv.Tree.TreeDefaultValue.MerchHeightType == null).ToList();
-
+                        tv.Tree.TreeDefaultValue.MerchHeightType == null;
+                });
             List<TreeCalculatedValuesDO> justLogs = new List<TreeCalculatedValuesDO>();
-
             if (justFeet.Count == 0)
             {
                 //  look for height type of "L"
-                justLogs = tcvList.Where(tdo => tdo.Tree.TreeDefaultValue.MerchHeightType == "L" ||
-                            tdo.Tree.TreeDefaultValue.MerchHeightType == "l").ToList();
+                justLogs = tcvList.FindAll(
+                    delegate(TreeCalculatedValuesDO tdo)
+                    {
+                        return tdo.Tree.TreeDefaultValue.MerchHeightType == "L" ||
+                            tdo.Tree.TreeDefaultValue.MerchHeightType == "l";
+                    });
             }   //  endif
-            for (int k = 0; k < 35; k++)
+            switch (fieldToSum)
             {
-                switch (listOfields[k])
-                {
-                    case "GBDFTP":      //  gross BDFT primary product volume
-                        ldo.SumGBDFT = tcvList.Sum(tcv => tcv.GrossBDFTPP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "NBDFTP":      //  net BDFT primary product volume
-                        ldo.SumNBDFT = tcvList.Sum(tcv => tcv.NetBDFTPP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "GBDFTS":      //  gross BDFT secondary product volume
-                        ldo.SumGBDFTtop = tcvList.Sum(tcv => tcv.GrossBDFTSP * tcv.Tree.ExpansionFactor); ;
-                        break;
-                    case "NBDFTS":      //  net BDFT secondary product volume
-                        ldo.SumNBDFTtop = tcvList.Sum(tcv => tcv.NetBDFTSP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "GCUFTP":      //  gross CUFT primary product volume
-                        ldo.SumGCUFT = tcvList.Sum(tcv => tcv.GrossCUFTPP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "NCUFTP":      //  net CUFT primary product volume
-                        ldo.SumNCUFT = tcvList.Sum(tcv => tcv.NetCUFTPP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "GCUFTS":      //  gross CUFT secondary product volume
-                        ldo.SumGCUFTtop = tcvList.Sum(tcv => tcv.GrossCUFTSP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "NCUFTS":      //  net CUFT secondary product volume
-                        ldo.SumNCUFTtop = tcvList.Sum(tcv => tcv.NetCUFTSP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "TIP":
-                        ldo.SumTipwood = tcvList.Sum(tcv => tcv.TipwoodVolume * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "CORDP":       //  primary product cords
-                        ldo.SumCords = tcvList.Sum(tcv => tcv.CordsPP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "CORDS":       //  secondary product cords
-                        ldo.SumCordsTop = tcvList.Sum(tcv => tcv.CordsSP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "CORDR":       //  recovered product cords
-                        ldo.SumCordsRecv = tcvList.Sum(tcv => tcv.CordsRP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BDFTR":       //  BDFT recovered product
-                        ldo.SumBDFTrecv = tcvList.Sum(tcv => tcv.GrossBDFTRP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "CUFTR":       //  CUFT recovered product
-                        ldo.SumCUFTrecv = tcvList.Sum(tcv => tcv.GrossCUFTRP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BDFTREMP":    //  BDFT removed primary product
-                        ldo.SumGBDFTremv = tcvList.Sum(tcv => tcv.GrossBDFTRemvPP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "CUFTREMP":    //  CUFT removed primary product
-                        ldo.SumGCUFTremv = tcvList.Sum(tcv => tcv.GrossCUFTRemvPP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "TOTCUFT":     //  Total cubic
-                        ldo.SumTotCubic = tcvList.Sum(tcv => tcv.TotalCubicVolume * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BIOMSP":      //  Biomass mainstem primary product
-                        ldo.SumWgtMSP = tcvList.Sum(tcv => tcv.BiomassMainStemPrimary * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BIOMSS":      //  Biomass mainstem secondary product
-                        ldo.SumWgtMSS = tcvList.Sum(tcv => tcv.BiomassMainStemSecondary * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BIOTS":       //  Biomass total stem
-                        ldo.SumWgtBAT = tcvList.Sum(tcv => tcv.Biomasstotalstem * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BIOF":        //  Biomass foliage
-                        ldo.SumWgtBFT = tcvList.Sum(tcv => tcv.Biomassfoliage * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BIOLB":       //  Biomass live branches
-                        ldo.SumWgtBBL = tcvList.Sum(tcv => tcv.Biomasslivebranches * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BIODB":       //  Biomass dead branches
-                        ldo.SumWgtBBD = tcvList.Sum(tcv => tcv.Biomassdeadbranches * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "BIOTIP":      //  Biomass tip
-                        ldo.SumWgtTip = tcvList.Sum(tcv => tcv.BiomassTip * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "VALP":        //  Value primary product
-                        ldo.SumValue = tcvList.Sum(tcv => tcv.ValuePP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "VALS":        //  Value secondary product
-                        ldo.SumTopValue = tcvList.Sum(tcv => tcv.ValueSP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "VALR":        //  Value recovered product
-                        ldo.SumValueRecv = tcvList.Sum(tcv => tcv.ValueRP * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "DBHSUM":      //  DBH sum
-                        ldo.SumDBHOB = tcvList.Sum(tcv => tcv.Tree.DBH * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "DBHSQD":      //  DBH squared
-                        ldo.SumDBHOBsqrd = tcvList.Sum(tcv => (Math.Pow(tcv.Tree.DBH, 2)) * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "LOGMS":       //  number of logs mainstem
-                        ldo.SumLogsMS = tcvList.Sum(tcv => tcv.NumberlogsMS * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "EXPFAC":      //  expansion factor
-                        ldo.SumExpanFactor = tcvList.Sum(tcv => tcv.Tree.ExpansionFactor);
-                        break;
-                    case "TOTHTSUM":    //  total height
-                        ldo.SumTotHgt = tcvList.Sum(tcv => tcv.Tree.TotalHeight * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "MHPSUM":      //  merch height primary
-                        if (justFeet.Count > 0)
-                            ldo.SumMerchHgtPrim += justFeet.Sum(tcv => tcv.Tree.MerchHeightPrimary * tcv.Tree.ExpansionFactor);
-                        else if (justFeet.Count == 0)
-                            ldo.SumMerchHgtPrim += justLogs.Sum(tcv => (tcv.Tree.MerchHeightPrimary / 10) * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "MHSSUM":      //  merch height secondary
-                        if (justFeet.Count > 0)
-                            ldo.SumMerchHgtSecond += justFeet.Sum(tcv => tcv.Tree.MerchHeightSecondary * tcv.Tree.ExpansionFactor);
-                        else if (justFeet.Count == 0)
-                            ldo.SumMerchHgtSecond += justLogs.Sum(tcv => (tcv.Tree.MerchHeightSecondary / 10) * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "HUSDSUM":     //  height to upper stem diameter
-                        ldo.SumHgtUpStem = tcvList.Sum(tcv => tcv.Tree.UpperStemHeight * tcv.Tree.ExpansionFactor);
-                        break;
-                    case "LOGSTOP":     //  number of logs topwood
-                        ldo.SumLogsTop = tcvList.Sum(tcv => tcv.NumberlogsTPW * tcv.Tree.ExpansionFactor);
-                        break;
-                }   //  end switch on field to sum
-            }
+                case "GBDFTP":      //  gross BDFT primary product volume
+                    ldo.SumGBDFT = tcvList.Sum(tcv => tcv.GrossBDFTPP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "NBDFTP":      //  net BDFT primary product volume
+                    ldo.SumNBDFT = tcvList.Sum(tcv => tcv.NetBDFTPP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "GBDFTS":      //  gross BDFT secondary product volume
+                    ldo.SumGBDFTtop = tcvList.Sum(tcv => tcv.GrossBDFTSP * tcv.Tree.ExpansionFactor); ;
+                    break;
+                case "NBDFTS":      //  net BDFT secondary product volume
+                    ldo.SumNBDFTtop = tcvList.Sum(tcv => tcv.NetBDFTSP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "GCUFTP":      //  gross CUFT primary product volume
+                    ldo.SumGCUFT = tcvList.Sum(tcv => tcv.GrossCUFTPP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "NCUFTP":      //  net CUFT primary product volume
+                    ldo.SumNCUFT = tcvList.Sum(tcv => tcv.NetCUFTPP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "GCUFTS":      //  gross CUFT secondary product volume
+                    ldo.SumGCUFTtop = tcvList.Sum(tcv => tcv.GrossCUFTSP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "NCUFTS":      //  net CUFT secondary product volume
+                    ldo.SumNCUFTtop = tcvList.Sum(tcv => tcv.NetCUFTSP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "TIP":
+                    ldo.SumTipwood = tcvList.Sum(tcv => tcv.TipwoodVolume * tcv.Tree.ExpansionFactor);
+                    break;
+                case "CORDP":       //  primary product cords
+                    ldo.SumCords = tcvList.Sum(tcv => tcv.CordsPP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "CORDS":       //  secondary product cords
+                    ldo.SumCordsTop = tcvList.Sum(tcv => tcv.CordsSP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "CORDR":       //  recovered product cords
+                    ldo.SumCordsRecv = tcvList.Sum(tcv => tcv.CordsRP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BDFTR":       //  BDFT recovered product
+                    ldo.SumBDFTrecv = tcvList.Sum(tcv => tcv.GrossBDFTRP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "CUFTR":       //  CUFT recovered product
+                    ldo.SumCUFTrecv = tcvList.Sum(tcv => tcv.GrossCUFTRP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BDFTREMP":    //  BDFT removed primary product
+                    ldo.SumGBDFTremv = tcvList.Sum(tcv => tcv.GrossBDFTRemvPP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "CUFTREMP":    //  CUFT removed primary product
+                    ldo.SumGCUFTremv = tcvList.Sum(tcv => tcv.GrossCUFTRemvPP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "TOTCUFT":     //  Total cubic
+                    ldo.SumTotCubic = tcvList.Sum(tcv => tcv.TotalCubicVolume * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BIOMSP":      //  Biomass mainstem primary product
+                    ldo.SumWgtMSP = tcvList.Sum(tcv => tcv.BiomassMainStemPrimary * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BIOMSS":      //  Biomass mainstem secondary product
+                    ldo.SumWgtMSS = tcvList.Sum(tcv => tcv.BiomassMainStemSecondary * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BIOTS":       //  Biomass total stem
+                    ldo.SumWgtBAT = tcvList.Sum(tcv => tcv.Biomasstotalstem * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BIOF":        //  Biomass foliage
+                    ldo.SumWgtBFT = tcvList.Sum(tcv => tcv.Biomassfoliage * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BIOLB":       //  Biomass live branches
+                    ldo.SumWgtBBL = tcvList.Sum(tcv => tcv.Biomasslivebranches * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BIODB":       //  Biomass dead branches
+                    ldo.SumWgtBBD = tcvList.Sum(tcv => tcv.Biomassdeadbranches * tcv.Tree.ExpansionFactor);
+                    break;
+                case "BIOTIP":      //  Biomass tip
+                    ldo.SumWgtTip = tcvList.Sum(tcv => tcv.BiomassTip * tcv.Tree.ExpansionFactor);
+                    break;
+                case "VALP":        //  Value primary product
+                    ldo.SumValue = tcvList.Sum(tcv => tcv.ValuePP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "VALS":        //  Value secondary product
+                    ldo.SumTopValue = tcvList.Sum(tcv => tcv.ValueSP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "VALR":        //  Value recovered product
+                    ldo.SumValueRecv = tcvList.Sum(tcv => tcv.ValueRP * tcv.Tree.ExpansionFactor);
+                    break;
+                case "DBHSUM":      //  DBH sum
+                    ldo.SumDBHOB = tcvList.Sum(tcv => tcv.Tree.DBH * tcv.Tree.ExpansionFactor);
+                    break;
+                case "DBHSQD":      //  DBH squared
+                    ldo.SumDBHOBsqrd =tcvList.Sum(tcv=>(Math.Pow(tcv.Tree.DBH, 2)) * tcv.Tree.ExpansionFactor);
+                    break;
+                case "LOGMS":       //  number of logs mainstem
+                    ldo.SumLogsMS = tcvList.Sum(tcv => tcv.NumberlogsMS * tcv.Tree.ExpansionFactor);
+                    break;
+                case "EXPFAC":      //  expansion factor
+                    ldo.SumExpanFactor = tcvList.Sum(tcv => tcv.Tree.ExpansionFactor);
+                    break;
+                case "TOTHTSUM":    //  total height
+                    ldo.SumTotHgt = tcvList.Sum(tcv => tcv.Tree.TotalHeight * tcv.Tree.ExpansionFactor);
+                    break;
+                case "MHPSUM":      //  merch height primary
+                    if (justFeet.Count > 0)
+                        ldo.SumMerchHgtPrim += justFeet.Sum(tcv => tcv.Tree.MerchHeightPrimary * tcv.Tree.ExpansionFactor);
+                    else if (justFeet.Count == 0)
+                        ldo.SumMerchHgtPrim += justLogs.Sum(tcv => (tcv.Tree.MerchHeightPrimary / 10) * tcv.Tree.ExpansionFactor);
+                    break;
+                case "MHSSUM":      //  merch height secondary
+                    if (justFeet.Count > 0)
+                        ldo.SumMerchHgtSecond += justFeet.Sum(tcv => tcv.Tree.MerchHeightSecondary * tcv.Tree.ExpansionFactor);
+                    else if (justFeet.Count == 0)
+                        ldo.SumMerchHgtSecond += justLogs.Sum(tcv => (tcv.Tree.MerchHeightSecondary / 10) * tcv.Tree.ExpansionFactor);
+                    break;
+                case "HUSDSUM":     //  height to upper stem diameter
+                    ldo.SumHgtUpStem = tcvList.Sum(tcv => tcv.Tree.UpperStemHeight * tcv.Tree.ExpansionFactor);
+                    break;
+                case "LOGSTOP":     //  number of logs topwood
+                    ldo.SumLogsTop = tcvList.Sum(tcv => tcv.NumberlogsTPW * tcv.Tree.ExpansionFactor);
+                    break;
+            }   //  end switch on field to sum
             return;
         }   //  end SumUpValues
 
 
 
-        private void SumUpJustFixcnt(long currSTCN, LCDDO ldo)
+        private void SumUpJustFixcnt(long currST_CN, LCDDO ldo, List<TreeCalculatedValuesDO> stratumTrees)
         {
             //  FIXCNT has no volume calculated so it doesn't show up in the TreeCalculatedValues table
             //  And basically the summed value is the expansion factor, DBH, DBH squared and maybe heights
             //  So need just the count trees for this stratum
             //  This is just for the LCD table
             //  June 2016 -- added the ability to calculatebiomass for this method so need to sum up the biomass fields
-            //List<TreeDO> stratumTrees = Global.BL.JustFIXCNTtrees(currST_CN);
+            //List<TreeDO> stratumTrees = bslyr.JustFIXCNTtrees(currST_CN);
             //  find current group 
-            List<TreeCalculatedValuesDO> justCurrentGroup = Global.BL.getTreeCalculatedValues(currSTCN).Where(
-                tcv =>  tcv.Tree.Species == ldo.Species && tcv.Tree.SampleGroup.CutLeave == ldo.CutLeave &&
+            List<TreeCalculatedValuesDO> justCurrentGroup = stratumTrees.FindAll(
+                delegate(TreeCalculatedValuesDO tcv)
+                {
+                    return tcv.Tree.Species == ldo.Species && tcv.Tree.SampleGroup.CutLeave == ldo.CutLeave &&
                         tcv.Tree.SampleGroup.Code == ldo.SampleGroup &&
                         tcv.Tree.SampleGroup.PrimaryProduct == ldo.PrimaryProduct &&
                         tcv.Tree.SampleGroup.SecondaryProduct == ldo.SecondaryProduct &&
                         tcv.Tree.SampleGroup.UOM == ldo.UOM && tcv.Tree.LiveDead == ldo.LiveDead &&
                         //  September 2016 -- dropping contract species from LCD identifier
                         //tcv.Tree.Grade == ldo.TreeGrade && tcv.Tree.TreeDefaultValue.ContractSpecies == ldo.ContractSpecies &&
-                        tcv.Tree.Grade == ldo.TreeGrade && tcv.Tree.Stratum.YieldComponent == ldo.Yield).ToList();
-
+                        tcv.Tree.Grade == ldo.TreeGrade && tcv.Tree.Stratum.YieldComponent == ldo.Yield;
+                });
             ldo.SumDBHOB = justCurrentGroup.Sum(t => t.Tree.DBH * t.Tree.ExpansionFactor);
             ldo.SumDBHOBsqrd = justCurrentGroup.Sum(t => Math.Pow(t.Tree.DBH, 2) * t.Tree.ExpansionFactor);
             ldo.SumTotHgt = justCurrentGroup.Sum(t => t.Tree.TotalHeight * t.Tree.ExpansionFactor);
@@ -461,7 +473,7 @@ namespace CruiseProcessing
                         //  no recovered for weight
                         //  log a warning if theGrossNumer is zero--means flag not checked
                         if (theGrossNumer == 0)
-                            Utilities.LogError("TreeCalculatedValues", (int)tcv.Tree_CN, "W", "21");
+                            Utilities.LogError("TreeCalculatedValues", (int)tcv.Tree_CN, "W", "21", fileName);
                         break;
                 }   //  end switch
 
@@ -576,7 +588,7 @@ namespace CruiseProcessing
 
 
         private void CalculatePlotValues(string currMethod, POPDO pdo, double recvSum, 
-                                            IEnumerable<TreeCalculatedValuesDO> tcvList, IEnumerable<PlotDO> justPlots)
+                                            List<TreeCalculatedValuesDO> tcvList, List<PlotDO> justPlots)
         {
             double grossSumPP = 0;
             double grossSumSP = 0;
@@ -602,10 +614,13 @@ namespace CruiseProcessing
                 {
                     //  since this totals plot values using tree count, find all trees in Tree for this plot
                     string[] valuesArray = new string[3] { plt.Plot_CN.ToString(), plt.Stratum_CN.ToString(), pdo.SampleGroup };
-                    List<TreeDO> currentSampleGroup =
-                        Global.BL.getTreesOrdered("WHERE Plot_CN = ? AND Stratum_CN = ? ORDER BY ", "TreeNumber", valuesArray)
-                            .Where(t => t.SampleGroup.Code == pdo.SampleGroup).ToList();
-
+                    List<TreeDO> justTrees = bslyr.getTreesOrdered("WHERE Plot_CN = ? AND Stratum_CN = ? ORDER BY ", 
+                                                                "TreeNumber", valuesArray);
+                    List<TreeDO> currentSampleGroup = justTrees.FindAll(
+                        delegate(TreeDO t)
+                        {
+                            return t.SampleGroup.Code == pdo.SampleGroup;
+                        });
                     if (currMethod == "P3P")
                     {
                         theExpanFac = 1.0;
@@ -640,8 +655,12 @@ namespace CruiseProcessing
                             netSumPP += tdo.KPI;
                             valSumPP += tdo.KPI;
                             //  make sure secondary was calculated before summing up KPI
-                            TreeCalculatedValuesDO tcv = tcvList.FirstOrDefault(tv => tv.Tree_CN == tdo.Tree_CN);
-                            if (tcv != null && tcv.NetCUFTSP > 0)
+                            int nthRow = tcvList.FindIndex(
+                                delegate(TreeCalculatedValuesDO tv)
+                                {
+                                    return tv.Tree_CN == tdo.Tree_CN;
+                                });
+                            if (nthRow >= 0 && tcvList[nthRow].NetCUFTSP > 0)
                             {
                                 grossSumSP += tdo.KPI;
                                 netSumSP += tdo.KPI;
@@ -695,9 +714,14 @@ namespace CruiseProcessing
                 }
                 else
                 {
+                    List<TreeCalculatedValuesDO> plotTrees = tcvList.FindAll(
+                        delegate(TreeCalculatedValuesDO tcv)
+                        {
+                            return plt.Plot_CN == tcv.Tree.Plot_CN && tcv.Tree.SampleGroup.Code == pdo.SampleGroup;
+                        });
+                    
                     //  sum up plot tree values
-                    foreach (TreeCalculatedValuesDO pt in
-                        tcvList.Where(tcv => plt.Plot_CN == tcv.Tree.Plot_CN && tcv.Tree.SampleGroup.Code == pdo.SampleGroup))
+                    foreach (TreeCalculatedValuesDO pt in plotTrees)
                     {
                         currPlot = pt.Tree.Plot.PlotNumber.ToString();
                         //  find expansion factor based on method
@@ -781,7 +805,7 @@ namespace CruiseProcessing
                                     //  no recovered product for weight
                                     //  log warning messages if values equal zero - means biomass flag not checked
                                     if (grossSumPP == 0 && netSumPP == 0)
-                                        Utilities.LogError("TreeCalculatedValues", (int)pt.Tree_CN, "W", "21");
+                                        Utilities.LogError("TreeCalculatedValues", (int)pt.Tree_CN, "W", "21", fileName);
                                     break;
                             }   //  end switch on unit of measure
                         }   //  endif on method
@@ -1003,7 +1027,7 @@ namespace CruiseProcessing
         }   //  end AccumulateStage1
 
 
-        public void Accumulate3PPNTstage1(IEnumerable<PlotDO> currPlots, POPDO pdo, double recvSum, double secSum)
+        public void Accumulate3PPNTstage1(List<PlotDO> currPlots, POPDO pdo, double recvSum, double secSum)
         {
             //  function sums plot KPIs for 3PPNT stage 1 values
             double sumValue = 0;
@@ -1349,43 +1373,40 @@ namespace CruiseProcessing
         }   //  end UpdateStage2
 
 
-        private void CalculateProration(PRODO prdo, double unitAcres, string currMethod)
+        private void CalculateProration(PRODO prdo, List<LCDDO> currentLCD, List<POPDO> currentPOP, 
+                                                double unitAcres, string currMethod)
         {
             double proFac = 0;
             double proEst = 0;
 
             //  Find row for current PRO record in the current LCD and POP
             //  Will need to add STM flag when it's added back to structure -- done
-            LCDDO ldo = Global.BL.getLCDrow(prdo);
-
-            //            int LCDrow = currentLCD.FindIndex(
-            //                delegate(LCDDO ldo)
-            //                {
-            //                    return ldo.CutLeave == prdo.CutLeave && ldo.Stratum == prdo.Stratum && 
-            //                           ldo.SampleGroup == prdo.SampleGroup && ldo.PrimaryProduct == prdo.PrimaryProduct && 
-            //                           ldo.SecondaryProduct == prdo.SecondaryProduct && ldo.UOM == prdo.UOM && ldo.STM == prdo.STM;
-            //                });
-            POPDO pdo = Global.BL.getPOProw(prdo);
-
- //           int POProw = currentPOP.FindIndex(
- //              delegate(POPDO pdo)
- //               {
- //                   return pdo.CutLeave == prdo.CutLeave && pdo.Stratum == prdo.Stratum &&
- //                          pdo.SampleGroup == prdo.SampleGroup && pdo.PrimaryProduct == prdo.PrimaryProduct &&
- //                          pdo.SecondaryProduct == prdo.SecondaryProduct && pdo.UOM == prdo.UOM && pdo.STM == prdo.STM;
- //               });
+            int LCDrow = currentLCD.FindIndex(
+                delegate(LCDDO ldo)
+                {
+                    return ldo.CutLeave == prdo.CutLeave && ldo.Stratum == prdo.Stratum && 
+                           ldo.SampleGroup == prdo.SampleGroup && ldo.PrimaryProduct == prdo.PrimaryProduct && 
+                           ldo.SecondaryProduct == prdo.SecondaryProduct && ldo.UOM == prdo.UOM && ldo.STM == prdo.STM;
+                });
+            int POProw = currentPOP.FindIndex(
+                delegate(POPDO pdo)
+                {
+                    return pdo.CutLeave == prdo.CutLeave && pdo.Stratum == prdo.Stratum &&
+                           pdo.SampleGroup == prdo.SampleGroup && pdo.PrimaryProduct == prdo.PrimaryProduct &&
+                           pdo.SecondaryProduct == prdo.SecondaryProduct && pdo.UOM == prdo.UOM && pdo.STM == prdo.STM;
+                });
 
             //  Calculate proration factor and proratio estimate based on method
             switch (currMethod)
             {
                 case "3P":
-                    if (pdo != null)
+                    if (POProw >= 0)
                     {
-                        if (pdo.SumKPI > 0)
-                            proFac = prdo.SumKPI / pdo.SumKPI;
+                        if (currentPOP[POProw].SumKPI > 0)
+                            proFac = prdo.SumKPI / currentPOP[POProw].SumKPI;
                     }   //  endif on POProw
-                    if (ldo != null)
-                        proEst = ldo.SumExpanFactor;
+                    if (LCDrow >= 0)
+                        proEst = currentLCD[LCDrow].SumExpanFactor;
                     break;
                 case "100":
                     proFac = 1.0;
@@ -1393,13 +1414,13 @@ namespace CruiseProcessing
                     break;
                 case "S3P":
                 case "STR":
-                    if (pdo != null)
+                    if (POProw >= 0)
                     {
-                        if (pdo.TalliedTrees > 0)
-                            proFac = prdo.TalliedTrees / pdo.TalliedTrees;
+                        if (currentPOP[POProw].TalliedTrees > 0)
+                            proFac = prdo.TalliedTrees / currentPOP[POProw].TalliedTrees;
                     }   //  endif on POProw
-                    if (ldo != null)
-                        proEst = ldo.SumExpanFactor;
+                    if (LCDrow >= 0)
+                        proEst = currentLCD[LCDrow].SumExpanFactor;
                     break;
                 default:
                     proFac = unitAcres;
@@ -1413,10 +1434,8 @@ namespace CruiseProcessing
 
             prdo.ProrationFactor = proFac;
             prdo.ProratedEstimatedTrees = proEst;
-
             return;
         }   //  end CalculateProration
-       
 
 
     }   //  end class SumAll

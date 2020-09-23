@@ -9,36 +9,34 @@ using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
-    public static class TreeListMethods
+    public class TreeListMethods
     {
         //  edit checks
-        public static int IsEmpty(IEnumerable<TreeDO> tList)
+        public int IsEmpty(List<TreeDO> tList)
         {
-            return tList.Any() ? 0 : 25;
-            //if (tList.Count == 0)
-            //    return 25;
-            //else return 0;
+            if (tList.Count == 0)
+                return 25;
+            else return 0;
         }   //  end IsEmpty
         
 
 
-        public static int GeneralChecks(IEnumerable<TreeDO> justMeasured, string currRegion)
+        public int GeneralChecks(List<TreeDO> justMeasured, string currRegion)
         {
-                      int errorsFound = 0;
+            int errorsFound = 0;
+            ErrorLogMethods elm = new ErrorLogMethods();
             //  check for missing species, product or uom when tree count 
             //  is greater than zero or DBH is greater than zero
-            var errList = justMeasured.Where(tree => tree.Species == "" && tree.SampleGroup.PrimaryProduct == "" && tree.SampleGroup.UOM == "");
-
-//            List<TreeDO> errList = justMeasured.FindAll(
-//                delegate(TreeDO tErr)
-//                {
-//                    return tErr.Species == "" && tErr.SampleGroup.PrimaryProduct == "" && tErr.SampleGroup.UOM == "";
-//                });
+            List<TreeDO> errList = justMeasured.FindAll(
+                delegate(TreeDO tErr)
+                {
+                    return tErr.Species == "" && tErr.SampleGroup.PrimaryProduct == "" && tErr.SampleGroup.UOM == "";
+                });
             foreach (TreeDO tdo in errList)
             {
                 if (tdo.TreeCount > 0 || tdo.DBH > 0)
                 {
-                    ErrorLogMethods.LoadError("Tree", "E", "21", (long)tdo.Tree_CN, "Species");
+                    elm.LoadError("Tree", "E", "21", (long)tdo.Tree_CN, "Species");
                     errorsFound++;
                 }   //  endif tree count or DBH greater than zero
             }   //  end foreach loop
@@ -49,7 +47,7 @@ namespace CruiseProcessing
                 if (tdo.UpperStemDiameter > tdo.DBH)
                 //if(tdo.UpperStemDOB > tdo.DBH)
                 {
-                    ErrorLogMethods.LoadError("Tree", "E", "18", (long)tdo.Tree_CN, "UpperStemDiameter");
+                    elm.LoadError("Tree", "E", "18", (long)tdo.Tree_CN, "UpperStemDiameter");
                     errorsFound++;
                 }   //  endif
 
@@ -59,7 +57,7 @@ namespace CruiseProcessing
                 {
                     if (tdo.RecoverablePrimary > tdo.SeenDefectPrimary)
                     {
-                        ErrorLogMethods.LoadError("Tree", "E", "29", (long)tdo.Tree_CN, "RecoverablePrimary");
+                        elm.LoadError("Tree", "E", "29", (long)tdo.Tree_CN, "RecoverablePrimary");
                         errorsFound++;
                     }   //  endif recoverable > than seen defect
                 }   //  endif on region
@@ -70,7 +68,7 @@ namespace CruiseProcessing
                 {
                     if (tdo.TopDIBSecondary > tdo.TopDIBPrimary)
                     {
-                        ErrorLogMethods.LoadError("Tree", "E", "4", (long)tdo.Tree_CN, "TopDIBSecondary");
+                        elm.LoadError("Tree", "E", "4", (long)tdo.Tree_CN, "TopDIBSecondary");
                         errorsFound++;
                     }   //  endif dibs 
                 }   //  endif
@@ -81,7 +79,7 @@ namespace CruiseProcessing
                     tdo.MerchHeightSecondary == 0 &&
                     tdo.UpperStemHeight == 0)
                 {
-                    ErrorLogMethods.LoadError("Tree", "E", "32", (long)tdo.Tree_CN, "Height");
+                    elm.LoadError("Tree", "E", "32", (long)tdo.Tree_CN, "Height");
                     errorsFound++;
                 }   //  endif
 
@@ -89,7 +87,7 @@ namespace CruiseProcessing
                 //  check for null tree default value CN
                 if (tdo.TreeDefaultValue_CN == null)
                 {
-                    ErrorLogMethods.LoadError("Tree", "E", "31", (long)tdo.Tree_CN, "TreeDefaultValue");
+                    elm.LoadError("Tree", "E", "31", (long)tdo.Tree_CN, "TreeDefaultValue");
                     errorsFound++;
                 }   //  endif
 
@@ -98,7 +96,7 @@ namespace CruiseProcessing
                 //  can impact certain reports
                 if (tdo.Grade == "" || tdo.Grade == " " || tdo.Grade == null)
                 {
-                    ErrorLogMethods.LoadError("Tree", "E", "8", (long)tdo.Tree_CN, "Tree Grade");
+                    elm.LoadError("Tree", "E", "8", (long)tdo.Tree_CN, "Tree Grade");
                     errorsFound++;
                 }   //  endif on tree grade
             }   //  foreach on measured trees
@@ -110,63 +108,111 @@ namespace CruiseProcessing
 
 
         //  methods pertaining to tree table and/or tree calculated values        
-        public static IEnumerable<TreeDO> GetCurrentStratum(IEnumerable<TreeDO> tList, string currST)
+        public List<TreeDO> GetCurrentStratum(List<TreeDO> tList, string currST)
         {
+            List<TreeDO> rtrnList = new List<TreeDO>();
+            
             //  all current stratum trees
-            return tList.Where(td => td.Stratum.Code == currST);
+            rtrnList = tList.FindAll(
+                delegate(TreeDO td)
+                {
+                    return td.Stratum.Code == currST;
+                });
+            if (rtrnList != null)
+                return rtrnList;
+
+            return rtrnList;
         }   //  end GetCurrentStratum
 
 
-        public static IEnumerable<TreeDO> GetCutLeave(IEnumerable<TreeDO> tList, string currCL, string currCM)
+        public List<TreeDO> GetCutLeave(List<TreeDO> tList, string currCL, string currCM)
         {
+            List<TreeDO> rtrnList = new List<TreeDO>();
             //  all cut/leave trees and/or count/measure
             if(currCM == "")
             {
-                return tList.Where(td => td.SampleGroup.CutLeave == currCL);
+                rtrnList = tList.FindAll(
+                    delegate(TreeDO td)
+                    {
+                        return td.SampleGroup.CutLeave == currCL;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }
             else if(currCM != "")       //  with count measure code
             {
-                return tList.Where(td => td.SampleGroup.CutLeave == currCL && td.CountOrMeasure == currCM);
+                rtrnList = tList.FindAll(
+                    delegate(TreeDO td)
+                    {
+                        return td.SampleGroup.CutLeave == currCL && td.CountOrMeasure == currCM;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif there is count measure code
 
-            return new List<TreeDO>();
+            return rtrnList;
         }   //  end GetCutLeave
 
 
         //  get current stratum and something else
-        public static IEnumerable<TreeDO> GetCurrentStratumAndSomethingElse(IEnumerable<TreeDO> tList, string currST, 
+        public List<TreeDO> GetCurrentStratumAndSomethingElse(List<TreeDO> tList, string currST, 
                                                                         string currCM, string currCL)
         {
+            List<TreeDO> rtrnList = new List<TreeDO>();
             if (currCL != "" && currCM != "")
             {
-               return tList.Where(tdo => tdo.Stratum.Code == currST && tdo.SampleGroup.CutLeave == currCL && tdo.CountOrMeasure == currCM);
+                rtrnList = tList.FindAll(
+                    delegate(TreeDO tdo)
+                    {
+                        return tdo.Stratum.Code == currST && tdo.SampleGroup.CutLeave == currCL && tdo.CountOrMeasure == currCM;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif both are not blank
 
             if (currCM != "" && currCL == "")
             {
-                return tList.Where(tdo => tdo.Stratum.Code == currST && tdo.CountOrMeasure == currCM);
+                rtrnList = tList.FindAll(
+                    delegate(TreeDO tdo)
+                    {
+                        return tdo.Stratum.Code == currST && tdo.CountOrMeasure == currCM;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif currCM not blank
 
             if (currCL != "" && currCM == "")
             {
-                return tList.Where(tdo => tdo.Stratum.Code == currST && tdo.SampleGroup.CutLeave == currCL);
+                rtrnList = tList.FindAll(
+                    delegate(TreeDO tdo)
+                    {
+                        return tdo.Stratum.Code == currST && tdo.SampleGroup.CutLeave == currCL;
+                    });
+                if (rtrnList != null)
+                    return rtrnList;
             }   //  endif currCL not blank
 
-            return new List<TreeDO>();
+            return rtrnList;
 
         }   //  end GetCurrentStratumAndSomethingElse
 
 
 
 
-        public static IEnumerable<TreeDO> GetInsuranceTrees(IEnumerable<TreeDO> tList, string currSG, string currSP, string currST)
+        public List<TreeDO> GetInsuranceTrees(List<TreeDO> tList, string currSG, string currSP, string currST)
         {
-            return tList.Where(td => td.SampleGroup.Code == currSG && td.Species == currSP && 
-                            td.CountOrMeasure == "I" && td.Stratum.Code == currST);
+            List<TreeDO> insuranceTrees = new List<TreeDO>();
+            insuranceTrees = tList.FindAll(
+                delegate(TreeDO td)
+                {
+                    return td.SampleGroup.Code == currSG && td.Species == currSP && 
+                            td.CountOrMeasure == "I" && td.Stratum.Code == currST;
+                });
+            return insuranceTrees;
         } //  end GetInsuranceTrees
 
 
-        public static ArrayList CheckForData(IEnumerable<TreeDO> tList)
+        public ArrayList CheckForData(List<TreeDO> tList)
         {
             ArrayList fieldsToPrint = new ArrayList();
             double summedValue = 0;
@@ -399,7 +445,7 @@ namespace CruiseProcessing
         }   //  end CheckForData
 
 
-        public static string[] BuildColumnHeaders(string[] reportColumns, ArrayList FieldsToPrint)
+        public string[] BuildColumnHeaders(string[] reportColumns, ArrayList FieldsToPrint)
         {
             //  used mostly for A2 reports
             //  Turn horizontal to vertical
@@ -448,14 +494,14 @@ namespace CruiseProcessing
                 //  add completed string to header
                 completedHeader[n] = sb.ToString();
                 nthPosition++;
-                sb.Remove(0, sb.Length);
+                sb.Clear();
             }   //  end for n loop
 
             return completedHeader;
         }   //  end BuildColumnHeaders
 
         //  build print array for A03 report -- individual tree listing
-        public static void buildPrintArray(TreeDO tdo, ArrayList fieldsToPrint, ref int[] fieldLengths, 
+        public void buildPrintArray(TreeDO tdo, ArrayList fieldsToPrint, ref int[] fieldLengths, 
                                             ref ArrayList prtFields)
         {
             for (int k = 0; k < fieldsToPrint.Count; k++)
@@ -695,7 +741,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray for A03 report
 
         //  Builds print array for remarks in the A03 report
-        public static ArrayList buildRemarksArray(TreeDO tdo)
+        public ArrayList buildRemarksArray(TreeDO tdo)
         {
             ArrayList remarksArray = new ArrayList();
             remarksArray.Add(" ");
@@ -709,9 +755,8 @@ namespace CruiseProcessing
             return remarksArray;
         }   //  end buildRemarksArray for A03 report
 
-
         //  probably going to have several build print array functions for various reports
-        public static ArrayList buildPrintArray(TreeDO tl, string cruiseName, IEnumerable<TreeCalculatedValuesDO> cvList,
+        public ArrayList buildPrintArray(TreeDO tl, string cruiseName, List<TreeCalculatedValuesDO> cvList,
                                         int hgtOne, int hgtTwo, string volType)
         {
             //  builds line for A5 or A7 reports (A05 and A07 now)
@@ -723,7 +768,11 @@ namespace CruiseProcessing
 
             ArrayList treeArray = new ArrayList();
             //  first need line for calculated values for this tree (tl)
-            TreeCalculatedValuesDO oneTree = cvList.First(cv => cv.Tree_CN == tl.Tree_CN);
+            TreeCalculatedValuesDO oneTree = cvList.Find(
+                delegate(TreeCalculatedValuesDO cv)
+                {
+                    return cv.Tree_CN == tl.Tree_CN;
+                });
             //  Load array
             treeArray.Add(" ");
             treeArray.Add(tl.Stratum.Code.PadLeft(2, ' '));
@@ -827,7 +876,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public static ArrayList buildPrintArray(TreeDO tdo, IEnumerable<TreeCalculatedValuesDO> tcvList, int hgtOne, int hgtTwo,
+        public ArrayList buildPrintArray(TreeDO tdo, List<TreeCalculatedValuesDO> tcvList, int hgtOne, int hgtTwo,
                                                 string contentType)
         {
             //  overloaded for Biomass Data report --- A10
@@ -840,7 +889,11 @@ namespace CruiseProcessing
             string fieldFormat6 = "{0,6:F0}";
 
             //  find coordinating calculated values for current tree
-            TreeCalculatedValuesDO oneTree = tcvList.First(tcvdo => tcvdo.Tree_CN == tdo.Tree_CN);
+            TreeCalculatedValuesDO oneTree = tcvList.Find(
+                delegate(TreeCalculatedValuesDO tcvdo)
+                {
+                    return tcvdo.Tree_CN == tdo.Tree_CN;
+                });
             //  load print array
             treeArray.Add(" ");
             treeArray.Add(tdo.Stratum.Code.PadLeft(2, ' '));
@@ -932,7 +985,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public static ArrayList buildPrintArray(TreeDO tdo)
+        public ArrayList buildPrintArray(TreeDO tdo)
         {
             //  overloaded for geospatial report -- tree page (A13)
             ArrayList treeArray = new ArrayList();

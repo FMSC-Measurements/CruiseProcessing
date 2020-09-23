@@ -35,7 +35,7 @@ namespace CruiseProcessing
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            List<LCDDO> lcdList = bslyr.getLCD();;
 
             //  is there any data for the report
             switch (currentReport)
@@ -90,9 +90,8 @@ namespace CruiseProcessing
                     fieldLengths = new int[] { 2, 6, 8, 4, 4, 7, 8, 11, 12, 6, 12, 11, 11, 14, 10, 5 };
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
                     //  pull groups from LCD
-                    createR101(
-                        Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY UOM,PrimaryProduct,Species,ContractSpecies", "C", ""),
-                        strWriteOut, ref pageNum, rh, lcdList);
+                    List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY UOM,PrimaryProduct,Species,ContractSpecies", "C", "");
+                    createR101(speciesList, strWriteOut, ref pageNum, rh, lcdList);
                     break;
                 case "R102":
                 case "R103":
@@ -102,10 +101,11 @@ namespace CruiseProcessing
                     if (currentReport == "R103")
                         volTitle = reportConstants.volumeType.Replace("XXXXX", "CUBIC");
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, volTitle);
+                    List<CuttingUnitDO> justMethods = bslyr.getLoggingMethods();
                     //  June 2017 -- these reports are by logging method so if blank or null
                     //  cannot generate the reports
                     int noMethod = 0;
-                    foreach (CuttingUnitDO jm in Global.BL.getLoggingMethods())
+                    foreach (CuttingUnitDO jm in justMethods)
                     {
                         if(jm.LoggingMethod == " " || jm.LoggingMethod == null)
                         {
@@ -119,11 +119,12 @@ namespace CruiseProcessing
                         //  determine which heights to use for mean height calculation
                         int hgtOne = 0;
                         int hgtTwo = 0;
-                        whichHeightFields(ref hgtOne, ref hgtTwo, Global.BL.getTrees());
+                        List<TreeDO> tList = bslyr.getTrees();
+                        whichHeightFields(ref hgtOne, ref hgtTwo, tList);
 
                         //  accumulate data by logging method
                         completeHeader = createCompleteHeader();
-                        AccumulateLogMethods(Global.BL.getLoggingMethods(), hgtOne);
+                        AccumulateLogMethods(justMethods, hgtOne);
                         WriteCurrentMethods(strWriteOut, ref pageNum, rh);
 
                         //  output overall total
@@ -135,21 +136,23 @@ namespace CruiseProcessing
                     fieldLengths = new[] { 3, 8, 12, 12, 11, 11, 8, 9, 5 };
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCLT, "");
                     //  This report will be by stratum and cutting unit so get all stratum first
-                    createR104(Global.BL.getStratum(), strWriteOut, ref pageNum, rh);
+                    List<StratumDO> orderedStrata = bslyr.getStratum();
+                    createR104(orderedStrata, strWriteOut, ref pageNum, rh);
                     break;
                 case "R105":
                     numOlines = 0;
                     // section one -- volume summary by ubit
                     fieldLengths = new[] { 4, 7, 10, 10, 11, 10, 11, 11, 9, 11 };
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, " ");
-                    List<CuttingUnitDO> cList = Global.BL.getCuttingUnits().ToList();
-                    List<LCDDO> ldList = Global.BL.getLCD().ToList();
+                    List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
+                    List<LCDDO> ldList = bslyr.getLCD();
+                    List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
                     AccumulateValuesAndPrint(strWriteOut,cList, ldList);
                     WriteSectionOne(strWriteOut, ref pageNum, rh, rRH);
 
                     //  section two -- subtitaks by species only.
                     fieldLengths = new[] { 10, 7, 10, 12, 11, 11, 11, 11, 11, 11};
-                    //                    List<LCDDO> lList = Global.BL.getLCD();
+//                    List<LCDDO> lList = bslyr.getLCD();
                     AccumulateSubtotalAndPrint(strWriteOut, cList, ldList);
                     WriteSectionTwo(strWriteOut, ref pageNum, rh, rRH);
 
@@ -163,8 +166,8 @@ namespace CruiseProcessing
         }   //  end CreateR1reports
 
 
-        private void createR101(IEnumerable<LCDDO> speciesList, StreamWriter strWriteOut, ref int pageNum, 
-                                reportHeaders rh, IEnumerable<LCDDO> lcdList)
+        private void createR101(List<LCDDO> speciesList, StreamWriter strWriteOut, ref int pageNum, 
+                                reportHeaders rh, List<LCDDO> lcdList)
         {
             //  generates R101 report
             string currCS = "*";
@@ -211,7 +214,7 @@ namespace CruiseProcessing
         }   //  end createR101
 
 
-        private void createR104(IEnumerable<StratumDO> orderedStrata, StreamWriter strWriteOut, ref int pageNum,
+        private void createR104(List<StratumDO> orderedStrata, StreamWriter strWriteOut, ref int pageNum,
                                 reportHeaders rh)
         {
             //  then process by stratum and cutting unit
@@ -277,7 +280,7 @@ namespace CruiseProcessing
         }   //  end createR104
 
 
-        private void AccumulateVolumes(IEnumerable<LCDDO> lcdList, string currCS, string currSP, string currPP)
+        private void AccumulateVolumes(List<LCDDO> lcdList, string currCS, string currSP, string currPP)
         {
             //  R101
             double currGB = 0;
@@ -289,16 +292,26 @@ namespace CruiseProcessing
             currLOGS = 0;
             currDBH = 0;
             currEF = 0;
+            List<StratumDO> sList = bslyr.getStratum();
             //  pull current group from LCD
+            List<LCDDO> justCurrentGroup = lcdList.FindAll(
+                delegate(LCDDO l)
+                {
+                    return l.ContractSpecies == currCS && l.Species == currSP && l.PrimaryProduct == currPP;
+                });
 
             //  going to need proration factor for sample group and unit on each LCD record
-            foreach (LCDDO jcg in
-                lcdList.Where(l => l.ContractSpecies == currCS && l.Species == currSP && l.PrimaryProduct == currPP))
+            List<PRODO> proList = bslyr.getPRO();
+            foreach (LCDDO jcg in justCurrentGroup)
             {
                 currUOM = jcg.UOM;
                 //  get all units for stratum and sample group
-                foreach (PRODO ju in Global.BL.getPRO()
-                    .Where(p => p.CutLeave == "C" && p.Stratum == jcg.Stratum && p.SampleGroup == jcg.SampleGroup))
+                List<PRODO> justUnits = proList.FindAll(
+                    delegate(PRODO p)
+                    {
+                        return p.CutLeave == "C" && p.Stratum == jcg.Stratum && p.SampleGroup == jcg.SampleGroup;
+                    });
+                foreach (PRODO ju in justUnits)
                 {
                     //  sum DBH
                     currDBH += jcg.SumDBHOB * ju.ProrationFactor;
@@ -312,9 +325,13 @@ namespace CruiseProcessing
                     currLOGS += jcg.SumLogsMS * ju.ProrationFactor;
                     //  total EF
                     //  need method to get appropriate EF total
-                    StratumDO stratum = Global.BL.getStratum().FirstOrDefault(s => s.Code == jcg.Stratum);
-                    if (stratum != null)
-                        currMeth = stratum.Method;
+                    int nthRow = sList.FindIndex(
+                        delegate(StratumDO s)
+                        {
+                            return s.Code == jcg.Stratum;
+                        });
+                    if (nthRow >= 0)
+                        currMeth = sList[nthRow].Method;
                     switch (currMeth)
                     {
                         case "S3P":
@@ -352,7 +369,7 @@ namespace CruiseProcessing
         }   //  end AccumulateVolumes
 
 
-        private void AccumulateLogMethods(IEnumerable<CuttingUnitDO> justMethods, int hgtOne)
+        private void AccumulateLogMethods(List<CuttingUnitDO> justMethods, int hgtOne)
         {
             //  R102/R103
             currGRS = 0;
@@ -367,17 +384,24 @@ namespace CruiseProcessing
             double currSLP = 0;
             double slopeCnt = 0;
             double unitAC = 0;
-            string[] prodList = new string[5] { "01", "02", "06", "08", "14" };
+            string[] prodList = new string[6] { "01", "02", "06", "07", "08", "14" };
             //  need unit list and PRO list
-            List<CuttingUnitDO> cutList = Global.BL.getCuttingUnits().ToList();
-            List<PRODO> proList = Global.BL.getPRO().ToList();
+            List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+            List<PRODO> proList = bslyr.getPRO();
             //  accumulate sums by logging method
             foreach (CuttingUnitDO jm in justMethods)
             {
+                //  find all units for current method
+                List<CuttingUnitDO> justUnits = cutList.FindAll(
+                    delegate(CuttingUnitDO c)
+                    {
+                        return c.LoggingMethod == jm.LoggingMethod;
+                    });
+
                 // process by product code
                 for (int j = 0; j < 5; j++)
                 {
-                foreach (CuttingUnitDO ju in cutList.Where(c => c.LoggingMethod == jm.LoggingMethod))
+                foreach (CuttingUnitDO ju in justUnits)
                 {
                     unitAC += ju.Area;
                     ju.Strata.Populate();
@@ -385,8 +409,9 @@ namespace CruiseProcessing
                         foreach (StratumDO stratum in ju.Strata)
                         {
                             //  pull strata from lcdList
-                            foreach (LCDDO js in Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? AND PrimaryProduct = ?",
-                                                                        "", "C", stratum.Code, prodList[j]))
+                            List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? AND PrimaryProduct = ?",
+                                                                        "", "C", stratum.Code, prodList[j]);
+                            foreach (LCDDO js in justStrata)
                             {
                                 //  find proration factor for the group
                                 int nthRow = proList.FindIndex(
@@ -449,9 +474,9 @@ namespace CruiseProcessing
                                 else currEF += js.SumExpanFactor * proratFactor;
                             }   //  end foreach loop on justStrata
                             //  Sum slope percent for this stratum
-                            List<PlotDO> justSlope = Global.BL.GetStrataPlots(stratum.Code).ToList();
+                            List<PlotDO> justSlope = bslyr.GetStrataPlots(stratum.Code);
                             currSLP += justSlope.Sum(s => s.Slope);
-                            slopeCnt += justSlope.Count;
+                            slopeCnt += justSlope.Count();
 
                         }   //  end for loop on strata list
                     }   //  end foreach loop on stratum
@@ -536,11 +561,13 @@ namespace CruiseProcessing
         private void AccumulateBasalArea(string currST, string currCU, float currAC, string currCL)
         {
             //  R104
-            List<TreeDO> tList = Global.BL.getTrees().ToList();
+            List<TreeDO> tList = bslyr.getTrees();
+            List<PRODO> proList = bslyr.getPRO();
             double currBA = 0;
 
             //  get groups from LCD
-            foreach (LCDDO jg in Global.BL.GetLCDdata("WHERE Stratum = ? GROUP BY SampleGroup,Species,PrimaryProduct,CutLeave", currST))
+            List<LCDDO> justGroups = bslyr.GetLCDdata("WHERE Stratum = ? GROUP BY SampleGroup,Species,PrimaryProduct,CutLeave", currST);
+            foreach (LCDDO jg in justGroups)
             {
                 //  pull tree data for each cutting unit and group for average DBH
                 //  then need all trees in the strata for the species/SG group for summed BA
@@ -571,11 +598,14 @@ namespace CruiseProcessing
                     currEF = justTrees.Sum(j => j.ExpansionFactor);
 
                     //  what's the proration factor for this group?
-                    PRODO prodo = Global.BL.getPRO().FirstOrDefault(
-                        p => p.Stratum == currST && p.CuttingUnit == currCU &&
+                    int nthRow = proList.FindIndex(
+                        delegate(PRODO p)
+                        {
+                            return p.Stratum == currST && p.CuttingUnit == currCU &&
                                         p.SampleGroup == jg.SampleGroup && 
                                         p.PrimaryProduct == jg.PrimaryProduct &&
-                                        p.CutLeave == jg.CutLeave);
+                                        p.CutLeave == jg.CutLeave;
+                        });
                     //  store this group for printing
                     RegionalReports r = new RegionalReports();
                     r.value1 = currST;
@@ -585,8 +615,8 @@ namespace CruiseProcessing
                     r.value5 = jg.PrimaryProduct;
                     r.value6 = currCL;
                     r.value7 = currAC;
-                    if (prodo != null)
-                        r.value8 = prodo.ProrationFactor;
+                    if (nthRow >= 0)
+                        r.value8 = proList[nthRow].ProrationFactor;
                     else r.value8 = 1.0;
                     r.value9 = currBA;
                     r.value10 = currDBH;
@@ -1253,7 +1283,7 @@ namespace CruiseProcessing
                                         List<LCDDO> lcdList)
         {
             // R105
-            List<PRODO> pList = Global.BL.getPRO().ToList();
+            List<PRODO> pList = bslyr.getPRO();
             foreach (CuttingUnitDO cd in cList)
             {
                 cd.Strata.Populate();
@@ -1369,7 +1399,7 @@ namespace CruiseProcessing
             //  R105
             listToOutput.Clear();
             //  Get unique species from LCD
-            string[,] justSpecies = Global.BL.GetUniqueSpeciesProduct();
+            string[,] justSpecies = bslyr.GetUniqueSpeciesProduct();
             for (int k = 0; k < justSpecies.GetLength(0); k++)
             {
                 List<LCDDO> currentUnit = new List<LCDDO>();
@@ -1388,29 +1418,37 @@ namespace CruiseProcessing
                 RegionalReports rrt = new RegionalReports();
                 if (currentUnit.Count != 0)
                 {
-                    List<StratumDO> sList = Global.BL.getStratum().ToList();
                     foreach (LCDDO cu in currentUnit)
                     {
                         //  What method is the stratum on this tree?
                         //  And what is the strata acres for plot based methods
-                        StratumDO stratum = sList.FirstOrDefault(s => s.Code == cu.Stratum);
-                        double strAcres = Utilities.ReturnCorrectAcres(cu.Stratum,
-                                    (long)stratum.Stratum_CN);
+                        List<StratumDO> sList = bslyr.getStratum();
+                        int mthRow = sList.FindIndex(
+                            delegate (StratumDO s)
+                            {
+                                return s.Code == cu.Stratum;
+                            });
+                        double strAcres = Utilities.ReturnCorrectAcres(cu.Stratum, bslyr,
+                                    (long)sList[mthRow].Stratum_CN);
 
                         //  is species already in the list?
-                        RegionalReports frr = listToOutput.FirstOrDefault(lto => lto.value1 == justSpecies[k, 0]);
-                        if (frr != null)
+                        int kRow = listToOutput.FindIndex(
+                            delegate(RegionalReports lto)
+                            {
+                                return lto.value1 == justSpecies[k, 0];
+                            });
+                        if (kRow >= 0)
                         {
-                            frr.value9 += cu.SumGBDFT * strAcres;
-                            frr.value10 += cu.SumGCUFT * strAcres;
-                            frr.value11 += cu.SumNBDFT * strAcres;
-                            frr.value12 += cu.SumNCUFT * strAcres;
-                            frr.value13 += cu.SumGBDFTtop * strAcres;
-                            frr.value14 += cu.SumGCUFTtop * strAcres;
-                            frr.value15 += cu.SumNBDFTtop * strAcres;
-                            frr.value16 += cu.SumNCUFTtop * strAcres;
+                            listToOutput[kRow].value9 += cu.SumGBDFT * strAcres;
+                            listToOutput[kRow].value10 += cu.SumGCUFT * strAcres;
+                            listToOutput[kRow].value11 += cu.SumNBDFT * strAcres;
+                            listToOutput[kRow].value12 += cu.SumNCUFT * strAcres;
+                            listToOutput[kRow].value13 += cu.SumGBDFTtop * strAcres;
+                            listToOutput[kRow].value14 += cu.SumGCUFTtop * strAcres;
+                            listToOutput[kRow].value15 += cu.SumNBDFTtop * strAcres;
+                            listToOutput[kRow].value16 += cu.SumNCUFTtop * strAcres;
                         }
-                        else
+                        else if (kRow < 0)
                         {
                             rr.value1 = justSpecies[k, 0];
                             rr.value9 += cu.SumGBDFT * strAcres;
@@ -1424,20 +1462,24 @@ namespace CruiseProcessing
                             listToOutput.Add(rr);
                         }   //  endif
                             // add logic to total the volumes
-                        frr = listTotalOutput.FirstOrDefault(lto => lto.value1 == cu.PrimaryProduct);
-                        if (frr != null)
+                        int nthRow = listTotalOutput.FindIndex(
+                        delegate (RegionalReports lto)
                         {
-                            frr.value9 += cu.SumGBDFT * strAcres;
-                            frr.value10 += cu.SumGCUFT * strAcres;
-                            frr.value11 += cu.SumNBDFT * strAcres;
-                            frr.value12 += cu.SumNCUFT * strAcres;
+                            return lto.value1 == cu.PrimaryProduct;
+                        });
+                        if (nthRow >= 0)
+                        {
+                            listTotalOutput[nthRow].value9 += cu.SumGBDFT * strAcres;
+                            listTotalOutput[nthRow].value10 += cu.SumGCUFT * strAcres;
+                            listTotalOutput[nthRow].value11 += cu.SumNBDFT * strAcres;
+                            listTotalOutput[nthRow].value12 += cu.SumNCUFT * strAcres;
                             //  also add any secondaary volume
-                            frr.value13 += cu.SumGBDFTtop * strAcres;
-                            frr.value14 += cu.SumGCUFTtop * strAcres;
-                            frr.value15 += cu.SumNBDFTtop * strAcres;
-                            frr.value16 += cu.SumNCUFTtop * strAcres;
+                            listTotalOutput[nthRow].value13 += cu.SumGBDFTtop * strAcres;
+                            listTotalOutput[nthRow].value14 += cu.SumGCUFTtop * strAcres;
+                            listTotalOutput[nthRow].value15 += cu.SumNBDFTtop * strAcres;
+                            listTotalOutput[nthRow].value16 += cu.SumNCUFTtop * strAcres;
                         }
-                        else
+                        else if (nthRow < 0)
                         {
                             rrt.value1 = cu.PrimaryProduct;
                             rrt.value2 = "P";
@@ -1476,23 +1518,32 @@ namespace CruiseProcessing
                 RegionalReports rrt = new RegionalReports();
                 if (currentUnit.Count != 0)
                 {
-                      List<StratumDO> sList = Global.BL.getStratum().ToList();
                     foreach (LCDDO cu in currentUnit)
                     {  
                         //  What method is the stratum on this tree?
                         //  And what is the strata acres for plot based methods
-                        StratumDO stratum = sList.FirstOrDefault(s => s.Code == cu.Stratum);
-                        double strAcres = Utilities.ReturnCorrectAcres(cu.Stratum,(long)stratum.Stratum_CN);
+                      List<StratumDO> sList = bslyr.getStratum();
+                        int mthRow = sList.FindIndex(
+                            delegate (StratumDO s)
+                            {
+                                return s.Code == cu.Stratum;
+                            });
+                        double strAcres = Utilities.ReturnCorrectAcres(cu.Stratum, bslyr,
+                                    (long)sList[mthRow].Stratum_CN);
                         //  is species already in the list?
-                        RegionalReports frr = listToOutput.FirstOrDefault(lto => lto.value1 == justSpecies[k, 0]);
-                        if (frr != null)
+                        int kRow = listToOutput.FindIndex(
+                            delegate(RegionalReports lto)
+                            {
+                                return lto.value1 == justSpecies[k, 0];
+                            });
+                        if (kRow >= 0)
                         {
-                            frr.value13 += cu.SumGBDFT * strAcres;
-                            frr.value14 += cu.SumGCUFT * strAcres;
-                            frr.value15 += cu.SumNBDFT * strAcres;
-                            frr.value16 += cu.SumNCUFT * strAcres;
+                            listToOutput[kRow].value13 += cu.SumGBDFT * strAcres;
+                            listToOutput[kRow].value14 += cu.SumGCUFT * strAcres;
+                            listToOutput[kRow].value15 += cu.SumNBDFT * strAcres;
+                            listToOutput[kRow].value16 += cu.SumNCUFT * strAcres;
                         }
-                        else
+                        else if (kRow < 0)
                         {
                             rr.value1 = justSpecies[k, 0];
                             rr.value13 += cu.SumGBDFT * strAcres;
@@ -1501,20 +1552,24 @@ namespace CruiseProcessing
                             rr.value16 += cu.SumNCUFT * strAcres;
                             listToOutput.Add(rr);
                         }   //  enduf
-                        frr = listTotalOutput.FirstOrDefault(lto => lto.value1 == cu.PrimaryProduct);
-                        if (frr != null)
+                        int nthRow = listTotalOutput.FindIndex(
+                        delegate (RegionalReports lto)
                         {
-                            frr.value9 += cu.SumGBDFT * strAcres;
-                            frr.value10 += cu.SumGCUFT * strAcres;
-                            frr.value11 += cu.SumNBDFT * strAcres;
-                            frr.value12 += cu.SumNCUFT * strAcres;
+                            return lto.value1 == cu.PrimaryProduct;
+                        });
+                        if (nthRow >= 0)
+                        {
+                            listTotalOutput[nthRow].value9 += cu.SumGBDFT * strAcres;
+                            listTotalOutput[nthRow].value10 += cu.SumGCUFT * strAcres;
+                            listTotalOutput[nthRow].value11 += cu.SumNBDFT * strAcres;
+                            listTotalOutput[nthRow].value12 += cu.SumNCUFT * strAcres;
                             //  also add any secondaary volume
-                            frr.value13 += cu.SumGBDFTtop * strAcres;
-                            frr.value14 += cu.SumGCUFTtop * strAcres;
-                            frr.value15 += cu.SumNBDFTtop * strAcres;
-                            frr.value16 += cu.SumNCUFTtop * strAcres;
+                            listTotalOutput[nthRow].value13 += cu.SumGBDFTtop * strAcres;
+                            listTotalOutput[nthRow].value14 += cu.SumGCUFTtop * strAcres;
+                            listTotalOutput[nthRow].value15 += cu.SumNBDFTtop * strAcres;
+                            listTotalOutput[nthRow].value16 += cu.SumNCUFTtop * strAcres;
                         }
-                        else
+                        else if (nthRow < 0)
                         {
                             rrt.value1 = cu.PrimaryProduct;
                             rrt.value2 = "P";

@@ -19,7 +19,7 @@ namespace CruiseProcessing
         #endregion
         
         public void outputBannerPage(string fileName, StreamWriter strWriteOut, string currentDate,
-                                        string currentVersion, string DLLversion)
+                                        string currentVersion, string DLLversion, CPbusinessLayer bslyr)
         {
             int flagBLM = 0;
             //  Data arrays for the banner page
@@ -71,11 +71,13 @@ namespace CruiseProcessing
                                                    "USDA FOREST SERVICE                                                                                             VERSION: ",
                                                    "WASHINGTON OFFICE TIMBER MANAGEMENT                                                              VOLUME LIBRARY VERSION: ",
                                                    "FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM"};
-            
+
+            //  open sale table
+            List<SaleDO> saleList = bslyr.getSale();
             //  need to capture region and forest 
             string currRegion = "";
             string currForest = "";
-            foreach (SaleDO sl in Global.BL.getSale())
+            foreach (SaleDO sl in saleList)
             {
                 //  Is this a BLM file?
                 if (sl.Region == "7" || sl.Region == "07")
@@ -85,7 +87,7 @@ namespace CruiseProcessing
                 if (flagBLM == 1)
                     strWriteOut.WriteLine(bannerTitle[1]);
                 else strWriteOut.WriteLine(bannerTitle[0]);
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append("CRUISE#: ");
                 sb.Append(sl.SaleNumber);
                 sb.Append("      SALE#: ");
@@ -94,21 +96,21 @@ namespace CruiseProcessing
                 //  save cruise "name" for later
                 cruiseName = sl.SaleNumber;
 
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append("SALENAME: ");
                 sb.Append(sl.Name);
                 strWriteOut.WriteLine(sb.ToString());
                 //  save salename for later
                 saleName = sl.Name.TrimEnd(' ');
 
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append("RUN DATE & TIME: ");
                 sb.Append(currentDate);
                 strWriteOut.WriteLine(sb.ToString());
                 strWriteOut.WriteLine(" ");
 
                 //  Output remaining portion of upper left corner
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 // replace fields as needed
                 if (flagBLM == 1)
                 {
@@ -128,7 +130,7 @@ namespace CruiseProcessing
                     strWriteOut.WriteLine(bannerYFD[0]);
                 }   //  endif
 
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append("Remarks: ");
                 sb.Append(sl.Remarks??(" "));
                 strWriteOut.WriteLine(sb.ToString());
@@ -137,16 +139,17 @@ namespace CruiseProcessing
                 currForest = sl.Forest;
             }   //  end foreach loop
 
-            sb.Remove(0, sb.Length);
+            sb.Clear();
             sb.Append("FILENAME: ");
             sb.Append(fileName);
             strWriteOut.WriteLine(sb.ToString());
 
             //  Reports list
-            sb.Remove(0, sb.Length);
+            List<ReportsDO> rList = bslyr.GetSelectedReports();
+            sb.Clear();
             sb.Append("REPORTS: ");
             int numReports = 0;
-            foreach (ReportsDO rd in Global.BL.GetSelectedReports())
+            foreach (ReportsDO rd in rList)
             {
                 numReports++;
                 if (numReports <= 20)
@@ -158,7 +161,7 @@ namespace CruiseProcessing
                 {
                     numReports = 0;
                     strWriteOut.WriteLine(sb.ToString());
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append("         ");
                     sb.Append(rd.ReportID);
                     sb.Append(" ");
@@ -171,11 +174,16 @@ namespace CruiseProcessing
             {
                 //  write reports line
                 strWriteOut.WriteLine(sb.ToString());
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append("VOLUME BASED ON ");
                 //  need volume equation type for BLM here
-                VolumeEquationDO vdo = Global.BL.getVolumeEquations().FirstOrDefault(ved => ved.VolumeEquationNumber.Substring(3, 4) == "B32W");
-                if (vdo != null)
+                List<VolumeEquationDO> vList = bslyr.getVolumeEquations();
+                int nthRow = vList.FindIndex(
+                    delegate(VolumeEquationDO ved)
+                    {
+                        return ved.VolumeEquationNumber.Substring(3, 4) == "B32W";
+                    });
+                if (nthRow >= 0)
                     sb.Append("32 ");
                 else sb.Append("16");
                 sb.Append(" FOOT EQUATIONS");
@@ -192,7 +200,7 @@ namespace CruiseProcessing
                     case "09":      case "9":       //  Superior
                     case "13":      case "10":      //  Chequamegon-Nicolet and Hiawatha
                     case "07":      case "7":       //  Ottawa
-                        sb.Remove(0, sb.Length);
+                        sb.Clear();
                         sb.Append("Scribner rule was used for board foot volumes shown in the selected reports.");
                         break;
                     case "04":      case "4":       //  Huron-Manistee
@@ -201,7 +209,7 @@ namespace CruiseProcessing
                     case "12":      case "14":      //  Hoosier and Wayne
                     case "19":      case "21":      //  Allegheny and Monongahela
                     case "20":      case "22":      //  Green Mountain/Finger Lakes and White Mountain
-                        sb.Remove(0, sb.Length);
+                        sb.Clear();
                         sb.Append("International 1/4 inch rule was used for board foot volumes in the selected reports.");
                         break;
                 }       //  end switch
@@ -241,12 +249,12 @@ namespace CruiseProcessing
 
             strWriteOut.WriteLine(bannerFooter[0]);
 
-            sb.Remove(0, sb.Length);
+            sb.Clear();
             sb.Append(bannerFooter[1]);
             sb.Append(currentVersion);
             strWriteOut.WriteLine(sb.ToString());
             
-            sb.Remove(0, sb.Length);
+            sb.Clear();
             sb.Append(bannerFooter[2]);
             sb.Append(DLLversion);
             strWriteOut.WriteLine(sb.ToString());

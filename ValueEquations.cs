@@ -23,6 +23,7 @@ namespace CruiseProcessing
         private List<ValueEquationDO> valList = new List<ValueEquationDO>();
         public string fileName;
         private int trackRow = -1;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public ValueEquations()
@@ -35,15 +36,16 @@ namespace CruiseProcessing
         {
             //  if there are value equations, show in grid
             //  if not, just initialize the grid
-            valList = Global.BL.getValueEquations().ToList();
+            valList = bslyr.getValueEquations();
             valueEquationDOBindingSource.DataSource = valList;
             valueEquationList.DataSource = valueEquationDOBindingSource;
 
             //  need unique species and product
+            List<TreeDefaultValueDO> tdvList = bslyr.GetUniqueSpeciesProductLiveDead();
             
             if (valList.Count == 0)
             {
-                foreach(TreeDefaultValueDO tdv in Global.BL.GetUniqueSpeciesProductLiveDead())
+                foreach(TreeDefaultValueDO tdv in tdvList)
                 {
                     ValueEquationDO ved = new ValueEquationDO();
                     ved.Species = tdv.Species;
@@ -54,7 +56,7 @@ namespace CruiseProcessing
             }   //  endif list is empty
 
             //  Fill lists at bottom with unique species and primary products
-            ArrayList justSpecies = Global.BL.GetJustSpecies("Tree");
+            ArrayList justSpecies = bslyr.GetJustSpecies("Tree");
             for (int n = 0; n < justSpecies.Count; n++)
                 speciesList.Items.Add(justSpecies[n].ToString());
 
@@ -67,7 +69,7 @@ namespace CruiseProcessing
                 return -1;
             }   //  endif
 
-            ArrayList justProducts = Global.BL.GetJustPrimaryProduct();
+            ArrayList justProducts = bslyr.GetJustPrimaryProduct();
             for (int n = 0; n < justProducts.Count; n++)
                 primaryProdList.Items.Add(justProducts[n].ToString());
 
@@ -90,7 +92,7 @@ namespace CruiseProcessing
             {
                 for (int k = 0; k < 4; k++)
                 {
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append(equationPrefix);
                     sb.Append("04");
                     sb.Append(R4Equations[k]);
@@ -101,7 +103,7 @@ namespace CruiseProcessing
             {
                 for(int k = 0; k < 14; k++)
                 {
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append(equationPrefix);
                     sb.Append("09");
                     sb.Append(R9Equations[k]);
@@ -112,7 +114,7 @@ namespace CruiseProcessing
             {
                 for (int k = 0; k < indexNum; k++)
                 {
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append(equationPrefix);
                     sb.Append(regionNum.Text);
                     sb.Append(BasicEquations[k]);
@@ -210,7 +212,7 @@ namespace CruiseProcessing
                     if (ved.Coefficient5 <= 0) ved.Coefficient5 = 0;
                     if (ved.Coefficient6 <= 0) ved.Coefficient6 = 0;
                 }   //  end foreach loop
-                Global.BL.SaveValueEquations(valList);
+                bslyr.SaveValueEquations(valList);
                 Cursor.Current = this.Cursor;
             }   //  endif
             Close();

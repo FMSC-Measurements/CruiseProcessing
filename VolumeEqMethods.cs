@@ -10,17 +10,17 @@ using CruiseDAL;
 
 namespace CruiseProcessing
 {
-    public static class VolumeEqMethods
+    public class VolumeEqMethods
     {
         #region
-            private static string speciesName = "";
-            private static string modelName = "";
-            //public static DAL DAL { get; set; }
-
+            private string speciesName = "";
+            private string modelName = "";
+            ErrorLogMethods elm = new ErrorLogMethods();
+            public DAL DAL { get; set; }
         #endregion
 
         //  edit checks
-        public static int IsEmpty(List<VolumeEquationDO> volList)
+        public int IsEmpty(List<VolumeEquationDO> volList)
         {
             if (volList.Count == 0)
                 return 25;
@@ -28,48 +28,46 @@ namespace CruiseProcessing
         }   //  end IsEmpty
 
 
- //       public static List<VolumeEquationDO> GetAllEquationsToCalc(string currSP, string currPP)
- //       {
+        public List<VolumeEquationDO> GetAllEquationsToCalc(List<VolumeEquationDO> volList,
+                                                                    string currSP, string currPP)
+        {
             //  This returns a list of equations for the current species and product to calculate volumes
-            //List<VolumeEquationDO> returnList = volList.FindAll(
-            //    delegate(VolumeEquationDO ved)
-            //    {
-            //        return ved.Species == currSP && ved.PrimaryProduct == currPP;
-            //    });
-            //return returnList;
- //           return DAL.Read<VolumeEquationDO>("VolumeEquation", "Where Species = ? AND PrimaryProduct = ?", currSP, currPP);
-
-  //      }   //  end GetAllEquationsToCalc
+            List<VolumeEquationDO> returnList = volList.FindAll(
+                delegate(VolumeEquationDO ved)
+                {
+                    return ved.Species == currSP && ved.PrimaryProduct == currPP;
+                });
+            return returnList;
+        }   //  end GetAllEquationsToCalc
 
 
 
-        public static int MatchSpeciesProduct(IEnumerable<VolumeEquationDO> volList, IEnumerable<TreeDO> tList)
+        public int MatchSpeciesProduct(List<VolumeEquationDO> volList, List<TreeDO> tList)
         {
             int errorsFound = 0;
-
             //  find each species or species/product combination in volume equations
-            //int nthRow = -1;
-
+            int nthRow = -1;
+            List<TreeDO> tList1 = DAL.Read<TreeDO>("Tree", "JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN GROUP BY Tree.Species,SampleGroup.PrimaryProduct", null);
             //List<TreeDO> tList1 = DAL.Read<TreeDO>("Tree", "GROUP BY Species, Tree.SampleGroup.PrimaryProduct", null);
-            //VolumeEquationDO ved;
-            foreach (TreeDO td in Global.BL.getTreeMatch())
+            VolumeEquationDO ved;
+            foreach (TreeDO td in tList1)
             {
-                //nthRow = 0;
-                //                foreach(VolumeEquationDO ved in volList)
-                //                {
-                //                    if (ved.Species == td.Species && ved.PrimaryProduct == td.SampleGroup.PrimaryProduct)
-                //                        nthRow++;
-                //                }
-                //ved = volList.Find(item => item.Species == td.Species && item.PrimaryProduct == td.SampleGroup.PrimaryProduct);
+                nthRow = 0;
+//                foreach(VolumeEquationDO ved in volList)
+//                {
+//                    if (ved.Species == td.Species && ved.PrimaryProduct == td.SampleGroup.PrimaryProduct)
+//                        nthRow++;
+//                }
+                ved = volList.Find(item => item.Species == td.Species && item.PrimaryProduct == td.SampleGroup.PrimaryProduct);
                 //                nthRow = volList.FindIndex(
-                //                    delegate(VolumeEquationDO ved)
-                //                    {
-                //                        return ved.Species == td.Species && ved.PrimaryProduct == td.SampleGroup.PrimaryProduct;
-                //                    });
-                //                if (nthRow == 0)
-                if (volList.FirstOrDefault(item => item.Species == td.Species && item.PrimaryProduct == td.SampleGroup.PrimaryProduct) == null)
+//                    delegate(VolumeEquationDO ved)
+//                    {
+//                        return ved.Species == td.Species && ved.PrimaryProduct == td.SampleGroup.PrimaryProduct;
+//                    });
+//                if (nthRow == 0)
+                if(ved == null)
                 {
-                    ErrorLogMethods.LoadError("Tree", "E", "12", (long)td.Tree_CN, "Species");
+                    elm.LoadError("Tree", "E", "12", (long)td.Tree_CN, "Species");
                     errorsFound++;
                 }   //  endif nthRow
             }   //  end for k loop
@@ -77,7 +75,7 @@ namespace CruiseProcessing
         }   //  end MatchSpeciesProduct
 
 
-        public static int GeneralEquationChecks(IEnumerable<VolumeEquationDO> volList)
+        public int GeneralEquationChecks(List<VolumeEquationDO> volList)
         {
             //  Checks for more than one quation for species/product combination
             //  check duplicate volumes requested on species/product combination
@@ -86,8 +84,7 @@ namespace CruiseProcessing
             //  check for same equation number with different primary top diameters (DVE only)
             //  check length of equation -- possible species error
             int errorsFound = 0;
-
-//            List<VolumeEquationDO> dupEquations = new List<VolumeEquationDO>();
+            List<VolumeEquationDO> dupEquations = new List<VolumeEquationDO>();
             foreach (VolumeEquationDO ved in volList)
             {
                 //  Capture equation for non-profile models, species and product for error report if needed
@@ -96,49 +93,47 @@ namespace CruiseProcessing
                     // make sure primary flags are set
                     if (ved.CalcTopwood == 1 && (ved.CalcBoard == 0 && ved.CalcCubic == 0 && ved.CalcCord == 0))
                     {
-                        ErrorLogMethods.LoadError("VolumeEquation", "E", "3", (long)ved.rowID, "VolumeFlags");
+                        elm.LoadError("VolumeEquation", "E", "3", (long)ved.rowID, "VolumeFlags");
                         errorsFound++;
                     }   //  endif
 
                     //  check for different top DIBs
-                    //                    dupEquations = volList.FindAll(
-                    //                        delegate(VolumeEquationDO voleq)
-                   //                        {
-                    var dupEq = volList.Where(vl => vl.VolumeEquationNumber == ved.VolumeEquationNumber && vl.PrimaryProduct == ved.PrimaryProduct && vl.TopDIBPrimary == ved.TopDIBPrimary);
-  //                          return voleq.VolumeEquationNumber == ved.VolumeEquationNumber && 
-  //                                 voleq.PrimaryProduct == ved.PrimaryProduct &&
-  //                                 voleq.TopDIBPrimary != ved.TopDIBPrimary;
-  //                      });
-                    if (dupEq.Count() > 1)  //  means top DIBs are different
+                    dupEquations = volList.FindAll(
+                        delegate(VolumeEquationDO voleq)
+                        {
+                            return voleq.VolumeEquationNumber == ved.VolumeEquationNumber && 
+                                   voleq.PrimaryProduct == ved.PrimaryProduct &&
+                                   voleq.TopDIBPrimary != ved.TopDIBPrimary;
+                        });
+                    if (dupEquations.Count > 1)  //  means top DIBs are different
                     {
-                        ErrorLogMethods.LoadError("VolumeEquation", "E", "6", (long)ved.rowID, "TopDIBPrimary");
+                        elm.LoadError("VolumeEquation", "E", "6", (long)ved.rowID, "TopDIBPrimary");
                         errorsFound++;
                     }
                 }   //  endif non-profile model
 
                 if (ved.TopDIBSecondary > ved.TopDIBPrimary)
                 {
-                    ErrorLogMethods.LoadError("VolumeEquation", "E", "4", (long)ved.rowID, "TopDIBSecondary");
+                    elm.LoadError("VolumeEquation", "E", "4", (long)ved.rowID, "TopDIBSecondary");
                     errorsFound++;
                 }
 
                 if (ved.VolumeEquationNumber.Length != 10)
                 {
-                    ErrorLogMethods.LoadError("VolumeEquation", "E", "1", (long)ved.rowID, "VolumeEquationNumber");
+                    elm.LoadError("VolumeEquation", "E", "1", (long)ved.rowID, "VolumeEquationNumber");
                     errorsFound++;
                 }
 
-//                dupEquations = volList.FindAll(
-//                    delegate(VolumeEquationDO voleq)
-//                    {
-                        var dupEquations = volList.Where(vl => vl.VolumeEquationNumber == ved.VolumeEquationNumber && vl.PrimaryProduct == ved.PrimaryProduct && vl.Species == ved.Species);
-//                        return voleq.VolumeEquationNumber == ved.VolumeEquationNumber && 
-//                               voleq.Species == ved.Species && 
-//                               voleq.PrimaryProduct == ved.PrimaryProduct;
-//                    });
-                if (dupEquations.Count() > 1)
+                dupEquations = volList.FindAll(
+                    delegate(VolumeEquationDO voleq)
+                    {
+                        return voleq.VolumeEquationNumber == ved.VolumeEquationNumber && 
+                               voleq.Species == ved.Species && 
+                               voleq.PrimaryProduct == ved.PrimaryProduct;
+                    });
+                if (dupEquations.Count > 1)
                 {
-                    ErrorLogMethods.LoadError("VolumeEquation", "E", "5", (long)ved.rowID, "VolumeEquationNumber");
+                    elm.LoadError("VolumeEquation", "E", "5", (long)ved.rowID, "VolumeEquationNumber");
                     errorsFound++;
                 }
 
@@ -147,30 +142,29 @@ namespace CruiseProcessing
         }   //  end GeneralEquationChecks
 
 
-        public static int FindBehrs(IEnumerable<VolumeEquationDO> volList)
+        public int FindBehrs(List<VolumeEquationDO> volList)
         {
-
             int errorsFound = 0;
             foreach (VolumeEquationDO ved in volList)
             {
                 if(ved.VolumeEquationNumber.Contains("BEH"))
                 {
-                    ErrorLogMethods.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with BEH equations",(long)ved.rowID, "NoName");
+                    elm.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with BEH equations",(long)ved.rowID, "NoName");
                     errorsFound++;
                 }
                 else if(ved.VolumeEquationNumber.Contains("MAT"))
                 {
-                    ErrorLogMethods.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with MAT equations",(long)ved.rowID, "NoName");
+                    elm.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with MAT equations",(long)ved.rowID, "NoName");
                     errorsFound++;
                 }
                 else if(ved.VolumeEquationNumber.Contains("DVE"))
                 {
-                    ErrorLogMethods.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with DVE equations",(long)ved.rowID, "NoName");
+                    elm.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with DVE equations",(long)ved.rowID, "NoName");
                     errorsFound++;
                 }
                 else if(ved.VolumeEquationNumber.Contains("CLK"))
                 {
-                    ErrorLogMethods.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with CLK equations",(long)ved.rowID, "NoName");
+                    elm.LoadError("VolumeEquation","W","Variable log length diameters cannot be computed with CLK equations",(long)ved.rowID, "NoName");
                     errorsFound++;
                 }   //  endif on equation number
 
@@ -180,7 +174,7 @@ namespace CruiseProcessing
 
 
         //  methods pertaining to volume equations
-        public static List<VolEqList> GetRegionVolumes(string currentRegion)
+        public List<VolEqList> GetRegionVolumes(string currentRegion)
         {
             volumeLists vList = new volumeLists();
             //  build a list to return to the volume equation window based on region selected
@@ -281,7 +275,7 @@ namespace CruiseProcessing
         }   //  end GetRegionVolumes
 
 
-        public static void updateVolumeList(IEnumerable<VolumeEquationDO> volEquations, string fileName, string currentRegion)
+        public void updateVolumeList(List<VolumeEquationDO> volEquations, string fileName, string currentRegion)
         {
             volumeLists vList = new volumeLists();
 
@@ -339,7 +333,7 @@ namespace CruiseProcessing
         }   //  end updateVolumeList
 
 
-        private static void fillFields(string currentEquation, string[,] arrayToUse)
+        private void fillFields(string currentEquation, string[,] arrayToUse)
         {
             for (int n = 0; n < arrayToUse.GetLength(0); n++)
             {
@@ -358,7 +352,7 @@ namespace CruiseProcessing
         }   //  end fillFields
 
 
-        public static ArrayList buildMerchArray(VolumeEquationDO vel)
+        public ArrayList buildMerchArray(VolumeEquationDO vel)
         {
             ArrayList merchArray = new ArrayList();
             merchArray.Add(" ");
@@ -388,7 +382,7 @@ namespace CruiseProcessing
         }   //  end buildMerchArray
 
 
-        public static ArrayList buildPrintArray(VolumeEquationDO vel)
+        public ArrayList buildPrintArray(VolumeEquationDO vel)
         {
             string fieldFormat = "{0,2:F1}";
             ArrayList volArray = new ArrayList();

@@ -9,12 +9,12 @@ using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
-    public static class LogMethods
+    public class LogMethods
     {
+        ErrorLogMethods elm = new ErrorLogMethods();
         //  edit checks on log table
-        public static int CheckNumberLogs(List<LogDO> logList)
+        public int CheckNumberLogs(List<LogDO> logList)
         {
-
             int errorsFound = 0;
             long prevTree_CN = -1;
             foreach (LogDO ld in logList)
@@ -22,9 +22,10 @@ namespace CruiseProcessing
                 if (prevTree_CN != ld.Tree_CN)
                 {
                     prevTree_CN = Convert.ToInt64(ld.Tree_CN);
-                    if (GetLogRecords(logList, Convert.ToInt64(ld.Tree_CN)).Count() > 20)
+                    List<LogDO> justLogs = GetLogRecords(logList, Convert.ToInt64(ld.Tree_CN));
+                    if (justLogs.Count > 20)
                     {
-                        ErrorLogMethods.LoadError("Log", "E", "13", (long)ld.Log_CN, "NoName");
+                        elm.LoadError("Log", "E", "13", (long)ld.Log_CN, "NoName");
                         errorsFound++;
                     }   //  endif logs count
                 }   //  endif 
@@ -33,9 +34,8 @@ namespace CruiseProcessing
         }   //  end CheckNumberLogs
 
 
-        public static int CheckFBS(List<LogDO> logList)
+        public int CheckFBS(List<LogDO> logList)
         {
-
             int errorsFound = 0;
             bool netGross = false;
             List<LogDO> justFBS = logList.FindAll(
@@ -53,7 +53,7 @@ namespace CruiseProcessing
              
                 if (netGross == true)
                 {
-                    ErrorLogMethods.LoadError("Log", "E", "20", (long)j.Log_CN, "GrossVolume");
+                    elm.LoadError("Log", "E", "20", (long)j.Log_CN, "GrossVolume");
                     errorsFound++;
                     netGross = false;
                 }   //  endif net greater than gross
@@ -62,30 +62,29 @@ namespace CruiseProcessing
         }   //  end CheckFBS
 
 
-        public static int CheckVLL(List<LogDO> logList)
+        public int CheckVLL(List<LogDO> logList)
         {
-
             int errorsFound = 0;
             foreach (LogDO ld in logList)
             {
                 if (ld.LogNumber == "" || ld.LogNumber == " " || ld.LogNumber == null)
                 {
-                    ErrorLogMethods.LoadError("Log", "E", "19", (long)ld.Log_CN, "LogNumber");
+                    elm.LoadError("Log", "E", "19", (long)ld.Log_CN, "LogNumber");
                     errorsFound++;
                 }   //  endif log number missing
                 if (ld.Grade == "" || ld.Grade == " " || ld.Grade == null)
                 {
-                    ErrorLogMethods.LoadError("Log", "E", "19", (long)ld.Log_CN, "Grade");
+                    elm.LoadError("Log", "E", "19", (long)ld.Log_CN, "Grade");
                     errorsFound++;
                 }   //  endif log grade missing
                 if (ld.ExportGrade == "" || ld.ExportGrade == " " || ld.ExportGrade == null)
                 {
-                    ErrorLogMethods.LoadError("Log", "E", "19", (long)ld.Log_CN, "ExportGrade");
+                    elm.LoadError("Log", "E", "19", (long)ld.Log_CN, "ExportGrade");
                     errorsFound++;
                 }   //  endif export grade (log sort) missing
                 if (ld.Length == 0)
                 {
-                    ErrorLogMethods.LoadError("Log", "E", "19", (long)ld.Log_CN, "Length");
+                    elm.LoadError("Log", "E", "19", (long)ld.Log_CN, "Length");
                     errorsFound++;
                 }   //  endif log length missing
             }   //  end foreach loop
@@ -93,15 +92,14 @@ namespace CruiseProcessing
         }   //  end CheckVLL
 
 
-        public static int CheckDefect(List<LogDO> logList)
+        public int CheckDefect(List<LogDO> logList)
         {
-
             int errorsFound = 0;
             foreach (LogDO ld in logList)
             {
                 if (ld.PercentRecoverable > ld.SeenDefect)
                 {
-                    ErrorLogMethods.LoadError("Log", "E", "29", (long)ld.Log_CN, "PercentRecoverable");
+                    elm.LoadError("Log", "E", "29", (long)ld.Log_CN, "PercentRecoverable");
                     errorsFound++;
                 }
             }   //  end foreach
@@ -111,15 +109,14 @@ namespace CruiseProcessing
 
 
         //  Added a check for log grade of null
-        public static int CheckLogGrade(List<LogDO> logList)
+        public int CheckLogGrade(List<LogDO> logList)
         {
-
             int errorsFound = 0;
             foreach (LogDO ld in logList)
             {
                 if(ld.Grade == null)
                 {
-                    ErrorLogMethods.LoadError("Log","E","9",(long)ld.Log_CN, "Loggrade");
+                    elm.LoadError("Log","E","9",(long)ld.Log_CN, "Loggrae");
                     errorsFound++;
                 }   //  endif
 
@@ -129,14 +126,19 @@ namespace CruiseProcessing
 
 
         //  methods pertaining to the log table or the logstock table
-        public static IEnumerable<LogDO> GetLogRecords(IEnumerable<LogDO> logList, long currTree_CN)
+        public List<LogDO> GetLogRecords(List<LogDO> logList, long currTree_CN)
         {
             //  returns logs for specific tree
-            return logList.Where(ld => ld.Tree_CN == currTree_CN);
+            List<LogDO> rtrnList = logList.FindAll(
+                delegate(LogDO ld)
+                {
+                    return ld.Tree_CN == currTree_CN;
+                });
+            return rtrnList;
         }   //  end GetLogRecords
 
 
-        public static List<LogStockDO> GetLogStockRecords(List<LogStockDO> logStockList, int currTree_CN)
+        public List<LogStockDO> GetLogStockRecords(List<LogStockDO> logStockList, int currTree_CN)
         {
             //  returns logs for specific tree
             List<LogStockDO> rtrnList = logStockList.FindAll(
@@ -149,7 +151,7 @@ namespace CruiseProcessing
 
 
         //  build functions for printing
-        public static ArrayList buildPrintArray(List<LogDO> currLogs, int begLog, int endLog)
+        public ArrayList buildPrintArray(List<LogDO> currLogs, int begLog, int endLog)
         {
             ArrayList logArray = new ArrayList();
 
@@ -227,7 +229,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public static ArrayList buildPrintArray(LogStockDO lsdo)
+        public ArrayList buildPrintArray(LogStockDO lsdo)
         {
             //  builds line for fall, buck and scale report (A09)
             string fieldFormat2 = "{0,5:F0}";
@@ -263,7 +265,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public static ArrayList buildPrintArray(LogStockDO lsdo, double totalEF)
+        public ArrayList buildPrintArray(LogStockDO lsdo, double totalEF)
         {
             //  builds line for log file report (L1)
             string fieldFormat1 = "{0,5:F1}";

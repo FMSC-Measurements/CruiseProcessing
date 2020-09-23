@@ -37,7 +37,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             //  grab LCD list
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            List<LCDDO> lcdList = bslyr.getLCD();
             //  Any data for current report?
             switch (currentReport)
             {
@@ -62,15 +62,16 @@ namespace CruiseProcessing
             }   //  end switch
 
             //  get cutting unit list to total sale acres
-            double totalSaleAcres = Global.BL.getCuttingUnits().Sum(c => c.Area);
+            List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
+            double totalSaleAcres = cList.Sum(c => c.Area);
             //  and stratum list to get expansion acres later
-            //List<StratumDO> sList = Global.BL.getStratum();
+            List<StratumDO> sList = bslyr.getStratum();
 
             //  determine which heights to use for mean height calculation
             int hgtOne = 0;
             int hgtTwo = 0;
-            //List<TreeDO> tList = Global.BL.getTrees();
-            whichHeightFields(ref hgtOne, ref hgtTwo, Global.BL.getTrees());
+            List<TreeDO> tList = bslyr.getTrees();
+            whichHeightFields(ref hgtOne, ref hgtTwo, tList);
 
             //  set volume type for headers
             string volTitle = "";
@@ -94,7 +95,8 @@ namespace CruiseProcessing
                     completeHeader = createCompleteHeader();
                     rh.createReportTitle(currentTitle, 6, 0, 0, volTitle, reportConstants.FCTO_PPO);
                     //  group LCD by species as the first two reports run by species
-                    foreach(LCDDO sl in Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species,PrimaryProduct", "C", ""))
+                    List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species,PrimaryProduct", "C", "");
+                    foreach(LCDDO sl in speciesList)
                     {
                         AccumulateSpeciesVolume(lcdList,sl.Species, hgtOne, sl.PrimaryProduct);
                         WriteCurrentGroup(strWriteOut, ref pageNumb, rh, totalSaleAcres);
@@ -109,8 +111,9 @@ namespace CruiseProcessing
                 case "R404":
                     //  June 2017 -- These reports are by logging method so if it is blank or null
                     //  cannot generate the report
+                    List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
                       int noMethod = 0;
-                    foreach (CuttingUnitDO ct in Global.BL.getCuttingUnits())
+                    foreach (CuttingUnitDO ct in cutList)
                     {
                         if (ct.LoggingMethod == "" || ct.LoggingMethod == " " || ct.LoggingMethod == null)
                         {
@@ -125,7 +128,8 @@ namespace CruiseProcessing
                         completeHeader = createCompleteHeader();
                         rh.createReportTitle(currentTitle, 6, 0, 0, volTitle, reportConstants.FCTO_PPO);
                         //  these reports are prorated and grouped by logging method
-                        AccumulateByLogMethod(Global.BL.getLoggingMethods(), hgtOne);
+                        List<CuttingUnitDO> justMethods = bslyr.getLoggingMethods();
+                        AccumulateByLogMethod(justMethods, hgtOne);
                         WriteCurrentGroup(rh, strWriteOut, ref pageNumb, totalSaleAcres);
                         //  update total
                         updateTotal();
@@ -147,7 +151,7 @@ namespace CruiseProcessing
                 });
 
             //  need stratum table to get acres
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
+            List<StratumDO> sList = bslyr.getStratum();
             currAC = 0;
             currDBH2 = 0;
             currHGT = 0;
@@ -156,15 +160,19 @@ namespace CruiseProcessing
             currEF = 0;
             currGRS = 0;
             currNET = 0;
+            int nthRow = 0;
             string prevST = "*";
-            StratumDO stratum = null;
             foreach (LCDDO js in justSpecies)
             {
                 //  strata acres
                 if (js.Stratum != prevST)
                 {
-                    stratum = sList.First(s => s.Code == js.Stratum);
-                    currAC = Utilities.ReturnCorrectAcres(js.Stratum, (long)stratum.Stratum_CN);
+                    nthRow = sList.FindIndex(
+                        delegate(StratumDO s)
+                        {
+                            return s.Code == js.Stratum;
+                        });
+                    currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[nthRow].Stratum_CN);
                     prevST = js.Stratum;
                 }   //  endif
                 switch (currentReport)
@@ -199,7 +207,7 @@ namespace CruiseProcessing
                 currVAL += js.SumValue * currAC;
                 currLOGS += js.SumLogsMS * currAC;
                 //  expansion factor
-                if (stratum != null && (stratum.Method == "S3P" || stratum.Method == "3P"))
+                if (sList[nthRow].Method == "S3P" || sList[nthRow].Method == "3P")
                 {
                     if (js.SumExpanFactor > 0 && js.STM == "N")
                         currEF += js.SumExpanFactor * js.TalliedTrees / js.SumExpanFactor;
@@ -226,7 +234,7 @@ namespace CruiseProcessing
         }   //  end AccumulateSpeciesVolume
 
 
-        private void AccumulateByLogMethod(IEnumerable<CuttingUnitDO> justMethods, int hgtOne)
+        private void AccumulateByLogMethod(List<CuttingUnitDO> justMethods, int hgtOne)
         {
             //R403/R404
             double unitAC = 0;
@@ -237,12 +245,19 @@ namespace CruiseProcessing
             currLOGS = 0;
             currHGT = 0;
 
-            List<CuttingUnitDO> cutList = Global.BL.getCuttingUnits().ToList();
-            List<PRODO> proList = Global.BL.getPRO().ToList();
+            List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+            List<PRODO> proList = bslyr.getPRO();
             //  accumulate sums for each logging method
             foreach (CuttingUnitDO jm in justMethods)
             {
-                foreach (CuttingUnitDO ju in cutList.Where(c => c.LoggingMethod == jm.LoggingMethod))
+                // find all unit for current method
+                List<CuttingUnitDO> justUnits = cutList.FindAll(
+                    delegate(CuttingUnitDO c)
+                    {
+                        return c.LoggingMethod == jm.LoggingMethod;
+                    });
+
+                foreach (CuttingUnitDO ju in justUnits)
                 {
                     unitAC += ju.Area;
                     ju.Strata.Populate();
@@ -250,16 +265,20 @@ namespace CruiseProcessing
                     foreach (StratumDO stratum in ju.Strata)
                     {
                         //  pull strata from LCD table
-                        foreach (LCDDO js in Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?", "",
-                                                                        "C", stratum.Code, ""))
+                        List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?", "", 
+                                                                        "C", stratum.Code, "");
+                        foreach (LCDDO js in justStrata)
                         {
                             //  find proration factor for the group
-                            PRODO prodo = proList.FirstOrDefault(
-                                p => p.CutLeave == "C" && p.Stratum == js.Stratum && p.CuttingUnit == ju.Code
-                                && p.SampleGroup == js.SampleGroup && p.STM == js.STM && p.PrimaryProduct == js.PrimaryProduct);
+                            int nthRow = proList.FindIndex(
+                                delegate(PRODO p)
+                                {
+                                    return p.CutLeave == "C" && p.Stratum == js.Stratum && p.CuttingUnit == ju.Code
+                                            && p.SampleGroup == js.SampleGroup && p.STM == js.STM && p.PrimaryProduct == js.PrimaryProduct;
+                                });
                             double proratFactor;
-                            if (prodo != null)
-                                proratFactor = prodo.ProrationFactor;
+                            if (nthRow >= 0)
+                                proratFactor = proList[nthRow].ProrationFactor;
                             else proratFactor = 0;
 
                             switch (currentReport)

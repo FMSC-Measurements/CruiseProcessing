@@ -35,7 +35,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             //  grab LCD list
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            List<LCDDO> lcdList = bslyr.getLCD();
             //  Any data for current report?
             switch (currentReport)
             {
@@ -59,10 +59,10 @@ namespace CruiseProcessing
 
 
             //  process reports
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
-            List<LogStockDO> logList = Global.BL.getCutLogs().ToList();
+            List<StratumDO> sList = bslyr.getStratum();
+            List<LogStockDO> logList = bslyr.getCutLogs();
             //  group LCD by species as many reports run by species
-            List<LCDDO> speciesList = Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "").ToList();
+            List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
             switch (currentReport)
             {
                 case "R001":        case "R002":
@@ -107,8 +107,9 @@ namespace CruiseProcessing
                 case "R005":
                     //  June 2017 -- R005 is by logging method and if blank report cannot be generated.
                     //  Check for any logging method of blank or null
+                    List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
                     int noMethod = 0;
-                    foreach (CuttingUnitDO ct in Global.BL.getCuttingUnits())
+                    foreach (CuttingUnitDO ct in cutList)
                     {
                         if (ct.LoggingMethod == "" || ct.LoggingMethod == " " || ct.LoggingMethod == null)
                         {
@@ -136,22 +137,27 @@ namespace CruiseProcessing
         }   //  end CreateR10reports
 
 
-        private void AccumulateVolume(IEnumerable<LogStockDO> logList, string currSP, 
-                                        int currRow, IEnumerable<StratumDO> sList)
+        private void AccumulateVolume(List<LogStockDO> logList, string currSP, 
+                                        int currRow, List<StratumDO> sList)
         {
             //  accumulate volume based on report
-            footFlag = (int)logList.First().Tree.TreeDefaultValue.MerchHeightLogLength;
+            footFlag = (int)logList[0].Tree.TreeDefaultValue.MerchHeightLogLength;
             string currST = "*";
             double currAC = 0;
 
             //  Pull current species from log list
-            foreach (LogStockDO jl in logList.Where(l => l.Tree.Species == currSP))
+            List<LogStockDO> justLogs = logList.FindAll(
+                delegate(LogStockDO l)
+                {
+                    return l.Tree.Species == currSP;
+                });
+            foreach (LogStockDO jl in justLogs)
             {
                 //  need strata acres
                 if (currST != jl.Tree.Stratum.Code)
                 {
                     currST = jl.Tree.Stratum.Code;
-                    currAC = Utilities.ReturnCorrectAcres(currST, (long)jl.Tree.Stratum_CN);
+                    currAC = Utilities.ReturnCorrectAcres(currST, bslyr, (long)jl.Tree.Stratum_CN);
                 }   //  endif
 
                 switch (currentReport)
@@ -216,7 +222,7 @@ namespace CruiseProcessing
         }   //  end AccumulateVolume
 
 
-        private void AccumulateByLogGrade(IEnumerable<LogStockDO> logList, List<LCDDO> speciesList, IEnumerable<StratumDO> sList)
+        private void AccumulateByLogGrade(List<LogStockDO> logList, List<LCDDO> speciesList, List<StratumDO> sList)
         {
             //  R003/R004
             double stratumAcres;
@@ -276,11 +282,14 @@ namespace CruiseProcessing
                     foreach (StratumDO s in sList)
                     {
                         //  need acres for expansion
-                        stratumAcres = Utilities.ReturnCorrectAcres(s.Code, (long)s.Stratum_CN); 
+                        stratumAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long)s.Stratum_CN); 
 
-                        List<LogStockDO> justLogs = logList.Where(
-                            l => l.Tree.Species == sl.Species && l.Tree.Stratum.Code == s.Code && 
-                                        l.Tree.SampleGroup.CutLeave == "C" && l.Grade == logGrades[k]).ToList();
+                        List<LogStockDO> justLogs = logList.FindAll(
+                            delegate(LogStockDO l)
+                            {
+                                return l.Tree.Species == sl.Species && l.Tree.Stratum.Code == s.Code && 
+                                        l.Tree.SampleGroup.CutLeave == "C" && l.Grade == logGrades[k];
+                            });
                         if (justLogs.Count > 0)
                         {
                             //  pull and sum volume based on report
@@ -335,7 +344,7 @@ namespace CruiseProcessing
         }   //  end AccumulateByLogGrade
 
 
-        private void AccumulateMostlyLCD(List<LCDDO> lcdList, IEnumerable<LCDDO> speciesList, List<StratumDO> sList,
+        private void AccumulateMostlyLCD(List<LCDDO> lcdList, List<LCDDO> speciesList, List<StratumDO> sList,
                                           StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  R005
@@ -351,20 +360,25 @@ namespace CruiseProcessing
             //  Which height field to use?
             int hgtOne = 0;
             int hgtTwo = 0;
-            List<TreeDO> tList = Global.BL.getTrees().ToList();
+            List<TreeDO> tList = bslyr.getTrees();
             whichHeightFields(ref hgtOne, ref hgtTwo, tList);
 
             //  need PRO table
-            List<PRODO> proList = Global.BL.getPRO().ToList();
+            List<PRODO> proList = bslyr.getPRO();
             //  and cutting unit table
-            List<CuttingUnitDO> unitList = Global.BL.getCuttingUnits().ToList();
+            List<CuttingUnitDO> unitList = bslyr.getCuttingUnits();
+            //  and just logging methods
+            List<CuttingUnitDO> justMethods = bslyr.getLoggingMethods();
 
             //  process by logging method
-            foreach (CuttingUnitDO jm in Global.BL.getLoggingMethods())
+            foreach (CuttingUnitDO jm in justMethods)
             {
                 //  find units for current log method
                 List<CuttingUnitDO> justUnits = unitList.FindAll(
-                    c => c.LoggingMethod == jm.LoggingMethod);
+                    delegate(CuttingUnitDO c)
+                    {
+                        return c.LoggingMethod == jm.LoggingMethod;
+                    });
                 //  then process by stratum, species, and pp=01 only
                 foreach (LCDDO sl in speciesList)
                 {
@@ -381,7 +395,7 @@ namespace CruiseProcessing
                             //  find correct acres for current stratum
                             if (prevST != sd.Code)
                             {
-                                currAcres = Utilities.ReturnCorrectAcres(sd.Code, (long)sd.Stratum_CN);
+                                currAcres = Utilities.ReturnCorrectAcres(sd.Code, bslyr, (long)sd.Stratum_CN);
                                 prevST = sd.Code;
                             }   //  endif
 
@@ -469,7 +483,7 @@ namespace CruiseProcessing
         {
             //   R006/R007
             //  capture cruise number
-            string cruiseNumb = Global.BL.getCruiseNumber();
+            string cruiseNumb = bslyr.getCruiseNumber();
             //  update headers for output file based on report
             string[] completeHeaders = new string[5];
             regionalReportHeaders rrh = new regionalReportHeaders();
@@ -503,12 +517,18 @@ namespace CruiseProcessing
                 textFile.WriteLine(reportConstants.longLine);
 
                 //  pull log stock records ordered by species
-                List<LogStockDO> justLogs = Global.BL.getCutLogs().ToList();
+                List<LogStockDO> justLogs = bslyr.getCutLogs();
                 //  also need a list of just species
-                foreach (LCDDO sl in Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", ""))
+                List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+                foreach (LCDDO sl in speciesList)
                 {
                     //  sum logs for current species
-                    int diamFlag = SumLogData(justLogs.FindAll(ls => ls.Tree.Species == sl.Species), cruiseNumb, sl.Species);
+                    List<LogStockDO> justSpecies = justLogs.FindAll(
+                        delegate(LogStockDO ls)
+                        {
+                            return ls.Tree.Species == sl.Species;
+                        });
+                    int diamFlag = SumLogData(justSpecies, cruiseNumb, sl.Species);
                     OutputLogData(textFile);
                     if (diamFlag > 0)
                         textFile.WriteLine("  Logs with a small end diameter of less than 5.5 are NOT included in this report.");
@@ -522,7 +542,7 @@ namespace CruiseProcessing
         private void OutputLogMatrixFile()
         {
             List<LogMatrix> outputMatrix = new List<LogMatrix>();
-            List<LogMatrixDO> reportMatrix = Global.BL.getLogMatrix(currentReport).ToList();
+            List<LogMatrixDO> reportMatrix = bslyr.getLogMatrix(currentReport);
             if (reportMatrix.Count > 0)
                 outputMatrix = CreateLogMatrix(reportMatrix);
             else if(reportMatrix.Count == 0)
@@ -543,7 +563,7 @@ namespace CruiseProcessing
         private void AccumulateCategories(List<LogMatrixDO> reportMatrix, List<LogMatrix> outputMatrix)
         {
             //  R008/R009
-            IEnumerable<LogStockDO> logList = Global.BL.getCutLogs();
+            List<LogStockDO> logList = bslyr.getCutLogs();
             int nthRow = 0;
             string currLG = "";
 
@@ -577,33 +597,48 @@ namespace CruiseProcessing
                     //  and max/min diameters
                     if((rm.SEDlimit == "" || rm.SEDminimum == 0) && currLG != null)
                     {
-                        justLogs = logList.Where(
-                            l => l.Grade == currLG && l.Tree.Species == rm.Species.TrimEnd(' ')).ToList();
+                        justLogs = logList.FindAll(
+                            delegate(LogStockDO l)
+                            {
+                                return l.Grade == currLG && l.Tree.Species == rm.Species.TrimEnd(' ');
+                            });
                     }
                     else if((rm.SEDlimit == null && rm.SEDminimum > 0) && currLG != null)
                     {
-                        justLogs = logList.Where(
-                            l => l.Grade == currLG && l.Tree.Species == rm.Species.TrimEnd(' ') &&
-                                    l.SmallEndDiameter >= rm.SEDminimum).ToList();
+                        justLogs = logList.FindAll(
+                            delegate(LogStockDO l)
+                            {
+                                return l.Grade == currLG && l.Tree.Species == rm.Species.TrimEnd(' ') &&
+                                    l.SmallEndDiameter >= rm.SEDminimum;
+                            });
                     }
                     else if((rm.SEDlimit == "greater than") && currLG != null)
                     {
-                        justLogs = logList.Where(
-                            l => l.Grade == currLG && l.SmallEndDiameter >= rm.SEDminimum &&
-                                        l.Tree.Species == rm.Species.TrimEnd(' ')).ToList();
+                        justLogs = logList.FindAll(
+                            delegate(LogStockDO l)
+                            {
+                                return l.Grade == currLG && l.SmallEndDiameter >= rm.SEDminimum &&
+                                        l.Tree.Species == rm.Species.TrimEnd(' ');
+                            });
                     }
                     else if((rm.SEDlimit == "less than") && currLG != null)
                     {
-                        justLogs = logList.Where(
-                            l => l.Grade == currLG && l.SmallEndDiameter <= rm.SEDminimum &&
-                                        l.Tree.Species == rm.Species.TrimEnd(' ')).ToList();
+                        justLogs = logList.FindAll(
+                            delegate(LogStockDO l)
+                            {
+                                return l.Grade == currLG && l.SmallEndDiameter <= rm.SEDminimum &&
+                                        l.Tree.Species == rm.Species.TrimEnd(' ');
+                            });
                     }
                     else if((rm.SEDlimit == "between" || rm.SEDlimit == "thru") && currLG != null)
                     {
-                        justLogs = logList.Where(
-                            l => l.Grade == currLG && l.SmallEndDiameter >= rm.SEDminimum && 
+                        justLogs = logList.FindAll(
+                            delegate(LogStockDO l)
+                            {
+                                return l.Grade == currLG && l.SmallEndDiameter >= rm.SEDminimum && 
                                             l.SmallEndDiameter <= rm.SEDmaximum && 
-                                            l.Tree.Species == rm.Species.TrimEnd(' ')).ToList();
+                                            l.Tree.Species == rm.Species.TrimEnd(' ');
+                            });
                     }   //  endif
                     //  Calculate appropriate MBF and store in outputMatrix
                     if (justLogs.Count > 0)
@@ -664,7 +699,7 @@ namespace CruiseProcessing
                     //  get correct stratum acres for expansion but only if stratum changed
                     if (currST != jl.Tree.Stratum.Code)
                     {
-                        currAC = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code,
+                        currAC = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, bslyr,
                                                             (long) jl.Tree.Stratum_CN);
                         currST = jl.Tree.Stratum.Code;
                     }   //  endif
@@ -775,7 +810,7 @@ namespace CruiseProcessing
             else if(currentReport == "R002")
                 strWriteOut.WriteLine(Utilities.FormatField(calcValue, "{0,6:F2}").ToString().PadLeft(6, ' '));                
 //            calcValue = 0;
-//            List<CuttingUnitDO> cutList = Global.BL.getCuttingUnits();
+//            List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
 //            double totalSaleAcres = cutList.Sum(c => c.Area);
 //            if(totalSaleAcres > 0) calcValue = totalToOutput[0].Value6 / totalSaleAcres;
 //            strWriteOut.Write(summaryLabels[4]);
@@ -783,8 +818,8 @@ namespace CruiseProcessing
 
             //  Fourth and fifth line -- January 2017 -- gross and net removed per acre
             calcValue = 0;
-            //List<CuttingUnitDO> cutList = Global.BL.getCuttingUnits();
-            double totalSaleAcres = Global.BL.getCuttingUnits().Sum(c => c.Area);
+            List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+            double totalSaleAcres = cutList.Sum(c => c.Area);
             //  March 2017 -- per email from Region 10, remove gross line 
             //  gross
 //            if(totalSaleAcres > 0) calcValue = totalToOutput[0].Value3 / totalSaleAcres;
@@ -823,7 +858,7 @@ namespace CruiseProcessing
             double summedEF = 0;
             foreach(StratumDO s in sList)
             {
-                double stratumAcres = Utilities.ReturnCorrectAcres(s.Code, (long)s.Stratum_CN);
+                double stratumAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long)s.Stratum_CN);
                 //  pull cuts and current stratum from lcd list
                 List<LCDDO> justStratum = lcdList.FindAll(
                     delegate(LCDDO l)
@@ -852,7 +887,7 @@ namespace CruiseProcessing
             //  need to check stratum method to get proper total tree count
             foreach (StratumDO s in sList)
             {
-                double stratumAcres = Utilities.ReturnCorrectAcres(s.Code, (long)s.Stratum_CN);
+                double stratumAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long)s.Stratum_CN);
                 //  pull cuts and current stratum from lcd list
                 List<LCDDO> justStratum = lcdList.FindAll(
                     delegate(LCDDO l)
@@ -886,7 +921,7 @@ namespace CruiseProcessing
                     {
                         return sl.Code == l.Stratum;
                     });
-                strAcres = Utilities.ReturnCorrectAcres(sList[nthRow].Code,(long)sList[nthRow].Stratum_CN);
+                strAcres = Utilities.ReturnCorrectAcres(sList[nthRow].Code,bslyr,(long)sList[nthRow].Stratum_CN);
                 summedBDFT += l.SumNBDFT * strAcres;
                 summedCUFT += l.SumNCUFT * strAcres;
             }   //  end foreach loop
@@ -1478,7 +1513,7 @@ namespace CruiseProcessing
         }   //  end createCompleteHeader
 
 
-        private string[] createCompleteHeader(IEnumerable<LCDDO> speciesList)
+        private string[] createCompleteHeader(List<LCDDO> speciesList)
         {
             //   R003/R004
             string[] finnishHeader = new string[2];
@@ -1533,7 +1568,7 @@ namespace CruiseProcessing
                 //  stratum acres
                 if (prevStratum != jl.Tree.Stratum.Code)
                 {
-                    currAC = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, (long)jl.Tree.Stratum_CN);
+                    currAC = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, bslyr, (long)jl.Tree.Stratum_CN);
                     prevStratum = jl.Tree.Stratum.Code;
                 }   //  endif
                 switch (volType)
@@ -1593,9 +1628,9 @@ namespace CruiseProcessing
                     return lm.ReportNumber == currentReport;
                 });
             //  pull salename and cruise number
-            SaleDO sale = Global.BL.getSale().First();
-            string currSN = sale.Name;
-            string currCN = sale.SaleNumber;
+            List<SaleDO> sList = bslyr.getSale();
+            string currSN = sList[0].Name;
+            string currCN = sList[0].SaleNumber;
             //  load output matrix
             List<LogMatrix> matrixToOutput = new List<LogMatrix>();
             StringBuilder sb = new StringBuilder();
@@ -1607,7 +1642,7 @@ namespace CruiseProcessing
                 mto.logSortDescrip = jcr.LogSortDescription;
                 mto.speciesCode = jcr.Species;
                 //  concatenate grade for log grade description
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 buildLogGradeDescription(jcr.LogGrade1, "", sb);
                 buildLogGradeDescription(jcr.LogGrade2, jcr.GradeDescription, sb);
                 buildLogGradeDescription(jcr.LogGrade3, jcr.GradeDescription, sb);
@@ -1616,7 +1651,7 @@ namespace CruiseProcessing
                 buildLogGradeDescription(jcr.LogGrade6, jcr.GradeDescription, sb);
                 mto.logGradeCode = sb.ToString().TrimStart(' ');
                 //  concatenate diameter description
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 buildDiameterDescription(jcr.SEDlimit, jcr.SEDminimum, jcr.SEDmaximum, sb);
                 mto.logSED = sb.ToString();
                 matrixToOutput.Add(mto);

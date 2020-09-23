@@ -18,6 +18,7 @@ namespace CruiseProcessing
         public string fileName;
         public List<JustDIBs> jstDIB = new List<JustDIBs>();
         private int selectedRow;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
 
@@ -29,10 +30,10 @@ namespace CruiseProcessing
         public void setupDialog()
         {
             //  Get unique species list from trees
-            ArrayList uniqueSpecies = Global.BL.GetJustSpecies("Tree");
+            ArrayList uniqueSpecies = bslyr.GetJustSpecies("Tree");
 
             //  any volume equations??
-            List<VolumeEquationDO> volList = Global.BL.getVolumeEquations().ToList();
+            List<VolumeEquationDO> volList = bslyr.getVolumeEquations();
             if (volList.Count <= 0)
             {
                 //  Initialize dibs as zero
@@ -55,13 +56,18 @@ namespace CruiseProcessing
                 {
                     JustDIBs jd = new JustDIBs();
                     string currentSpecies = uniqueSpecies[k].ToString();
-                    VolumeEquationDO ve = volList.FirstOrDefault(v => v.Species == currentSpecies);
-                    if (ve != null)
+                    int nthRow = volList.FindIndex(
+                        delegate(VolumeEquationDO v)
+                        {
+                            //return v.Species == currentSpecies && v.PrimaryProduct == "01";
+                            return v.Species == currentSpecies;
+                        });
+                    if (nthRow >= 0)
                     {
                         jd.speciesDIB = currentSpecies;
-                        jd.productDIB = ve.PrimaryProduct.ToString();
-                        jd.primaryDIB = ve.TopDIBPrimary;
-                        jd.secondaryDIB = ve.TopDIBSecondary;
+                        jd.productDIB = volList[nthRow].PrimaryProduct.ToString();
+                        jd.primaryDIB = (float)volList[nthRow].TopDIBPrimary;
+                        jd.secondaryDIB = (float)volList[nthRow].TopDIBSecondary;
                         jstDIB.Add(jd);
                     }   //  endif nthRow
                 }   //  end for k loop

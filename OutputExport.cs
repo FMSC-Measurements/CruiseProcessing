@@ -30,15 +30,15 @@ namespace CruiseProcessing
         public void CreateExportReports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  is this a variable log length cruise?  And are there log records?
-            //List<SaleDO> sList = Global.BL.getSale();
+            List<SaleDO> sList = bslyr.getSale();
             //  not sure where cruise type has disappeared to
-            if (Global.BL.getSale().First().Purpose != "V")
+            if (sList[0].Purpose != "V")
             {
                 MessageBox.Show("This is not a Variable Log Length cruise.\nCannot produce Export Reports.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }   //  endif
-            logList = Global.BL.getLogs().ToList();
-            logStockList = Global.BL.getLogStock().ToList();
+            logList = bslyr.getLogs();
+            logStockList = bslyr.getLogStock();
             if (logList.Count == 0 && logStockList.Count == 0)
             {
                 noDataForReport(strWriteOut, currentReport, " No log data for report ");
@@ -55,7 +55,7 @@ namespace CruiseProcessing
                     rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
                     fieldLengths = new int[] { 2, 7, 6, 7, 5, 6, 9, 7, 7, 11, 3 };
                     //  need a joined log table to get tree information
-                    logList = Global.BL.getTreeLogs().ToList();
+                    logList = bslyr.getTreeLogs();
                     CreateEX1(strWriteOut, ref pageNumb, rh);
                     logList.Clear();
                     break;
@@ -65,7 +65,7 @@ namespace CruiseProcessing
                     completeHeader = createCompleteHeader(rh);
                     fieldLengths = new int[] { 2, 7, 6, 7, 5, 6, 9, 7, 7, 11, 3, 6, 6, 6, 6, 7, 4 };
                     //  need joined log stock table to get tree information
-                    logStockList = Global.BL.getLogStockSorted().ToList();
+                    logStockList = bslyr.getLogStockSorted();
                     int nResult = CreateEX2(strWriteOut, ref pageNumb, rh);
                     if (nResult == -1)
                     {
@@ -88,7 +88,7 @@ namespace CruiseProcessing
                     numOlines = 0;
                     fieldLengths = new int[] { 5, 18, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6 };
                     //  pull just unique species from LCD table
-                    List<LCDDO> justSpecies = Global.BL.GetLCDgroup("", 5, "C").ToList();
+                    List<LCDDO> justSpecies = bslyr.GetLCDgroup("", 5, "C");
                     //  each species is at least one page
                     string firstHeader = " ***** NET ";
                     string secondHeader = "  SPECIES:  ";
@@ -108,8 +108,8 @@ namespace CruiseProcessing
                     rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
                     completeHeader = createCompleteHeader(rh);
                     fieldLengths = new int[] { 2, 6, 6, 10, 6, 6, 10, 9, 9, 8, 8, 11, 4 };
-                    //List<StratumDO> stList = Global.BL.getStratum();
-                    foreach (StratumDO s in Global.BL.getStratum())
+                    List<StratumDO> stList = bslyr.getStratum();
+                    foreach (StratumDO s in stList)
                     {
                         s.CuttingUnits.Populate();
                         foreach (CuttingUnitDO cu in s.CuttingUnits)
@@ -187,37 +187,45 @@ namespace CruiseProcessing
             double maxDefect = 0;
             string currExSort = "";
             string currExGrade = "";
-            List<exportGrades> exList = Global.BL.GetExportGrade().ToList();
+            List<exportGrades> exList = bslyr.GetExportGrade();
             //  loop through log stock and compare values to defaults to find errors
             foreach (LogStockDO lsl in logStockList)
             {
                 //   find export grade in the export defaults
-                exportGrades eg = exList.FirstOrDefault(ex => ex.exportSort == lsl.ExportGrade);
-                if (eg != null)
-                { 
-                    currExSort = eg.exportSort;
-                    //  find log grade in export defaults for comparison
-                    exportGrades eg1 = exList.FirstOrDefault(ex => ex.exportGrade == lsl.Grade);
-                    if (eg1 != null)
+                int nthRow = exList.FindIndex(
+                    delegate(exportGrades ex)
                     {
-                        currExGrade = eg1.exportGrade;
+                        return ex.exportSort == lsl.ExportGrade;
+                    });
+                if (nthRow >= 0)
+                { 
+                    currExSort = exList[nthRow].exportSort;
+                    //  find log grade in export defaults for comparison
+                    int mthRow = exList.FindIndex(
+                        delegate(exportGrades ex)
+                        {
+                            return ex.exportGrade == lsl.Grade;
+                        });
+                    if (mthRow >= 0)
+                    {
+                        currExGrade = exList[mthRow].exportGrade;
                         //  compare values to get correct min or max
                         //  Small end diameter minimum
-                        if (eg.minDiam < eg1.minDiam)
-                            minDiam = eg1.minDiam;
-                        else minDiam = eg.minDiam;
+                        if (exList[nthRow].minDiam < exList[mthRow].minDiam)
+                            minDiam = exList[mthRow].minDiam;
+                        else minDiam = exList[nthRow].minDiam;
                         //  BDFT volume minimum
-                        if (eg.minBDFT < eg1.minBDFT)
-                            minBDFT = eg1.minBDFT;
-                        else minBDFT = eg.minBDFT;
+                        if (exList[nthRow].minBDFT < exList[mthRow].minBDFT)
+                            minBDFT = exList[mthRow].minBDFT;
+                        else minBDFT = exList[nthRow].minBDFT;
                         //  Length minimum
-                        if (eg.minLength < eg1.minLength)
-                            minLength = eg1.minLength;
-                        else minLength = eg.minLength;
+                        if (exList[nthRow].minLength < exList[mthRow].minLength)
+                            minLength = exList[mthRow].minLength;
+                        else minLength = exList[nthRow].minLength;
                         //  Defect maximum
-                        if (eg.maxDefect > eg1.maxDefect)
-                            maxDefect = eg1.maxDefect;
-                        else maxDefect = eg.maxDefect;
+                        if (exList[nthRow].maxDefect > exList[mthRow].maxDefect)
+                            maxDefect = exList[mthRow].maxDefect;
+                        else maxDefect = exList[nthRow].maxDefect;
                     }
                     else currExGrade = "";
                 }
@@ -265,9 +273,11 @@ namespace CruiseProcessing
 
         private void CreateEX3(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
+            //  just a listing of the export grade default table
+            List<exportGrades> exportList = bslyr.GetExportGrade();
             //  because of the way this list is put together, need to loop through once to print export sort information
             //  then loop through again to print the export grade information
-            foreach (exportGrades el in Global.BL.GetExportGrade())
+            foreach (exportGrades el in exportList)
             {
                 WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
                                         rh.EX3columns, 8, ref pageNumb, "");
@@ -287,7 +297,7 @@ namespace CruiseProcessing
 
             //  export grade information
             strWriteOut.WriteLine(reportConstants.longLine);
-            foreach (exportGrades el in Global.BL.GetExportGrade())
+            foreach (exportGrades el in exportList)
             {
                 WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
                                             rh.EX3columns, 8, ref pageNumb, "");
@@ -313,19 +323,19 @@ namespace CruiseProcessing
             //  will use RegionalReports list for the list to output
             List<RegionalReports> listToOutput = new List<RegionalReports>();
             //  first need DIB classes
-            List<LogStockDO> justDIBs = Global.BL.getLogDIBs().ToList();
+            List<LogStockDO> justDIBs = bslyr.getLogDIBs();
             LoadLogDIBclasses(listToOutput, justDIBs);
             //  pull just sort and grade from logstock to finish column headers
-            IEnumerable<LogStockDO> justSorts = Global.BL.getLogSorts(currSP);
+            List<LogStockDO> justSorts = bslyr.getLogSorts(currSP);
             //  finish column header with sort combinations
-            completeHeader = createCompleteHeader(Global.BL.getLogSorts(currSP), rh);
-            numColumns = justSorts.Count();
+            completeHeader = createCompleteHeader(justSorts, rh);
+            numColumns = justSorts.Count;
             int nthColumn = 7;     // starts with seven because the listToOutput value starts with value7
             foreach(LogStockDO js in justSorts)
             {
                 //  pull log records for loading
-                //List<LogStockDO> justLogs = Global.BL.getCutLogs(currSP, js.ExportGrade, js.Grade);
-                LoadSortGradeData(Global.BL.getCutLogs(currSP, js.ExportGrade, js.Grade), nthColumn, listToOutput);
+                List<LogStockDO> justLogs = bslyr.getCutLogs(currSP, js.ExportGrade, js.Grade);
+                LoadSortGradeData(justLogs, nthColumn, listToOutput);
                 nthColumn++;
             }   //  end foreach loop
             //  write this group
@@ -341,28 +351,34 @@ namespace CruiseProcessing
         {
             //  EX6 and EX7
             string currSpecies = "";
-            //List<PRODO> proList = Global.BL.getPRO();
+            List<PRODO> proList = bslyr.getPRO();
             //  get correct acres
-            double strAcres = Utilities.ReturnCorrectAcres(currST.Code, (long)currST.Stratum_CN);
+            double strAcres = Utilities.ReturnCorrectAcres(currST.Code, bslyr, (long)currST.Stratum_CN);
             //  first pull unique sort and grade codes
-            //List<LogStockDO> justSorts = Global.BL.getLogSorts("");
-            logStockList = Global.BL.getCutLogs().ToList();
+            List<LogStockDO> justSorts = bslyr.getLogSorts("");
+            logStockList = bslyr.getCutLogs();
             //  then loop through sort codes to get logs
             List<LogStockDO> justLogs = new List<LogStockDO>();
-            foreach (LogStockDO js in Global.BL.getLogSorts(""))
+            foreach (LogStockDO js in justSorts)
             {
                 //  pull logs for this group based on report
                 if (currentReport == "EX6")
                 {
                     justLogs = logStockList.FindAll(
-                        l => l.Tree.Stratum.Code == currST.Code && l.Tree.CuttingUnit.Code == currCU &&
-                                        l.ExportGrade == js.ExportGrade && l.Grade == js.Grade);
+                        delegate(LogStockDO l)
+                        {
+                            return l.Tree.Stratum.Code == currST.Code && l.Tree.CuttingUnit.Code == currCU &&
+                                        l.ExportGrade == js.ExportGrade && l.Grade == js.Grade;
+                        });
                 }
                 else if(currentReport == "EX7")
                 {
                     justLogs = logStockList.FindAll(
-                        l => l.Tree.Stratum.Code == currST.Code &&
-                                l.ExportGrade == js.ExportGrade && l.Grade == js.Grade);
+                        delegate(LogStockDO l)
+                        {
+                            return l.Tree.Stratum.Code == currST.Code &&
+                                l.ExportGrade == js.ExportGrade && l.Grade == js.Grade;
+                        });
                 }   //  endif
                 //  sum values into output list
                 double proratFactor = 0;
@@ -376,11 +392,14 @@ namespace CruiseProcessing
                 foreach (LogStockDO jl in justLogs)
                 {
                     //  find proration factor for the group
-                    PRODO prodo = Global.BL.getPRO().FirstOrDefault(
-                        p => p.Stratum == jl.Tree.Stratum.Code && p.CuttingUnit == jl.Tree.CuttingUnit.Code && 
-                                                p.SampleGroup == jl.Tree.SampleGroup.Code);
-                    if (prodo != null)
-                        proratFactor = prodo.ProrationFactor;
+                    int nthRow = proList.FindIndex(
+                        delegate(PRODO p)
+                        {
+                            return p.Stratum == jl.Tree.Stratum.Code && p.CuttingUnit == jl.Tree.CuttingUnit.Code && 
+                                                p.SampleGroup == jl.Tree.SampleGroup.Code;
+                        });
+                    if (nthRow >= 0)
+                        proratFactor = proList[nthRow].ProrationFactor;
                     else proratFactor = 1.0;
                     //  save species
                     currSpecies = jl.Tree.Species;
@@ -455,7 +474,7 @@ namespace CruiseProcessing
         }   //  end updateSubtotal
 
 
-        private void LoadSortGradeData(IEnumerable<LogStockDO> justLogs, int nthColumn, List<RegionalReports> listToOutput)
+        private void LoadSortGradeData(List<LogStockDO> justLogs, int nthColumn, List<RegionalReports> listToOutput)
         {
             //  EX4 and EX5
             int volFactor = 100;
@@ -470,7 +489,7 @@ namespace CruiseProcessing
             {
                 if (currST != jl.Tree.Stratum.Code)
                 {
-                    strAcres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, (long)jl.Tree.Stratum_CN);
+                    strAcres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, bslyr, (long)jl.Tree.Stratum_CN);
                     currST = jl.Tree.Stratum.Code;
                 }   //  endif different stratum
 
@@ -822,7 +841,7 @@ namespace CruiseProcessing
         }   //  end createCompleteHeader
 
 
-        private string[] createCompleteHeader(IEnumerable<LogStockDO> justSorts, reportHeaders rh)
+        private string[] createCompleteHeader(List<LogStockDO> justSorts, reportHeaders rh)
         {
             //  EX4
             string[] finnishHeader = new string[3];

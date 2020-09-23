@@ -12,31 +12,30 @@ namespace CruiseProcessing
     public static class PlotMethods
     {
         //  methods pertaining to the plot table
-        public static IEnumerable<PlotDO> GetStrata(IEnumerable<PlotDO> pList, string currST)
+        public static List<PlotDO> GetStrata(List<PlotDO> pList, string currST)
         {
-            return pList.Where(pd => pd.Stratum.Code == currST);
-
-            //List<PlotDO> rtrnList = pList.FindAll(
-            //    delegate(PlotDO pd)
-            //    {
-            //        return pd.Stratum.Code == currST;
-            //    });
-            //return rtrnList;
+            List<PlotDO> rtrnList = pList.FindAll(
+                delegate(PlotDO pd)
+                {
+                    return pd.Stratum.Code == currST;
+                });
+            return rtrnList;
         }   //  end GetStrata
 
 
-        public static int FindDuplicatePlots(IEnumerable<PlotDO> pList, string currST, string currCU, long currPL)
+        public static int FindDuplicatePlots(List<PlotDO> pList, string currST, string currCU, long currPL)
         {
-            return pList.Any(pd => pd.PlotNumber == currPL && pd.CuttingUnit.Code == currCU &&
-                pd.Stratum.Code == currST) ? 7 : 0;
+            List<PlotDO> rtrnList = pList.FindAll(
+                delegate(PlotDO pd)
+                {
+                    return pd.PlotNumber == currPL && pd.CuttingUnit.Code == currCU && pd.Stratum.Code == currST;
+                });
+            if (rtrnList.Count > 1)
+                return 7;
+            else if (rtrnList.Count <= 0)
+                return 0;
 
-            //List<PlotDO> rtrnList = pList.FindAll(pd => pd.PlotNumber == currPL && pd.CuttingUnit.Code == currCU && pd.Stratum.Code == currST);
-            //if (rtrnList.Count > 1)
-            //    return 7;
-            //else if (rtrnList.Count <= 0)
-            //    return 0;
-
-            //return 0;
+            return 0;
         }   //  end FindDuplicatePlots
 
 

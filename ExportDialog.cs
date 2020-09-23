@@ -136,8 +136,8 @@ namespace CruiseProcessing
 
             //  Load these lists into database table
             //  this will need to change once export reports are tested -- Oct 2014
-            //Global.BL.fileName = fileName;
-            //Global.BL.SaveExportGrade(sortList, gradeList, tableExists);
+            //bslyr.fileName = fileName;
+            //bslyr.SaveExportGrade(sortList, gradeList, tableExists);
             return;
         }   //  end onFinished
 

@@ -14,6 +14,7 @@ namespace CruiseProcessing
     public partial class GraphReportsDialog : Form
     {
         #region
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         private List<ReportsDO> reportList = new List<ReportsDO>();
         #endregion
 
@@ -25,8 +26,12 @@ namespace CruiseProcessing
         public void setupDialog()
         {
             //  are there any graph reports selected
-            reportList = Global.BL.GetReports().ToList();
-            List<ReportsDO> justGraphs = reportList.FindAll(r => r.ReportID.Substring(0, 2) == "GR").ToList();
+            reportList = bslyr.GetReports();
+            List<ReportsDO> justGraphs = reportList.FindAll(
+                delegate(ReportsDO r)
+                {
+                    return r.ReportID.Substring(0, 2) == "GR";
+                });
             //  if these reports are not in the list, add them and make all the check boxes false
             if (justGraphs.Count == 0)
             {
@@ -148,7 +153,7 @@ namespace CruiseProcessing
             else updateList("GR11", false);
 
             //  save reports list
-            Global.BL.SaveReports(reportList);
+            bslyr.SaveReports(reportList);
             Close();
             return;
         }   //  end onFinished

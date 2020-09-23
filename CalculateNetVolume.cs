@@ -7,14 +7,14 @@ using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
-    public static class CalculateNetVolume
+    public  class CalculateNetVolume
     {
         #region
-        private static int defectLogic = 1;
-        private static double soundDefault = 0;
+        private int defectLogic = 1;
+        private double soundDefault = 0;
         #endregion
 
-        public static void calcNetVol(string cruiseType, float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList, 
+        public void calcNetVol(string cruiseType, float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList, 
                                     TreeDO currTree, string currRegion, float NOLOGP, float NOLOGS, int TLOGS, float MTOPP,
                                     string currPP)
         {
@@ -124,7 +124,7 @@ namespace CruiseProcessing
         }   // end calcNetVol
 
 
-        private static void VolumeTreeDefect(float currentDef1, float currentDef2, float currentDef3,
+        private void VolumeTreeDefect(float currentDef1, float currentDef2, float currentDef3,
                                              float currentDef4, float currentDef5, float currentDef6,
                                              ref float[] VOL, string currRegn, string currPP)
         {
@@ -185,7 +185,7 @@ namespace CruiseProcessing
         }   //  end VolumeTreeDefect
 
 
-        private static void SetLogGrades(string currRegn, List<LogStockDO> logStockList, string currTG,
+        private void SetLogGrades(string currRegn, List<LogStockDO> logStockList, string currTG,
                                           int numPPlogs, int TLOGS, float currDefRec)
         {
             //  skip first log record (0) -- loop starts with next log (1)
@@ -283,7 +283,7 @@ namespace CruiseProcessing
         }   //  end SetLogGrades
 
 
-        private static void VolumeLogDefect(string currRegn, float[,] LOGVOL, float[] VOL, List<LogStockDO> logStockList,
+        private void VolumeLogDefect(string currRegn, float[,] LOGVOL, float[] VOL, List<LogStockDO> logStockList,
                                             float currentDef1, float currentDef2, float currentDef3,
                                             float currentDef4, float currentDef5, float currentDef6,
                                             int numPPlogs, int numSPlogs, int TLOGS, float currentRec)
@@ -556,7 +556,7 @@ namespace CruiseProcessing
         }   //  end VolumeLogDefect
 
 
-        private static void LogUtil(float[] VOL, float[,] LOGVOL, int TLOGS, int numPPlogs, int numSPlogs, 
+        private void LogUtil(float[] VOL, float[,] LOGVOL, int TLOGS, int numPPlogs, int numSPlogs, 
                                     List<LogStockDO> logStockList, string currRegn, string currPP)
         {
             //  Zero out volumes
@@ -604,7 +604,7 @@ namespace CruiseProcessing
         }   //  end LogUtil
 
 
-        private static void SetDiameterClass(string currRegn, List<LogStockDO> logStockList, int TLOGS)
+        private void SetDiameterClass(string currRegn, List<LogStockDO> logStockList, int TLOGS)
         {
             for (int n = 0; n < TLOGS; n++)
             {
@@ -635,7 +635,7 @@ namespace CruiseProcessing
         }   //  end SetDiameterClass
 
 
-        private static void GetR6LogGrade(string currTG, List<LogStockDO> logStockList, int TLOGS, 
+        private void GetR6LogGrade(string currTG, List<LogStockDO> logStockList, int TLOGS, 
                                             int numPPlogs, float MTOPP)
         {
             /*  These comments are from the original GETLOG/GETR6GRADE in NatCRS
@@ -702,7 +702,7 @@ namespace CruiseProcessing
         }   //  end GetR6LogGrade
 
 
-        private static void VariableLogLength(float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList, int TLOGS,
+        private void VariableLogLength(float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList, int TLOGS,
                                                 string currPP, float currentDef1, float currentDef2, float currentDef3)
         {
             //  zero volume array

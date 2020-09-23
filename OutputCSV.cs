@@ -31,7 +31,7 @@ namespace CruiseProcessing
         public void OutputCSVfiles(string CSVoutFile, string reportToUse, string textOutFile)
         {
             //  check for Region 10 and L1 file first -- they have a different format for the ListToOutput
-            currentRegion = Global.BL.getRegion();
+            currentRegion = bslyr.getRegion();
             if ((currentReport == "CSV5" || currentReport == "L1") && currentRegion == "10")
             {
                 MessageBox.Show("This could take awhile.\nPlease wait", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -148,15 +148,15 @@ namespace CruiseProcessing
             //  This produces a CSV file from the TreeEstimate table
             //  if the table is empty it is either because there are no 3P strata or
             //  the file was created prior to March 2015 when the table was implemented.
-            //List<TreeEstimateDO> estimatesData = Global.BL.getTreeEstimates();
-            if (!Global.BL.getTreeEstimates().Any())
+            List<TreeEstimateDO> estimatesData = bslyr.getTreeEstimates();
+            if (estimatesData.Count == 0)
             {
                 MessageBox.Show("No estimate data for the CSV9 report.\nCannot produce the report.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }   //  endif
             //  create the csv list with desired fields
             List<CSVlist> outputList = new List<CSVlist>();
-            foreach (TreeEstimateDO ed in Global.BL.getTreeEstimates())
+            foreach (TreeEstimateDO ed in estimatesData)
             {
                 CSVlist c = new CSVlist();
                 c.field1 = ed.CountTree.SampleGroup.Stratum.Code;
@@ -172,11 +172,11 @@ namespace CruiseProcessing
 
         public void OutputTimberTheft(string CSVoutFile)
         {
-            //List<TreeDO> tList = Global.BL.getTrees();
-            //List<TreeCalculatedValuesDO> tcvList = Global.BL.getTreeCalculatedValues();
+            List<TreeDO> tList = bslyr.getTrees();
+            List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
             List<CSVlist> outputList = new List<CSVlist>();
 
-            foreach(TreeDO td in Global.BL.getTrees())
+            foreach(TreeDO td in tList)
             {
                 if(td.CountOrMeasure == "M")
                 {
@@ -189,22 +189,25 @@ namespace CruiseProcessing
                     c.field6 = td.TotalHeight.ToString();
                     c.field7 = td.MerchHeightPrimary.ToString();
                     //  find calculated values for this tree
-                    TreeCalculatedValuesDO tcv = Global.BL.getTreeCalculatedValues().FirstOrDefault(
-                        tc => td.Tree_CN == tc.Tree_CN);
-
-                    if (tcv != null)
+                    int nthRow = tcvList.FindIndex(
+                        delegate (TreeCalculatedValuesDO tcv)
                     {
-                        c.field8 = tcv.TotalCubicVolume.ToString();
-                        c.field9 = tcv.GrossCUFTPP.ToString();
-                        c.field10 = tcv.NetCUFTPP.ToString();
-                        c.field11 = tcv.GrossBDFTPP.ToString();
-                        c.field12 = tcv.NetBDFTPP.ToString();
-                        c.field13 = tcv.NetCUFTSP.ToString();
-                        c.field14 = tcv.NetBDFTSP.ToString();
-                        c.field15 = tcv.CordsPP.ToString();
-                        c.field16 = tcv.CordsSP.ToString();
-                        c.field17 = tcv.NumberlogsMS.ToString();
-                        c.field18 = tcv.NumberlogsTPW.ToString();
+                        return td.Tree_CN == tcv.Tree_CN;
+                    });
+
+                    if(nthRow >= 0)
+                    {
+                        c.field8 = tcvList[nthRow].TotalCubicVolume.ToString();
+                        c.field9 = tcvList[nthRow].GrossCUFTPP.ToString();
+                        c.field10 = tcvList[nthRow].NetCUFTPP.ToString();
+                        c.field11 = tcvList[nthRow].GrossBDFTPP.ToString();
+                        c.field12 = tcvList[nthRow].NetBDFTPP.ToString();
+                        c.field13 = tcvList[nthRow].NetCUFTSP.ToString();
+                        c.field14 = tcvList[nthRow].NetBDFTSP.ToString();
+                        c.field15 = tcvList[nthRow].CordsPP.ToString();
+                        c.field16 = tcvList[nthRow].CordsSP.ToString();
+                        c.field17 = tcvList[nthRow].NumberlogsMS.ToString();
+                        c.field18 = tcvList[nthRow].NumberlogsTPW.ToString();
                     }   //  endif
                     outputList.Add(c);
                 }   //  endif measured tree
@@ -618,9 +621,9 @@ namespace CruiseProcessing
             List<CSVlist> fileToOutput = new List<CSVlist>();
             //  start header line with forest, district and cruise number
             CSVlist fto = new CSVlist();
-            headerLine = Global.BL.getForest().PadLeft(2, ' ');
-            headerLine += Global.BL.getDistrict();
-            headerLine += Global.BL.getCruiseNumber().PadRight(5, ' ');
+            headerLine = bslyr.getForest().PadLeft(2, ' ');
+            headerLine += bslyr.getDistrict();
+            headerLine += bslyr.getCruiseNumber().PadRight(5, ' ');
 
             //  need to get pass first header group
             for (int k = 0; k < 6; k++)
@@ -1021,7 +1024,7 @@ namespace CruiseProcessing
                         if (k != 46) sb.Append(deLimiter);
                     }   //  end for k loop
                     strCSVout.WriteLine(sb.ToString());
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                 }   //  end foreach loop
                 strCSVout.Close();
             }   //  end using
@@ -1051,24 +1054,24 @@ namespace CruiseProcessing
             //  otherwise, it would be cut trees only.
             //  So this needs to loop through both and create separate lists to output
             //  open tables needed
-            SaleDO sale = Global.BL.getSale().First();
-            //List<LogStockDO> logList = Global.BL.getCutOrLeaveLogs(currCL);
+            List<SaleDO> sList = bslyr.getSale();
+            List<LogStockDO> logList = bslyr.getCutOrLeaveLogs(currCL);
             List<CSVlist> lsList = new List<CSVlist>();
-            List<LogDO> origLogs = Global.BL.getLogs().ToList();
+            List<LogDO> origLogs = bslyr.getLogs();
 
             //  Load list to return
-            string currentCruise = sale.SaleNumber;
-            string currentForest = sale.Forest;
-            string currentDistrict = sale.District;
-            string currentSalename = sale.Name;
+            string currentCruise = sList[0].SaleNumber;
+            string currentForest = sList[0].Forest;
+            string currentDistrict = sList[0].District;
+            string currentSalename = sList[0].Name;
             double strAcres = 0.0;
 
-            foreach (LogStockDO ll in Global.BL.getCutOrLeaveLogs(currCL))
+            foreach (LogStockDO ll in logList)
             {
                 if (ll.Tree.CountOrMeasure == "M")
                 {
                     //  what is stratum acres?
-                    strAcres = Utilities.ReturnCorrectAcres(ll.Tree.Stratum.Code, (long)ll.Tree.Stratum_CN);
+                    strAcres = Utilities.ReturnCorrectAcres(ll.Tree.Stratum.Code, bslyr, (long)ll.Tree.Stratum_CN);
 
                     //  Find all logs for this tree
                     CSVlist c = new CSVlist();
@@ -1146,10 +1149,13 @@ namespace CruiseProcessing
                         c.field45 = "   ";
                     else c.field45 = ll.Tree.CuttingUnit.LoggingMethod;
                     //  have to look up seen defect from original logs
-                    LogDO log = origLogs.FirstOrDefault(
-                        ld => ld.Tree_CN == ll.Tree.Tree_CN && ld.LogNumber == ll.LogNumber);
-                    if (log != null)
-                        c.field46 = log.SeenDefect.ToString();
+                    int nthRow = origLogs.FindIndex(
+                        delegate(LogDO ld)
+                        {
+                            return ld.Tree_CN == ll.Tree.Tree_CN && ld.LogNumber == ll.LogNumber;
+                        });
+                    if (nthRow >= 0)
+                        c.field46 = origLogs[nthRow].SeenDefect.ToString();
                     else c.field46 = " ";
                     lsList.Add(c);
                 }   //  endif measured tree
@@ -1157,5 +1163,6 @@ namespace CruiseProcessing
             
             return lsList;
         }   //  end LoadLogStockR10
+  
     }
 }

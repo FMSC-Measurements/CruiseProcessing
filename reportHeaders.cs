@@ -517,7 +517,7 @@ namespace CruiseProcessing
                                         string titleTwo, string titleThree)
         {
             //  write report title and page number
-            sb.Remove(0, sb.Length);
+            sb.Clear();
             sb.Append(titleOne.PadRight(124,' '));
             sb.Append("PAGE ");
             sb.Append(pageNum);
@@ -530,21 +530,21 @@ namespace CruiseProcessing
                 strWriteOut.WriteLine(titleThree);
 
             //  write remaining info
-            sb.Remove(0, sb.Length);
+            sb.Clear();
             sb.Append("CRUISE#: ");
             sb.Append(mainHeaderData[3].ToString().PadRight(5,' '));
             sb.Append("      SALE#: ");
             sb.Append(mainHeaderData[3].ToString().PadRight(5, ' '));
             strWriteOut.WriteLine(sb.ToString());
 
-            sb.Remove(0, sb.Length);
+            sb.Clear();
             sb.Append("SALENAME: ");
             sb.Append(mainHeaderData[4].ToString().PadRight(103, ' '));
             sb.Append("VERSION: ");
             sb.Append(mainHeaderData[1]);
             strWriteOut.WriteLine(sb.ToString());
 
-            sb.Remove(0, sb.Length);
+            sb.Clear();
             sb.Append("RUN DATE & TIME: ");
             sb.Append(mainHeaderData[0]);
             sb.Append("                                                             VOLUME LIBRARY VERSION: ");

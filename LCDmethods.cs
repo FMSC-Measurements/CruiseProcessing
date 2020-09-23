@@ -22,92 +22,138 @@ namespace CruiseProcessing
         }   //  end GetStratum
 
 
-        public static IEnumerable<LCDDO> GetCutOrLeave(IEnumerable<LCDDO> LCDlist, string currCL, string currST, string currPR, int prodType)
+        public static List<LCDDO> GetCutOrLeave(List<LCDDO> LCDlist, string currCL, string currST, string currPR, int prodType)
         {
+            List<LCDDO> rtrnList = new List<LCDDO>();
             //  pull cut trees, current stratum and requested product
             if (prodType == 1)       //  primary
             {
-                return LCDlist.Where(lcdo => lcdo.CutLeave == currCL && lcdo.Stratum == currST && lcdo.PrimaryProduct == currPR);
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == currCL && lcdo.Stratum == currST && lcdo.PrimaryProduct == currPR;
+                    });
             }
             else if (prodType == 2)      //  secondary or recovered
             {
-                return LCDlist.Where(lcdo => lcdo.CutLeave == currCL && lcdo.Stratum == currST && lcdo.SecondaryProduct == currPR);
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == currCL && lcdo.Stratum == currST && lcdo.SecondaryProduct == currPR;
+                    });
             }   //  endif prodType
-            return new List<LCDDO>();
+            return rtrnList;
         }   //  end GetCutOrLeave
 
 
-        public static IEnumerable<LCDDO> GetCutOrLeave(IEnumerable<LCDDO> LCDlist, string currCL, string currSP, 
+        public static List<LCDDO> GetCutOrLeave(List<LCDDO> LCDlist, string currCL, string currSP, 
                                                 string currST, string currLD)
         {
 
-            //List<LCDDO> rtrnList = new List<LCDDO>();
+            List<LCDDO> rtrnList = new List<LCDDO>();
             //  this returns one of the following:  all cut trees, all cut trees and current species
             //  or all cut trees and current stratum
             //  species
             if (currSP != "" && currCL == "" && currST == "" && currLD == "")
             {
                 //  pull cut trees and current species from LCD list
-                return LCDlist.Where(lcdo => lcdo.CutLeave == "C" && lcdo.Species == currSP);
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == "C" && lcdo.Species == currSP;
+                    });
+                return rtrnList;
             }   //  endif currSP
 
             //  stratum --  may need to setup another query for leave trees
             if (currST != "" && currCL == "C" && currSP == "" && currLD == "")
             {
                 //  pull cut trees and current stratum from LCD list
-                return LCDlist.Where(lcdo => lcdo.CutLeave == currCL && lcdo.Stratum == currST);
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == currCL && lcdo.Stratum == currST;
+                    });
+                return rtrnList;
             }   //  endif currST
 
             //  cutleave
             if (currCL != "" && currST == "" && currSP == "" && currLD == "")
             {
                 //  pull cut or leave trees based on the current Cut/Leave code
-                return LCDlist.Where(lcdo => lcdo.CutLeave == currCL);
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == currCL;
+                    });
+                return rtrnList;
             }   //  endif currST and currSP are blank
 
             //  cutleave, stratum and species
             if (currCL != "" && currST != "" && currSP != "" && currLD == "")
             {
                 // pulls cutleave, stratum and species
-                return LCDlist.Where(lcdo => lcdo.CutLeave == currCL && lcdo.Stratum == currST && lcdo.Species == currSP);
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == currCL && lcdo.Stratum == currST && lcdo.Species == currSP;
+                    });
+                return rtrnList;
             }   //  endif
 
             //  cut/leave and species
             if (currSP != "" && currCL != "")
             {
-                return LCDlist.Where(lcdo => lcdo.CutLeave == currCL && lcdo.Species == currSP);
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == currCL && lcdo.Species == currSP;
+                    });
+                return rtrnList;
             }   //  endif species and cut/leave
 
 
-            return new List<LCDDO>();
+            return rtrnList;
         }   //  end GetCutOrLeave
 
 
-        public static IEnumerable<LCDDO> GetCutOnlyMultipleValue(IEnumerable<LCDDO> LCDlist, string currST, string currSG, 
+        public static List<LCDDO> GetCutOnlyMultipleValue(List<LCDDO> LCDlist, string currST, string currSG, 
                                                             string currSP, string currCL, string currUOM, string currSTM)
         {
-            //List<LCDDO> rtrnList = new List<LCDDO>();
+            List<LCDDO> rtrnList = new List<LCDDO>();
             //  pull cut trees only based on parameters given
             //  stratum, sample group and species
             if (currST != "" && currSG != "" && currSP != "")
             {
-                return LCDlist.Where(lcdo => lcdo.CutLeave == "C" && lcdo.Stratum == currST && lcdo.SampleGroup == currSG && lcdo.Species == currSP);
-                //return rtrnList;
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == "C" && lcdo.Stratum == currST && lcdo.SampleGroup == currSG && lcdo.Species == currSP;
+                    });
+                return rtrnList;
             }   //  endif stratum, sample group and species requested
 
 
             //  species and sample group
             if (currSP != "" && currSG != "")
             {
-                return LCDlist.Where(lcdo => lcdo.CutLeave == "C" && lcdo.Species == currSP && lcdo.SampleGroup == currSG);
-                //return rtrnList;
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == "C" && lcdo.Species == currSP && lcdo.SampleGroup == currSG;
+                    });
+                return rtrnList;
             }   //  endif species and sample group requested
 
             //  unit of measure
             if (currUOM != "" && currST == "" && currSP == "" && currSG == "")
             {
-                return LCDlist.Where(lcdo => lcdo.CutLeave == "C" && lcdo.UOM == currUOM);
-                //return rtrnList;
+                rtrnList = LCDlist.FindAll(
+                    delegate(LCDDO lcdo)
+                    {
+                        return lcdo.CutLeave == "C" && lcdo.UOM == currUOM;
+                    });
+                return rtrnList;
             }   //  endif unit of measure requested
 
 
@@ -116,62 +162,75 @@ namespace CruiseProcessing
             {
                 if (currSTM != "")
                 {
-                    return LCDlist.Where(lcdo => lcdo.CutLeave == currCL && lcdo.Stratum == currST &&
-                                    lcdo.SampleGroup == currSG && lcdo.STM == currSTM);
+                    rtrnList = LCDlist.FindAll(
+                        delegate(LCDDO lcdo)
+                        {
+                            return lcdo.CutLeave == currCL && lcdo.Stratum == currST &&
+                                    lcdo.SampleGroup == currSG && lcdo.STM == currSTM;
+                        });
                 }
                 else if (currSTM == "")
                 {
-                    return LCDlist.Where(lcdo => lcdo.CutLeave == currCL && lcdo.Stratum == currST &&
-                                        lcdo.SampleGroup == currSG);
+                    rtrnList = LCDlist.FindAll(
+                        delegate(LCDDO lcdo)
+                        {
+                            return lcdo.CutLeave == currCL && lcdo.Stratum == currST &&
+                                        lcdo.SampleGroup == currSG;
+                        });
                 }   //  endif
-                //return rtrnList;
+                return rtrnList;
             }   //  endif cut/leave, stratum and sample group requested
-            return new List<LCDDO>();
+            return rtrnList;
         }   //  end GetCutOnlyMultipleValue
 
 
-        public static IEnumerable<LCDDO> GetCutGroupedBy(string currST, string currPP, int groupBy)
+        public static List<LCDDO> GetCutGroupedBy(string currST, string currPP, int groupBy, CPbusinessLayer bslyr)
         {
+            List<LCDDO> LCDlist = new List<LCDDO>();
             if (currST != "")
             {
-                return Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species,SampleGroup,LiveDead", "C", currST);
+                LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species,SampleGroup,LiveDead", "C", currST);
             }   //  endif currST not blank
 
             if (currPP != "")
             {
-                return Global.BL.getLCDOrdered("WHERE PrimaryProduct = ? ORDER BY ", "ContractSpecies", currPP,"");
+                LCDlist = bslyr.getLCDOrdered("WHERE PrimaryProduct = ? ORDER BY ", "ContractSpecies", currPP,"");
             }   //  endif currPP not blank
 
 
             switch (groupBy)
             {/*
                 case 1:         //  group by contract species
-                    return LCDlist = Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "ContractSpecies", "C","");
+                    return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "ContractSpecies", "C","");
                 case 2:         //  group by and order by primary product and species
-                    return LCDlist = Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,Species", "C","");
+                    return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,Species", "C","");
                 case 3:         //  group by species and biomass product
-                    return LCDlist = Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Species,BiomassProduct", "C","");
+                    return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Species,BiomassProduct", "C","");
                 case 4:         //  group by species and primary product
-                    return LCDlist = Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Species,PrimaryProduct", "C","");
+                    return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Species,PrimaryProduct", "C","");
                 case 5:         //  group by species, primary product, secondary product, live/dead and contract species
-                    return LCDlist = Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Species,PrimaryProduct,SecondaryProduct,LiveDead,ContractSpecies", "C","");
+                    return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Species,PrimaryProduct,SecondaryProduct,LiveDead,ContractSpecies", "C","");
                 case 6:         //  group by stratum
-                    return LCDlist = Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Stratum", "C","");
+                    return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "Stratum", "C","");
                 case 7:         //  group by primary product, secondary product and species
-                    return LCDlist = Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,SecondaryProduct,Species", "C","");
+                    return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,SecondaryProduct,Species", "C","");
               */
                 case 8:         //  order by primary product, species and tree grade
-                    return Global.BL.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,Species,TreeGrade", "C", "");
+                    LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,Species,TreeGrade", "C", "");
+                    break;
                 case 9:         //  really grouped by primary product and species for live/dead reports
-                    return Global.BL.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "PrimaryProduct,SecondaryProduct,Species", "C", "");
+                    LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "PrimaryProduct,SecondaryProduct,Species", "C", "");
+                    break;
             }   //  end switch
-            return new List<LCDDO>();
+            return LCDlist;
         }   //  end GetCutGroupedBy
 
 
-        public static IEnumerable<LCDDO> GetStratumGroupedBy(string currentST)
+        public static List<LCDDO> GetStratumGroupedBy(string fileName, string currentST, CPbusinessLayer bslyr)
         {
-            return Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?  GROUP BY ","SampleGroup,Species,STM","C",currentST);
+            List<LCDDO> justStratum = new List<LCDDO>();
+            justStratum = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?  GROUP BY ","SampleGroup,Species,STM","C",currentST);
+            return justStratum;
         }   //  end GetStratumGroupedBy
 
 

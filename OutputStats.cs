@@ -17,7 +17,7 @@ namespace CruiseProcessing
         private int[] fieldLengths;
         private ArrayList prtFields = new ArrayList();
         private string[] completeHeader = new string[9];
-        //private List<POPDO> popList = new List<POPDO>();
+        private List<POPDO> popList = new List<POPDO>();
         private int[] pagesToPrint = new int[3];
         private List<StatList> stage1Stats = new List<StatList>();
         private List<StatList> stage2Stats = new List<StatList>();
@@ -27,8 +27,13 @@ namespace CruiseProcessing
         {
             //  For ST1/ST2 (DP1,DP2) LV03/LV04
             string currentTitle = fillReportTitle(currentReport);
+            List<POPDO> allPOP = bslyr.getPOP();
             //  pull cur or leave as needed
-            List<POPDO> popList = Global.BL.getPOP().Where(p => p.CutLeave == currCL).ToList();
+            popList = allPOP.FindAll(
+                delegate(POPDO p)
+                {
+                    return p.CutLeave == currCL;
+                });
             string volType = "";
 
             //  check for no data at all
@@ -76,7 +81,7 @@ namespace CruiseProcessing
                 //  primary product pages
                 finishColumnHeaders(rh.ST1ST2columns, volType, "PRIMARY");
                 numOlines = 0;
-                ProcessPrimary(strWriteOut, rh, ref pageNumb, volType, popList);
+                ProcessPrimary(strWriteOut, rh, ref pageNumb, volType);
             }   //  endif primary pages
 
             if (pagesToPrint[1] == 1)
@@ -84,33 +89,36 @@ namespace CruiseProcessing
                 //  secondary product pages
                 finishColumnHeaders(rh.ST1ST2columns, volType, "SECONDARY");
                 numOlines = 0;
-                ProcessSecondary(strWriteOut, rh, ref pageNumb, volType, popList);
+                ProcessSecondary(strWriteOut, rh, ref pageNumb, volType);
             }   //  endif secondary pages
 
             if (pagesToPrint[2] == 1)
             {
                 finishColumnHeaders(rh.ST1ST2columns, volType, "RECOVERED");
                 numOlines = 0;
-                ProcessRecovered(strWriteOut, rh, ref pageNumb, volType, popList);
+                ProcessRecovered(strWriteOut, rh, ref pageNumb, volType);
             }   //  endif recovered pages
 
             return;
         }   //  end CreateStatReports
 
 
-        private void ProcessPrimary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType, List<POPDO> popList)
+        private void ProcessPrimary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            foreach (StratumDO s in Global.BL.getStratum())
+            List<StratumDO> sList = bslyr.getStratum();
+
+            foreach (StratumDO s in sList)
             {
                 //  find all pop records for this stratum
+                List<POPDO> justStratum = POPmethods.GetStratumData(popList,s.Code,currCL);
                 //  first capture the sum of x and x squared
-                foreach (POPDO p in POPmethods.GetStratumData(popList, s.Code, currCL))
+                foreach (POPDO p in justStratum)
                 {
                     StatList slOne = new StatList();
                     StatList slTwo = new StatList();
                     //  need method for strata
-                    string currMethod = Utilities.MethodLookup(p.Stratum);
+                    string currMethod = Utilities.MethodLookup(p.Stratum, bslyr);
                    
                     switch (volType)
                     {
@@ -168,18 +176,21 @@ namespace CruiseProcessing
         }   //  end ProcessPrimary
 
 
-        private void ProcessSecondary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType, List<POPDO> popList)
+        private void ProcessSecondary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            foreach (StratumDO s in Global.BL.getStratum())
+            List<StratumDO> sList = bslyr.getStratum();
+
+            foreach (StratumDO s in sList)
             {
+                List<POPDO> justStratum = POPmethods.GetStratumData(popList, s.Code, currCL);
                 //  first capture the sum of x and x squared
-                foreach (POPDO p in POPmethods.GetStratumData(popList, s.Code, currCL))
+                foreach (POPDO p in justStratum)
                 {
                     StatList slOne = new StatList();
                     StatList slTwo = new StatList();
                     //  need method for stratum
-                    string currMethod = Utilities.MethodLookup(p.Stratum);
+                    string currMethod = Utilities.MethodLookup(p.Stratum, bslyr);
 
                     switch (volType)
                     {
@@ -241,18 +252,21 @@ namespace CruiseProcessing
         }   //  end ProcessSecondary
 
 
-        private void ProcessRecovered(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType, List<POPDO> popList)
+        private void ProcessRecovered(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            foreach (StratumDO s in Global.BL.getStratum())
+            List<StratumDO> sList = bslyr.getStratum();
+
+            foreach (StratumDO s in sList)
             {
+                List<POPDO> justStratum = POPmethods.GetStratumData(popList, s.Code, currCL);
                 //  first capture the sum of x and x squared
-                foreach (POPDO p in POPmethods.GetStratumData(popList, s.Code, currCL))
+                foreach (POPDO p in justStratum)
                 {
                     StatList slOne = new StatList();
                     StatList slTwo = new StatList();
                     //  need method for stratum
-                    string currMethod = Utilities.MethodLookup(p.Stratum);
+                    string currMethod = Utilities.MethodLookup(p.Stratum, bslyr);
                     switch (volType)
                     {
                         case "NET":

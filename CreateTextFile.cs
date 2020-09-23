@@ -27,6 +27,7 @@ namespace CruiseProcessing
             public int numOlines = 0;
             public string textFile;
             private ArrayList graphReports = new ArrayList();
+            public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public void createTextFile()
@@ -39,7 +40,7 @@ namespace CruiseProcessing
             
             //  Set version numbers
             //currentVersion = "DRAFT.2018";
-            currentVersion = "09.04.2019";
+            currentVersion = "10.01.2019";
             DLLversion = Utilities.CurrentDLLversion();
  
             
@@ -48,7 +49,7 @@ namespace CruiseProcessing
             {
                 //  Output banner page
                 BannerPage bp = new BannerPage();
-                bp.outputBannerPage(fileName, strWriteOut, currentDate, currentVersion, DLLversion);
+                bp.outputBannerPage(fileName, strWriteOut, currentDate, currentVersion, DLLversion, bslyr);
                 int pageNumber = 2;
                 cruiseName = bp.cruiseName;
                 saleName = bp.saleName;
@@ -62,6 +63,8 @@ namespace CruiseProcessing
 
                 //  Output equation tables as needed
                 OutputEquationTables oet = new OutputEquationTables();
+                oet.bslyr.fileName = fileName;
+                oet.bslyr.DAL = bslyr.DAL;
                 oet.mainHeaderFields = mainHeaderFields;
                 oet.outputEquationTable(strWriteOut, rh, ref pageNumber);
 
@@ -80,6 +83,8 @@ namespace CruiseProcessing
                         case "A09":     case "A10":     case "A13":     case "L1": 
                         case "A15":
                             OutputList ol = new OutputList();
+                            ol.bslyr.fileName = fileName;
+                            ol.bslyr.DAL = bslyr.DAL;
                             ol.mainHeaderFields = mainHeaderFields;
                             ol.currentReport = rdo.ReportID.ToString();
                             if (currentRegion == "10" && rdo.ReportID == "L1")
@@ -91,6 +96,8 @@ namespace CruiseProcessing
                             otg.currRept = rdo.ReportID;
                             otg.mainHeaderFields = mainHeaderFields;
                             otg.fileName = fileName;
+                            otg.bslyr.fileName = fileName;
+                            otg.bslyr.DAL = bslyr.DAL;
                             otg.CreateTreeGradeReports(strWriteOut, rh, ref pageNumber);
                             break;
                         case "A14":
@@ -98,12 +105,16 @@ namespace CruiseProcessing
                             ous.currentReport = rdo.ReportID;
                             ous.mainHeaderFields = mainHeaderFields;
                             ous.fileName = fileName;
+                            ous.bslyr.fileName = fileName;
+                            ous.bslyr.DAL = bslyr.DAL;
                             ous.createUnitSummary(strWriteOut, ref pageNumber, rh);
                             break;
                         case "ST1":     case "ST2":
                             OutputStats ost = new OutputStats();
                             ost.currCL = "C";
                             ost.fileName = fileName;
+                            ost.bslyr.fileName = fileName;
+                            ost.bslyr.DAL = bslyr.DAL;
                             ost.mainHeaderFields = mainHeaderFields;
                             ost.currentReport = rdo.ReportID;
                             ost.CreateStatReports(strWriteOut, rh, ref pageNumber);
@@ -111,6 +122,8 @@ namespace CruiseProcessing
                         case "ST3":     case "ST4":
                             OutputStatsToo otoo = new OutputStatsToo();
                             otoo.fileName = fileName;
+                            otoo.bslyr.fileName = fileName;
+                            otoo.bslyr.DAL = bslyr.DAL;
                             otoo.mainHeaderFields = mainHeaderFields;
                             otoo.currentReport = rdo.ReportID;
                             otoo.OutputStatReports(strWriteOut, rh, ref pageNumber);
@@ -123,11 +136,15 @@ namespace CruiseProcessing
                             os.currCL = "C";
                             os.currentReport = rdo.ReportID;
                             os.fileName = fileName;
+                            os.bslyr.fileName = fileName;
+                            os.bslyr.DAL = bslyr.DAL;
                             os.mainHeaderFields = mainHeaderFields;
                             os.OutputSummaryReports(strWriteOut, rh, ref pageNumber);
                             break;
                         case "VSM4":        case "VSM5":   
                             ou.fileName = fileName;
+                            ou.bslyr.fileName = fileName;
+                            ou.bslyr.DAL = bslyr.DAL;
                             ou.mainHeaderFields = mainHeaderFields;
                             ou.currentReport = rdo.ReportID;
                             ou.OutputUnitReports(strWriteOut, rh, ref pageNumber);
@@ -135,6 +152,8 @@ namespace CruiseProcessing
                         case "UC1":     case "UC2":     case "UC3":
                         case "UC4":     case "UC5":     case "UC6":
                             ou.fileName = fileName;
+                            ou.bslyr.fileName = fileName;
+                            ou.bslyr.DAL = bslyr.DAL;
                             ou.currCL = "C";
                             ou.mainHeaderFields = mainHeaderFields;
                             ou.currentReport = rdo.ReportID;
@@ -143,6 +162,8 @@ namespace CruiseProcessing
                         case "TIM":
                             OutputTIM ot = new OutputTIM();
                             ot.fileName = fileName;
+                            ot.bslyr.fileName = fileName;
+                            ot.bslyr.DAL = bslyr.DAL;
                             ot.cruiseNum = cruiseName;
                             ot.currentVersion = currentVersion;
                             ot.CreateSUMfile();
@@ -155,6 +176,8 @@ namespace CruiseProcessing
                             //  2-inch diameter class
                             OutputStandTables oStand2 = new OutputStandTables();
                             oStand2.fileName = fileName;
+                            oStand2.bslyr.fileName = fileName;
+                            oStand2.bslyr.DAL = bslyr.DAL;
                             oStand2.mainHeaderFields = mainHeaderFields;
                             oStand2.currentReport = rdo.ReportID;
                             oStand2.CreateStandTables(strWriteOut, rh, ref pageNumber, 2);
@@ -168,6 +191,8 @@ namespace CruiseProcessing
                             //  1-inch diameter class
                             OutputStandTables oStand1 = new OutputStandTables();
                             oStand1.fileName = fileName;
+                            oStand1.bslyr.fileName = fileName;
+                            oStand1.bslyr.DAL = bslyr.DAL;
                             oStand1.mainHeaderFields = mainHeaderFields;
                             oStand1.currentReport = rdo.ReportID;
                             oStand1.CreateStandTables(strWriteOut, rh, ref pageNumber, 1);
@@ -180,6 +205,8 @@ namespace CruiseProcessing
                             //  UC stand tables
                             OutputUnitStandTables oUnits = new OutputUnitStandTables();
                             oUnits.fileName = fileName;
+                            oUnits.bslyr.fileName = fileName;
+                            oUnits.bslyr.DAL = bslyr.DAL;
                             oUnits.mainHeaderFields = mainHeaderFields;
                             oUnits.currentReport = rdo.ReportID;
                             oUnits.CreateUnitStandTables(strWriteOut, rh, ref pageNumber);
@@ -188,6 +215,8 @@ namespace CruiseProcessing
                         case "WT5":
                             OutputWeight ow = new OutputWeight();
                             ow.fileName = fileName;
+                            ow.bslyr.fileName = fileName;
+                            ow.bslyr.DAL = bslyr.DAL;
                             ow.mainHeaderFields = mainHeaderFields;
                             ow.currentReport = rdo.ReportID;
                             ow.OutputWeightReports(strWriteOut, rh, ref pageNumber);
@@ -198,12 +227,16 @@ namespace CruiseProcessing
                         case "LD7":     case "LD8":
                             old.currentReport = rdo.ReportID;
                             old.fileName = fileName;
+                            old.bslyr.fileName = fileName;
+                            old.bslyr.DAL = bslyr.DAL;
                             old.mainHeaderFields = mainHeaderFields;
                             old.CreateLiveDead(strWriteOut, rh, ref pageNumber);
                             break;
                         case "L2":     case "L8":   case "L10":
                             ols.currentReport = rdo.ReportID;
                             ols.fileName = fileName;
+                            ols.bslyr.fileName = fileName;
+                            ols.bslyr.DAL = bslyr.DAL;
                             ols.mainHeaderFields = mainHeaderFields;
                             ols.CreateLogReports(strWriteOut, rh, ref pageNumber);
                             break;
@@ -213,6 +246,8 @@ namespace CruiseProcessing
                             OutputBLM ob = new OutputBLM();
                             ob.currentReport = rdo.ReportID;
                             ob.fileName = fileName;
+                            ob.bslyr.fileName = fileName;
+                            ob.bslyr.DAL = bslyr.DAL;
                             ob.mainHeaderFields = mainHeaderFields;
                             ob.CreateBLMreports(strWriteOut, rh, ref pageNumber);
                             break;
@@ -222,6 +257,8 @@ namespace CruiseProcessing
                             OutputR1 r1 = new OutputR1();
                             r1.currentReport = rdo.ReportID;
                             r1.fileName = fileName;
+                            r1.bslyr.fileName = fileName;
+                            r1.bslyr.DAL = bslyr.DAL;
                             r1.mainHeaderFields = mainHeaderFields;
                             r1.CreateR1reports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -231,6 +268,8 @@ namespace CruiseProcessing
                             OutputR2 r2 = new OutputR2();
                             r2.currentReport = rdo.ReportID;
                             r2.fileName = fileName;
+                            r2.bslyr.fileName = fileName;
+                            r2.bslyr.DAL = bslyr.DAL;
                             r2.mainHeaderFields = mainHeaderFields;
                             r2.CreateR2Reports(strWriteOut, ref pageNumber, rh);
                             break;  
@@ -238,6 +277,8 @@ namespace CruiseProcessing
                             OutputR3 r3 = new OutputR3();
                             r3.currentReport = rdo.ReportID;
                             r3.fileName = fileName;
+                            r3.bslyr.fileName = fileName;
+                            r3.bslyr.DAL = bslyr.DAL;
                             r3.mainHeaderFields = mainHeaderFields;
                             r3.CreateR3Reports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -245,6 +286,8 @@ namespace CruiseProcessing
                             OutputR4 r4 = new OutputR4();
                             r4.currentReport = rdo.ReportID;
                             r4.fileName = fileName;
+                            r4.bslyr.fileName = fileName;
+                            r4.bslyr.DAL = bslyr.DAL;
                             r4.mainHeaderFields = mainHeaderFields;
                             r4.CreateR4Reports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -252,6 +295,8 @@ namespace CruiseProcessing
                             OutputR5 r5 = new OutputR5();
                             r5.currentReport = rdo.ReportID;
                             r5.fileName = fileName;
+                            r5.bslyr.fileName = fileName;
+                            r5.bslyr.DAL = bslyr.DAL;
                             r5.mainHeaderFields = mainHeaderFields;
                             r5.CreateR5report(strWriteOut, ref pageNumber, rh);
                             break;
@@ -259,6 +304,8 @@ namespace CruiseProcessing
                             OutputR6 r6 = new OutputR6();
                             r6.currentReport = rdo.ReportID;
                             r6.fileName = fileName;
+                            r6.bslyr.fileName = fileName;
+                            r6.bslyr.DAL = bslyr.DAL;
                             r6.mainHeaderFields = mainHeaderFields;
                             r6.CreateR6reports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -266,6 +313,8 @@ namespace CruiseProcessing
                             OutputR8 r8 = new OutputR8();
                             r8.currentReport = rdo.ReportID;
                             r8.fileName = fileName;
+                            r8.bslyr.fileName = fileName;
+                            r8.bslyr.DAL = bslyr.DAL;
                             r8.mainHeaderFields = mainHeaderFields;
                             r8.CreateR8Reports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -273,6 +322,8 @@ namespace CruiseProcessing
                             OutputR9 r9 = new OutputR9();
                             r9.currentReport = rdo.ReportID;
                             r9.fileName = fileName;
+                            r9.bslyr.fileName = fileName;
+                            r9.bslyr.DAL = bslyr.DAL;
                             r9.mainHeaderFields = mainHeaderFields;
                             //r9.CreateR9Reports(strWriteOut, ref pageNumber, rh);
                             r9.OutputTipwoodReport(strWriteOut, rh, ref pageNumber);
@@ -283,6 +334,8 @@ namespace CruiseProcessing
                             OutputR10 r10 = new OutputR10();
                             r10.currentReport = rdo.ReportID;
                             r10.fileName = fileName;
+                            r10.bslyr.fileName = fileName;
+                            r10.bslyr.DAL = bslyr.DAL;
                             r10.mainHeaderFields = mainHeaderFields;
                             r10.CreateR10reports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -290,6 +343,8 @@ namespace CruiseProcessing
                             OutputStemCounts osc = new OutputStemCounts();
                             osc.currentReport = rdo.ReportID;
                             osc.fileName = fileName;
+                            osc.bslyr.fileName = fileName;
+                            osc.bslyr.DAL = bslyr.DAL;
                             osc.mainHeaderFields = mainHeaderFields;
                             osc.createStemCountReports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -298,6 +353,8 @@ namespace CruiseProcessing
                         case "LV05":
                             OutputLeave olt = new OutputLeave();
                             olt.currentReport = rdo.ReportID;
+                            olt.bslyr.fileName = bslyr.fileName;
+                            olt.bslyr.DAL = bslyr.DAL;
                             olt.mainHeaderFields = mainHeaderFields;
                             olt.createLeaveTreeReports(strWriteOut, ref pageNumber, rh);
                             break;
@@ -321,15 +378,15 @@ namespace CruiseProcessing
                 }   //  end foreach loop
 
                 //  Any warning messages to print?
-                IEnumerable<ErrorLogDO> errList = Global.BL.getErrorMessages("W", "CruiseProcessing");
-                IEnumerable<ErrorLogDO> errListToo = Global.BL.getErrorMessages("W", "FScruiser");
+                List<ErrorLogDO> errList = bslyr.getErrorMessages("W", "CruiseProcessing");
+                List<ErrorLogDO> errListToo = bslyr.getErrorMessages("W", "FScruiser");
                 int warnFlag = 0;
-                if (errList.Any())
+                if (errList.Count > 0)
                 {
                     WriteWarnings(strWriteOut, errList, ref pageNumber);
                     warnFlag = 1;
                 }
-                if(errListToo.Any())
+                if(errListToo.Count > 0)
                 {
                     WriteOtherWarnings(strWriteOut, errListToo, ref pageNumber);
                     warnFlag = 1;
@@ -344,6 +401,8 @@ namespace CruiseProcessing
                 {
                     graphOutputDialog dog = new graphOutputDialog();
                     dog.fileName = fileName;
+                    dog.bslyr.fileName = fileName;
+                    dog.bslyr.DAL = bslyr.DAL;
                     dog.graphReports = graphReports;
                     dog.ShowDialog();
                 }   //  endif graphs selected
@@ -383,7 +442,7 @@ namespace CruiseProcessing
         }   //  end noDataForReport
 
 
-        public void whichHeightFields(ref int hgtOne, ref int hgtTwo, IEnumerable<TreeDO> tList)
+        public void whichHeightFields(ref int hgtOne, ref int hgtTwo, List<TreeDO> tList)
         {
             double heightSum = 0.0;
             //  Total height?
@@ -470,7 +529,7 @@ namespace CruiseProcessing
             //  second height
             if (hgtTwo != 0)
             {
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(titlePrefix);
                 switch (hgtTwo)
                 {
@@ -497,7 +556,7 @@ namespace CruiseProcessing
             else if(hgtTwo == 0)
             {
                 //  make sb blank
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 for (int j = 0; j < headerToUpdate.Count(); j++)
                     sb.Append(" ");
             }   //  endif hgtTwo has a value
@@ -563,10 +622,15 @@ namespace CruiseProcessing
                                     ref double CordSum, double currProFac)
         {
             //  retrieve calc values for current stratum
+            List<TreeCalculatedValuesDO> tList = bslyr.getTreeCalculatedValues((int)currSTcn, (int)currCUcn);
             //  Find all STM trees in the current cutting unit
+            List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
+                delegate(TreeCalculatedValuesDO tcv)
+                {
+                    return tcv.Tree.SampleGroup.Code == currSG && tcv.Tree.STM == currSTM;
+                });
             //  expand and sum up
-            foreach (TreeCalculatedValuesDO js in Global.BL.getTreeCalculatedValues((int)currSTcn, (int)currCUcn).Where(
-                tcv => tcv.Tree.SampleGroup.Code == currSG && tcv.Tree.STM == currSTM))
+            foreach (TreeCalculatedValuesDO js in justSTM)
             {
                 switch (js.Tree.SampleGroup.PrimaryProduct)
                 {
@@ -623,7 +687,7 @@ namespace CruiseProcessing
         }   //  end printOneRecord
 
 
-        private void WriteWarnings(StreamWriter strWriteOut, IEnumerable<ErrorLogDO> errList, ref int pageNumb)
+        private void WriteWarnings(StreamWriter strWriteOut, List<ErrorLogDO> errList, ref int pageNumb)
         {
             //  warning messages list
             string[] WarnMessages = new string[22]  {"   ",
@@ -663,13 +727,13 @@ namespace CruiseProcessing
                 }
                 else if(eld.TableName == "Stratum" || eld.TableName == "VolumeEquation")
                 {
-                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number));
+                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr));
                     sb.Append("   ");
                     sb.Append(eld.Message);
                 }
                 else
                 {
-                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number));
+                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr));
                     sb.Append("   ");
                     if (eld.Message == "30")
                     {
@@ -682,14 +746,14 @@ namespace CruiseProcessing
                 }   //  endif
                 strWriteOut.WriteLine(sb.ToString());
                 numOlines++;
-                sb.Remove(0, sb.Length);
+                sb.Clear();
 
             }   //  end foreach loop
 
 
             //  output the key for the identifier
             strWriteOut.WriteLine();
-            strWriteOut.WriteLine("Not all fields are nused as identifier information.");
+            strWriteOut.WriteLine("Not all fields are used as identifier information.");
             strWriteOut.WriteLine("In general, the following order is used.");
             strWriteOut.WriteLine("Stratum number");
             strWriteOut.WriteLine("Cutting unit number");
@@ -705,7 +769,7 @@ namespace CruiseProcessing
         }   //  end WriteWarnings
 
 
-        private void WriteOtherWarnings(StreamWriter strWriteOut, IEnumerable<ErrorLogDO> errListToo, ref int pageNumb)
+        private void WriteOtherWarnings(StreamWriter strWriteOut, List<ErrorLogDO> errListToo, ref int pageNumb)
         {
             //  adds warnings from FScruiser and/or CruiseManager to the bottom of the output text file
             numOlines = 0;
@@ -715,18 +779,18 @@ namespace CruiseProcessing
             {
                 WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "");
                 //  build identifier
-                sb.Append(Utilities.GetIdentifier(elt.TableName, elt.CN_Number));
+                sb.Append(Utilities.GetIdentifier(elt.TableName, elt.CN_Number, bslyr));
                 sb.Append("   ");
                 sb.Append(elt.Message);
                 strWriteOut.WriteLine(sb.ToString());
                 numOlines++;
-                sb.Remove(0, sb.Length);
+                sb.Clear();
             }   //  end foreach loop
 
             //  output the key for the identifier
             strWriteOut.WriteLine();
-            strWriteOut.WriteLine("Not all fields are nused as identifier information.");
-            strWriteOut.WriteLine("In general, the following order is used.");
+            strWriteOut.WriteLine("Not all fields are used as identifier information.");
+            strWriteOut.WriteLine("In general, the ised order is used.");
             strWriteOut.WriteLine("Stratum number");
             strWriteOut.WriteLine("Cutting unit number");
             strWriteOut.WriteLine("Plot number");
@@ -740,7 +804,7 @@ namespace CruiseProcessing
         }   //  end WriteOtherWarnings
 
 
-        public void LoadLogDIBclasses(IEnumerable<LogStockDO> justDIBs, List<ReportSubtotal> ListToOutput)
+        public void LoadLogDIBclasses(List<LogStockDO> justDIBs, List<ReportSubtotal> ListToOutput)
         {
             //  uses ReportSubtotal (BLM reports)
             foreach (LogStockDO jd in justDIBs)

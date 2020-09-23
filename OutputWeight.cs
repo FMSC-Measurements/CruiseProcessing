@@ -13,10 +13,10 @@ namespace CruiseProcessing
 {
     class OutputWeight : CreateTextFile
     {
-        [DllImport("vollib.dll")] static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
-        [DllImport("vollib.dll")] static extern void BROWNTOPWOOD(ref int SPN, ref float GCUFTS, ref float WT);
-        [DllImport("vollib.dll")] static extern void BROWNCULLLOG(ref int SPN, ref float GCUFTS, ref float WT);
-        [DllImport("vollib.dll")] static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
+        [DllImport("vollib.dll",CallingConvention = CallingConvention.Cdecl)] static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
+        [DllImport("vollib.dll",CallingConvention = CallingConvention.Cdecl)] static extern void BROWNTOPWOOD(ref int SPN, ref float GCUFTS, ref float WT);
+        [DllImport("vollib.dll",CallingConvention = CallingConvention.Cdecl)] static extern void BROWNCULLLOG(ref int SPN, ref float GCUFTS, ref float WT);
+        [DllImport("vollib.dll",CallingConvention = CallingConvention.Cdecl)] static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
 
         #region
         public string currentReport;
@@ -50,12 +50,12 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             numOlines = 0;
-            sList = Global.BL.getStratum().ToList();
-            cList = Global.BL.getCuttingUnits().ToList();
+            sList = bslyr.getStratum();
+            cList = bslyr.getCuttingUnits();
             //  pull biomass equations to process reports (except WT2/WT3)
             if (currentReport != "WT2" && currentReport != "WT3" && currentReport != "WT5")
             {
-                bioList = Global.BL.getBiomassEquations().ToList();
+                bioList = bslyr.getBiomassEquations();
                 if (bioList.Count > 0)
                 {
                     //  check weight factors -- if zero, likely there is no weight to report for any of these reports
@@ -67,7 +67,7 @@ namespace CruiseProcessing
                     }   //  endif checkSum
 
                     //  Also check for no cubic foot volume in LCD
-                    List<LCDDO> wholeList = Global.BL.getLCD().ToList();
+                    List<LCDDO> wholeList = bslyr.getLCD();
                     if ((checkSum = wholeList.Sum(l => l.SumGCUFT)) == 0)
                     {
                         noDataForReport(strWriteOut, currentReport, ">>  No cubic foot volume for this report");
@@ -93,9 +93,10 @@ namespace CruiseProcessing
             {
                 case "WT1":
                     //  pull LCD groups to process
+                    List<LCDDO> justGroups = bslyr.GetLCDgroup("", 4, "C");
                     fieldLengths = new int[] { 12, 14, 10, 3, 6, 11, 12, 15, 10, 15, 10 };
                     rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                    processLCDgroups(strWriteOut, Global.BL.GetLCDgroup("", 4, "C"), rh,ref pageNumb);
+                    processLCDgroups(strWriteOut, justGroups, rh,ref pageNumb);
                     WriteSubtotal(strWriteOut, rh, ref pageNumb);
                     break;
                 case "WT2":     case "WT3":
@@ -109,7 +110,7 @@ namespace CruiseProcessing
                     processUnits(strWriteOut, cList, rh, ref pageNumb);
                     break;
                 case "WT5":
-                    sList = Global.BL.getStratum().ToList();
+                    sList = bslyr.getStratum();
                     fieldLengths = new int[] { 1, 10, 4, 3, 11, 12, 12, 12, 11, 2, 11, 8 };
                     rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
                     processSaleSummary(strWriteOut, rh, ref pageNumb);
@@ -118,7 +119,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputWeightReports
 
-        private void processLCDgroups(StreamWriter strWriteOut, IEnumerable<LCDDO> justGroups, reportHeaders rh, ref int pageNumb)
+        private void processLCDgroups(StreamWriter strWriteOut, List<LCDDO> justGroups, reportHeaders rh, ref int pageNumb)
         {
             //  loop through groups list and print each species, product, contract species combination
             double currGRS = 0.0;
@@ -127,9 +128,10 @@ namespace CruiseProcessing
             {
                 //  pull group from LCD
                 StringBuilder sb = new StringBuilder();
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append("WHERE Species = ? AND PrimaryProduct = ? AND SecondaryProduct = ? AND ");
                 sb.Append(" LiveDead = ? AND ContractSpecies = ? AND CutLeave = ?");
+                List<LCDDO> groupData = bslyr.GetLCDdata(sb.ToString(), jg, 4, "");
 
                 //  Find weight factors etc for current group
                 BiomassEqMethods.FindFactor(bioList, jg.Species, "PrimaryProd", jg.PrimaryProduct, 
@@ -144,10 +146,10 @@ namespace CruiseProcessing
                 else
                 {
                     //  sum gross cuft primary and secondary
-                    foreach (LCDDO gd in Global.BL.GetLCDdata(sb.ToString(), jg, 4, ""))
+                    foreach (LCDDO gd in groupData)
                     {
-                        long currSTRcn = (long)StratumMethods.GetStratumCN(gd.Stratum, sList).Stratum_CN;
-                        double STacres = Utilities.ReturnCorrectAcres(gd.Stratum, currSTRcn);
+                        int currSTRcn = StratumMethods.GetStratumCN(gd.Stratum, sList);
+                        double STacres = Utilities.ReturnCorrectAcres(gd.Stratum, bslyr, currSTRcn);
                         currGRS += gd.SumGCUFT * STacres;
                         currGRST += gd.SumGCUFTtop * STacres;
                     }   //  end foreach loop
@@ -185,62 +187,69 @@ namespace CruiseProcessing
             double grandTotalSaw = 0;
             double grandTotalNonsawPP = 0;
             double grandTotalNonsawSP = 0;
-            //List<PRODO> proList = Global.BL.getPRO();
-            //List<LCDDO> lcdList = Global.BL.getLCD();
+            List<PRODO> proList = bslyr.getPRO();
+            List<LCDDO> lcdList = bslyr.getLCD();
 
             foreach (CuttingUnitDO cdo in cList)
             {
                 cdo.Strata.Populate();
                 //  get species groups from LCD
-                //List<LCDDO> justGroups = Global.BL.GetLCDgroup("", 5, "C");
-                foreach (LCDDO jg in Global.BL.GetLCDgroup("", 5, "C"))
+                List<LCDDO> justGroups = bslyr.GetLCDgroup("", 5, "C");
+                foreach (LCDDO jg in justGroups)
                 {
                     //  loop through stratum in the current unit
                     foreach (StratumDO sd in cdo.Strata)
                     {
                         //  get group data
-                        foreach (LCDDO gd in LCDmethods.GetCutOrLeave(Global.BL.getLCD(), "C", jg.Species, sd.Code, ""))
+                        List<LCDDO> groupData = LCDmethods.GetCutOrLeave(lcdList, "C", jg.Species, sd.Code, "");
+                        foreach (LCDDO gd in groupData)
                         {
-                            currMeth = Utilities.MethodLookup(gd.Stratum);
+                            currMeth = Utilities.MethodLookup(gd.Stratum, bslyr);
                             if (currMeth == "100" || gd.STM == "Y")
                             {
                                 //pull all trees for current unit
-                                IEnumerable<TreeCalculatedValuesDO> currentGroup = null;
-                                IEnumerable<TreeCalculatedValuesDO> justUnitTrees = Global.BL.getTreeCalculatedValues((int)sd.Stratum_CN, (int)cdo.CuttingUnit_CN);
+                                List<TreeCalculatedValuesDO> currentGroup = new List<TreeCalculatedValuesDO>();
+                                List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)sd.Stratum_CN, (int)cdo.CuttingUnit_CN);
                                 if (gd.STM == "Y")
                                 {
                                     //  pull sure-to-measure trees for current unit
-                                    currentGroup = justUnitTrees.Where(jut => jut.Tree.STM == "Y");
+                                    currentGroup = justUnitTrees.FindAll(
+                                        delegate(TreeCalculatedValuesDO jut)
+                                        {
+                                            return jut.Tree.STM == "Y";
+                                        });
                                 }
                                 else if (currMeth == "100")
                                 {
                                     //  pull all trees for current unit
-                                    currentGroup = justUnitTrees.Where(jut => jut.Tree.Species == gd.Species);
+                                    currentGroup = justUnitTrees.FindAll(
+                                        delegate(TreeCalculatedValuesDO jut)
+                                        {
+                                            return jut.Tree.Species == gd.Species;
+                                        });
                                 }   //  endif
                                 //  sum up weights based on product 
-                                if (currentGroup != null)
+                                foreach (TreeCalculatedValuesDO cg in currentGroup)
                                 {
-                                    foreach (TreeCalculatedValuesDO cg in currentGroup)
+                                    switch (cg.Tree.SampleGroup.PrimaryProduct)
                                     {
-                                        switch (cg.Tree.SampleGroup.PrimaryProduct)
-                                        {
-                                            case "01":
-                                                unitSaw += cg.BiomassMainStemPrimary * cg.Tree.ExpansionFactor;
-                                                break;
-                                            default:
-                                                unitNonsawPP = cg.BiomassMainStemPrimary * cg.Tree.ExpansionFactor;
-                                                break;
-                                        }   //  end switch on product
-                                        unitNonsawSP = cg.BiomassMainStemSecondary * cg.Tree.ExpansionFactor;
-                                    }   //  end foreach loop 
-                                }
+                                        case "01":
+                                            unitSaw += cg.BiomassMainStemPrimary * cg.Tree.ExpansionFactor;
+                                            break;
+                                        default:
+                                            unitNonsawPP = cg.BiomassMainStemPrimary * cg.Tree.ExpansionFactor;
+                                            break;
+                                    }   //  end switch on product
+                                    unitNonsawSP = cg.BiomassMainStemSecondary * cg.Tree.ExpansionFactor;
+                                }   //  end foreach loop
                             }
+
                             else
                             {
                                 //  find proration factor for current group
-                                List<PRODO> pList = PROmethods.GetMultipleData(Global.BL.getPRO(), "C", gd.Stratum,
-                                                                cdo.Code, gd.SampleGroup, "", "", gd.STM, 1).ToList();
-                                if (pList.Count == 1) prorateFactor = (float)pList.First().ProrationFactor;
+                                List<PRODO> pList = PROmethods.GetMultipleData(proList, "C", gd.Stratum,
+                                                                cdo.Code, gd.SampleGroup, "", "", gd.STM, 1);
+                                if (pList.Count == 1) prorateFactor = (float)pList[0].ProrationFactor;
                                 //  Sum up weights by product
                                 switch (gd.PrimaryProduct)
                                 {
@@ -291,20 +300,21 @@ namespace CruiseProcessing
         private void processSaleSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  WT5
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            List<LCDDO> lcdList = bslyr.getLCD();
             string[] completeHeader = new string[4];
 
             prtFields.Clear();
             foreach (StratumDO sd in sList)
             {
-                    double STacres = Utilities.ReturnCorrectAcres(sd.Code, (long)sd.Stratum_CN);
+                    double STacres = Utilities.ReturnCorrectAcres(sd.Code, bslyr, (long)sd.Stratum_CN);
                     finishColumnHeaders(rh.WT5columns, sd.Code, ref completeHeader);
 
                     //  pull stratum and species groups from LCD
+                    List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? GROUP BY ", "Species", "C", sd.Code);
                     //  loop by species groups
-                    foreach (LCDDO jg in Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? GROUP BY ", "Species", "C", sd.Code))
+                    foreach (LCDDO jg in justGroups)
                     {
-                        List<LCDDO> groupData = LCDmethods.GetCutOrLeave(lcdList, "C", jg.Species, sd.Code, "").ToList();
+                        List<LCDDO> groupData = LCDmethods.GetCutOrLeave(lcdList, "C", jg.Species, sd.Code, "");
                         totPrim = (groupData.Sum(gd => gd.SumWgtMSP)) * STacres;
                         totSec = (groupData.Sum(gd => gd.SumWgtMSS)) * STacres;
                         totTip = (groupData.Sum(gd => gd.SumWgtTip)) * STacres;
@@ -620,7 +630,7 @@ namespace CruiseProcessing
             WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
                                 completeHeader, 4, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
-            strWriteOut.Write(" ALL SPECUES   |  ");
+            strWriteOut.Write(" ALL SPECIES   |  ");
             strWriteOut.Write(Utilities.FormatField(subValue1 / 2000, "{0,8:F1}").ToString().PadLeft(8, ' '));
             strWriteOut.Write("   ");
             strWriteOut.Write(Utilities.FormatField(subValue2 / 2000, "{0,8:F1}").ToString().PadLeft(8, ' '));
@@ -651,14 +661,16 @@ namespace CruiseProcessing
             string[] completeHeader = new string[4];
             finishColumnHeaders(rh.WT5columns, "OVERALL SALE SUMMARY", ref completeHeader);
             //  Order LCD by species and biomass product
-            foreach (LCDDO jg in Global.BL.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "Species,BiomassProduct", "C", ""))
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "Species,BiomassProduct", "C", "");
+            foreach (LCDDO jg in justGroups)
             {
+                List<LCDDO> groupData = LCDmethods.GetCutOrLeave(lcdList, "C", jg.Species, "", "");
                 //  Sum up weights times strata acres
-                foreach (LCDDO gd in LCDmethods.GetCutOrLeave(lcdList, "C", jg.Species, "", ""))
+                foreach (LCDDO gd in groupData)
                 {
                     //  find proper strata acres
-                    long currStrCN = (long)StratumMethods.GetStratumCN(gd.Stratum, sList).Stratum_CN;
-                    STacres = Utilities.ReturnCorrectAcres(gd.Stratum, currStrCN);
+                    long currStrCN = StratumMethods.GetStratumCN(gd.Stratum, sList);
+                    STacres = Utilities.ReturnCorrectAcres(gd.Stratum, bslyr, currStrCN);
                     totPrim += gd.SumWgtMSP * STacres;
                     totSec += gd.SumWgtMSS * STacres;
                     totTip += gd.SumWgtTip * STacres;
@@ -695,9 +707,9 @@ namespace CruiseProcessing
         private void processSlashLoad(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  First, need region, forest and district
-            string currReg = Global.BL.getRegion();
-            string currFor = Global.BL.getForest();
-            string currDist = Global.BL.getDistrict();
+            string currReg = bslyr.getRegion();
+            string currFor = bslyr.getForest();
+            string currDist = bslyr.getDistrict();
             double currAcres = 0;
             string currST;
 
@@ -707,7 +719,7 @@ namespace CruiseProcessing
             switch (currentReport)
             {
                 case "WT2":
-                    List<TreeDefaultValueDO> tdvList = Global.BL.getTreeDefaults().ToList();
+                    List<TreeDefaultValueDO> tdvList = bslyr.getTreeDefaults();
                     //  Load summary groups for last page
                     List<BiomassData> summaryList = new List<BiomassData>();
                     LoadSummaryGroups(summaryList, tdvList);
@@ -716,20 +728,24 @@ namespace CruiseProcessing
                     {
                         currST = s.Code;
                         //  pull all trees for the current stratum as well as current acres and the method
-                        //List<TreeCalculatedValuesDO> treeList = Global.BL.getTreeCalculatedValues((int)s.Stratum_CN);
-                        currAcres = Utilities.ReturnCorrectAcres(s.Code, (long)s.Stratum_CN);
+                        List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues((int)s.Stratum_CN);
+                        currAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long)s.Stratum_CN);
                         //  Pull stratum and species groups from LCD
-                        List<LCDDO> justGroups = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?", 
-                                                                "GROUP BY Species", "C", s.Code, "").ToList();
+                        List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?", 
+                                                                "GROUP BY Species", "C", s.Code, "");
                         //  Load these groups into a BiomassData list
                         foreach (LCDDO jg in justGroups)
                         {
-                            TreeDefaultValueDO tdo = tdvList.First(t => t.Species == jg.Species);
+                            int ithRow = tdvList.FindIndex(
+                                delegate(TreeDefaultValueDO t)
+                                {
+                                    return t.Species == jg.Species;
+                                });
                             BiomassData b = new BiomassData();
                             b.userStratum = jg.Stratum;
                             b.userSG = jg.SampleGroup;
                             b.userSpecies = jg.Species;
-                            b.bioSpecies = (int)tdo.FIAcode;
+                            b.bioSpecies = (int)tdvList[ithRow].FIAcode;
                             bList.Add(b);
                         }   //  end foreach loop
 
@@ -737,12 +753,15 @@ namespace CruiseProcessing
                         foreach (LCDDO jg in justGroups)
                         {
                             //  pull all trees for the stratum
-                            IEnumerable<TreeCalculatedValuesDO> tcvList = Global.BL.getTreeCalculatedValues((int)s.Stratum_CN)
-                                .Where(tcv => tcv.Tree.SampleGroup.CutLeave == "C" && 
+                            List<TreeCalculatedValuesDO> tcvList = treeList.FindAll(
+                                delegate(TreeCalculatedValuesDO tcv)
+                                {
+                                    return tcv.Tree.SampleGroup.CutLeave == "C" && 
                                             tcv.Tree.Stratum.Code == jg.Stratum &&
                                             tcv.Tree.Species == jg.Species && 
                                             tcv.Tree.SampleGroup.Code == jg.SampleGroup &&
-                                            tcv.Tree.CountOrMeasure == "M");
+                                            tcv.Tree.CountOrMeasure == "M";
+                                });
                             //  Calculate and store stratum values
                             CalculateComponentValues(tcvList, currAcres, jg, bList, currReg, currFor, currDist);
                                       
@@ -769,33 +788,43 @@ namespace CruiseProcessing
                     WriteCurrentGroup(strWriteOut, rh, ref pageNumb, "SALE", summaryList, "");
                     break;
                 case "WT3":
-                    foreach (CuttingUnitDO c in Global.BL.getCuttingUnits())
+                    cList = bslyr.getCuttingUnits();
+                    tdvList = bslyr.getTreeDefaults();
+                    foreach (CuttingUnitDO c in cList)
                     {
                         c.Strata.Populate();
                         foreach (StratumDO stratum in c.Strata)
                         {
                             //  pull trees for the current stratum
-                            //List<TreeCalculatedValuesDO> treeList = Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN);
+                            List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN);
                              //  Pull stratum and species groups from LCD
-                            IEnumerable<LCDDO> justGroups = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
+                            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
                                                             "GROUP BY Species", "C", stratum.Code, "");
                             //  Load this groups into the Biomass Data list
-                            currAcres = Utilities.ReturnCorrectAcres(stratum.Code, 
+                            currAcres = Utilities.ReturnCorrectAcres(stratum.Code, bslyr, 
                                                 (long)stratum.Stratum_CN);
                             foreach (LCDDO jg in justGroups)
                             {
-                                BiomassData bmd = bList.FirstOrDefault(bd => bd.userSpecies == jg.Species);
+                                int nthRow = bList.FindIndex(
+                                    delegate(BiomassData bd)
+                                    {
+                                        return bd.userSpecies == jg.Species;
+                                    });
                                 //  February 2018 -- also need the FIA code from default values
                                 //  for current species
-                                TreeDefaultValueDO tdo = Global.BL.getTreeDefaults().FirstOrDefault(t => t.Species == jg.Species);
-                                if(bmd != null)
+                                int ithRow = tdvList.FindIndex(
+                                    delegate(TreeDefaultValueDO t)
+                                    {
+                                      return t.Species == jg.Species;
+                                    });
+                                if(nthRow < 0)
                                 {
                                     BiomassData b = new BiomassData();
                                     b.userStratum = jg.Stratum;
                                     b.userSG = jg.SampleGroup;
                                     b.userSpecies = jg.Species;
-                                    if(tdo != null)
-                                        b.bioSpecies = (int)tdo.FIAcode;
+                                    if(ithRow >=0)
+                                        b.bioSpecies = (int)tdvList[ithRow].FIAcode;
                                     bList.Add(b);
                                 }   //  endif
                             }   //  end foreach loop
@@ -803,14 +832,16 @@ namespace CruiseProcessing
                             foreach (LCDDO jg in justGroups)
                             {
                                 //  pull trees for the group
-                                IEnumerable<TreeCalculatedValuesDO> justTrees =
-                                    Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN)
-                                    .Where(tc => tc.Tree.SampleGroup.CutLeave == "C" &&
+                                List<TreeCalculatedValuesDO> justTrees = treeList.FindAll(
+                                    delegate(TreeCalculatedValuesDO tc)
+                                    {
+                                        return tc.Tree.SampleGroup.CutLeave == "C" &&
                                             tc.Tree.Stratum.Code == jg.Stratum &&
                                             tc.Tree.Species == jg.Species &&
                                             tc.Tree.SampleGroup.Code == jg.SampleGroup &&
                                             tc.Tree.CountOrMeasure == "M" &&
-                                            tc.Tree.CuttingUnit.Code == c.Code);
+                                            tc.Tree.CuttingUnit.Code == c.Code;
+                                    });
                                 //  Store stratum values
                                 CalculateComponentValues(justTrees, currAcres, jg, bList, currReg, currFor, currDist);
                             }   //  end foreach loop on groups
@@ -837,7 +868,7 @@ namespace CruiseProcessing
         }   //  end processSlashLoad
 
 
-        private int CalculateComponentValues(IEnumerable<TreeCalculatedValuesDO> currentData, double currAcres, 
+        private int CalculateComponentValues(List<TreeCalculatedValuesDO> currentData, double currAcres, 
                                             LCDDO jg, List<BiomassData> bList,
                                             string currReg, string currFor, string currDist)
         {
@@ -864,12 +895,16 @@ namespace CruiseProcessing
                 //  need percent removed to calculate fraction left in the woods
                 //  Per K.Cormier, FLIW = 1.0 - percent removed
                 //  August 2013
-                //List<BiomassEquationDO> beList = Global.BL.getBiomassEquations();
-                BiomassEquationDO bed = Global.BL.getBiomassEquations().FirstOrDefault(be => be.Species == jg.Species && be.FIAcode == currFIA);
+                List<BiomassEquationDO> beList = bslyr.getBiomassEquations();
+                int mthRow = beList.FindIndex(
+                    delegate(BiomassEquationDO be)
+                    {
+                        return be.Species == jg.Species && be.FIAcode == currFIA;
+                    });
                 float currFLIW = 0;
-                if (bed != null)
+                if (mthRow >= 0)
                 {
-                    currFLIW = (float)1.0 - (bed.PercentRemoved / 100);
+                    currFLIW = (float)1.0 - (beList[mthRow].PercentRemoved / 100);
                     bList[nthRow].FLIW = currFLIW;
                 }   //  endif
                 
@@ -925,8 +960,8 @@ namespace CruiseProcessing
 
 
                     //  Pull grade 9 logs for current group
-                    //List<LogStockDO> justCullLogs = Global.BL.getCullLogs((long)cd.Tree_CN, "9");
-                    foreach (LogStockDO jcl in Global.BL.getCullLogs((long)cd.Tree_CN, "9"))
+                    List<LogStockDO> justCullLogs = bslyr.getCullLogs((long)cd.Tree_CN, "9");
+                    foreach (LogStockDO jcl in justCullLogs)
                     {
                         grsVol = jcl.GrossCubicFoot;
                         BROWNCULLLOG(ref currFIA,  ref grsVol, ref cullLogWGT);
@@ -948,8 +983,8 @@ namespace CruiseProcessing
             double currSTacres = 1;
             string currMeth = "";
             int jthRow;
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
-            List<PRODO> proList = Global.BL.getPRO().ToList();
+            List<StratumDO> sList = bslyr.getStratum();
+            List<PRODO> proList = bslyr.getPRO();
             List<BiomassData> unitList = new List<BiomassData>();
 
             foreach (BiomassData b in bList)
@@ -957,16 +992,24 @@ namespace CruiseProcessing
                 if (currST != b.userStratum)
                 {
                     //  need stratum acres, method, and proration factor
-                    jthRow = sList.FindIndex(s => s.Code == b.userStratum);
-                    currSTacres = Utilities.AcresLookup((long)sList[jthRow].Stratum_CN, b.userStratum);
+                    jthRow = sList.FindIndex(
+                        delegate(StratumDO s)
+                        {
+                            return s.Code == b.userStratum;
+                        });
+                    currSTacres = Utilities.AcresLookup((long)sList[jthRow].Stratum_CN, bslyr, b.userStratum);
                     currMeth = sList[jthRow].Method;
                     switch (currMeth)
                     {
                         case "3P":
                         case "STR":
                         case "S3P":
-                            jthRow = proList.FindIndex(p => p.CutLeave == "C" && p.Stratum == b.userStratum &&
-                                    p.CuttingUnit == currCU && p.SampleGroup == b.userSG);
+                            jthRow = proList.FindIndex(
+                            delegate(PRODO p)
+                            {
+                                return p.CutLeave == "C" && p.Stratum == b.userStratum &&
+                                    p.CuttingUnit == currCU && p.SampleGroup == b.userSG;
+                            });
                             if (jthRow >= 0)
                                 currProFac = proList[jthRow].ProrationFactor;
                             break;
@@ -979,8 +1022,12 @@ namespace CruiseProcessing
 
                 //  stratum must match so check for species group in new list and add if not there
                 //  or update the row found
-                int ithRow = unitList.FindIndex(ul => ul.userStratum == b.userStratum && ul.userSG == b.userSG && 
-                                ul.userSpecies == b.userSpecies);
+                int ithRow = unitList.FindIndex(
+                    delegate(BiomassData ul)
+                    {
+                        return ul.userStratum == b.userStratum && ul.userSG == b.userSG && 
+                                ul.userSpecies == b.userSpecies;
+                    });
                 if (ithRow < 0)
                 {
                     //  Add to list
@@ -992,42 +1039,40 @@ namespace CruiseProcessing
                     ithRow = unitList.Count - 1;
                 }   //  endif ithRow
 
-                BiomassData bmd = unitList[ithRow];
-
                 //  update values
                 switch (currMeth)
                 {
                     case "3P":
                     case "STR":
                     case "S3P":
-                        bmd.needles += (b.needles * currSTacres * currProFac) / unitAcres;
-                        bmd.quarterInch += (b.quarterInch * currSTacres * currProFac) / unitAcres;
-                        bmd.oneInch += (b.oneInch * currSTacres * currProFac) / unitAcres;
-                        bmd.threeInch += (b.threeInch * currSTacres * currProFac) / unitAcres;
-                        bmd.threePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
-                        bmd.topwoodDryWeight += (b.topwoodDryWeight * currSTacres * currProFac) / unitAcres;
-                        bmd.cullLogWgt += (b.cullLogWgt * currSTacres * currProFac) / unitAcres;
-                        bmd.cullChunkWgt += (b.cullChunkWgt * currSTacres * currProFac) / unitAcres;
-                        bmd.DSTneedles += (b.DSTneedles * currSTacres * currProFac) / unitAcres;
-                        bmd.DSTquarterInch += (b.DSTquarterInch * currSTacres * currProFac) / unitAcres;
-                        bmd.DSToneInch += (b.DSToneInch* currSTacres * currProFac) / unitAcres;
-                        bmd.DSTthreeInch += (b.DSTthreeInch * currSTacres * currProFac) / unitAcres;
-                        bmd.DSTthreePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].needles += (b.needles * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].quarterInch += (b.quarterInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].oneInch += (b.oneInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].threeInch += (b.threeInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].threePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].topwoodDryWeight += (b.topwoodDryWeight * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].cullLogWgt += (b.cullLogWgt * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].cullChunkWgt += (b.cullChunkWgt * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].DSTneedles += (b.DSTneedles * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].DSTquarterInch += (b.DSTquarterInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].DSToneInch += (b.DSToneInch* currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].DSTthreeInch += (b.DSTthreeInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].DSTthreePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
                         break;
                     default:
-                        bmd.needles += b.needles * currProFac;
-                        bmd.quarterInch += b.quarterInch * currProFac;
-                        bmd.oneInch += b.oneInch * currProFac;
-                        bmd.threeInch += b.threeInch * currProFac;
-                        bmd.threePlus += b.threePlus * currProFac;
-                        bmd.topwoodDryWeight += b.topwoodDryWeight * currProFac;
-                        bmd.cullLogWgt += b.cullLogWgt * currProFac;
-                        bmd.cullChunkWgt += b.cullChunkWgt * currProFac;
-                        bmd.DSTneedles += b.DSTneedles * currProFac;
-                        bmd.DSTquarterInch += b.DSTquarterInch * currProFac;
-                        bmd.DSToneInch += b.DSToneInch * currProFac;
-                        bmd.DSTthreeInch += b.DSTthreeInch * currProFac;
-                        bmd.DSTthreePlus += b.threePlus * currProFac;
+                        unitList[ithRow].needles += b.needles * currProFac;
+                        unitList[ithRow].quarterInch += b.quarterInch * currProFac;
+                        unitList[ithRow].oneInch += b.oneInch * currProFac;
+                        unitList[ithRow].threeInch += b.threeInch * currProFac;
+                        unitList[ithRow].threePlus += b.threePlus * currProFac;
+                        unitList[ithRow].topwoodDryWeight += b.topwoodDryWeight * currProFac;
+                        unitList[ithRow].cullLogWgt += b.cullLogWgt * currProFac;
+                        unitList[ithRow].cullChunkWgt += b.cullChunkWgt * currProFac;
+                        unitList[ithRow].DSTneedles += b.DSTneedles * currProFac;
+                        unitList[ithRow].DSTquarterInch += b.DSTquarterInch * currProFac;
+                        unitList[ithRow].DSToneInch += b.DSToneInch * currProFac;
+                        unitList[ithRow].DSTthreeInch += b.DSTthreeInch * currProFac;
+                        unitList[ithRow].DSTthreePlus += b.threePlus * currProFac;
                         break;
                 }   //  end switch on method
             }   //  end foreach loop
@@ -1325,15 +1370,20 @@ namespace CruiseProcessing
         private void LoadSummaryGroups(List<BiomassData> summaryList, List<TreeDefaultValueDO> tdList)
         {
             //  Pull species groups from LCD to load into summary list
-            foreach (LCDDO sg in Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", ""))
+            List<LCDDO> summaryGroups = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+            foreach (LCDDO sg in summaryGroups)
             {
                 //  find FIA code
-                TreeDefaultValueDO tdo = tdList.First(t => t.Species == sg.Species);
+                int nthRow = tdList.FindIndex(
+                    delegate(TreeDefaultValueDO t)
+                    {
+                        return t.Species == sg.Species;
+                    });
                 BiomassData b = new BiomassData();
                 b.userStratum = sg.Stratum;
                 b.userSG = sg.SampleGroup;
                 b.userSpecies = sg.Species;
-                b.bioSpecies = (int)tdo.FIAcode;
+                b.bioSpecies = (int)tdList[nthRow].FIAcode;
                 summaryList.Add(b);
             }   //  end foreach loop
             return;

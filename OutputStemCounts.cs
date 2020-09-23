@@ -28,21 +28,22 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             //  pull just fixcnt methods from stratum table
+            List<StratumDO> justFIXCNT = bslyr.justFIXCNTstrata();
             //  any stratum matches?
-            if (!Global.BL.justFIXCNTstrata().Any())
+            if (justFIXCNT.Count == 0)
             {
                 noDataForReport(strWriteOut, currentReport, " cannot produce report.  No FIXCNT strtaum in the cruise.");
                 return;
             }   //  endif no data
 
             //  otherwise, loop by stratum to get data
-            foreach (StratumDO jf in Global.BL.justFIXCNTstrata())
+            foreach (StratumDO jf in justFIXCNT)
             {
                 //  pull species for the stratum
-                IEnumerable<LCDDO> justSpecies = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ",
+                List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ",
                                                         "GROUP BY Species", "C", jf.Code, "");                
                 //  pull current stratum from tree
-                IEnumerable<TreeDO> justTrees = Global.BL.JustFIXCNTtrees((long)jf.Stratum_CN);
+                List<TreeDO> justTrees = bslyr.JustFIXCNTtrees((long)jf.Stratum_CN);
 
                 //  process by stratum and report
                 string secondLine = reportConstants.FPPO;
@@ -65,19 +66,23 @@ namespace CruiseProcessing
         }   //  end createStemCountReports
 
 
-        private void createByUnit(StratumDO currST, IEnumerable<LCDDO> justSpecies, IEnumerable<TreeDO> justTrees,
+        private void createByUnit(StratumDO currST, List<LCDDO> justSpecies, List<TreeDO> justTrees,
                                 StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             int numOplots = 0;
             //  SC1 and SC2 reports by units
             //  cutting unit acres used in SC2 to expand unit per acre value
             currST.CuttingUnits.Populate();
-            IEnumerable<PlotDO> pList = Global.BL.getPlots();
+            List<PlotDO> pList = bslyr.getPlots();
             foreach (CuttingUnitDO cu in currST.CuttingUnits)
             {
                 //  need number of plots for SC2 report
-                numOplots = pList.Where(
-                    p => p.Stratum_CN == currST.Stratum_CN && p.CuttingUnit_CN == cu.CuttingUnit_CN).Count();
+                List<PlotDO> justPlots = pList.FindAll(
+                    delegate(PlotDO p)
+                    {
+                        return p.Stratum_CN == currST.Stratum_CN && p.CuttingUnit_CN == cu.CuttingUnit_CN;
+                    });
+                numOplots = justPlots.Count();
                 //  load headers for each cutting unit
                 if (currentReport == "SC1")
                     completeHeader = createCompleteHeader(justSpecies, cu.Code, currST.Code, 0);
@@ -86,7 +91,7 @@ namespace CruiseProcessing
                 //  clear out stand table list for next unit
                 countsToOutput.Clear();
                 //  load DIB classes for this stratum and load into output list
-                List<TreeDO> justDIBS = Global.BL.getTreeDBH("C", currST.Code, "C").ToList();
+                List<TreeDO> justDIBS = bslyr.getTreeDBH("C", currST.Code, "C");
                 double DIBsum = justDIBS.Sum(j => j.DBH);
                 if (DIBsum > 0)
                     LoadTreeDIBclasses(justDIBS[justDIBS.Count - 1].DBH, countsToOutput, 3);
@@ -103,9 +108,13 @@ namespace CruiseProcessing
                 int nthRow = 0;
                 foreach (LCDDO js in justSpecies)
                 {
-                    IEnumerable<TreeDO> justGroup = justTrees.Where(t => t.CuttingUnit.Code == cu.Code && t.Species == js.Species);
+                    List<TreeDO> justGroup = justTrees.FindAll(
+                        delegate(TreeDO t)
+                        {
+                            return t.CuttingUnit.Code == cu.Code && t.Species == js.Species;
+                        });
                     //  then load output list -- find row first for each tree
-                    if (justGroup.Any())
+                    if (justGroup.Count > 0)
                     {
                         foreach (TreeDO jg in justGroup)
                         {
@@ -135,7 +144,7 @@ namespace CruiseProcessing
         }   //  end createByUnit
 
 
-        private void createByStratum(StratumDO currST, IEnumerable<LCDDO> justSpecies, IEnumerable<TreeDO> justTrees,
+        private void createByStratum(StratumDO currST, List<LCDDO> justSpecies, List<TreeDO> justTrees,
                                 StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  SC3 reports by stratum
@@ -143,7 +152,7 @@ namespace CruiseProcessing
                 //  clear out stand table list for next unit
                 countsToOutput.Clear();
                 //  load DIB classes for this stratum and load into output list
-                List<TreeDO> justDIBS = Global.BL.getTreeDBH("C", currST.Code, "C").ToList();
+                List<TreeDO> justDIBS = bslyr.getTreeDBH("C", currST.Code, "C");
                 double DIBsum = justDIBS.Sum(j => j.DBH);
                 if (DIBsum > 0)
                     LoadTreeDIBclasses(justDIBS[justDIBS.Count - 1].DBH, countsToOutput, 3);
@@ -160,10 +169,15 @@ namespace CruiseProcessing
                 int nthRow = 0;
                 foreach (LCDDO js in justSpecies)
                 {
+                    List<TreeDO> justGroup = justTrees.FindAll(
+                        delegate(TreeDO t)
+                        {
+                            return t.Species == js.Species;
+                        });
                     //  then load output list -- find row first for each tree
-                    if (justTrees.Where(t => t.Species == js.Species).Any())
+                    if (justGroup.Count > 0)
                     {
-                        foreach (TreeDO jg in justTrees.Where(t => t.Species == js.Species))
+                        foreach (TreeDO jg in justGroup)
                         {
                             //  find index in output list for DBH
                             nthRow = FindTreeDIBindex(countsToOutput, jg.DBH, 3);
@@ -226,7 +240,7 @@ namespace CruiseProcessing
 
 
         private void WriteCurrentPage(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        IEnumerable<LCDDO> justSpecies)
+                                        List<LCDDO> justSpecies)
         {
             //  should work for every report
             string verticalLine = " |";
@@ -238,7 +252,7 @@ namespace CruiseProcessing
                 prtFields.Add(cto.dibClass.PadLeft(4, ' '));
                 prtFields.Add("   ");
                 prtFields.Add(verticalLine);
-                for (int k = 0; k < justSpecies.Count(); k++)
+                for (int k = 0; k < justSpecies.Count; k++)
                 {
                     switch (k)
                     {
@@ -302,7 +316,7 @@ namespace CruiseProcessing
 
 
         private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        IEnumerable<LCDDO> justSpecies)
+                                        List<LCDDO> justSpecies)
         {
             //  output headers if needed
             string verticalLine = " |";
@@ -311,7 +325,7 @@ namespace CruiseProcessing
                                 completeHeader, 11, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(" TOTALS |");
-            for (int k = 0; k < justSpecies.Count(); k++)
+            for (int k = 0; k < justSpecies.Count; k++)
             {
                 switch (k)
                 {
@@ -356,7 +370,7 @@ namespace CruiseProcessing
         }   //  end outputTotalLine
 
 
-        private string[] createCompleteHeader(IEnumerable<LCDDO> justSpecies, string currCU, string currST, int currPlots)
+        private string[] createCompleteHeader(List<LCDDO> justSpecies, string currCU, string currST, int currPlots)
         {
             string[] finnishHeader = new string[3];
             StringBuilder sb = new StringBuilder();

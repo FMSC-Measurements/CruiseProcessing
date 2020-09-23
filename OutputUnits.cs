@@ -16,11 +16,11 @@ namespace CruiseProcessing
         public string currCL;
         private int[] fieldLengths;
         private ArrayList prtFields = new ArrayList();
-        //private List<StratumDO> sList = new List<StratumDO>();
-        //private List<TreeCalculatedValuesDO> tcvList = new List<TreeCalculatedValuesDO>();
-        //private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
-        //private List<LCDDO> lcdList = new List<LCDDO>();
-        //private List<PRODO> proList = new List<PRODO>();
+        private List<StratumDO> sList = new List<StratumDO>();
+        private List<TreeCalculatedValuesDO> tcvList = new List<TreeCalculatedValuesDO>();
+        private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
+        private List<LCDDO> lcdList = new List<LCDDO>();
+        private List<PRODO> proList = new List<PRODO>();
         private List<ReportSubtotal> unitSubtotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> strataSubtotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> grandTotal = new List<ReportSubtotal>();
@@ -50,11 +50,9 @@ namespace CruiseProcessing
         {
             //  This generates VSM4 as well as UC reports 1-6 -- remaining UC reports are stand table format
             string currentTitle = fillReportTitle(currentReport);
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
-            List<CuttingUnitDO> cList = Global.BL.getCuttingUnits().ToList();
-            List<PRODO> proList = Global.BL.getPRO().ToList();
-            List<TreeCalculatedValuesDO> tcvList = null;
-            List<LCDDO> lcdList = null;
+            sList = bslyr.getStratum();
+            cList = bslyr.getCuttingUnits();
+            proList = bslyr.getPRO();
             string orderBy = "";
             // reset summation variables
             numTrees = 0.0;
@@ -113,21 +111,23 @@ namespace CruiseProcessing
                         {
                             case "100":
                                 //  select cut trees from tree calculated values
-                                tcvList = Global.BL.getTreeCalculatedValues((int)s.Stratum_CN, orderBy).Where(tdo => tdo.Tree.SampleGroup.CutLeave == "C").ToList();
+                                List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues((int) s.Stratum_CN, orderBy);
+                                tcvList = treeList.FindAll(
+                                    delegate(TreeCalculatedValuesDO tdo)
+                                    {
+                                        return tdo.Tree.SampleGroup.CutLeave == "C";
+                                    });
                                 break;
                             case "STR":
                             case "S3P":
                             case "3P":
-                                lcdList = Global.BL.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ?", orderBy).ToList();                        
+                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ?", orderBy);                        
                                 break;
                             default:
-                                lcdList = Global.BL.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ? ", orderBy).ToList();
+                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ? ", orderBy);
                                 break;
                         }   //  end switch on method
-                        LoadAndPrintProrated(strWriteOut, s, currentReport, rh, ref pageNumb,
-                            tcvList ?? new List<TreeCalculatedValuesDO>(),
-                            lcdList ?? new List<LCDDO>(),
-                            proList);
+                        LoadAndPrintProrated(strWriteOut, s, currentReport, rh, ref pageNumb);
                     
                     }   //  end foreach loop
                     //  Output grand total for the report
@@ -156,7 +156,7 @@ namespace CruiseProcessing
                         fieldLengths = new int[] { 1, 4, 13, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10, 10 };
 
                         //  Load and print data for current cutting unit
-                        LoadAndPrintProrated(strWriteOut, c, rh, ref pageNumb, summaryList, proList);
+                        LoadAndPrintProrated(strWriteOut, c, rh, ref pageNumb, summaryList);
                         if(unitSubtotal.Count > 0)
                             OutputUnitSubtotal(strWriteOut, ref pageNumb, rh, currentReport);
                         unitSubtotal.Clear();
@@ -167,7 +167,8 @@ namespace CruiseProcessing
                     break;
                 case "VSM4":        //  3P Tree report (CP4)
                     //  first see if these methods exist in the cruise file
-                    if (findMethods(sList))
+                    int nthRow = findMethods();
+                    if (nthRow == -1)
                     {
                         strWriteOut.WriteLine("\f");
                         strWriteOut.WriteLine("REPORT VSM4 CANNOT BE CREATED");
@@ -182,7 +183,7 @@ namespace CruiseProcessing
                         {
                             s.CuttingUnits.Populate();
                             //  need current UOM to set report title
-                            string currUOM = Global.BL.getUOM((int)s.Stratum_CN);
+                            string currUOM = bslyr.getUOM((int)s.Stratum_CN);
                             //  Create report heading
                             rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO_PPO, "");
                             //  Fix reportTitles accordingly
@@ -206,13 +207,13 @@ namespace CruiseProcessing
                             fieldLengths = new int[] { 3, 9, 8, 7, 7, 6, 9, 7, 9, 10, 10, 7, 8, 10, 13, 4 };
 
                             //  process by groups so each cutting unit and sample group is on a separate page 
-                            List<SampleGroupDO> sgList = Global.BL.getSampleGroups((int)s.Stratum_CN).ToList();
+                            List<SampleGroupDO> sgList = bslyr.getSampleGroups((int)s.Stratum_CN);
                             foreach (CuttingUnitDO cud in s.CuttingUnits)
                             {
                                 //  pull calculated values for this group
-                                tcvList = Global.BL.getTreeCalculatedValues((int)s.Stratum_CN, (int)cud.CuttingUnit_CN).ToList();
+                                tcvList = bslyr.getTreeCalculatedValues((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
                                  //  August 2016 -- also need count records from tree table in case method is F3P
-                                List<TreeDO> tUnitsList = Global.BL.JustUnitTrees((int)s.Stratum_CN, (int)cud.CuttingUnit_CN).ToList();
+                                List<TreeDO> tUnitsList = bslyr.JustUnitTrees((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
                                 List<TreeCalculatedValuesDO> justSampleGroups = new List<TreeCalculatedValuesDO>();
                                 foreach (SampleGroupDO sg in sgList)
                                 {
@@ -265,7 +266,7 @@ namespace CruiseProcessing
                     {
                         //  create report header
                         rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                        LoadAndPrintProrated(speciesList, strWriteOut, cud, rh, ref pageNumb, proList);
+                        LoadAndPrintProrated(speciesList, strWriteOut, cud, rh, ref pageNumb);
                     }   //  end foreach on cutting unit
                     //  output summary table before the grand total
                     OutputSummaryList(strWriteOut, rh, ref pageNumb, summaryList);
@@ -305,7 +306,9 @@ namespace CruiseProcessing
             if (currMeth == "3P" || currMeth == "S3P")
             {
                 //  moved to beginning as it will be used elsewhere
-                foreach (CountTreeDO c in CountTreeMethods.GetSingleValue(Global.BL.getCountTrees(), currSG, currST, "", currCU, 0))
+                List<CountTreeDO> cList = bslyr.getCountTrees();
+                List<CountTreeDO> justCurrentCounts = CountTreeMethods.GetSingleValue(cList, currSG, currST, "", currCU, 0);
+                foreach (CountTreeDO c in justCurrentCounts)
                 {
                     prtFields.Add("");
                     prtFields.Add("  ");      //  blank stratum
@@ -393,9 +396,16 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private bool findMethods(IEnumerable<StratumDO> sList)
+        private int findMethods()
         {
-            return sList.Any(s => s.Method == "S3P" || s.Method == "F3P" || s.Method == "3P");
+            int nthRow = -1;
+            nthRow = sList.FindIndex(
+                delegate(StratumDO s)
+                {
+                    return s.Method == "S3P" || s.Method == "F3P" || s.Method == "3P";
+                });
+
+            return nthRow;
         }   //  end findMethods
 
 
@@ -832,7 +842,7 @@ namespace CruiseProcessing
             StringBuilder sb = new StringBuilder();
             for (int k = 0; k < rightHandSide.Count(); k++)
             {
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(leftHandSide[k]);
                 sb.Append(rightHandSide[k]);
                 completeHeader[k] = sb.ToString();
@@ -842,8 +852,7 @@ namespace CruiseProcessing
 
 
         private void LoadAndPrintProrated(StreamWriter strWriteOut, StratumDO sdo, string currRPT, 
-                    reportHeaders rh, ref int pageNumb, 
-                    IEnumerable<TreeCalculatedValuesDO> tcvList, IEnumerable<LCDDO> lcdList, IEnumerable<PRODO> proList)
+                                            reportHeaders rh, ref int pageNumb)
         {
             //  loads based on cruise method for UC reports (UC1-UC4)
             string prevCU = "**";
@@ -878,17 +887,24 @@ namespace CruiseProcessing
                 switch (sdo.Method)
                 {
                     case "100":
+                        //  pull current unit from trees
+                        List<TreeCalculatedValuesDO> justCurrentGroup = tcvList.FindAll(
+                            delegate(TreeCalculatedValuesDO tdo)
+                            {
+                                return tdo.Tree.CuttingUnit.Code == prevCU;
+                            });
+
                         //  sum up groups
-                        SumUpGroups(tcvList.Where(tdo => tdo.Tree.CuttingUnit.Code == prevCU), currentReport, strWriteOut, rh, ref pageNumb, proList);
+                        SumUpGroups(justCurrentGroup, currentReport, strWriteOut, rh, ref pageNumb);
                         break;
                     case "STR":
                     case "3P":
                     case "S3P":
-                        SumUpGroups(currentReport, prevCU, strWriteOut, rh, ref pageNumb, lcdList, proList);
+                        SumUpGroups(currentReport, prevCU, strWriteOut, rh, ref pageNumb);
                         break;
                     default:        //  area based methods
                         //  sum up groups in the strata and output for current unit
-                        SumUpGroups(currentReport, prevCU, strWriteOut, rh, ref pageNumb, lcdList, proList);
+                        SumUpGroups(currentReport, prevCU, strWriteOut, rh, ref pageNumb);
                         break;
                 }   //  end switch on method
             }   //  end for k loop
@@ -906,16 +922,16 @@ namespace CruiseProcessing
 
 
         private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, reportHeaders rh, ref int pageNumb,
-                                            List<ReportSubtotal> summaryList, IEnumerable<PRODO> proList)
-        { 
+                                            List<ReportSubtotal> summaryList)
+        {
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
             //  or sample groups for UC6
             ArrayList groupsToProcess = new ArrayList();
             if (currentReport == "UC5" || currentReport == "LV05")
-                groupsToProcess = Global.BL.GetJustSpecies("Tree");
+                groupsToProcess = bslyr.GetJustSpecies("Tree");
             else if (currentReport == "UC6")
-                groupsToProcess = Global.BL.GetJustSampleGroups();
+                groupsToProcess = bslyr.GetJustSampleGroups();
             foreach (string gtp in groupsToProcess)
             {
                 //  pull data based on strata method and species
@@ -926,36 +942,51 @@ namespace CruiseProcessing
                     {
                         case "100":
                             //  data comes from trees and must be expanded
-                            List<TreeCalculatedValuesDO> tcvList = Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cdo.CuttingUnit_CN).ToList();
-                            IEnumerable<TreeCalculatedValuesDO> currentGroup = null;
+                            tcvList = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cdo.CuttingUnit_CN);
+                            List<TreeCalculatedValuesDO> currentGroup = new List<TreeCalculatedValuesDO>();
                             if (currentReport == "UC5" || currentReport == "LV05")
                             {
                                 //  find cut trees and species to process
-                                currentGroup = tcvList.Where(tdo => tdo.Tree.Species == gtp && tdo.Tree.SampleGroup.CutLeave == currCL);
+                                currentGroup = tcvList.FindAll(
+                                    delegate(TreeCalculatedValuesDO tdo)
+                                    {
+                                        return tdo.Tree.Species == gtp && tdo.Tree.SampleGroup.CutLeave == currCL;
+                                    });
                             }
                             else if (currentReport == "UC6")
                             {
                                 //  find cut trees and sample groups to process
-                                currentGroup = tcvList.Where(tdo => tdo.Tree.SampleGroup.Code == gtp && tdo.Tree.SampleGroup.CutLeave == currCL);
+                                currentGroup = tcvList.FindAll(
+                                    delegate(TreeCalculatedValuesDO tdo)
+                                    {
+                                        return tdo.Tree.SampleGroup.Code == gtp && tdo.Tree.SampleGroup.CutLeave == currCL;
+                                    });
                             }   //  endif on current report
-                            if(currentGroup.Any()) SumUpGroups(currentGroup, proList);
+                            if(currentGroup.Count > 0) SumUpGroups(currentGroup);
                             break;
                         default:
                             //  otherwise data comes from LCD and is NOT expanded
-                            IEnumerable<LCDDO> currGroup = null;
+                            lcdList = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species", currCL, stratum.Code);
+                            List<LCDDO> currGroup = new List<LCDDO>();
                             if (currentReport == "UC5" || currentReport == "LV05")
                             {
                                 //  find species to process
-                                currGroup = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species", currCL, stratum.Code).Where(
-                                    l => l.Species == gtp);
+                                currGroup = lcdList.FindAll(
+                                    delegate(LCDDO l)
+                                    {
+                                        return l.Species == gtp;
+                                    });
                             }
                             else if (currentReport == "UC6")
                             {
                                 //  find sample groups to process
-                                currGroup = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species", currCL, stratum.Code).Where(
-                                    l => l.SampleGroup == gtp);
+                                currGroup = lcdList.FindAll(
+                                    delegate(LCDDO l)
+                                    {
+                                        return l.SampleGroup == gtp;
+                                    });
                             }   //  endif current report
-                            if (currGroup != null && currGroup.Any()) SumUpGroups(currGroup, cdo.Code, proList);
+                            if(currGroup.Count > 0) SumUpGroups(currGroup,cdo.Code);
                             break;
                     }   //  end switch on method
                 }   //  end for loop on strata
@@ -992,13 +1023,13 @@ namespace CruiseProcessing
 
 
         private void LoadAndPrintProrated(List<ReportSubtotal> speciesList, StreamWriter strWriteOut, 
-                                            CuttingUnitDO cdo, reportHeaders rh, ref int pageNumb, IEnumerable<PRODO> proList)
+                                            CuttingUnitDO cdo, reportHeaders rh, ref int pageNumb)
         {
             //  overloaded method for VSM5 report -- summary by cutting unit
             //  sum species groups by stratum
             cdo.Strata.Populate();
             prtFields = new ArrayList();
-            string[,] groupsToProcess = Global.BL.GetUniqueSpeciesProduct();
+            string[,] groupsToProcess = bslyr.GetUniqueSpeciesProduct();
             int numRows = groupsToProcess.GetLength(0);
             for (int k = 0; k < numRows; k++)
             {
@@ -1010,19 +1041,28 @@ namespace CruiseProcessing
                         switch (s.Method)
                         {
                             case "100":
-                                List<TreeCalculatedValuesDO> currentGroup = Global.BL.getTreeCalculatedValues((int)s.Stratum_CN, (int)cdo.CuttingUnit_CN).Where(
-                                    tdo => tdo.Tree.Species == groupsToProcess[k, 0] &&
+                                tcvList = bslyr.getTreeCalculatedValues((int)s.Stratum_CN, (int)cdo.CuttingUnit_CN);
+                                List<TreeCalculatedValuesDO> currentGroup = tcvList.FindAll(
+                                    delegate(TreeCalculatedValuesDO tdo)
+                                    {
+                                        return tdo.Tree.Species == groupsToProcess[k, 0] &&
                                             tdo.Tree.SampleGroup.PrimaryProduct == groupsToProcess[k, 1] &&
-                                            tdo.Tree.SampleGroup.CutLeave == "C").ToList();
-                                if (currentGroup.Count > 0) SumUpGroups(currentGroup, proList);
+                                            tdo.Tree.SampleGroup.CutLeave == "C";
+                                    });
+                                if (currentGroup.Count > 0) SumUpGroups(currentGroup);
                                 break;
                             default:
                                 //  any other method comes from the LCD table
-                                List<LCDDO> currGroup = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ",
-                                                    "Species", "C", s.Code, "").Where(l => l.Species == groupsToProcess[k, 0] &&
-                                                l.PrimaryProduct == groupsToProcess[k, 1]).ToList();
+                                lcdList = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ",
+                                                    "Species", "C", s.Code, "");
+                                List<LCDDO> currGroup = lcdList.FindAll(
+                                    delegate(LCDDO l)
+                                    {
+                                        return l.Species == groupsToProcess[k, 0] &&
+                                                l.PrimaryProduct == groupsToProcess[k, 1];
+                                    });
                                 if (currGroup.Count > 0) SumUpGroups(currGroup, s.Method, cdo.Code, 
-                                                                        (long) cdo.CuttingUnit_CN, (long) s.Stratum_CN, proList);
+                                                                        (long) cdo.CuttingUnit_CN, (long) s.Stratum_CN);
                                 break;
                         }   //  end switch on method
                     }   //  end foreach loop on stratum
@@ -1451,8 +1491,8 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void SumUpGroups(IEnumerable<TreeCalculatedValuesDO> currentGroup, string currRPT,
-                                    StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, IEnumerable<PRODO> proList)
+        private void SumUpGroups(List<TreeCalculatedValuesDO> currentGroup, string currRPT,
+                                    StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  This uses the tree data to sum up values for UC reports (100% method)
             string prevSP = "**";
@@ -1541,10 +1581,14 @@ namespace CruiseProcessing
                 }   //  endif
 
                 //retrieve proration factor for this group
-                PRODO prodo = proList.FirstOrDefault(p => p.CutLeave == "C" && p.Stratum == tcv.Tree.Stratum.Code && 
+                int nthRow = proList.FindIndex(
+                    delegate(PRODO p)
+                    {
+                        return p.CutLeave == "C" && p.Stratum == tcv.Tree.Stratum.Code && 
                                 p.CuttingUnit == tcv.Tree.CuttingUnit.Code &&
-                                p.SampleGroup == prevSG && p.PrimaryProduct == prevPP && p.UOM == prevUOM);
-                if (prodo != null) proratFac = prodo.ProrationFactor;
+                                p.SampleGroup == prevSG && p.PrimaryProduct == prevPP && p.UOM == prevUOM;
+                    });
+                if (nthRow >= 0) proratFac = proList[nthRow].ProrationFactor;
                 //  need current method
                 string currMeth = tcv.Tree.Stratum.Method;
                 switch (currRPT)
@@ -1628,7 +1672,7 @@ namespace CruiseProcessing
 
 
         private void SumUpGroups(string currRPT, string currCU, StreamWriter strWriteOut, reportHeaders rh,
-                                        ref int pageNumb, IEnumerable<LCDDO> lcdList, IEnumerable<PRODO> proList)
+                                        ref int pageNumb)
         {
             //  This sums the current group from the LCD data for the UC reports
             string prevSP = "**";
@@ -1715,11 +1759,15 @@ namespace CruiseProcessing
                 }   //  endif
 
                 //retrieve proration factor for this group
-                PRODO prodo = proList.FirstOrDefault(p => p.CutLeave == "C" && p.Stratum == ldo.Stratum && p.CuttingUnit == currCU &&
+                int nthRow = proList.FindIndex(
+                    delegate(PRODO p)
+                    {
+                        return p.CutLeave == "C" && p.Stratum == ldo.Stratum && p.CuttingUnit == currCU &&
                                 p.SampleGroup == ldo.SampleGroup && p.PrimaryProduct == prevPP && p.UOM == prevUOM &&
-                                p.STM == ldo.STM);
-                if (prodo != null)
-                    proratFac = prodo.ProrationFactor;
+                                p.STM == ldo.STM;
+                    });
+                if (nthRow >= 0)
+                    proratFac = proList[nthRow].ProrationFactor;
 
                 switch (currRPT)
                 {
@@ -1727,15 +1775,15 @@ namespace CruiseProcessing
                     case "UC2":
                         //  total values
                         //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                        if (Utilities.MethodLookup(ldo.Stratum) == "3P" ||
-                            Utilities.MethodLookup(ldo.Stratum) == "S3P")
+                        if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3P" ||
+                            Utilities.MethodLookup(ldo.Stratum, bslyr) == "S3P")
                         {
                             numTrees += pull3PtallyTrees(proList, lcdList, ldo.SampleGroup, 
                                                 ldo.Species, ldo.Stratum, ldo.PrimaryProduct, 
                                                 ldo.LiveDead, ldo.STM, currCU);
                             estTrees = 0.0;
                         }
-                        else if (Utilities.MethodLookup(ldo.Stratum) == "3PPNT")
+                        else if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3PPNT")
                         {
                             numTrees += ldo.SumExpanFactor * proratFac;
                             estTrees = 0.0;
@@ -1765,15 +1813,15 @@ namespace CruiseProcessing
                         if (ldo.UOM != "05")
                         {
                             //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                            if (Utilities.MethodLookup(ldo.Stratum) == "3P" ||
-                                Utilities.MethodLookup(ldo.Stratum) == "S3P")
+                            if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3P" ||
+                                Utilities.MethodLookup(ldo.Stratum, bslyr) == "S3P")
                             {
                                 numTrees += pull3PtallyTrees(proList, lcdList, ldo.SampleGroup,
                                                     ldo.Species, ldo.Stratum, ldo.PrimaryProduct,
                                                     ldo.LiveDead, ldo.STM, currCU);
                                 estTrees = 0.0;
                             }
-                            else if (Utilities.MethodLookup(ldo.Stratum) == "3PPNT")
+                            else if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3PPNT")
                             {
                                 numTrees += ldo.SumExpanFactor * proratFac;
                                 estTrees = 0.0;
@@ -1850,7 +1898,7 @@ namespace CruiseProcessing
         }   //  end SumUpGroups for area based methods
 
 
-        private void SumUpGroups(IEnumerable<TreeCalculatedValuesDO> tList, IEnumerable<PRODO> proList)
+        private void SumUpGroups(List<TreeCalculatedValuesDO> tList)
         {
             //  overloaded for UC5-UC6 100% method
             foreach (TreeCalculatedValuesDO t in tList)
@@ -1894,12 +1942,16 @@ namespace CruiseProcessing
                     }   //  endif recovered
 
                     //  lookup proration factor for this group
-                    PRODO prodo = proList.FirstOrDefault(p => p.CutLeave == "C" && p.Stratum == t.Tree.Stratum.Code &&
+                    int nthRow = proList.FindIndex(
+                        delegate(PRODO p)
+                        {
+                            return p.CutLeave == "C" && p.Stratum == t.Tree.Stratum.Code &&
                                 p.CuttingUnit == t.Tree.CuttingUnit.Code &&
                                 p.SampleGroup == t.Tree.SampleGroup.Code &&
                                 p.PrimaryProduct == t.Tree.SampleGroup.PrimaryProduct &&
-                                p.UOM == t.Tree.SampleGroup.UOM);
-                    if (prodo != null) proratFac = prodo.ProrationFactor;
+                                p.UOM == t.Tree.SampleGroup.UOM;
+                        });
+                    if (nthRow >= 0) proratFac = proList[nthRow].ProrationFactor;
                 }   // endif on unit of measure
             }   //  end foreach loop on trees
 
@@ -1907,33 +1959,37 @@ namespace CruiseProcessing
         }   //  end SumUpGroups for 100% method
 
 
-        private void SumUpGroups(IEnumerable<LCDDO> lcdList, string currCU, IEnumerable<PRODO> proList)
+        private void SumUpGroups(List<LCDDO> lcdList, string currCU)
         {
             //  overloaded for UC5-UC6 all other methods using LCD
             foreach (LCDDO l in lcdList)
             {
                 //  lookup proration factor for this group
-                PRODO prodo = proList.FirstOrDefault(p => p.CutLeave == currCL && p.Stratum == l.Stratum &&
+                int nthRow = proList.FindIndex(
+                    delegate(PRODO p)
+                    {
+                        return p.CutLeave == currCL && p.Stratum == l.Stratum &&
                             p.CuttingUnit == currCU &&
                             p.SampleGroup == l.SampleGroup &&
                             p.PrimaryProduct == l.PrimaryProduct &&
-                            p.UOM == l.UOM && p.STM == l.STM);
-                if (prodo != null)
-                    proratFac = prodo.ProrationFactor;
+                            p.UOM == l.UOM && p.STM == l.STM;
+                    });
+                if (nthRow >= 0)
+                    proratFac = proList[nthRow].ProrationFactor;
 
                 // separate sawtimber from nonsaw
                 if (l.UOM != "05")
                 {
                     //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                    if (Utilities.MethodLookup(l.Stratum) == "3P" ||
-                        Utilities.MethodLookup(l.Stratum) == "S3P")
+                    if (Utilities.MethodLookup(l.Stratum, bslyr) == "3P" ||
+                        Utilities.MethodLookup(l.Stratum, bslyr) == "S3P")
                     {
                         numTrees += pull3PtallyTrees(proList, lcdList, l.SampleGroup,
                                                 l.Species, l.Stratum, l.PrimaryProduct,
                                                 l.LiveDead, l.STM, currCU);
                         estTrees = 0.0;
                     }
-                    else if (Utilities.MethodLookup(l.Stratum) == "3PPNT")
+                    else if (Utilities.MethodLookup(l.Stratum, bslyr) == "3PPNT")
                     {
                         numTrees += l.SumExpanFactor * proratFac;
                         estTrees = 0.0;
@@ -1991,22 +2047,26 @@ namespace CruiseProcessing
         }   //  end SumUpGroups
 
 
-        private void SumUpGroups(IEnumerable<LCDDO> currGroup, string currMethod, 
-                                    string currCU, long currCU_CN, long currST_CN, IEnumerable<PRODO> proList)
+        private void SumUpGroups(List<LCDDO> currGroup, string currMethod, 
+                                    string currCU, long currCU_CN, long currST_CN)
         {
             //  overloaded to sum up volumes for VSM5 report
             foreach (LCDDO cg in currGroup)
             {
                 double justTalliedTrees = 0;
                 //  what is the proration factor current group?
-                PRODO prodo = proList.FirstOrDefault(p => p.CutLeave == "C" && p.Stratum == cg.Stratum &&
+                int nthRow = proList.FindIndex(
+                    delegate(PRODO p)
+                    {
+                        return p.CutLeave == "C" && p.Stratum == cg.Stratum &&
                             p.CuttingUnit == currCU && p.SampleGroup == cg.SampleGroup &&
                             p.PrimaryProduct == cg.PrimaryProduct && p.UOM == cg.UOM &&
-                            p.STM == cg.STM);
-                if (prodo != null)
+                            p.STM == cg.STM;
+                    });
+                if (nthRow >= 0)
                 {
-                    proratFac = prodo.ProrationFactor;
-                    justTalliedTrees = prodo.TalliedTrees;
+                    proratFac = proList[nthRow].ProrationFactor;
+                    justTalliedTrees = proList[nthRow].TalliedTrees;
                 }   //  endif
 
                 //  sum volumes
@@ -2055,13 +2115,18 @@ namespace CruiseProcessing
         private void sumSTMtrees(LCDDO currGroup, string currentUnit, 
                                     long currCU_CN, long currST_CN)
         {
+            //  sums sure-to-measure trees for VSM5 report
+            List<TreeCalculatedValuesDO> tList = bslyr.getTreeCalculatedValues((int) currST_CN,(int) currCU_CN);
             //  find all trees for this group
-            IEnumerable<TreeCalculatedValuesDO> justSTM = Global.BL.getTreeCalculatedValues((int)currST_CN, (int)currCU_CN).Where(
-                tdo => tdo.Tree.Species == currGroup.Species && 
+            List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
+                delegate(TreeCalculatedValuesDO tdo)
+                {
+                    return tdo.Tree.Species == currGroup.Species && 
                         tdo.Tree.SampleGroup.PrimaryProduct == currGroup.PrimaryProduct  &&
                         tdo.Tree.SampleGroup.Code == currGroup.SampleGroup &&
                         tdo.Tree.SampleGroup.CutLeave == "C" &&
-                        tdo.Tree.STM == "Y");
+                        tdo.Tree.STM == "Y";
+                });
 
             foreach(TreeCalculatedValuesDO js in justSTM)
             {
@@ -2096,7 +2161,7 @@ namespace CruiseProcessing
             return;
         }   //  end sumSTMtrees
 
-        private double pull3PtallyTrees(IEnumerable<PRODO> proList, IEnumerable<LCDDO> lcdList, string currSG, 
+        private double pull3PtallyTrees(List<PRODO> proList, List<LCDDO> lcdList, string currSG, 
                                         string currSP, string currST, string currPP, string currLD, 
                                         string currSTM, string currCU)
         {
@@ -2105,27 +2170,39 @@ namespace CruiseProcessing
             //  for just non-STM first
             //  need entire LCD list for UC5-6
             if (currentReport == "UC5" || currentReport == "UC6")
-                lcdList = Global.BL.getLCD();
+                lcdList = bslyr.getLCD();
 
-            IEnumerable<LCDDO> justGroups = lcdList.Where(l => l.Stratum == currST && l.SampleGroup == currSG && l.STM == "N");
-            if (justGroups.Count() > 1)
+            List<LCDDO> justGroups = lcdList.FindAll(
+                delegate(LCDDO l)
+                {
+                    return l.Stratum == currST && l.SampleGroup == currSG && l.STM == "N";
+                });
+            if (justGroups.Count > 1)
             {
                 //  find number of tallied trees in LCD for current species
-                LCDDO lcddo = lcdList.FirstOrDefault(l => l.Stratum == currST && l.Species == currSP &&
+                int nthRow = lcdList.FindIndex(
+                    delegate(LCDDO l)
+                    {
+                        return l.Stratum == currST && l.Species == currSP &&
                             l.SampleGroup == currSG && l.PrimaryProduct == currPP &&
-                            l.LiveDead == currLD && l.STM == currSTM);
-                if (lcddo != null)
-                    talliedTrees += lcddo.TalliedTrees;
+                            l.LiveDead == currLD && l.STM == currSTM;
+                    });
+                if (nthRow >= 0)
+                    talliedTrees += lcdList[nthRow].TalliedTrees;
             }
             else
             {
                 //  that means only one species per sample group
                 //  so return number of tallied trees from the PRO table
-                PRODO prodo = proList.FirstOrDefault(p => p.Stratum == currST && p.SampleGroup == currSG &&
+                int nthRow = proList.FindIndex(
+                    delegate(PRODO p)
+                    {
+                        return p.Stratum == currST && p.SampleGroup == currSG &&
                             p.CuttingUnit == currCU && p.PrimaryProduct == currPP &&
-                            p.STM == currSTM);
-                if (prodo != null)
-                    talliedTrees += prodo.TalliedTrees;
+                            p.STM == currSTM;
+                    });
+                if (nthRow >= 0)
+                    talliedTrees += proList[nthRow].TalliedTrees;
             }   //  endif
 
             return talliedTrees;

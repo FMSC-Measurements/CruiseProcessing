@@ -12,16 +12,19 @@ namespace CruiseProcessing
     public static class CountTreeMethods
     {
         //  methods pertaining to count tree table
-        public static IEnumerable<CountTreeDO> GetSingleValue(IEnumerable<CountTreeDO> ctList, string currSG, string currST, 
+        public static List<CountTreeDO> GetSingleValue(List<CountTreeDO> ctList, string currSG, string currST, 
                                             string currSP, string currCU, int groupBy)
         {
             List<CountTreeDO> rtrnList = new List<CountTreeDO>();
             //  get data for stratum and cutting unit (VSM4 uses this)
             if (currST != "" && currCU != "" && currSG != "")
             {
-                rtrnList = ctList.Where(ctd => ctd.SampleGroup.Stratum.Code == currST && ctd.CuttingUnit.Code == currCU &&
-                            ctd.SampleGroup.Code == currSG).ToList();
-
+                rtrnList = ctList.FindAll(
+                    delegate(CountTreeDO ctd)
+                    {
+                        return ctd.SampleGroup.Stratum.Code == currST && ctd.CuttingUnit.Code == currCU &&
+                            ctd.SampleGroup.Code == currSG;
+                    });
                 if (rtrnList != null && groupBy == 0)
                     return rtrnList;
             }   //  endif currST
@@ -29,19 +32,22 @@ namespace CruiseProcessing
             return rtrnList;
         }   //  end GetSingleValue
 
-        public static int check3Pcounts(IEnumerable<CountTreeDO> countList, StratumDO currStratum)
+        public static int check3Pcounts(List<CountTreeDO> countList, CPbusinessLayer bslyr, StratumDO currStratum)
         {
             int checkResult = 0;
             //  is this a 3P stratum?
             if (currStratum.Method == "3P")
             {
                 //  find stratum in CountTree by finding cutting unit first
-                //List<CuttingUnitStratumDO> uList = ;
-                foreach (CuttingUnitStratumDO ul in Global.BL.getCuttingUnitStratum((long)currStratum.Stratum_CN))
+                List<CuttingUnitStratumDO> uList = bslyr.getCuttingUnitStratum((long)currStratum.Stratum_CN);
+                foreach (CuttingUnitStratumDO ul in uList)
                 {
-//                    List<CountTreeDO> justCounts = ;
-
-                    foreach (CountTreeDO jc in Global.BL.getJustCounts((long)ul.CuttingUnit_CN, currStratum.Code))
+                    List<CountTreeDO> justCounts = countList.FindAll(
+                        delegate(CountTreeDO ctd)
+                        {
+                            return ctd.CuttingUnit_CN == ul.CuttingUnit_CN && ctd.SampleGroup.Stratum.Code == currStratum.Code;
+                        });   //  end
+                    foreach (CountTreeDO jc in justCounts)
                         if (jc.TreeDefaultValue_CN == null)
                             checkResult++;
                 }   //  end foreach on cutting unit

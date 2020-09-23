@@ -16,6 +16,7 @@ namespace CruiseProcessing
         public string[,] speciesDIB;
         private double DIBnumeric;
         int numRows = 0;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
 
@@ -29,8 +30,8 @@ namespace CruiseProcessing
         {
             //  are there any product 08 species to show in the grid?
             //  changes made to Region 8 equations --  July 2017 --  slight changes to this code
-            //ArrayList justSpecies = Global.BL.GetProduct08Species();
-            ArrayList justSpecies = Global.BL.GetJustSpecies("Tree");
+            //ArrayList justSpecies = bslyr.GetProduct08Species();
+            ArrayList justSpecies = bslyr.GetJustSpecies("Tree");
             if (justSpecies.Count == 0)
             {
                 MessageBox.Show("There are no measured trees in this sale.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);

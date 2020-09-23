@@ -16,6 +16,7 @@ namespace CruiseProcessing
     public partial class ModifyMerchRules : Form
     {
         #region
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         private List<VolumeEquationDO> vList = new List<VolumeEquationDO>();
         private List<VolumeEquationDO> justProducts = new List<VolumeEquationDO>();
         private int nthRow = 0;
@@ -42,13 +43,13 @@ namespace CruiseProcessing
         public void setupDialog()
         {
             //  first, any changes made?  Indicates where data comes from
-            vList = Global.BL.getVolumeEquations().ToList();
+            vList = bslyr.getVolumeEquations();
             int modFlag = (int) vList.Sum(v => v.MerchModFlag);
             if (modFlag == 0)
             {
                 //  means no changes made -- need regional defaults from volume library
                 //  need region
-                string regText = Global.BL.getRegion();
+                string regText = bslyr.getRegion();
                 //  convert to integer for call to volume library
                 int currReg = Convert.ToInt16(regText);
                 //  then fill vList with values from volume library
@@ -225,7 +226,7 @@ namespace CruiseProcessing
             //  and update volume list for saving
             updateVolumeList();
             //  save volume equation list
-            Global.BL.SaveVolumeEquations(vList);
+            bslyr.SaveVolumeEquations(vList);
             Close();
             return;
         }

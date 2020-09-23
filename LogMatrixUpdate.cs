@@ -64,7 +64,7 @@ namespace CruiseProcessing
                 //  create log grade code
                 //  first log grade is probably not going to be blank
                 //  so add it to the string
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(rm.LogGrade1);
                 sb.Append(" ");
                 if (rm.LogGrade2 != null && rm.GradeDescription != "")
@@ -105,7 +105,7 @@ namespace CruiseProcessing
                 logMatrixGrid.Rows[rowNum].Cells[2].Value = sb.ToString();
 
                 //  Lastly is log SED
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 if (rm.SEDminimum == 0 && rm.SEDmaximum == 0)
                 {
                     //  end line do nothing

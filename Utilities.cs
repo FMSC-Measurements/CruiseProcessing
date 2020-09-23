@@ -11,12 +11,13 @@ namespace CruiseProcessing
     {
 
         //  AcresLookup will go away once the updated ReturnCorrectAcres is tested and complete
-        public static double AcresLookup(long currStrCN, string currStratum)
+        public static double AcresLookup(long currStrCN, CPbusinessLayer bslyr, string currStratum)
         {
             //  Need call to CP business layer to get all CUs for this stratum
+            List<StratumDO> stratumList = bslyr.GetCurrentStratum(currStratum);
 
             float stratumAcres = 0;
-            foreach (StratumDO sdo in Global.BL.GetCurrentStratum(currStratum))
+            foreach (StratumDO sdo in stratumList)
             {
                 sdo.CuttingUnits.Populate();
                 foreach (CuttingUnitDO cudo in sdo.CuttingUnits)
@@ -27,13 +28,13 @@ namespace CruiseProcessing
         }   //  end AcresLookup
 
 
-        public static double ReturnCorrectAcres(string currentStratum, long currStrCN)
+        public static double ReturnCorrectAcres(string currentStratum, CPbusinessLayer bslyr, long currStrCN)
         {
-            string currentMethod = MethodLookup(currentStratum);
+            string currentMethod = MethodLookup(currentStratum, bslyr);
             if (currentMethod == "100" || currentMethod == "STR" ||
                 currentMethod == "S3P" || currentMethod == "3P")
                 return 1.0;
-            return AcresLookup(currStrCN, currentStratum);
+            return AcresLookup(currStrCN, bslyr, currentStratum);
         }   //  end ReturnCorrectAcres
 
 /*  following code is for change to capture stratum acres and needs testing when DAL is updated -- April 2015
@@ -46,7 +47,7 @@ namespace CruiseProcessing
             else
             {
                 //  pull units for current stratum
-                List<CuttingUnitStratumDO> justStratum = Global.BL.GetJustStratum(cs.Stratum_CN);
+                List<CuttingUnitStratumDO> justStratum = bslyr.GetJustStratum(cs.Stratum_CN);
                 //  sum area
                 strataAcres = justStratum.Sum(j => j.StrataArea);
                 if (strataAcres == 0)
@@ -62,30 +63,33 @@ namespace CruiseProcessing
         }   //  end ReturnCorrectAcres
         */
 
-        public static double unitAcres(List<CuttingUnitStratumDO> justStratum)
+        public static double unitAcres(List<CuttingUnitStratumDO> justStratum, CPbusinessLayer bslyr)
         {
+            List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
             double acresSum = 0;
 
             foreach (CuttingUnitStratumDO js in justStratum)
             {
-                CuttingUnitDO cut = Global.BL.getCuttingUnits().FirstOrDefault(c => c.CuttingUnit_CN == js.CuttingUnit_CN);
-                if (cut != null)
-                    acresSum += cut.Area;
+                int nthRow = cutList.FindIndex(
+                    delegate(CuttingUnitDO c)
+                    {
+                        return c.CuttingUnit_CN == js.CuttingUnit_CN;
+                    });
+                if (nthRow >= 0)
+                    acresSum += cutList[nthRow].Area;
             }  //  end foreach loop
 
             return acresSum;
         }   //  end unitAcres
 
 
-        public static string MethodLookup(string currentStratum)
+        public static string MethodLookup(string currentStratum, CPbusinessLayer bslyr)
         {
             //  Need to call CP business layer to get stratum list
-
-            return Global.BL.GetCurrentStratum(currentStratum).FirstOrDefault()?.Method ?? "";
-            //List<StratumDO> stratumList = Global.BL.GetCurrentStratum(currentStratum);
-            //if (stratumList.Count > 0)
-            //    return stratumList[0].Method;
-            //else return "";            
+            List<StratumDO> stratumList = bslyr.GetCurrentStratum(currentStratum);
+            if (stratumList.Count > 0)
+                return stratumList[0].Method;
+            else return "";            
         }   //  end MethodLookup
 
 
@@ -111,7 +115,7 @@ namespace CruiseProcessing
         public static StringBuilder FormatField(float fieldToFormat, string formatOfField)
         {
             StringBuilder SB = new StringBuilder();
-            SB.Remove(0, SB.Length);
+            SB.Clear();
             SB.AppendFormat(formatOfField, fieldToFormat);
             return SB;
         }   //  end FormatField for floats
@@ -119,7 +123,7 @@ namespace CruiseProcessing
         public static StringBuilder FormatField(double fieldToFormat, string formatOfField)
         {
             StringBuilder SB = new StringBuilder();
-            SB.Remove(0, SB.Length);
+            SB.Clear();
             SB.AppendFormat(formatOfField, fieldToFormat);
             return SB;
         }   //  end FormatField for doubles
@@ -127,7 +131,7 @@ namespace CruiseProcessing
         public static StringBuilder FormatField(long fieldToFormat, string formatOfField)
         {
             StringBuilder SB = new StringBuilder();
-            SB.Remove(0, SB.Length);
+            SB.Clear();
             SB.AppendFormat(formatOfField, fieldToFormat);
             return SB;
         }   //  end FormatField for longs
@@ -135,13 +139,13 @@ namespace CruiseProcessing
         public static StringBuilder FormatField(int fieldToFormat, string formatOfField)
         {
             StringBuilder SB = new StringBuilder();
-            SB.Remove(0, SB.Length);
+            SB.Clear();
             SB.AppendFormat(formatOfField, fieldToFormat);
             return SB;
         }   //  end FormatField for int
 
 
-        public static void LogError(string tableName, int table_CN, string errLevel, string errMessage)
+        public static void LogError(string tableName, int table_CN, string errLevel, string errMessage, string filename)
         {
             List<ErrorLogDO> errList = new List<ErrorLogDO>();
             ErrorLogDO eldo = new ErrorLogDO();
@@ -154,133 +158,149 @@ namespace CruiseProcessing
             eldo.Program = "CruiseProcessing";
             errList.Add(eldo);
 
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.fileName = filename;
+            bslyr.SaveErrorMessages(errList);
         }   //  end LogError6
 
-        public static StringBuilder GetIdentifier(string tableName, long CNtoFind)
+        public static StringBuilder GetIdentifier(string tableName, long CNtoFind, CPbusinessLayer bslyr)
         {
             StringBuilder ident = new StringBuilder();
+            int ithRow = -1;
 
             switch(tableName)
             {
                 case "Sale":
-                    SaleDO sale = Global.BL.getSale().FirstOrDefault(sd => sd.Sale_CN == CNtoFind);
-                    if(sale != null)
+                    List<SaleDO> sList = bslyr.getSale();
+                    ithRow = sList.FindIndex(
+                        delegate(SaleDO sd)
+                        {
+                            return sd.Sale_CN == CNtoFind;
+                        });
+                    if(ithRow >= 0)
                     {
                         ident.Append("Sale number = ");
-                        ident.Append(sale.SaleNumber);
+                        ident.Append(sList[ithRow].SaleNumber);
                     }
                     else ident.Append("Sale number not found");
                     break;
                 case "Stratum":
-                    StratumDO strat = Global.BL.getStratum().FirstOrDefault(sdo => sdo.Stratum_CN == CNtoFind);
-                    if(strat != null)
-                        ident.Append(strat.Code);
+                    List<StratumDO> stList = bslyr.getStratum();
+                    ithRow = stList.FindIndex(
+                        delegate(StratumDO sdo)
+                        {
+                            return sdo.Stratum_CN == CNtoFind;
+                        });
+                    if(ithRow >= 0)
+                        ident.Append(stList[ithRow].Code);
                     else ident.Append("Stratum code not found");
                     break;
                 case "Cutting Unit":
-                    CuttingUnitDO cudo = Global.BL.getCuttingUnits().FirstOrDefault(cu => cu.CuttingUnit_CN == CNtoFind);
-                    if(cudo != null)
+                    List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
+                    ithRow = cList.FindIndex(
+                        delegate(CuttingUnitDO cu)
+                        {
+                            return cu.CuttingUnit_CN == CNtoFind;
+                        });
+                    if(ithRow >= 0)
                     {
                         ident.Append("   ");
-                        ident.Append(cudo.Code.PadLeft(3,' '));
+                        ident.Append(cList[ithRow].Code.PadLeft(3,' '));
                     }
                     else ident.Append("Cutting unit not found");
                     break;
                 case "Tree":
-                    TreeDO tdo = Global.BL.getTrees().FirstOrDefault(td => td.Tree_CN == CNtoFind);
-                    if(tdo != null)
+                    List<TreeDO> tList = bslyr.getTrees();
+                    ithRow = tList.FindIndex(
+                        delegate(TreeDO td)
+                        {
+                            return td.Tree_CN == CNtoFind;
+                        });
+                    if(ithRow >= 0)
                     {
-                        ident.Append(tdo.Stratum.Code.PadRight(3,' '));
-                        ident.Append(tdo.CuttingUnit.Code.PadLeft(3,' '));
-                        if (tdo.Plot == null)
+                        ident.Append(tList[ithRow].Stratum.Code.PadRight(3,' '));
+                        ident.Append(tList[ithRow].CuttingUnit.Code.PadLeft(3,' '));
+                        if (tList[ithRow].Plot == null)
                             ident.Append("     ");
-                       else if(tdo.Plot_CN == 0)
+                       else if(tList[ithRow].Plot_CN == 0)
                             ident.Append("     ");
-                        else ident.Append(tdo.Plot.PlotNumber.ToString().PadLeft(5,' '));
-                        ident.Append(tdo.TreeNumber.ToString().PadLeft(5,' '));
+                        else ident.Append(tList[ithRow].Plot.PlotNumber.ToString().PadLeft(5,' '));
+                        ident.Append(tList[ithRow].TreeNumber.ToString().PadLeft(5,' '));
                         ident.Append(" --- ");
-                        if (tdo.Species == null)
+                        if (tList[ithRow].Species == null)
                             ident.Append("       ");
-                        else ident.Append(tdo.Species.PadRight(7, ' '));
-                        if (tdo.SampleGroup == null)
+                        else ident.Append(tList[ithRow].Species.PadRight(7, ' '));
+                        if (tList[ithRow].SampleGroup == null)
                             ident.Append("   ");
                         else
                         {
-                            if (tdo.SampleGroup.Code == "" || tdo.SampleGroup.Code == " " ||
-                                tdo.SampleGroup.Code == "<Blank>" || tdo.SampleGroup.Code == null)
+                            if (tList[ithRow].SampleGroup.Code == "" || tList[ithRow].SampleGroup.Code == " " ||
+                                tList[ithRow].SampleGroup.Code == "<Blank>" || tList[ithRow].SampleGroup.Code == null)
                                 ident.Append("   ");
-                            else ident.Append(tdo.SampleGroup.Code.PadRight(3, ' '));
-                            ident.Append(tdo.SampleGroup.PrimaryProduct.PadRight(3, ' '));
+                            else ident.Append(tList[ithRow].SampleGroup.Code.PadRight(3, ' '));
+                            ident.Append(tList[ithRow].SampleGroup.PrimaryProduct.PadRight(3, ' '));
                         }   //  endif
                     }
                     else ident.Append("Tree not found");
                     break;
                 case "Log":
-                    LogDO log = Global.BL.getLogs().FirstOrDefault(ld => ld.Log_CN == CNtoFind);
-                    if (log != null)
+                    List<LogDO> lList = bslyr.getLogs();
+                    ithRow = lList.FindIndex(
+                        delegate(LogDO ld)
+                        {
+                            return ld.Log_CN == CNtoFind;
+                        });
+                    if(ithRow >= 0)
                     {
-                        ident.Append(log.Tree.Stratum.Code.PadRight(3,' '));
-                        ident.Append(log.Tree.CuttingUnit.Code.PadLeft(3,' '));
-                        if (log.Tree.Plot == null)
+                        ident.Append(lList[ithRow].Tree.Stratum.Code.PadRight(3,' '));
+                        ident.Append(lList[ithRow].Tree.CuttingUnit.Code.PadLeft(3,' '));
+                        if (lList[ithRow].Tree.Plot == null)
                             ident.Append("     ");
-                        else ident.Append(log.Tree.Plot.PlotNumber.ToString().PadLeft(5,' '));
-                        ident.Append(log.Tree.TreeNumber.ToString().PadLeft(5,' '));
-                        ident.Append(log.LogNumber.PadLeft(3, ' '));
+                        else ident.Append(lList[ithRow].Tree.Plot.PlotNumber.ToString().PadLeft(5,' '));
+                        ident.Append(lList[ithRow].Tree.TreeNumber.ToString().PadLeft(5,' '));
+                        ident.Append(lList[ithRow].LogNumber.PadLeft(3, ' '));
                     }
                     else ident.Append("Log not found");
                     break;
                 case "Volume Equation":
-                    if (CNtoFind == 0) CNtoFind = 1;
-                    //List<VolumeEquationDO> vList = Global.BL.getVolumeEquations();
-                    VolumeEquationDO ve = Global.BL.getVolumeEquations().ElementAt((int)CNtoFind - 1);
+                    if(CNtoFind == 0) CNtoFind = 1;
+                    List<VolumeEquationDO> vList = bslyr.getVolumeEquations();
                     ident.Append("-- --- ---- ---- --- ");
-                    ident.Append(ve.Species.PadRight(7, ' '));
+                    ident.Append(vList[(int)CNtoFind-1].Species.PadRight(7, ' '));
                     ident.Append("-- ");
-                    ident.Append(ve.PrimaryProduct.PadRight(3, ' '));
-                    ident.Append(ve.VolumeEquationNumber.PadRight(10, ' '));
-
-                    //ident.Append("-- --- ---- ---- --- ");
-                    //ident.Append(vList[(int)CNtoFind-1].Species.PadRight(7, ' '));
-                    //ident.Append("-- ");
-                    //ident.Append(vList[(int)CNtoFind-1].PrimaryProduct.PadRight(3, ' '));
-                    //ident.Append(vList[(int)CNtoFind-1].VolumeEquationNumber.PadRight(10,' '));
+                    ident.Append(vList[(int)CNtoFind-1].PrimaryProduct.PadRight(3, ' '));
+                    ident.Append(vList[(int)CNtoFind-1].VolumeEquationNumber.PadRight(10,' '));
                     break;
                 case "Value Equation":
                     if(CNtoFind == 0) CNtoFind = 1;
-                    ValueEquationDO veq = Global.BL.getValueEquations().ElementAt((int)CNtoFind - 1);
+                    List<ValueEquationDO> veList = bslyr.getValueEquations();
                     ident.Append("-- --- ---- ---- --- ");
-                    ident.Append(veq.Species.PadRight(7, ' '));
+                    ident.Append(veList[(int)CNtoFind-1].Species.PadRight(7, ' '));
                     ident.Append("-- ");
-                    ident.Append(veq.PrimaryProduct.PadRight(3, ' '));
-                    ident.Append(veq.ValueEquationNumber.PadRight(10, ' '));
-                    //List<ValueEquationDO> veList = Global.BL.getValueEquations();
-                    //ident.Append("-- --- ---- ---- --- ");
-                    //ident.Append(veList[(int)CNtoFind-1].Species.PadRight(7, ' '));
-                    //ident.Append("-- ");
-                    //ident.Append(veList[(int)CNtoFind-1].PrimaryProduct.PadRight(3,' '));
-                    //ident.Append(veList[(int)CNtoFind-1].ValueEquationNumber.PadRight(10,' '));
+                    ident.Append(veList[(int)CNtoFind-1].PrimaryProduct.PadRight(3,' '));
+                    ident.Append(veList[(int)CNtoFind-1].ValueEquationNumber.PadRight(10,' '));
                     break;
                 case "Quality Adjustment":
                     if(CNtoFind == 0) CNtoFind = 1;
-                    QualityAdjEquationDO qe = Global.BL.getQualAdjEquations().ElementAt((int)CNtoFind - 1);
+                    List<QualityAdjEquationDO> qList = bslyr.getQualAdjEquations();
                     ident.Append("-- --- ---- ---- --- ");
-                    ident.Append(qe.Species.PadRight(7, ' '));
+                    ident.Append(qList[(int)CNtoFind-1].Species.PadRight(7, ' '));
                     ident.Append("-- -- ");
-                    ident.Append(qe.QualityAdjEq.PadRight(10,' '));
-                    //List<QualityAdjEquationDO> qList = Global.BL.getQualAdjEquations();
-                    //ident.Append("-- --- ---- ---- --- ");
-                    //ident.Append(qList[(int)CNtoFind-1].Species.PadRight(7, ' '));
-                    //ident.Append("-- -- ");
-                    //ident.Append(qList[(int)CNtoFind-1].QualityAdjEq.PadRight(10,' '));
+                    ident.Append(qList[(int)CNtoFind-1].QualityAdjEq.PadRight(10,' '));
                     break;
                 case "SampleGroup":
-                    SampleGroupDO sg = Global.BL.getSampleGroups().FirstOrDefault(sgd => sgd.SampleGroup_CN == CNtoFind);
-                    if(sg != null)
+                    List<SampleGroupDO> sgList = bslyr.getSampleGroups();
+                    ithRow = sgList.FindIndex(
+                        delegate(SampleGroupDO sgd)
+                        {
+                            return sgd.SampleGroup_CN == CNtoFind;
+                        });
+                    if(ithRow >= 0)
                     {
-                        ident.Append(sg.Stratum.Code.PadRight(3,' '));
+                        ident.Append(sgList[ithRow].Stratum.Code.PadRight(3,' '));
                         ident.Append("--- ---- ---- --- ------ ");
-                        ident.Append(sg.Code.PadRight(3, ' '));
-                        ident.Append(sg.PrimaryProduct.PadRight(3, ' '));
+                        ident.Append(sgList[ithRow].Code.PadRight(3, ' '));
+                        ident.Append(sgList[ithRow].PrimaryProduct.PadRight(3, ' '));
                     }
                     else ident.Append("Sample Group not found");
                     break;

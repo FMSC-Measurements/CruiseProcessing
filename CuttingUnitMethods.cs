@@ -11,9 +11,11 @@ namespace CruiseProcessing
     public static class CuttingUnitMethods
     {
         //  edit checks
-        public static int IsEmpty(IEnumerable<CuttingUnitDO> cuList)
+        public static int IsEmpty(List<CuttingUnitDO> cuList)
         {
-            return cuList.Any() ? 0 : 25;
+            if (cuList.Count == 0)
+                return 25;
+            else return 0;
         }   //  end IsEmpty
 
         public static int ValidLogMethod(CuttingUnitDO cudo)
@@ -38,19 +40,18 @@ namespace CruiseProcessing
 
 
         //  methods pertaining to cutting unit table
-        public static double GetUnitAcres(IEnumerable<CuttingUnitDO> CutUnitList, string currCutUnit)
+        public static double GetUnitAcres(List<CuttingUnitDO> CutUnitList, string currCutUnit)
         {
-            //double currAcres = 1.0;
-            ////List<CuttingUnitDO> rtrnList = CutUnitList.FindAll(
-            ////    delegate(CuttingUnitDO cud)
-            ////    {
-            ////        return cud.Code == currCutUnit;
-            ////    });
-            //var rtrnList = CutUnitList.FirstOrDefault(cu => cu.Code == currCutUnit);
-            //if(rtrnList != null)
-            //    currAcres = Convert.ToDouble(rtrnList.Area);
+            double currAcres = 1.0;
+            List<CuttingUnitDO> rtrnList = CutUnitList.FindAll(
+                delegate(CuttingUnitDO cud)
+                {
+                    return cud.Code == currCutUnit;
+                });
+            if(rtrnList != null)
+                currAcres = Convert.ToDouble(rtrnList[0].Area);
 
-            return CutUnitList.FirstOrDefault(cu => cu.Code == currCutUnit)?.Area ?? 1d;
+            return currAcres;
         }   //  end GetUnitAcres
 
 

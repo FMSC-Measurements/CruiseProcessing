@@ -266,7 +266,7 @@ namespace CruiseProcessing
         }   //  end addReports
 
 
-        public static List<ReportsDO> deleteReports(List<ReportsDO> rList)
+        public static List<ReportsDO> deleteReports(List<ReportsDO> rList, CPbusinessLayer bslyr)
         {
             //  probably used infrequently
             //  currently deletes CSV reports from the reports list
@@ -275,7 +275,7 @@ namespace CruiseProcessing
             string[] reportsToDelete = new string[6] { "CSV1", "CSV2", "CSV3", "CSV4", "CSV5", "CSV6" };
             for (int j = 0; j < 6; j++)
             {
-                Global.BL.deleteReport(reportsToDelete[j]);
+                bslyr.deleteReport(reportsToDelete[j]);
 
                 foreach (ReportsDO rr in rList)
                 {

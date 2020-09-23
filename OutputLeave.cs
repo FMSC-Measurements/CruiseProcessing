@@ -14,6 +14,7 @@ namespace CruiseProcessing
         #region
         public string currentReport;
         public ArrayList mainHeaderFields;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public void createLeaveTreeReports(StreamWriter strWriteout, ref int pageNumb, reportHeaders rh)
@@ -24,6 +25,8 @@ namespace CruiseProcessing
                     OutputSummary os = new OutputSummary();
                     os.currCL = "L";
                     os.currentReport = currentReport;
+                    os.bslyr.fileName = bslyr.fileName;
+                    os.bslyr.DAL = bslyr.DAL;
                     os.mainHeaderFields = mainHeaderFields;
                     os.OutputSummaryReports(strWriteout, rh, ref pageNumb);
                     break;
@@ -31,6 +34,8 @@ namespace CruiseProcessing
                     OutputStats osr = new OutputStats();
                     osr.currCL = "L";
                     osr.currentReport = currentReport;
+                    osr.bslyr.fileName = bslyr.fileName;
+                    osr.bslyr.DAL = bslyr.DAL;
                     osr.mainHeaderFields = mainHeaderFields;
                     osr.CreateStatReports(strWriteout, rh, ref pageNumb);
                     break;
@@ -38,6 +43,8 @@ namespace CruiseProcessing
                     OutputUnits ou = new OutputUnits();
                     ou.currCL = "L";
                     ou.currentReport = currentReport;
+                    ou.bslyr.fileName = bslyr.fileName;
+                    ou.bslyr.DAL = bslyr.DAL;
                     ou.mainHeaderFields = mainHeaderFields;
                     ou.OutputUnitReports(strWriteout, rh, ref pageNumb);
                     break;

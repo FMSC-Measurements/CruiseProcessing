@@ -17,8 +17,8 @@ namespace CruiseProcessing
         private int[] fieldLengths;
         private ArrayList prtFields = new ArrayList();
         private string[] completeHeader = new string[7];
-        //private List<POPDO> popList = new List<POPDO>();
-        //private List<LCDDO> lcdList = new List<LCDDO>();
+        private List<POPDO> popList = new List<POPDO>();
+        private List<LCDDO> lcdList = new List<LCDDO>();
         private int[] pagesToPrint = new int[3];
         private List<ReportSubtotal> aggProduct = new List<ReportSubtotal>();
         private List<ReportSubtotal> aggUOM = new List<ReportSubtotal>();
@@ -33,12 +33,13 @@ namespace CruiseProcessing
         {
             //  ST3 (DS1) and ST4 (DS2)
             string currentTitle = fillReportTitle(currentReport);
-            List<POPDO> popList = Global.BL.getPOP().ToList();
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            popList = bslyr.getPOP();
+            lcdList = bslyr.getLCD();
 
             //  check for no data
-            IEnumerable<LCDDO> lcdCutOnly = LCDmethods.GetCutOrLeave(lcdList, "C", "", "", "");
-            if (!POPmethods.GetCutTrees(popList).Any() && !lcdCutOnly.Any() && currentReport == "ST3")
+            List<POPDO> popCutOnly = POPmethods.GetCutTrees(popList);
+            List<LCDDO> lcdCutOnly = LCDmethods.GetCutOrLeave(lcdList, "C", "", "", "");
+            if (popCutOnly.Count == 0 && lcdCutOnly.Count == 0 && currentReport == "ST3")
             {
                 noDataForReport(strWriteOut, currentReport, " >> No data available to generate this report.");
                 return;
@@ -81,6 +82,7 @@ namespace CruiseProcessing
             if (pagesToPrint[0] == 1)
             {
                 //  pull strata, product and UOM groups from LCD
+                List<LCDDO> justGroups = bslyr.GetLCDgroup(fileName,"Stratum,PrimaryProduct,UOM");
                 // primary product pages
                 if (currentReport == "ST3")
                     finishColumnHeaders(rh.ST3columns, "PRIMARY PRODUCT");
@@ -91,9 +93,7 @@ namespace CruiseProcessing
                 aggUOM.Clear();
                 aggStrata.Clear();
                 groupSums.Clear();
-                ProcessData(strWriteOut, rh, ref pageNumb,
-                    Global.BL.GetLCDgroup(fileName, "Stratum,PrimaryProduct,UOM"), "PP",
-                    lcdList, popList);
+                ProcessData(strWriteOut, rh, ref pageNumb, justGroups, "PP");
                 //  output subtotals here
                 switch (currentReport)
                 {
@@ -116,6 +116,7 @@ namespace CruiseProcessing
             if (pagesToPrint[1] == 1)
             {
                 //  pull strata, product and UOM groups from LCD
+                List<LCDDO> justGroups = bslyr.GetLCDgroup(fileName, "Stratum,SecondaryProduct,UOM");
                 //  reset field lengths for body of report
                 if(currentReport == "ST3")
                 {
@@ -133,9 +134,7 @@ namespace CruiseProcessing
                 aggProduct.Clear();
                 aggUOM.Clear();
                 aggStrata.Clear();
-                ProcessData(strWriteOut, rh, ref pageNumb,
-                    Global.BL.GetLCDgroup(fileName, "Stratum,SecondaryProduct,UOM"), "SP",
-                    lcdList, popList);
+                ProcessData(strWriteOut, rh, ref pageNumb, justGroups, "SP");
                 //  output subtotals here
                 OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, aggProduct, "SECONDARY PRODUCT VOLUME");
                 OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, aggUOM, "SECONDARY PRODUCT VOLUME");
@@ -147,7 +146,8 @@ namespace CruiseProcessing
             }   //  endif
             if (pagesToPrint[2] == 1)
             {
-                //  pull strata, product and UOM groups from LCD=
+                //  pull strata, product and UOM groups from LCD
+                List<LCDDO> justGroups = bslyr.GetLCDgroup(fileName, "Stratum,SecondaryProduct,UOM");
                 //  reset field lengths for body of report
                 if (currentReport == "ST3")
                 {
@@ -165,9 +165,7 @@ namespace CruiseProcessing
                 aggProduct.Clear();
                 aggUOM.Clear();
                 aggStrata.Clear();
-                ProcessData(strWriteOut, rh, ref pageNumb,
-                    Global.BL.GetLCDgroup(fileName, "Stratum,SecondaryProduct,UOM"), "RP",
-                    lcdList, popList);
+                ProcessData(strWriteOut, rh, ref pageNumb, justGroups, "RP");
                 //  output subtotals here
                 OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, aggProduct, "RECOVERED PRODUCT VOLUME");
                 OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, aggUOM, "RECOVERED PRODUCT VOLUME");
@@ -201,28 +199,28 @@ namespace CruiseProcessing
         }   //  end OutputStatReports
 
 
-        private void ProcessData(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, IEnumerable<LCDDO> justGroups, 
-                                        string prodType, IEnumerable<LCDDO> lcdList, IEnumerable<POPDO> popList)
+        private void ProcessData(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, List<LCDDO> justGroups, 
+                                        string prodType)
         {
             double strataAcres = 0.0;
             string currMeth;
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
+            List<StratumDO> sList = bslyr.getStratum();
             //  process by groups
             foreach (LCDDO js in justGroups)
             {
                 //  find acres and methods
-                currMeth = Utilities.MethodLookup(js.Stratum);
-                strataAcres = Utilities.ReturnCorrectAcres(js.Stratum, 
-                                (long)StratumMethods.GetStratumCN(js.Stratum, sList).Stratum_CN);
+                currMeth = Utilities.MethodLookup(js.Stratum, bslyr);
+                strataAcres = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, 
+                                StratumMethods.GetStratumCN(js.Stratum, sList));
                 //  Pull current group from LCD list
-                IEnumerable<LCDDO> currentGroup = null;
+                List<LCDDO> currentGroup = new List<LCDDO>();
                 if (prodType == "PP")
                     currentGroup = LCDmethods.GetCutOrLeave(lcdList, "C", js.Stratum, js.PrimaryProduct, 1);
                 else if (prodType == "SP" || prodType == "RP")
                     currentGroup = LCDmethods.GetCutOrLeave(lcdList, "C", js.Stratum, js.SecondaryProduct, 2);
 
                 //  Sum volumes and stat sums as needed
-                SumGroups(strataAcres, currentGroup ?? new List<LCDDO>(), prodType, js.UOM, currMeth, popList);
+                SumGroups(strataAcres, currentGroup, prodType, js.UOM, currMeth);
 
                 //  Calculate combined error before printing groups
                 DetermineCombinedError(currMeth);
@@ -266,7 +264,7 @@ namespace CruiseProcessing
         }   //  end ProcessData
 
 
-        private void SumGroups(double STacres, IEnumerable<LCDDO> currGrp, string prodType, string volType, string currMeth, IEnumerable<POPDO> popList)
+        private void SumGroups(double STacres, List<LCDDO> currGrp, string prodType, string volType, string currMeth)
         {
             int nthRow = 0;
             foreach (LCDDO cg in currGrp)
@@ -317,7 +315,7 @@ namespace CruiseProcessing
             //  now find all POP records for the groups in groupSums
             foreach(StatSums gs in groupSums)
             {          
-                List<POPDO> justPOP = POPmethods.GetStratumData(popList, gs.ST, gs.PP, gs.UOM, gs.SP, gs.SG).ToList();
+                List<POPDO> justPOP = POPmethods.GetStratumData(popList, gs.ST, gs.PP, gs.UOM, gs.SP, gs.SG);
 
                 //  need samples
                 switch (currMeth)

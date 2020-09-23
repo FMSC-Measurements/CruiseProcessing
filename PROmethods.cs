@@ -74,30 +74,72 @@ namespace CruiseProcessing
         }   //  end GetCutTrees
 
 
-        public static IEnumerable<PRODO> GetMultipleData(IEnumerable<PRODO> PROlist, string currCL, string currST, 
+        public static List<PRODO> GetMultipleData(List<PRODO> PROlist, string currCL, string currST, 
                                                     string currCU, string currSG, string currPP, 
                                                     string currUOM, string currSTM, int whichGroup)
         {
             //  find current values based on which group needed
-            //List<PRODO> rtrnList = new List<PRODO>();
+            List<PRODO> rtrnList = new List<PRODO>();
             switch (whichGroup)
             {
                 case 1:         //  cutleave, stratum, cutting unit and sample group and STM
-                    return PROlist.Where(P => P.CutLeave == currCL && P.Stratum == currST && P.CuttingUnit == currCU && 
-                                    P.SampleGroup == currSG && P.STM == currSTM);
+                    rtrnList = PROlist.FindAll(
+                        delegate(PRODO P)
+                        {
+                            return P.CutLeave == currCL && P.Stratum == currST && P.CuttingUnit == currCU && 
+                                    P.SampleGroup == currSG && P.STM == currSTM;
+                        });
+                    if (rtrnList != null)
+                        return rtrnList;
+                    break;
                 case 2:         //  cutleave, stratum, cutting unit, sample group and primary product
-                    return PROlist.Where(P => P.CuttingUnit == currCL && P.Stratum == currST && P.CuttingUnit == currCU && P.SampleGroup == currSG && P.PrimaryProduct == currPP);
+                    rtrnList = PROlist.FindAll(
+                        delegate(PRODO P)
+                        {
+                            return P.CuttingUnit == currCL && P.Stratum == currST && P.CuttingUnit == currCU && P.SampleGroup == currSG && P.PrimaryProduct == currPP;
+                        });
+                    if (rtrnList != null)
+                        return rtrnList;
+                    break;
                 case 3:         //  all of the above plus uom
-                    return PROlist.Where(P => P.CuttingUnit == currCL && P.Stratum == currST && P.CuttingUnit == currCU && P.SampleGroup == currSG && P.PrimaryProduct == currPP && P.UOM == currUOM);
+                    rtrnList = PROlist.FindAll(
+                        delegate(PRODO P)
+                        {
+                            return P.CuttingUnit == currCL && P.Stratum == currST && P.CuttingUnit == currCU && P.SampleGroup == currSG && P.PrimaryProduct == currPP && P.UOM == currUOM;
+                        });
+                    if (rtrnList != null)
+                        return rtrnList;
+                    break;
                 case 4:         //  stratum and cutting unit
-                    return PROlist.Where(P => P.Stratum == currST && P.CuttingUnit == currCU);
+                    rtrnList = PROlist.FindAll(
+                        delegate(PRODO P)
+                        {
+                            return P.Stratum == currST && P.CuttingUnit == currCU;
+                        });
+                    if (rtrnList != null)
+                        return rtrnList;
+                    break;
                 case 5:         //  stratum, cutting unit and sample group
-                    return PROlist.Where(P => P.Stratum == currST && P.CuttingUnit == currCU && P.SampleGroup == currSG);
+                    rtrnList = PROlist.FindAll(
+                        delegate(PRODO P)
+                        {
+                            return P.Stratum == currST && P.CuttingUnit == currCU && P.SampleGroup == currSG;
+                        });
+                    if (rtrnList != null)
+                        return rtrnList;
+                    break;
                 case 6:         //  cutting unit and sample group
-                    return PROlist.Where(P => P.CuttingUnit == currCU && P.SampleGroup == currSG);
+                    rtrnList = PROlist.FindAll(
+                        delegate(PRODO P)
+                        {
+                            return P.CuttingUnit == currCU && P.SampleGroup == currSG;
+                        });
+                    if (rtrnList != null)
+                        return rtrnList;
+                    break;
             }   //  end switch
 
-            return new List<PRODO>();
+            return rtrnList;
         }   //  end GetMultipleData
     }
 }

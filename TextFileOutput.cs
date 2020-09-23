@@ -21,6 +21,7 @@ namespace CruiseProcessing
         public string outFile;
         public int retrnState;
         public string currRegion;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
 
         #endregion
 
@@ -64,6 +65,8 @@ namespace CruiseProcessing
             fileStatus.Refresh();
             //  calls routine to create text output file
             CreateTextFile ctf = new CreateTextFile();
+            ctf.bslyr.fileName = bslyr.fileName;
+            ctf.bslyr.DAL = bslyr.DAL;
             ctf.fileName = fileName;
             ctf.currentRegion = currRegion;
             ctf.selectedReports = selectedReports;

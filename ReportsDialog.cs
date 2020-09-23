@@ -18,7 +18,8 @@ namespace CruiseProcessing
         public string fileName;
         public int templateFlag;
         public List<ReportsDO> reportList = new List<ReportsDO>();
-        //private List<ReportsDO> allReports = new List<ReportsDO>();
+        private List<ReportsDO> allReports = new List<ReportsDO>();
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public ReportsDialog()
@@ -119,7 +120,7 @@ namespace CruiseProcessing
                 return;
             }   //  endif selectedGroup is regional reports
 
-            //List<ReportsDO> allReports = Global.BL.GetReports().ToList();
+            List<ReportsDO> allReports = bslyr.GetReports();
             availableReports.Items.Clear();
             if (selectedGroup == "L")
             {
@@ -131,7 +132,7 @@ namespace CruiseProcessing
                                                         "Log Counts and Volume by Length and Species" };
                 for (int j = 0; j < 4; j++)
                 {
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append(logReptNum[j]);
                     sb.Append("--");
                     sb.Append(logReptTitle[j]);
@@ -143,7 +144,7 @@ namespace CruiseProcessing
             {
                 if (ara.reportsArray[k, 0].StartsWith(selectedGroup))
                 {
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     sb.Append(ara.reportsArray[k, 0]);
                     sb.Append("--");
                     sb.Append(ara.reportsArray[k, 1]);
@@ -204,11 +205,16 @@ namespace CruiseProcessing
                 return;
             }   //  endif selectedRegion
 
-            //allReports = Global.BL.GetReports().ToList();
+            allReports = bslyr.GetReports();
+            List<ReportsDO> groupList = allReports.FindAll(
+                delegate(ReportsDO rl)
+                {
+                    return rl.ReportID.Contains(reportToSelect);
+                });
             availableReports.Items.Clear();
-            foreach (ReportsDO gl in Global.BL.GetReports().Where(rl => rl.ReportID.Contains(reportToSelect)))
+            foreach (ReportsDO gl in groupList)
             {
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(gl.ReportID);
                 sb.Append("--");
                 sb.Append(gl.Title);
@@ -234,31 +240,31 @@ namespace CruiseProcessing
                 string currentSaleNum = " ";
                 if (templateFlag != 1)
                 {
-                    SaleDO sale = Global.BL.getSale().First();
-                    currentSale = sale.Name;
-                    currentSaleNum = sale.SaleNumber;
+                    List<SaleDO> sList = bslyr.getSale();
+                    currentSale = sList[0].Name;
+                    currentSaleNum = sList[0].SaleNumber;
                 }   //  endif
                 List<LogMatrixDO> checkMatrix = new List<LogMatrixDO>();
                 try
                 {
                     // is it empty?
-                    checkMatrix = Global.BL.getLogMatrix("R008").ToList();
+                    checkMatrix = bslyr.getLogMatrix("R008");
                     if (checkMatrix.Count == 0)
                     {
                         //  load default matrix for both reports
                         checkMatrix.Clear();
                         checkMatrix = loadDefaultMatrix(currentSale, currentSaleNum);
                         //  save default matrix
-                        Global.BL.SaveLogMatrix(checkMatrix, "");
+                        bslyr.SaveLogMatrix(checkMatrix, "");
                     }   //  endif
                 }
                 catch
                 {
                     //   need to create the table and load the default
-                    int iDone = Global.BL.CreateNewTable("LogMatrix");
+                    int iDone = bslyr.CreateNewTable("LogMatrix");
                     checkMatrix = loadDefaultMatrix(currentSale,currentSaleNum);
                     //  save default matrix
-                    Global.BL.SaveLogMatrix(checkMatrix, "");
+                    bslyr.SaveLogMatrix(checkMatrix, "");
                 }   //  endif
 
                 //  see if log matrix table needs to be updated
@@ -269,7 +275,7 @@ namespace CruiseProcessing
                     DialogResult d8 = MessageBox.Show("The log matrix is different for each report.\nUpdate R008?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if(d8 == DialogResult.Yes)
                     {
-                        reportMatrix = Global.BL.getLogMatrix("R008").ToList();
+                        reportMatrix = bslyr.getLogMatrix("R008");
                         LogMatrixUpdate lmu = new LogMatrixUpdate();
                         lmu.reportMatrix = reportMatrix;
                         lmu.currSaleName = currentSale;
@@ -278,14 +284,14 @@ namespace CruiseProcessing
                         lmu.setupDialog();
                         lmu.ShowDialog();
                         reportMatrix = lmu.reportMatrix;
-                        Global.BL.SaveLogMatrix(reportMatrix, "R008");
+                        bslyr.SaveLogMatrix(reportMatrix, "R008");
 
                         //  need to update R009?
                         DialogResult d9 = MessageBox.Show("Update R009?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (d9 == DialogResult.Yes)
                         {
                             //  retrieve R009 matrix and update
-                            reportMatrix = Global.BL.getLogMatrix("R009").ToList();
+                            reportMatrix = bslyr.getLogMatrix("R009");
                             LogMatrixUpdate lmx = new LogMatrixUpdate();
                             lmx.reportMatrix = reportMatrix;
                             lmx.currSaleNumber = currentSale;
@@ -297,7 +303,7 @@ namespace CruiseProcessing
                             if (rtnResult == 1)
                             {
                                 reportMatrix = lmx.reportMatrix;
-                                Global.BL.SaveLogMatrix(reportMatrix, "R009");
+                                bslyr.SaveLogMatrix(reportMatrix, "R009");
                             }   //  endif
                         }       //  endif
                     }
@@ -307,7 +313,7 @@ namespace CruiseProcessing
                         if(d9 == DialogResult.Yes)
                         {
                             //  retrieve R009 matrix and update
-                            reportMatrix = Global.BL.getLogMatrix("R009").ToList();
+                            reportMatrix = bslyr.getLogMatrix("R009");
                             LogMatrixUpdate lmx = new LogMatrixUpdate();
                             lmx.reportMatrix = reportMatrix;
                             lmx.currSaleNumber = currentSale;
@@ -319,7 +325,7 @@ namespace CruiseProcessing
                             if (rtnResult == 1)
                             {
                                 reportMatrix = lmx.reportMatrix;
-                                Global.BL.SaveLogMatrix(reportMatrix, "R009");
+                                bslyr.SaveLogMatrix(reportMatrix, "R009");
                             }   //  endif
                         }       //  endif
                     }   //  endif
@@ -337,16 +343,16 @@ namespace CruiseProcessing
                 //  display dialog for capturing export grade values
                 //  first need region number
                 string currentRegion = "";
-                currentRegion = Global.BL.findSingleField("Region", "Sale");
+                currentRegion = bslyr.findSingleField("Region", "Sale");
 
                 //  need dialog object
                 ExportDialog ed = new ExportDialog();
                 //  Then does the ExportValues table exist?  Need to fill list with defaults for all regions or Region 10
-                bool tableExists = Global.BL.doesTableExist("ExportValues");
+                bool tableExists = bslyr.doesTableExist("ExportValues");
                 if (tableExists == false)
                 {
                     //  need to create the table
-                    int nResult = Global.BL.CreateNewTable("ExportValues");
+                    int nResult = bslyr.CreateNewTable("ExportValues");
                     //  then get defaults to load into dialog for user to update
                     exportGrades eg = new exportGrades();
                     //  sort list first
@@ -358,7 +364,7 @@ namespace CruiseProcessing
                 else if (tableExists == true)
                 {
                     //  just get data in the table for display
-                    List<exportGrades> egList = Global.BL.GetExportGrade();
+                    List<exportGrades> egList = bslyr.GetExportGrade();
                     List<exportGrades> dummyList = new List<exportGrades>();
                     ed.setupDialog(egList,dummyList);
                 }   //  endif tableExists
@@ -433,7 +439,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Update reports table in database
-            Global.BL.updateReports(reportList);
+            bslyr.updateReports(reportList);
             Close();
             return;
         }   //  end onFinished
@@ -497,7 +503,7 @@ namespace CruiseProcessing
                     if (oneLine.Substring(i, 1) == " ")
                     {
                         listToReturn.Add(sb.ToString());
-                        sb.Remove(0, sb.Length);
+                        sb.Clear();
                     }
                     else sb.Append(oneLine.Substring(i, 1));
                 }   //  end for i loop

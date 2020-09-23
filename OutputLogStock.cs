@@ -35,7 +35,7 @@ namespace CruiseProcessing
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
             //  Get log stock by species
-            List<LogStockDO> justCutLogs = Global.BL.getCutLogs().ToList();
+            List<LogStockDO> justCutLogs = bslyr.getCutLogs();
             //  no log stock records?  no report
             if (justCutLogs.Count == 0)
             {
@@ -55,7 +55,7 @@ namespace CruiseProcessing
             }   //  endif currentReport
 
 
-            //List<StratumDO> sList = Global.BL.getStratum();
+            List<StratumDO> sList = bslyr.getStratum();
             //  Then load and print ListToOutput based on report
             numOlines = 0;
             switch (currentReport)
@@ -63,12 +63,12 @@ namespace CruiseProcessing
                 case "L2":
                     fieldLengths = new int[] { 1, 7, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 10 };
                     rh.createReportTitle(currentTitle, 1, 0, 0, "", "");
-                    LoadAndPrintByGrade(justCutLogs, Global.BL.getStratum(), strWriteOut, rh, ref pageNumb);
+                    LoadAndPrintByGrade(justCutLogs, sList, strWriteOut, rh, ref pageNumb);
                     break;
                 case "L8":
                     fieldLengths = new int[] { 1, 7, 9, 12, 12, 12, 12, 9, 12, 12, 9, 12, 11 };
                     rh.createReportTitle(currentTitle, 1, 0, 0, "", "");
-                    LoadAndPrintByProduct(justCutLogs, Global.BL.getStratum(), strWriteOut, rh, ref pageNumb);
+                    LoadAndPrintByProduct(justCutLogs, sList, strWriteOut, rh, ref pageNumb);
                     break;
                 case "L10":
                     fieldLengths = new int[] { 1, 6, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 7, 2, 6 };
@@ -76,12 +76,12 @@ namespace CruiseProcessing
                     joinedLine += " - ";
                     joinedLine += reportConstants.B1DC;
                     rh.createReportTitle(currentTitle, 6, 0, 0, joinedLine, reportConstants.oneInchDC);
-                    LoadAndPrintByLength(justCutLogs, Global.BL.getStratum(), strWriteOut, ref pageNumb, rh);
+                    LoadAndPrintByLength(justCutLogs, sList, strWriteOut, ref pageNumb, rh);
                     break;
             }   //  end switch
         }   //  end CreateLogReports
 
-        private void LoadAndPrintByGrade(IEnumerable<LogStockDO> listToLoad, IEnumerable<StratumDO> sList,
+        private void LoadAndPrintByGrade(List<LogStockDO> listToLoad, List<StratumDO> sList,
                                         StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  load list for each species
@@ -110,7 +110,7 @@ namespace CruiseProcessing
                 //  find row for dib class
                 nthRow = FindDIBindex(ListToOutput, ls.SmallEndDiameter);
                 //  need stratum acres
-                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, (long)ls.Tree.Stratum_CN);
+                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, bslyr, (long)ls.Tree.Stratum_CN);
                 calcGross = ls.GrossBoardFoot * ls.Tree.ExpansionFactor * strAcres;
                 calcNet = ls.NetBoardFoot * ls.Tree.ExpansionFactor * strAcres;
                 switch (ls.Grade)
@@ -165,7 +165,7 @@ namespace CruiseProcessing
             return;
         }   //  end LoadAndPrintByGrade
 
-        private void LoadAndPrintByProduct(IEnumerable<LogStockDO> listToLoad, IEnumerable<StratumDO> sList,
+        private void LoadAndPrintByProduct(List<LogStockDO> listToLoad, List<StratumDO> sList,
                                             StreamWriter strWriteOut,reportHeaders rh,
                                             ref int pageNumb)
         {
@@ -193,7 +193,7 @@ namespace CruiseProcessing
                 //  find row for dib class
                 nthRow = FindDIBindex(ListToOutput,ls.SmallEndDiameter);
                 //  also need stratum acres
-                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, (long)ls.Tree.Stratum_CN);
+                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, bslyr, (long)ls.Tree.Stratum_CN);
                 //  grab expansion factor for calculations
                 currEF = ls.Tree.ExpansionFactor;
                 switch(ls.Grade)
@@ -227,7 +227,7 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintByProduct
 
 
-        private void LoadAndPrintByLength(IEnumerable<LogStockDO> listToLoad, IEnumerable<StratumDO> sList,
+        private void LoadAndPrintByLength(List<LogStockDO> listToLoad, List<StratumDO> sList,
                                             StreamWriter strWriteOut, ref int pageNumb,
                                             reportHeaders rh)
         {
@@ -273,7 +273,7 @@ namespace CruiseProcessing
                 //  find row for dib class
                 nthRow = FindDIBindex(ListToOutput, ls.SmallEndDiameter);
                 //  also need stratum acres
-                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, (long)ls.Tree.Stratum_CN);
+                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, bslyr, (long)ls.Tree.Stratum_CN);
                 //  and grab expansion for calculations
                 currEF = ls.Tree.ExpansionFactor;
                 //  grab needed values for each page

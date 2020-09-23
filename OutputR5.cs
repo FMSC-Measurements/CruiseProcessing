@@ -32,10 +32,11 @@ namespace CruiseProcessing
             fieldLengths = new int[] { 2, 12, 14, 16, 16, 16, 11 };
             //  This report prints a page for each species/product combination and log DIB classes
             //  pull species/product combinations from LCD to ultimately pull log data
-            foreach (LCDDO jg in Global.BL.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species,PrimaryProduct", "C", ""))
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species,PrimaryProduct", "C", "");
+            foreach (LCDDO jg in justGroups)
             {
                 //  get DIB classes for this group
-                List<LogStockDO> justDIBs = Global.BL.getCutLogs("C", jg.Species, jg.PrimaryProduct, 1).ToList();
+                List<LogStockDO> justDIBs = bslyr.getCutLogs("C", jg.Species, jg.PrimaryProduct, 1);
                 //  Load DIBs into output list
                 LoadLogDIBclasses(listToOutput, justDIBs);
 
@@ -43,7 +44,8 @@ namespace CruiseProcessing
                 tableCounter++;
                 completeHeader = createCompleteHeader(jg.Species, jg.PrimaryProduct);
                 //  load values into output list
-                AccumulateVolumes(Global.BL.getCutLogs("C", jg.Species, jg.PrimaryProduct, 0));
+                List<LogStockDO> justLogs = bslyr.getCutLogs("C", jg.Species, jg.PrimaryProduct, 0);
+                AccumulateVolumes(justLogs);
                 //  output group
                 if(listToOutput.Count > 0)
                     WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
@@ -51,7 +53,7 @@ namespace CruiseProcessing
             return;
         }   //  end CreateR5report
 
-        private void AccumulateVolumes(IEnumerable<LogStockDO> justLogs)
+        private void AccumulateVolumes(List<LogStockDO> justLogs)
         {
             string currST = "*";
             double currSTacres = 0;
@@ -60,7 +62,7 @@ namespace CruiseProcessing
                 //  pull stratum for correct acres
                 if (currST != jl.Tree.Stratum.Code)
                 {
-                    currSTacres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, (long)jl.Tree.Stratum_CN);
+                    currSTacres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, bslyr, (long)jl.Tree.Stratum_CN);
                     currST = jl.Tree.Stratum.Code;
                 }   //  endif
 

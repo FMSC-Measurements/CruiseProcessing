@@ -31,7 +31,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             //  grab LCD list to see if there is data for the current report
-            IEnumerable<LCDDO> lcdList = Global.BL.getLCD();
+            List<LCDDO> lcdList = bslyr.getLCD();
             switch (currentReport)
             {
                 case "R201":        case "R206":
@@ -59,10 +59,11 @@ namespace CruiseProcessing
                     numOlines = 0;
                     rh.createReportTitle(currentTitle, 6, 0, 0, "BY SPECIES AND STRATA", reportConstants.FCTO);
                     fieldLengths = new int[] { 3, 7, 12, 9, 9, 14, 11, 10, 13, 11, 15, 7 };
-                    foreach (StratumDO s in Global.BL.getStratum())
+                    List<StratumDO> sList = bslyr.getStratum();
+                    foreach (StratumDO s in sList)
                     {
                         //  need stratum acres
-                        double STRacres = Utilities.AcresLookup((long)s.Stratum_CN, s.Code);
+                        double STRacres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
                         //  Accumulate by species, primary and secondary product
                         AccumulateStratum(s.Code, STRacres, lcdList, s.Method);
                         WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
@@ -82,8 +83,8 @@ namespace CruiseProcessing
                     //  reports for defect -- either 1 or 2 inch diameter class; board foot or cubic foot
                     numOlines = 0;
                     StringBuilder secondLine = new StringBuilder();
-                    List<LCDDO> justSpecies = Global.BL.getLCDOrdered("WHERE CutLeave = ? ", 
-                                                            "GROUP BY Species", "C", "").ToList();
+                    List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? ", 
+                                                            "GROUP BY Species", "C", "");
                     //  setup main header based on report
                     rh.createReportTitle(currentTitle, 4, 31, 32, reportConstants.FCTO_PPO,"");
                     //  create column headers for the species pulled
@@ -112,10 +113,12 @@ namespace CruiseProcessing
                     numOlines = 0;
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FPPO, reportConstants.FCTO);
                     fieldLengths = new int[] { 3, 10, 19, 13, 14, 16, 5 };
-                    foreach (LCDDO jc in Global.BL.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "ContractSpecies", "C", ""))
+                    List<LCDDO> justCS = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "ContractSpecies", "C", "");
+                    foreach (LCDDO jc in justCS)
                     {
                         //  find all species for current contract species
-                        AccumulateByContractSpecies(Global.BL.getLCDOrdered("WHERE ContractSpecies = ? GROUP BY ", "Species", jc.ContractSpecies, ""), lcdList);
+                        List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE ContractSpecies = ? GROUP BY ", "Species", jc.ContractSpecies, "");
+                        AccumulateByContractSpecies(justGroups, lcdList);
                         WriteSpeciesGroups(strWriteOut, ref pageNumb, rh);
                         updateSubtotal("", 0, "");
                         outputCSsubtotal(strWriteOut, ref pageNumb, rh);
@@ -128,8 +131,9 @@ namespace CruiseProcessing
                     numOlines = 0;
                     rh.createReportTitle(currentTitle, 6, 0, 0, "BY CUTTING UNIT BY STRATUM", reportConstants.FCTO);
                     fieldLengths = new int[] { 2, 11, 9, 8, 7, 13, 9, 11, 10, 5 };
-                    List<TreeDO> tList = Global.BL.getTrees().ToList();
-                    foreach(CuttingUnitDO c in Global.BL.getCuttingUnits())
+                    List<TreeDO> tList = bslyr.getTrees();
+                    List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+                    foreach(CuttingUnitDO c in cutList)
                     {
                         int somethingToPrint = AccumulateGroups(c,tList);
                         if(somethingToPrint == 1) WriteUnitGroup(strWriteOut,ref pageNumb,rh);
@@ -152,21 +156,23 @@ namespace CruiseProcessing
             List<StewProductCosts> stewList = new List<StewProductCosts>();
             int numRows = 0;
             //  first need to determine if StewProductCost exists in the file or is empty
-            bool bResult = Global.BL.doesTableExist("StewProductCosts");
+            bool bResult = bslyr.doesTableExist("StewProductCosts");
             if (bResult)
             {
                 //  table exists so try to get data
-                stewList = Global.BL.getStewCosts().ToList();
-                numRows = stewList.Count;
+                stewList = bslyr.getStewCosts();
+                numRows = stewList.Count();
             }
             else if(!bResult)
             {
-                Global.BL.CreateNewTable("StewProductCosts");
+                bslyr.CreateNewTable("StewProductCosts");
                 numRows = 0;
             }   //  endif
             if (numRows == 0)
             {
                 StewardshipProductCosts spc = new StewardshipProductCosts();
+                spc.bslyr.fileName = bslyr.fileName;
+                spc.bslyr.DAL = bslyr.DAL;
                 spc.stewList = stewList;
                 spc.setupDialog();
                 spc.ShowDialog();
@@ -190,8 +196,8 @@ namespace CruiseProcessing
                 foreach (StewProductCosts jg in justGroups)
                 {
                     //  pull group from tree calculated values to sum up net volume
-                    SumExpandedNetVolume(jg.costUnit, jg.costSpecies, jg.costProduct,
-                        Global.BL.getStewardshipTrees(jg.costUnit, jg.costSpecies, jg.costProduct), jg.costPounds);
+                    List<TreeCalculatedValuesDO> justTrees = bslyr.getStewardshipTrees(jg.costUnit, jg.costSpecies, jg.costProduct);
+                    SumExpandedNetVolume(jg.costUnit, jg.costSpecies, jg.costProduct, justTrees, jg.costPounds);
                 }   //  end foreach loop
 
                 WriteStewardshipGroups(strWriteOut,ref pageNumb,rh);
@@ -204,7 +210,7 @@ namespace CruiseProcessing
 
 
         private void SumExpandedNetVolume(string currCU, string currSP, string currPP, 
-                                            IEnumerable<TreeCalculatedValuesDO> justTrees, float currLBS)
+                                            List<TreeCalculatedValuesDO> justTrees, float currLBS)
         {
             //  R208
             double currAC = 0;
@@ -217,7 +223,7 @@ namespace CruiseProcessing
             foreach (TreeCalculatedValuesDO jt in justTrees)
             {
                 //  get stratum acres
-                currAC = Utilities.ReturnCorrectAcres(jt.Tree.Stratum.Code,(long)jt.Tree.Stratum_CN);
+                currAC = Utilities.ReturnCorrectAcres(jt.Tree.Stratum.Code,bslyr, (long)jt.Tree.Stratum_CN);
                 rr.value7 += jt.NetCUFTPP * jt.Tree.ExpansionFactor * currAC;
             }   //  end foreach loop
             listToOutput.Add(rr);
@@ -225,17 +231,21 @@ namespace CruiseProcessing
         }   //  end SumExpandedNetVolume
 
 
-        private void AccumulateStratum(string currST, double currAC, IEnumerable<LCDDO> lcdList, string currMeth)
+        private void AccumulateStratum(string currST, double currAC, List<LCDDO> lcdList, string currMeth)
         {
             //  R201
             //  need current stratum grouped by species, PP and SP
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? GROUP BY ", 
+                                                        "Species,PrimaryProduct,SecondaryProduct", "C", currST);
             //  loop by groups to get data to sum from LCD
-            foreach (LCDDO jg in Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? GROUP BY ",
-                                                        "Species,PrimaryProduct,SecondaryProduct", "C", currST))
+            foreach (LCDDO jg in justGroups)
             {
-                List<LCDDO> justSpecies = lcdList.Where(
-                    l => l.Stratum == currST && l.Species == jg.Species && l.PrimaryProduct == jg.PrimaryProduct && 
-                                    l.SecondaryProduct == jg.SecondaryProduct).ToList();
+                List<LCDDO> justSpecies = lcdList.FindAll(
+                    delegate(LCDDO l)
+                    {
+                        return l.Stratum == currST && l.Species == jg.Species && l.PrimaryProduct == jg.PrimaryProduct && 
+                                    l.SecondaryProduct == jg.SecondaryProduct;
+                    });
                 //  load group information into listToOutput
                 RegionalReports rr = new RegionalReports();
                 rr.value1 = jg.Stratum;
@@ -328,20 +338,23 @@ namespace CruiseProcessing
             foreach (StratumDO stratum in currentUnit.Strata)
             {
                 //  need number of plots and plot size for current stratum
-                double numPlots = Global.BL.GetStrataPlots(stratum.Code).Count();
+                List<PlotDO> pList = bslyr.GetStrataPlots(stratum.Code);
+                double numPlots = pList.Count();
                 double FPSvalue = stratum.FixedPlotSize;
                 //  and correct strata acres
-                double currAC = Utilities.ReturnCorrectAcres(stratum.Code,
+                double currAC = Utilities.ReturnCorrectAcres(stratum.Code, bslyr,
                                                         (long)stratum.Stratum_CN);
-                
+
+                //  need all species for this stratum
+                List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
+                                                        "GROUP BY Species,PrimaryProduct", "C", stratum.Code, "");
                 //  pull all trees for product codes 14 and 20 and each species         
                 double totalStems = 0;
                 double treesPerAcre = 0;
                 double totalDRC = 0;
                 double avgDRC = 0;
                 List<TreeDO> justTrees = new List<TreeDO>();
-                foreach (LCDDO js in Global.BL.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
-                                                        "GROUP BY Species,PrimaryProduct", "C", stratum.Code, ""))
+                foreach (LCDDO js in justSpecies)
                 {
                     if (js.PrimaryProduct == "14" || js.PrimaryProduct == "20")
                     {
@@ -365,9 +378,12 @@ namespace CruiseProcessing
                                 case "3P":
                                 case "S3P":
                                     //  find all counts
-
-                                    List<CountTreeDO> justCounts = Global.BL.getCountTrees((long)stratum.Stratum_CN).Where(
-                                        ct => ct.SampleGroup.Code == js.SampleGroup && ct.CuttingUnit_CN == currentUnit.CuttingUnit_CN).ToList();
+                                    List<CountTreeDO> cList = bslyr.getCountTrees((long)stratum.Stratum_CN);
+                                    List<CountTreeDO> justCounts = cList.FindAll(
+                                        delegate(CountTreeDO ct)
+                                        {
+                                            return ct.SampleGroup.Code == js.SampleGroup && ct.CuttingUnit_CN == currentUnit.CuttingUnit_CN;
+                                        });
                                     totalStems = justCounts.Sum(jc => jc.TreeCount);
                                     totalStems += justTrees.Sum(jt => jt.TreeCount);
                                     //  trees per acre
@@ -406,7 +422,7 @@ namespace CruiseProcessing
         }   //  end AccumulateGroups
 
 
-        private void AccumulateByContractSpecies(IEnumerable<LCDDO> justGroups, IEnumerable<LCDDO> lcdList)
+        private void AccumulateByContractSpecies(List<LCDDO> justGroups, List<LCDDO> lcdList)
         {
             //  R206
             string prevST = "*";
@@ -416,13 +432,16 @@ namespace CruiseProcessing
             double NBDFTsum = 0;
             double NCUFTsum = 0;
             double currAC = 0;
-            List<StratumDO> sList = Global.BL.getStratum().ToList();
+            List<StratumDO> sList = bslyr.getStratum();
             foreach (LCDDO jg in justGroups)
             {
-                IEnumerable<LCDDO> justSpecies = lcdList.Where(
-                    l => l.CutLeave == "C" && l.ContractSpecies == jg.ContractSpecies &&
-                    //                                    l.Species == jg.Species && l.PrimaryProduct == "01";
-                    l.Species == jg.Species && l.PrimaryProduct == jg.PrimaryProduct);
+                List<LCDDO> justSpecies = lcdList.FindAll(
+                    delegate(LCDDO l)
+                    {
+                        return l.CutLeave == "C" && l.ContractSpecies == jg.ContractSpecies &&
+                            //                                    l.Species == jg.Species && l.PrimaryProduct == "01";
+                                      l.Species == jg.Species && l.PrimaryProduct == jg.PrimaryProduct;
+                    });
 
                 foreach (LCDDO js in justSpecies)
                 {
@@ -434,7 +453,7 @@ namespace CruiseProcessing
                             {
                                 return s.Code == js.Stratum;
                             });
-                        currAC = Utilities.ReturnCorrectAcres(js.Stratum, (long)sList[jthRow].Stratum_CN);
+                        currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[jthRow].Stratum_CN);
                         prevST = js.Stratum;
                     }   //  endif
                     EFsum += js.SumExpanFactor * currAC;
@@ -443,7 +462,7 @@ namespace CruiseProcessing
                     NBDFTsum += js.SumNBDFT * currAC;
                     NCUFTsum += js.SumNCUFT * currAC;
                 }   //  end foreach loop on species
-                if (justSpecies.Any())
+                if (justSpecies.Count > 0)
                 {
                     //  load into listToOutput
                     RegionalReports rr = new RegionalReports();
@@ -468,14 +487,14 @@ namespace CruiseProcessing
         }   //  end AccumulateByContractSpecies
 
 
-        private void AccumulateDefect(int diamClass, string volType, IEnumerable<LCDDO> justSpecies)
+        private void AccumulateDefect(int diamClass, string volType, List<LCDDO> justSpecies)
         {
             //  R202, R203, R204, R205
             double calcValue = 0;
             int nthRow = 0;
             int nthColumn = 0;
             //  load DIB class
-            List<TreeDO> justDIBs = Global.BL.getTreeDBH("C").ToList();
+            List<TreeDO> justDIBs = bslyr.getTreeDBH("C");
             LoadTreeDIBclasses(justDIBs[justDIBs.Count - 1].DBH, defectData, diamClass);
             List<StandTables> treeCounts = new List<StandTables>();
             LoadTreeDIBclasses(justDIBs[justDIBs.Count - 1].DBH, treeCounts, diamClass);
@@ -484,7 +503,8 @@ namespace CruiseProcessing
             foreach (LCDDO js in justSpecies)
             {
                 //  pull calculated tree values
-                foreach (TreeCalculatedValuesDO jt in Global.BL.getTreeCalculatedValues(js.Species))
+                List<TreeCalculatedValuesDO> justTrees = bslyr.getTreeCalculatedValues(js.Species);
+                foreach (TreeCalculatedValuesDO jt in justTrees)
                 {
                     //  calculate defect and store in appropriate spot
                     switch (volType)
@@ -910,7 +930,7 @@ namespace CruiseProcessing
 
 
         private void WriteStewardshipSummary(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
-                                                IEnumerable<StewProductCosts> justGroups)
+                                                List<StewProductCosts> justGroups)
         {
             //  R208 summary portion
             double calcValue = 0;

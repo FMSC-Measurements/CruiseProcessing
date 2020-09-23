@@ -27,10 +27,13 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
             rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
             fieldLengths = new int[] { 1, 7, 3, 6, 8, 9, 7, 10, 8, 9, 9, 8, 7, 8, 7 };
+            //  pull groups from LCD
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "ContractSpecies,Species", "C", "");
             //  loop by group and sum values
             string currCS = "**";
-            totalSaleAcres = Global.BL.getCuttingUnits().Sum(c => c.Area);
-            foreach (LCDDO jg in Global.BL.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "ContractSpecies,Species", "C", ""))
+            List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
+            totalSaleAcres = cList.Sum(c => c.Area);
+            foreach (LCDDO jg in justGroups)
             {
                 if (currCS == "**")
                     currCS = jg.ContractSpecies;
@@ -68,20 +71,25 @@ namespace CruiseProcessing
         {
             //  Accumulate values for R301
             double currSTacres = 0;
+            List<StratumDO> sList = bslyr.getStratum(); 
             RegionalReports rr = new RegionalReports();
             rr.value1 = jg.Species;
             rr.value2 = jg.PrimaryProduct;
             if (jg.ContractSpecies == null)
                 rr.value3 = " ";
             else rr.value3 = jg.ContractSpecies;
+            List<LCDDO> lcdList = bslyr.GetLCDdata("WHERE CutLeave = ? AND Species = ? AND PrimaryProduct = ? AND ContractSpecies = ?", jg, 5, "");
             //  sum up values needed
-            foreach (LCDDO l in
-                Global.BL.GetLCDdata("WHERE CutLeave = ? AND Species = ? AND PrimaryProduct = ? AND ContractSpecies = ?", jg, 5, ""))
+            foreach (LCDDO l in lcdList)
             {
                 //  find current stratum to get acres to multiply
-                StratumDO stratum = Global.BL.getStratum().FirstOrDefault(s => s.Code == l.Stratum);
-                if (stratum != null)
-                    currSTacres = Utilities.ReturnCorrectAcres(l.Stratum,(long)stratum.Stratum_CN);
+                int nthRow = sList.FindIndex(
+                    delegate(StratumDO s)
+                    {
+                        return s.Code == l.Stratum;
+                    });
+                if (nthRow >= 0)
+                    currSTacres = Utilities.ReturnCorrectAcres(l.Stratum, bslyr,(long) sList[nthRow].Stratum_CN);
                 else currSTacres = 0;
 
                 rr.value7 += l.SumGBDFT * currSTacres;

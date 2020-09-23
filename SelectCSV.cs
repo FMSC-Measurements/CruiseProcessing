@@ -14,6 +14,7 @@ namespace CruiseProcessing
     {
         #region
         public string fileName;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         private string textFileName;
         private string CSVoutFile;
         private int[] filesToOutput = new int[11];
@@ -85,6 +86,8 @@ namespace CruiseProcessing
         {
             OutputCSV ocsv = new OutputCSV();
             ocsv.fileName = fileName;
+            ocsv.bslyr.fileName = bslyr.fileName;
+            ocsv.bslyr.DAL = bslyr.DAL;
             string currPath = System.IO.Path.GetDirectoryName(fileName);
             currPath += "\\";
             for (int j = 0; j < 11; j++)

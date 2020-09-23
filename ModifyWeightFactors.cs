@@ -15,6 +15,7 @@ namespace CruiseProcessing
     {
         #region
         public List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public ModifyWeightFactors()
@@ -39,7 +40,7 @@ namespace CruiseProcessing
 
             //  if there are biomass equations, bind to grid
             //  else show message and return
-            bioList = Global.BL.getBiomassEquations().ToList();
+            bioList = bslyr.getBiomassEquations();
             if (bioList.Count == 0)
             {
                 MessageBox.Show("There are no biomass equations available for updating.\n Cannot continue.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -70,7 +71,7 @@ namespace CruiseProcessing
             {
                 Cursor.Current = Cursors.WaitCursor;
                 //  
-                Global.BL.SaveBiomassEquations(bioList);
+                bslyr.SaveBiomassEquations(bioList);
                 Cursor.Current = this.Cursor;
             }   //  endif nResult
             Close();

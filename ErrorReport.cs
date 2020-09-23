@@ -64,7 +64,7 @@ namespace CruiseProcessing
             //  fix filename for output
             outFile = System.IO.Path.ChangeExtension(fileName, "out");
             //  what's the current region?
-            string currRegion = Global.BL.getRegion();
+            string currRegion = bslyr.getRegion();
 
             //  open output file and write report
             using(StreamWriter strWriteOut = new StreamWriter(outFile))
@@ -74,14 +74,14 @@ namespace CruiseProcessing
 
                 //  Set version numbers
                 //currentVersion = "DRAFT.2018";
-                currentVersion = "09.04.2019";
+                currentVersion = "10.01.2019";
                 DLLversion = Utilities.CurrentDLLversion();
 
                 //  Output banner page except for BLM
                 if(currRegion != "07" && currRegion != "7" && currRegion != "BLM")
                 {
                     BannerPage bp = new BannerPage();
-                    bp.outputBannerPage(fileName,strWriteOut,currentDate,currentVersion,DLLversion);
+                    bp.outputBannerPage(fileName,strWriteOut,currentDate,currentVersion,DLLversion,bslyr);
                 }   //  endif
 
                 //  output errors only -- warnings printed in regular output file
@@ -89,7 +89,7 @@ namespace CruiseProcessing
                 //  add program name to error heading
                 errorHeading[3] = errorHeading[3].Replace("XXXXX", errList[0].Program);
                 //  add cruise number to report title
-                string cruiseNumber = Global.BL.getCruiseNumber();
+                string cruiseNumber = bslyr.getCruiseNumber();
                 errorHeading[2] = "                                                              "+cruiseNumber;
                 writeHeaders(strWriteOut);
 
@@ -152,8 +152,8 @@ namespace CruiseProcessing
         {
             //  make output filename
             outFile = System.IO.Path.ChangeExtension(fileName, "out");
-            string cruiseNumber = Global.BL.getCruiseNumber();
-            string currRegion = Global.BL.getRegion();
+            string cruiseNumber = bslyr.getCruiseNumber();
+            string currRegion = bslyr.getRegion();
 
             //  write report
             using (StreamWriter strWriteOut = new StreamWriter(outFile))
@@ -163,14 +163,14 @@ namespace CruiseProcessing
 
                 //  and version numbers
                 //currentVersion = "DRAFT.2018";
-                currentVersion = "09.04.2019";
+                currentVersion = "10.01.2019";
                 DLLversion = Utilities.CurrentDLLversion();
 
                 //  Output banner page except for BLM
                 if (currRegion != "07" && currRegion != "7" && currRegion != "BLM")
                 {
                     BannerPage bp = new BannerPage();
-                    bp.outputBannerPage(fileName, strWriteOut, currentDate, currentVersion, DLLversion);
+                    bp.outputBannerPage(fileName, strWriteOut, currentDate, currentVersion, DLLversion, bslyr);
                 }
                 //  setup field lengths and write headers
                 fieldLengths = new int[] { 1, 18, 70, 43 };
@@ -187,11 +187,11 @@ namespace CruiseProcessing
                         prtFields.Add(eld.Message.Remove(70, eld.Message.Length - 69));
                     else prtFields.Add(eld.Message);
                     //  add appriorate identifier for table
-                    ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                    ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                     prtFields.Add(ident);
                     StringBuilder sb = buildPrintLine(fieldLengths, prtFields);
                     WriteCurrentError(strWriteOut, ref pageNumber, sb);
-                    sb.Remove(0, sb.Length);
+                    sb.Clear();
                     prtFields.Clear();
                 }   //  end foreach loop
 
@@ -238,7 +238,7 @@ namespace CruiseProcessing
                 prtFields.Add("SALE");
             else
             {
-                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                 prtFields.Add(ident);
             }   //  endif
             return;
@@ -262,7 +262,7 @@ namespace CruiseProcessing
             {
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
-                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                 prtFields.Add(ident);
             }   //  endif
             return;
@@ -286,7 +286,7 @@ namespace CruiseProcessing
             {
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
-                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                 prtFields.Add(ident);
             }   //  endif
             return;
@@ -320,7 +320,7 @@ namespace CruiseProcessing
                 errMessage = errMessage.Replace("...", eld.ColumnName);
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
-                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                 prtFields.Add(ident);
             }   //  endif
             return;
@@ -338,7 +338,7 @@ namespace CruiseProcessing
             currError.Append(errMessage);
             prtFields.Add(currError.ToString().PadRight(70, ' '));
 
-            ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+            ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
             prtFields.Add(ident);
 
             return;
@@ -363,7 +363,7 @@ namespace CruiseProcessing
             {
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
-                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                 prtFields.Add(ident);
             }   //  endif
 
@@ -389,7 +389,7 @@ namespace CruiseProcessing
             {
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
-                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                 prtFields.Add(ident);
             }   //  endif
             return;
@@ -414,7 +414,7 @@ namespace CruiseProcessing
             {
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
-                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+                ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
                 prtFields.Add(ident);
             }   //  endif
             return;
@@ -449,7 +449,7 @@ namespace CruiseProcessing
             if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
             prtFields.Add(currError.ToString().PadRight(70, ' '));
     
-            ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number);
+            ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
             prtFields.Add(ident);
             return;
         }   //  end SGErrors

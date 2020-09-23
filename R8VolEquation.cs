@@ -19,6 +19,7 @@ namespace CruiseProcessing
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         string[] topwoodStatus = new string[30];
         int pulpwoodHeight = -1;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         //string[,] DIBbySpecies;
         List<JustDIBs> DIBbySpecies = new List<JustDIBs>();
         string[,] forestDefaultList = new string[12,3] {{"02","3","10"},
@@ -79,6 +80,8 @@ namespace CruiseProcessing
         {
             //  setup dialog and get checked species in return
             R8Topwood r8top = new R8Topwood();
+            r8top.bslyr.fileName = bslyr.fileName;
+            r8top.bslyr.DAL = bslyr.DAL;
             r8top.setupDialog(); 
             r8top.ShowDialog();
             topwoodStatus = r8top.checkStatus;
@@ -88,7 +91,7 @@ namespace CruiseProcessing
         private void onOK(object sender, EventArgs e)
         {
             //  open volume equation table and remove all before building and saving equations
-            Global.BL.deleteVolumeEquations();
+            bslyr.deleteVolumeEquations();
             volList.Clear();
 
             //  Need to build volume equation and store in table, so goes into VolumeEqList
@@ -96,7 +99,8 @@ namespace CruiseProcessing
             string currentDistrict = "";
             string currGeoCode = "";
             string currGrpCode = "";
-            foreach (SaleDO sd in Global.BL.getSale())
+            List<SaleDO> saleList = bslyr.getSale();
+            foreach (SaleDO sd in saleList)
             {
                 currentForest = sd.Forest;
                 if (sd.District == null)
@@ -134,7 +138,7 @@ namespace CruiseProcessing
             }   //  endif
 
             //  get unique species/product combinations
-            string[,] speciesProduct = Global.BL.GetUniqueSpeciesProduct();
+            string[,] speciesProduct = bslyr.GetUniqueSpeciesProduct();
             for(int k=0;k<speciesProduct.GetLength(0);k++)
             {
                 //  need species and product
@@ -166,12 +170,14 @@ namespace CruiseProcessing
             }   //  end foreach
 
             //  Save equations in database
-            Global.BL.SaveVolumeEquations(volList);
+            bslyr.SaveVolumeEquations(volList);
 
             if (calcBiomass.Checked == true)
             {
                 VolumeEquations ve = new VolumeEquations();
+                ve.bslyr.fileName = fileName;
                 ve.fileName = fileName;
+                ve.bslyr.DAL = bslyr.DAL;
                 ve.updateBiomass(volList);
             }   //  endif calculate biomass
             Close();
@@ -350,7 +356,10 @@ namespace CruiseProcessing
             VolumeEquationDO vel = new VolumeEquationDO();
             vel.Species = currSpecies;
             vel.PrimaryProduct = currProduct;
-            vel.StumpHeight = 1;
+            if(currProduct == "01")
+                vel.StumpHeight = 1;
+            else
+                vel.StumpHeight = Convert.ToSingle(0.5);
             vel.TopDIBPrimary = 0;
             vel.TopDIBSecondary = 0;
             vel.CalcTotal = 0;
@@ -445,8 +454,8 @@ namespace CruiseProcessing
             //  the window display is the same for all products
             //  just didn't rename the routine.
 //            R8product08 r8prod08 = new R8product08();
-//            r8prod08.Global.BL.fileName = Global.BL.fileName;
-//            r8prod08.Global.BL.DAL = Global.BL.DAL;
+//            r8prod08.bslyr.fileName = bslyr.fileName;
+//            r8prod08.bslyr.DAL = bslyr.DAL;
 //            int rResult = r8prod08.setupDialog();
 //            if (rResult == 1)
 //            {
@@ -459,6 +468,8 @@ namespace CruiseProcessing
             //  Save equations
             R9TopDIB r9DIB = new R9TopDIB();
             r9DIB.fileName = fileName;
+            r9DIB.bslyr.fileName = fileName;
+            r9DIB.bslyr.DAL = bslyr.DAL;
             r9DIB.setupDialog();
             r9DIB.Show();
             DIBbySpecies = r9DIB.jstDIB;

@@ -15,6 +15,7 @@ namespace CruiseProcessing
         #region
         public ArrayList graphReports = new ArrayList();
         public string fileName;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public graphOutputDialog()
@@ -39,6 +40,8 @@ namespace CruiseProcessing
                 OutputGraphs og = new OutputGraphs();
                 og.currentReport = graphReports[k].ToString();
                 og.fileName = fileName;
+                og.bslyr.fileName = bslyr.fileName;
+                og.bslyr.DAL = bslyr.DAL;
                 og.createGraphs();
             }   //  end for k loop
             Close();

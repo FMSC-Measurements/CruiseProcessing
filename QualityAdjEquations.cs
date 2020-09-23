@@ -17,6 +17,7 @@ namespace CruiseProcessing
         private List<QualityAdjEquationDO> qaList = new List<QualityAdjEquationDO>();
         public string fileName;
         private int trackRow = -1;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         #endregion
 
         public QualityAdjEquations()
@@ -29,7 +30,7 @@ namespace CruiseProcessing
         {
             //  if there are equations, show in grid
             //  if not, just initialize the grid
-            qaList = Global.BL.getQualAdjEquations().ToList();
+            qaList = bslyr.getQualAdjEquations();
             qualityAdjEquationDOBindingSource.DataSource = qaList;
             qualityEquationList.DataSource = qualityAdjEquationDOBindingSource;
 
@@ -91,7 +92,7 @@ namespace CruiseProcessing
             if (nResult == DialogResult.Yes)
             {
                 Cursor.Current = Cursors.WaitCursor;
-                Global.BL.SaveQualityAdjEquations(qaList);
+                bslyr.SaveQualityAdjEquations(qaList);
                 Cursor.Current = this.Cursor;
             }   //  endif
             Close();

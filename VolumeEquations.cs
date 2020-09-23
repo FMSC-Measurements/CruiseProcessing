@@ -24,8 +24,9 @@ namespace CruiseProcessing
         public string fileName;
         public int templateFlag;
         private int trackRow = -1;
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
 
-        [DllImport("vollib.dll")]
+        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
         static extern void CRZSPDFTCS(ref int regn, StringBuilder forst, ref int spcd, float[] wf, StringBuilder agteq, StringBuilder lbreq, 
             StringBuilder dbreq, StringBuilder foleq, StringBuilder tipeq, StringBuilder wf1ref, StringBuilder wf2ref, StringBuilder mcref, 
             StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref, 
@@ -40,9 +41,10 @@ namespace CruiseProcessing
 
         public int setupDialog()
         {
+            VolumeEqMethods Veq = new VolumeEqMethods();
             //  fill species list from tree table
             //  show message box if this is BLM
-            string currRegion = Global.BL.getRegion();
+            string currRegion = bslyr.getRegion();
             if (currRegion == "7" || currRegion == "07")
             {
                 MessageBox.Show("BLM Volume Equations cannot be entered here.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -52,13 +54,13 @@ namespace CruiseProcessing
            
             //  if there are volume equations, show in grid 
             //  if not, the grid is just initialized
-            equationList = Global.BL.getVolumeEquations().ToList();
+            equationList = bslyr.getVolumeEquations();
 
             //  Check for missing common name and model name
-            VolumeEqMethods.updateVolumeList(equationList, fileName, currRegion);
+            Veq.updateVolumeList(equationList, fileName, currRegion);
 
             string[,] speciesProduct;
-            speciesProduct = Global.BL.GetUniqueSpeciesProduct();
+            speciesProduct = bslyr.GetUniqueSpeciesProduct();
             //  pull species not used in the cruise from the equations list
             equationList = updateEquationList(speciesProduct);
 
@@ -117,11 +119,11 @@ namespace CruiseProcessing
             volumeEquationList.DataSource = volumeEquationDOBindingSource;
 
             //  also add species and product to combo boxes at bottom
-            ArrayList justSpecies = Global.BL.GetJustSpecies("TreeDefaultValue");
+            ArrayList justSpecies = bslyr.GetJustSpecies("TreeDefaultValue");
             for(int n=0;n<justSpecies.Count;n++)
                 speciesList.Items.Add(justSpecies[n].ToString());
 
-            ArrayList justProduct = Global.BL.GetJustPrimaryProduct();
+            ArrayList justProduct = bslyr.GetJustPrimaryProduct();
             for (int n = 0; n < justProduct.Count; n++)
                 productList.Items.Add(justProduct[n].ToString());
 
@@ -136,7 +138,7 @@ namespace CruiseProcessing
         public int setupTemplateDialog()
         {
             //  if there are volume equations, show in grid 
-            equationList = Global.BL.getVolumeEquations().ToList();
+            equationList = bslyr.getVolumeEquations();
             if (equationList.Count > 0)
             {
                 volumeEquationDOBindingSource.DataSource = equationList;
@@ -146,11 +148,11 @@ namespace CruiseProcessing
 //  so text boxes are enabled when a template file is edited
 //  combo boxes are hidden and disabled -- March 2017             
                 //  also add species and product to combo boxes at bottom
-/*                ArrayList justSpecies = Global.BL.GetJustSpecies("TreeDefaultValue");
+/*                ArrayList justSpecies = bslyr.GetJustSpecies("TreeDefaultValue");
                 for (int n = 0; n < justSpecies.Count; n++)
                     speciesList.Items.Add(justSpecies[n].ToString());
 
-                ArrayList justProduct = Global.BL.GetJustPrimaryProduct();
+                ArrayList justProduct = bslyr.GetJustPrimaryProduct();
                 for (int n = 0; n < justProduct.Count; n++)
                     productList.Items.Add(justProduct[n].ToString());
 */
@@ -194,7 +196,8 @@ namespace CruiseProcessing
 
         private void fillForests(string selectedRegion)
         {
-            volList = VolumeEqMethods.GetRegionVolumes(selectedRegion);
+            VolumeEqMethods Veq = new VolumeEqMethods();
+            volList = Veq.GetRegionVolumes(selectedRegion);
             //  find unique forests to generate list
             string currentForest = "";
             for (int k = 0; k < volList.Count; k++)
@@ -415,7 +418,7 @@ namespace CruiseProcessing
             if (nResult == DialogResult.Yes)
             {
                 Cursor.Current = Cursors.WaitCursor;
-                Global.BL.SaveVolumeEquations(equationList);
+                bslyr.SaveVolumeEquations(equationList);
                 Cursor.Current = this.Cursor;
             }   //  endif
             int sumBiomassFlag = (int) equationList.Sum(eq => eq.CalcBiomass);
@@ -435,7 +438,7 @@ namespace CruiseProcessing
             else if (sumBiomassFlag == 0)
             {
                 //  remove all biomass equations
-                Global.BL.ClearBiomassEquations();
+                bslyr.ClearBiomassEquations();
             }     //  endif
             Close();
             return;
@@ -455,15 +458,16 @@ namespace CruiseProcessing
         public void updateBiomass(List<VolumeEquationDO> equationList)
         {
             
-            IEnumerable<TreeDO> treeList = Global.BL.getTrees();
+            List<TreeDO> treeList = bslyr.getTrees();
             //  Are there records in the BiomassEquation table?  Remove all
-            List<BiomassEquationDO> bioList = Global.BL.getBiomassEquations().ToList();
-            if (bioList.Count > 0) Global.BL.ClearBiomassEquations();
+            List<BiomassEquationDO> bioList = bslyr.getBiomassEquations();
+            if (bioList.Count > 0) bslyr.ClearBiomassEquations();
             //  need to reset filename
-            string currRegion = Global.BL.getRegion();
-            string currForest = Global.BL.getForest();
+            bslyr.fileName = fileName;
+            string currRegion = bslyr.getRegion();
+            string currForest = bslyr.getForest();
             //  district is not used in the new biomass library call
-            //string currDist = Global.BL.getDistrict();
+            //string currDist = bslyr.getDistrict();
 
             //  if just one volume equation has biomass flag checked, need to capture percent removed for any or all
             List<PercentRemoved> prList = new List<PercentRemoved>();
@@ -525,14 +529,18 @@ namespace CruiseProcessing
                         prevSP = vedo.Species;
                         prevPP = vedo.PrimaryProduct;
                         //  find species/product in Tree list
-                        TreeDO tree = treeList.FirstOrDefault(t => t.Species == vedo.Species && t.SampleGroup.PrimaryProduct == vedo.PrimaryProduct);
+                        int nthRow = treeList.FindIndex(
+                            delegate(TreeDO t)
+                            {
+                                return t.Species == vedo.Species && t.SampleGroup.PrimaryProduct == vedo.PrimaryProduct;
+                            });
 
-                        if (tree != null)
+                        if (nthRow >= 0)
                         {
                             WF[0] = 0;
                             WF[1] = 0;
                             WF[2] = 0;
-                            SPCD = Convert.ToInt16(tree.TreeDefaultValue.FIAcode);
+                            SPCD = Convert.ToInt16(treeList[nthRow].TreeDefaultValue.FIAcode);
                             CRZSPDFTCS(ref REGN, FORST, ref SPCD, WF, AGTEQ, LBREQ, DBREQ, FOLEQ, TIPEQ, 
                                 WF1REF, WF2REF, MCREF, AGTREF, LBRREF, DBRREF, FOLREF, TIPREF, 
                                 strlen, strlen, strlen, strlen, strlen, strlen, strlen, strlen, 
@@ -552,8 +560,8 @@ namespace CruiseProcessing
                             for (int k = 0; k < 7; k++)
                             {
                                 BiomassEquationDO bedo = new BiomassEquationDO();
-                                bedo.FIAcode = tree.TreeDefaultValue.FIAcode;
-                                bedo.LiveDead = tree.LiveDead;
+                                bedo.FIAcode = treeList[nthRow].TreeDefaultValue.FIAcode;
+                                bedo.LiveDead = treeList[nthRow].LiveDead;
                                 bedo.Product = vedo.PrimaryProduct;
                                 bedo.Species = vedo.Species;
                                 bedo.PercentMoisture = WF[2];
@@ -594,7 +602,7 @@ namespace CruiseProcessing
                                             {
                                                 for (int j = 0; j < 8; j++)
                                                 {
-                                                    if (tree.TreeDefaultValue.FIAcode == FIAcodes[j])
+                                                    if (treeList[nthRow].TreeDefaultValue.FIAcode == FIAcodes[j])
                                                     {
                                                         bedo.WeightFactorPrimary = WF[1];
                                                         foundIt = 1;
@@ -630,7 +638,8 @@ namespace CruiseProcessing
                 }   //  endif biomass checked
             }   //  end foreach loop
             //  save list
-            Global.BL.SaveBiomassEquations(bioList);
+            bslyr.SaveBiomassEquations(bioList);
+            bslyr.fileName = fileName;
         }   //  end updateBiomass
 
         private List<VolumeEquationDO> updateEquationList(string[,] speciesProduct)
@@ -660,9 +669,9 @@ namespace CruiseProcessing
         public void updateBiomass(List<VolumeEquationDO> equationList, string currRegion, string currForest)
         {
             //  function only updates biomass equations in a template file
-            IEnumerable<TreeDefaultValueDO> treeDef = Global.BL.getTreeDefaults();
-            List<BiomassEquationDO> bioList = Global.BL.getBiomassEquations().ToList();
-            if (bioList.Count > 0) Global.BL.ClearBiomassEquations();
+            List<TreeDefaultValueDO> treeDef = bslyr.getTreeDefaults();
+            List<BiomassEquationDO> bioList = bslyr.getBiomassEquations();
+            if (bioList.Count > 0) bslyr.ClearBiomassEquations();
 
             //  capture percent removed
             List<PercentRemoved> prList = new List<PercentRemoved>();
@@ -714,13 +723,17 @@ namespace CruiseProcessing
                 if (el.CalcBiomass == 1)
                 {
                     // find species/product in tree default values for FIA code
-                    TreeDefaultValueDO tdo = treeDef.FirstOrDefault(td => td.Species == el.Species && td.PrimaryProduct == el.PrimaryProduct);
-                    if (tdo != null)
+                    int nthRow = treeDef.FindIndex(
+                        delegate(TreeDefaultValueDO td)
+                        {
+                            return td.Species == el.Species && td.PrimaryProduct == el.PrimaryProduct;
+                        });
+                    if (nthRow >= 0)
                     {
                         WF[0] = 0;
                         WF[1] = 0;
                         WF[2] = 0;
-                        SPCD = Convert.ToInt16(tdo.FIAcode);
+                        SPCD = Convert.ToInt16(treeDef[nthRow].FIAcode);
                         CRZSPDFTCS(ref REGN, FORST, ref SPCD, WF, AGTEQ, LBREQ, DBREQ, FOLEQ, TIPEQ, 
                                 WF1REF, WF2REF, MCREF, AGTREF, LBRREF, DBRREF, FOLREF, TIPREF, 
                                 strlen, strlen, strlen, strlen, strlen, strlen, strlen, strlen, 
@@ -737,8 +750,8 @@ namespace CruiseProcessing
                         for (int k = 0; k < 7; k++)
                         {
                             BiomassEquationDO bedo = new BiomassEquationDO();
-                            bedo.FIAcode = tdo.FIAcode;
-                            bedo.LiveDead = tdo.LiveDead;
+                            bedo.FIAcode = treeDef[nthRow].FIAcode;
+                            bedo.LiveDead = treeDef[nthRow].LiveDead;
                             bedo.Product = el.PrimaryProduct;
                             bedo.Species = el.Species;
                             bedo.PercentMoisture = WF[2];
@@ -778,7 +791,7 @@ namespace CruiseProcessing
                                         {
                                             for (int j = 0; j < 8; j++)
                                             {
-                                                if (tdo.FIAcode == FIAcodes[j])
+                                                if (treeDef[nthRow].FIAcode == FIAcodes[j])
                                                     bedo.WeightFactorPrimary = WF[1];
                                             }
                                         }
@@ -807,7 +820,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  save list
-            Global.BL.SaveBiomassEquations(bioList);
+            bslyr.SaveBiomassEquations(bioList);
             return;
         }
 

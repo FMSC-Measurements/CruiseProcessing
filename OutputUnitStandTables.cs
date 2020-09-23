@@ -30,13 +30,13 @@ namespace CruiseProcessing
         private double puNonSawTotal = 0;
         private double grSawTotal = 0;
         private double grNonSawTotal = 0;
-        //private List<PRODO> proList = new List<PRODO>();
+        private List<PRODO> proList = new List<PRODO>();
         #endregion
 
         public void CreateUnitStandTables(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  June 2017 need all LCD records
-            //List<LCDDO> lcdList = Global.BL.getLCD();
+            //List<LCDDO> lcdList = bslyr.getLCD();
             //  fill report title array --  different for these reports
             string currentTitle = unitReportTitle();
 
@@ -124,11 +124,11 @@ namespace CruiseProcessing
             rh.createReportTitle(currentTitle, 6, 0, 0, secondLine, reportConstants.FCTO);
 
             //  need cutting unit numbers
-            List<CuttingUnitDO> cList = Global.BL.getCuttingUnits().ToList();
+            List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
             //  get all LCD data
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            List<LCDDO> lcdList = bslyr.getLCD();
             //  get all PRO data
-            List<PRODO> proList = Global.BL.getPRO().ToList();
+            proList = bslyr.getPRO();
 
             //  load into report data
             foreach (CuttingUnitDO c in cList)
@@ -144,20 +144,20 @@ namespace CruiseProcessing
             {
                 case "Species":
                     if (whatProduct == "SAW")
-                        speciesGroups = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND PrimaryProduct = ? ",
-                                                            "GROUP BY Species", "C", "01").ToList();
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND PrimaryProduct = ? ",
+                                                            "GROUP BY Species", "C", "01");
                     else if (whatProduct == "NSAW" || whatProduct == "BOTH")
-                        speciesGroups = Global.BL.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY Species", "C", "").ToList();
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY Species", "C", "");
                     break;
                 case "SampleGroup":
                     if (whatProduct == "SAW")
-                        speciesGroups = Global.BL.getLCDOrdered("WHERE CutLeave = ? AND PrimaryProduct = ? ", 
-                                                            "GROUP BY SampleGroup", "C", "01").ToList();
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND PrimaryProduct = ? ", 
+                                                            "GROUP BY SampleGroup", "C", "01");
                     else if (whatProduct == "NSAW" || whatProduct == "BOTH")
-                        speciesGroups = Global.BL.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY SampleGroup", "C", "").ToList();
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY SampleGroup", "C", "");
                     break;
                 case "ContractSpecies":
-                    speciesGroups = Global.BL.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY ContractSpecies", "C", "").ToList();
+                    speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY ContractSpecies", "C", "");
                     break;
             }   //  end switch
 
@@ -213,26 +213,32 @@ namespace CruiseProcessing
                             //  pull data for groups by stratum
                             foreach (StratumDO stratum in cu.Strata)
                             {
-                                IEnumerable<TreeCalculatedValuesDO> unitTrees = Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cu.CuttingUnit_CN);
-                                List<TreeCalculatedValuesDO> currentTrees = null;
+                                List<TreeCalculatedValuesDO> unitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cu.CuttingUnit_CN);
+                                List<TreeCalculatedValuesDO> currentTrees = new List<TreeCalculatedValuesDO>();
                                 if (stratum.Method == "100")
                                 {
                                     if (GroupedBy == "Species")
                                     {
-                                        currentTrees = unitTrees.Where(
-                                            ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                        currentTrees = unitTrees.FindAll(
+                                            delegate(TreeCalculatedValuesDO ut)
+                                            {
+                                                return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                     ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
-                                                    ut.Tree.Species == speciesGroups[k].Species).ToList();                                        
+                                                    ut.Tree.Species == speciesGroups[k].Species;
+                                            });                                        
                                     }
                                     else if (GroupedBy == "SampleGroup")
                                     {
-                                        currentTrees = unitTrees.Where(
-                                            ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                        currentTrees = unitTrees.FindAll(
+                                            delegate(TreeCalculatedValuesDO ut)
+                                            {
+                                                return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                     ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
-                                                    ut.Tree.SampleGroup.Code == speciesGroups[k].SampleGroup).ToList();
+                                                    ut.Tree.SampleGroup.Code == speciesGroups[k].SampleGroup;
+                                            });
                                     }   //  endif
                                     //  There shouldn't be any STM trees in 100% method so total and put in reportData
-                                    if(currentTrees != null && currentDate.Any())
+                                    if(currentTrees.Count > 0)
                                         LoadUnitData(currentTrees, cu, tableColumn);
                                 }
                                 else
@@ -313,7 +319,7 @@ namespace CruiseProcessing
                                         }       //  endif
                                     }   // endif
                                     if (allGroups.Count > 0)
-                                        LoadUnitData(allGroups, cu, tableColumn, stratum.Code, proList);
+                                        LoadUnitData(allGroups, cu, tableColumn, stratum.Code);
 
                                     //  Then pull STM groups and loop through to get trees for the unit
                                     if(GroupedBy == "Species")
@@ -397,54 +403,77 @@ namespace CruiseProcessing
                                             {
                                                 if (whatProduct == "SAW")
                                                 {
-                                                    currentTrees = unitTrees.Where(
-                                                        ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                                    currentTrees = unitTrees.FindAll(
+                                                        delegate(TreeCalculatedValuesDO ut)
+                                                        {
+                                                            return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                                 ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
                                                                 ut.Tree.Species == ag.Species &&
                                                                 ut.Tree.SampleGroup.PrimaryProduct == ag.PrimaryProduct &&
-                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y").ToList();
+                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y";
+                                                        });
                                                 }
                                                 else if (whatProduct == "NSAW")
                                                 {
-                                                    currentTrees = unitTrees.Where(ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                                    currentTrees = unitTrees.FindAll(
+                                                        delegate(TreeCalculatedValuesDO ut)
+                                                        {
+                                                            return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                                 ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
                                                                 ut.Tree.Species == ag.Species &&
                                                                 ut.Tree.SampleGroup.PrimaryProduct != "01" &&
-                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y").ToList();
+                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y";
+                                                        });
                                                 }
 
                                                 else if (whatProduct == "BOTH")
                                                 {
-                                                    currentTrees = unitTrees.Where(ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                                    currentTrees = unitTrees.FindAll(
+                                                        delegate(TreeCalculatedValuesDO ut)
+                                                        {
+                                                            return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                                 ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
                                                                 ut.Tree.Species == ag.Species &&
-                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y").ToList();
+                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y";
+                                                        });
                                                 }   //  endif
                                             }
                                             else if (GroupedBy == "SampleGroup")
                                             {
                                                 if (whatProduct == "SAW")
                                                 {
-                                                    currentTrees = unitTrees.Where(ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                                    currentTrees = unitTrees.FindAll(
+                                                        delegate(TreeCalculatedValuesDO ut)
+                                                        {
+                                                            return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                                 ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
                                                                 ut.Tree.SampleGroup.Code == speciesGroups[k].SampleGroup &&
                                                                 ut.Tree.SampleGroup.PrimaryProduct == speciesGroups[k].PrimaryProduct &&
-                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y").ToList();
+                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y";
+                                                        });
                                                 }
                                                 else if (whatProduct == "NSAW")
                                                 {
-                                                    currentTrees = unitTrees.Where(ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                                    currentTrees = unitTrees.FindAll(
+                                                        delegate(TreeCalculatedValuesDO ut)
+                                                        {
+                                                            return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                                 ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
                                                                 ut.Tree.SampleGroup.Code == speciesGroups[k].SampleGroup &&
                                                                 ut.Tree.SampleGroup.PrimaryProduct != "01" &&
-                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y").ToList();
+                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y";
+                                                        });
                                                 }
                                                 else if (whatProduct == "BOTH")
                                                 {
-                                                    currentTrees = unitTrees.Where(ut => ut.Tree.Stratum_CN == stratum.Stratum_CN &&
+                                                    currentTrees = unitTrees.FindAll(
+                                                        delegate(TreeCalculatedValuesDO ut)
+                                                        {
+                                                            return ut.Tree.Stratum_CN == stratum.Stratum_CN &&
                                                                 ut.Tree.CuttingUnit_CN == cu.CuttingUnit_CN &&
                                                                 ut.Tree.Species == ag.Species &&
-                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y").ToList();
+                                                                ut.Tree.SampleGroup.CutLeave == "C" && ut.Tree.STM == "Y";
+                                                        });
                                                 }   //  endif
                                             }   //  endif
 
@@ -470,23 +499,23 @@ namespace CruiseProcessing
         }   //  end CreateUnitStandTables
 
 
-        private void LoadUnitData(IEnumerable<LCDDO> currentGroup, CuttingUnitDO currentUnit, int whichColumn,
-                                    string currST, IEnumerable<PRODO> proList)
+        private void LoadUnitData(List<LCDDO> currentGroup, CuttingUnitDO currentUnit, int whichColumn,
+                                    string currST)
         {
             double currTrees = 0;
             //  which row?
             int nthRow = FindUnitIndex(currentUnit.Code);
             //  what method for number of trees
-            string currMeth = Utilities.MethodLookup(currST);
+            string currMeth = Utilities.MethodLookup(currST, bslyr);
 
             //  sum up group
             foreach (LCDDO cg in currentGroup)
             {
                 //  Proration factor
-                PRODO prodo = GetProrationFactor(cg, currentUnit.Code, proList);
-                if (prodo != null)
+                int proRow = GetProrationFactor(cg, currentUnit.Code);
+                if (proRow >= 0)
                 {
-                    unitPF = prodo.ProrationFactor;
+                    unitPF = proList[proRow].ProrationFactor;
                     if (currMeth == "3P" || currMeth == "S3P")
                         currTrees = cg.TalliedTrees;
                     //currTrees = proList[proRow].TalliedTrees;
@@ -570,7 +599,7 @@ namespace CruiseProcessing
         }   //  end LoadUnitData
 
 
-        private void LoadUnitData(IEnumerable<TreeCalculatedValuesDO> currentTrees, CuttingUnitDO currentUnit, int whichColumn)
+        private void LoadUnitData(List<TreeCalculatedValuesDO> currentTrees, CuttingUnitDO currentUnit, int whichColumn)
         {
             //  overloaded for processing 100% units
             //  no proration factor used but tree volume is expanded
@@ -921,13 +950,18 @@ namespace CruiseProcessing
         }   //  end unitReportTitle
 
 
-        private PRODO GetProrationFactor(LCDDO currGrp, string currCU, IEnumerable<PRODO> proList)
+        private int GetProrationFactor(LCDDO currGrp, string currCU)
         {
-            return proList.FirstOrDefault(
-               p => p.CutLeave == "C" && p.Stratum == currGrp.Stratum && p.CuttingUnit == currCU &&
+            int jthRow = -1;
+            jthRow = proList.FindIndex(
+               delegate(PRODO p)
+               {
+                   return p.CutLeave == "C" && p.Stratum == currGrp.Stratum && p.CuttingUnit == currCU &&
                            p.SampleGroup == currGrp.SampleGroup && p.PrimaryProduct == currGrp.PrimaryProduct &&
                            p.SecondaryProduct == currGrp.SecondaryProduct &&
-                           p.STM == currGrp.STM);
+                           p.STM == currGrp.STM;
+               });
+            return jthRow;
         }   //  end GetProrationFactor
 
         
@@ -943,8 +977,8 @@ namespace CruiseProcessing
 
         
         private void VolumeSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                            IEnumerable<LCDDO> speciesGroups, List<LCDDO> lcdList, List<PRODO> proList,
-                            IEnumerable<CuttingUnitDO> cList, string secondLine, string currentTitle)
+                            List<LCDDO> speciesGroups, List<LCDDO> lcdList, List<PRODO> proList,
+                            List<CuttingUnitDO> cList, string secondLine, string currentTitle)
         {
             //  Primarily for UC25/UC26
             double totalAcres = 0;
@@ -952,14 +986,14 @@ namespace CruiseProcessing
             List<ReportSubtotal> csSummary = new List<ReportSubtotal>();
             //  finish header
             rh.createReportTitle(currentTitle, 6, 0, 0, secondLine, reportConstants.FCTO);
-            //List<CuttingUnitDO> paymentGroups = new List<CuttingUnitDO>();
-            //if (currentReport == "UC25")
-            //{
-            //    //  need payment unit groups from the cutting unit table
-            //    paymentGroups = Global.BL.getPaymentUnits();
-            //}
-            //else if (currentReport == "UC26")
-            //    paymentGroups = Global.BL.getCuttingUnits();
+            List<CuttingUnitDO> paymentGroups = new List<CuttingUnitDO>();
+            if (currentReport == "UC25")
+            {
+                //  need payment unit groups from the cutting unit table
+                paymentGroups = bslyr.getPaymentUnits();
+            }
+            else if (currentReport == "UC26")
+                paymentGroups = bslyr.getCuttingUnits();
 
             //  load species groups into subtotal summary
             foreach (LCDDO s in speciesGroups)
@@ -975,10 +1009,14 @@ namespace CruiseProcessing
             if(currentReport == "UC25")
             {
                 //  process by payment unit as there could be multiple contract species in the unit
-                foreach (CuttingUnitDO pg in Global.BL.getPaymentUnits())
+                foreach (CuttingUnitDO pg in paymentGroups)
                 {
                     //  what's the acres for the current payment group?
-                    List<CuttingUnitDO> justGroup = cList.Where(c => c.PaymentUnit == pg.PaymentUnit).ToList();
+                    List<CuttingUnitDO> justGroup = cList.FindAll(
+                        delegate(CuttingUnitDO c)
+                        {
+                            return c.PaymentUnit == pg.PaymentUnit;
+                        });
                     puAcres = justGroup.Sum(j => j.Area);
                     totalAcres += puAcres;
 
@@ -1001,10 +1039,15 @@ namespace CruiseProcessing
                                 {
                                     if (stratum.Method != "100")
                                     {
-                                        SumVolume(Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN)
-                                            .Where(ut => ut.Tree.CuttingUnit_CN == jg.CuttingUnit_CN &&
+                                        List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN);
+                                        List<TreeCalculatedValuesDO> stmTrees = justUnitTrees.FindAll(
+                                            delegate(TreeCalculatedValuesDO ut)
+                                            {
+                                                return ut.Tree.CuttingUnit_CN == jg.CuttingUnit_CN &&
                                                     ut.Tree.TreeDefaultValue.ContractSpecies == sg.ContractSpecies &&
-                                                    ut.Tree.STM == "Y"));
+                                                    ut.Tree.STM == "Y";
+                                            });
+                                        SumVolume(stmTrees);
                                     }   //  endif strata
                                 }   //  end for looop on strata
                             }   //  end foreach cutting unit
@@ -1023,11 +1066,17 @@ namespace CruiseProcessing
                             {
                                 if (stratum.Method == "100")
                                 {
-                                    SumVolume(Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN));
+                                    List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN);
+                                    SumVolume(justUnitTrees);
                                 }
                                 else
                                 {
-                                    SumVolume(nonSTMgroup.Where(ll => ll.Stratum == stratum.Code), jg.Code, proList);
+                                    List<LCDDO> currentGroup = nonSTMgroup.FindAll(
+                                        delegate(LCDDO ll)
+                                        {
+                                            return ll.Stratum == stratum.Code;
+                                        });
+                                    SumVolume(currentGroup, jg.Code);
                                 }
                             }   //  end for j loop on stratum
                         }   //  end foreach cutting unit
@@ -1051,10 +1100,15 @@ namespace CruiseProcessing
             }
             else if(currentReport == "UC26")
             {
-                foreach (CuttingUnitDO pg in Global.BL.getPaymentUnits())
+                foreach (CuttingUnitDO pg in paymentGroups)
                 {
                     //  acres is accumulated just as above but just for cutting units and then totaled
-                    puAcres = cList.Where(cu => cu.Code == pg.Code).Sum(j=>j.Area);
+                    List<CuttingUnitDO> justUnits = cList.FindAll(
+                        delegate(CuttingUnitDO cu)
+                        {
+                            return cu.Code == pg.Code;
+                        });
+                    puAcres = justUnits.Sum(j=>j.Area);
                     totalAcres += puAcres;
 
                     int firstFlag = 1;
@@ -1075,10 +1129,15 @@ namespace CruiseProcessing
                             {
                                 if(stratum.Method != "100")
                                 {
-                                       SumVolume(Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN).Where(
-                                       ut => ut.Tree.CuttingUnit_CN == pg.CuttingUnit_CN &&
-                                                   ut.Tree.TreeDefaultValue.ContractSpecies == sg.ContractSpecies &&
-                                                   ut.Tree.STM == "Y"));
+                                   List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN);
+                                   List<TreeCalculatedValuesDO> stmTrees = justUnitTrees.FindAll(
+                                       delegate(TreeCalculatedValuesDO ut)
+                                       {
+                                           return ut.Tree.CuttingUnit_CN == pg.CuttingUnit_CN &&
+                                                   ut.Tree.TreeDefaultValue.ContractSpecies  == sg.ContractSpecies &&
+                                                   ut.Tree.STM == "Y";
+                                       });
+                                       SumVolume(stmTrees);
                                 }   //  endif strata
                             }   //  end for loop on strata
                         }   //  endif
@@ -1095,11 +1154,17 @@ namespace CruiseProcessing
                         {
                             if (stratum.Method == "100")
                             {
-                                SumVolume(Global.BL.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN));
+                                List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN);
+                                SumVolume(justUnitTrees);
                             }
                             else
                             {
-                                SumVolume(nonSTMgroup.Where(ll => ll.Stratum == stratum.Code), pg.Code, proList);
+                                List<LCDDO> currentGroup = nonSTMgroup.FindAll(
+                                    delegate(LCDDO ll)
+                                    {
+                                        return ll.Stratum == stratum.Code;
+                                    });
+                                SumVolume(currentGroup, pg.Code);
                             }   //  endif
                         }   //  end for loop on stratum
                         if (sg.ContractSpecies == null)
@@ -1291,7 +1356,7 @@ namespace CruiseProcessing
         }   //  end writeGrandTotal
 
 
-        private void SumVolume(IEnumerable<LCDDO> currGroup, string currUnit, IEnumerable<PRODO> proList)
+        private void SumVolume(List<LCDDO> currGroup, string currUnit)
         {
             //  UC25 / UC26 -- non 100% strata
             //  get proration factor for each group and sum by product
@@ -1299,9 +1364,9 @@ namespace CruiseProcessing
             {
                 if (cg.CutLeave == "C")
                 {
-                    PRODO prodo = GetProrationFactor(cg, currUnit, proList);
-                    if (prodo != null)
-                        unitPF = prodo.ProrationFactor;
+                    int nthRow = GetProrationFactor(cg, currUnit);
+                    if (nthRow >= 0)
+                        unitPF = proList[nthRow].ProrationFactor;
                     else unitPF = 0.0;
                     if (cg.PrimaryProduct == "01")
                     {
@@ -1331,7 +1396,7 @@ namespace CruiseProcessing
         }   //  end SumVolume
 
 
-        private void SumVolume(IEnumerable<TreeCalculatedValuesDO> justUnitTrees)
+        private void SumVolume(List<TreeCalculatedValuesDO> justUnitTrees)
         {
             //  UC25/UC26 100% method and STM trees
             //  doesn't prorate -- what's in the unit stays in the unit
@@ -1367,7 +1432,7 @@ namespace CruiseProcessing
         }   //  end SumVolume
 
 
-        private void clearOutputList(IEnumerable<StandTables> listToClear)
+        private void clearOutputList(List<StandTables> listToClear)
         {
             //  clears out everything except dib class
             foreach (StandTables rd in reportData)

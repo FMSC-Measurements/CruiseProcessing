@@ -19,9 +19,9 @@ namespace CruiseProcessing
         private List<ReportSubtotal> unitMethodSubtotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> grandTotal = new List<ReportSubtotal>();
         private string[] completeHeader = new string[8];
-        //private List<StratumDO> sList = new List<StratumDO>();
-        //private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
-        //private List<PRODO> proList = new List<PRODO>();
+        private List<StratumDO> sList = new List<StratumDO>();
+        private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
+        private List<PRODO> proList = new List<PRODO>();
         private string volType;
         private string currType;
         private List<LiveDeadRecords> ldList = new List<LiveDeadRecords>();
@@ -36,10 +36,10 @@ namespace CruiseProcessing
         {
             //  generates LD1-LD8 live/dead reports
             string currentTitle = fillReportTitle(currentReport);
-            IEnumerable<StratumDO> sList = Global.BL.getStratum().ToList();
-            //List<CuttingUnitDO> cList = Global.BL.getCuttingUnits();
-            List<PRODO> proList = Global.BL.getPRO().ToList();
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            sList = bslyr.getStratum();
+            cList = bslyr.getCuttingUnits();
+            proList = bslyr.getPRO();
+            List<LCDDO> lcdList = bslyr.getLCD();
 
             //  clear total values
             productSubtotal.Clear();
@@ -79,7 +79,7 @@ namespace CruiseProcessing
             //  create report title and headers
             rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FTS, reportConstants.FCTO);
             //  pull LCD groups
-            IEnumerable<LCDDO> justGroups = LCDmethods.GetCutGroupedBy("", "", 9);
+            List<LCDDO> justGroups = LCDmethods.GetCutGroupedBy("", "", 9, bslyr);
             switch (currentReport)
             {
                 case "LD1":
@@ -87,7 +87,7 @@ namespace CruiseProcessing
                     ldList.Clear();
                     finishColumnHeaders(rh.LD1LD2left, rh.LiveDeadRight);
                     fieldLengths = new int[] { 1, 3, 7, 9, 10, 12, 9, 10, 12, 9, 10, 12, 9, 10, 8 };
-                    AccumulateAllData(justGroups, lcdList, sList);
+                    AccumulateAllData(justGroups, lcdList);
                     OutputData(strWriteOut, rh, ref pageNumb, "");
                     //  output last product subtotal and then grand total
                     OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "");
@@ -97,7 +97,7 @@ namespace CruiseProcessing
                 case "LD4":
                     finishColumnHeaders(rh.LD3LD4left, rh.LiveDeadRight);
                     fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
-                    AccumulateAllData("CUT", justGroups, sList, proList);
+                    AccumulateAllData("CUT", justGroups);
                     OutputData(strWriteOut, rh, ref pageNumb, "CUT");
                     //  output last product subtotal
                     OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "CUT");
@@ -108,7 +108,7 @@ namespace CruiseProcessing
                 case "LD6":
                     finishColumnHeaders(rh.LD5LD6left, rh.LiveDeadRight);
                     fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
-                    AccumulateAllData("PAY", justGroups, sList, proList);
+                    AccumulateAllData("PAY", justGroups);
                     OutputData(strWriteOut, rh, ref pageNumb, "PAY");
                     //  output last product subtotal
                     OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "PAY");
@@ -119,8 +119,9 @@ namespace CruiseProcessing
                 case "LD8":
                     //  June 2017 -- these reports are by logging method so if blank or null
                     // report cannot be generated
+                    List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
                     int noMethod = 0;
-                    foreach(CuttingUnitDO ct in Global.BL.getCuttingUnits())
+                    foreach(CuttingUnitDO ct in cutList)
                     {
                         if(ct.LoggingMethod == "" || ct.LoggingMethod == " " || ct.LoggingMethod == null)
                         {
@@ -132,7 +133,7 @@ namespace CruiseProcessing
                     {
                         finishColumnHeaders(rh.LD7LD8left, rh.LiveDeadRight);
                         fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
-                        AccumulateAllData("LOG", justGroups, sList, proList);
+                        AccumulateAllData("LOG", justGroups);
                         OutputData(strWriteOut, rh, ref pageNumb, "LOG");
                         //  output last product subtotal
                         OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "LOG");
@@ -151,7 +152,7 @@ namespace CruiseProcessing
         }   // end CreateLiveDead
 
 
-        private void AccumulateAllData(IEnumerable<LCDDO> justGroups, IEnumerable<LCDDO> lcdList, IEnumerable<StratumDO> sList)
+        private void AccumulateAllData(List<LCDDO> justGroups, List<LCDDO> lcdList)
         {
             //  Works for LD1-LD2
             //  Calculate values and store
@@ -180,11 +181,16 @@ namespace CruiseProcessing
                             currType = "O";
                             break;
                     }   //  end switch
-                    
-                    SumUp(lcdList.Where(l => l.CutLeave == jg.CutLeave &&
+
+                    List<LCDDO> justLiveDead = lcdList.FindAll(
+                        delegate(LCDDO l)
+                        {
+                            return l.CutLeave == jg.CutLeave &&
                                    l.PrimaryProduct == jg.PrimaryProduct &&
                                    l.SecondaryProduct == jg.SecondaryProduct &&
-                                   l.Species == jg.Species && l.LiveDead == currType), sList);
+                                   l.Species == jg.Species && l.LiveDead == currType;
+                        });
+                    SumUp(justLiveDead);
                     //  load primary
                     LoadList(estTrees, totalGrsP, totalNetP, jg.PrimaryProduct, jg.Species, currType, "P");
                     //  load secondary
@@ -200,7 +206,7 @@ namespace CruiseProcessing
         }   //  end AccumulateData
 
 
-        private void AccumulateAllData(string reportType, IEnumerable<LCDDO> justGroups, IEnumerable<StratumDO> sList, IEnumerable<PRODO> proList)
+        private void AccumulateAllData(string reportType, List<LCDDO> justGroups)
         {
             //  Works for LD3-LD8
             //  total by stratum to prorate volume
@@ -215,7 +221,7 @@ namespace CruiseProcessing
                 totalGrsS = 0.0;
                 totalNetS = 0.0;
                 //  Pull LCD for current stratum
-                List<LCDDO> listToProrate = Global.BL.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ?", "PrimaryProduct,SecondaryProduct,Species").ToList();
+                List<LCDDO> listToProrate = bslyr.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ?", "PrimaryProduct,SecondaryProduct,Species");
                 for(int j=0;j<3;j++)
                 {
                     switch (j)
@@ -233,14 +239,19 @@ namespace CruiseProcessing
                     foreach (LCDDO jg in justGroups)
                     {
                         //  find live for current group
-                        SumUp(listToProrate.FindAll(l => l.Stratum == s.Code && l.CutLeave == jg.CutLeave && 
+                        List<LCDDO> justLiveDead = listToProrate.FindAll(
+                            delegate(LCDDO l)
+                            {
+                                return l.Stratum == s.Code && l.CutLeave == jg.CutLeave && 
                                     l.PrimaryProduct == jg.PrimaryProduct &&
                                     l.SecondaryProduct == jg.SecondaryProduct && l.Species == jg.Species &&
-                                    l.LiveDead == currType), sList);
+                                    l.LiveDead == currType;
+                            });
+                        SumUp(justLiveDead);
                         //  load primary
-                        LoadList(s, reportType, estTrees, totalGrsP, totalNetP, jg.PrimaryProduct, jg.Species, jg.SampleGroup, currType, "P", proList);
+                        LoadList(s, reportType, estTrees, totalGrsP, totalNetP, jg.PrimaryProduct, jg.Species, jg.SampleGroup, currType, "P");
                         //  load secondary
-                        LoadList(s, reportType, estTrees, totalGrsS, totalNetS, jg.SecondaryProduct, jg.Species, jg.SampleGroup, currType, "S", proList);
+                        LoadList(s, reportType, estTrees, totalGrsS, totalNetS, jg.SecondaryProduct, jg.Species, jg.SampleGroup, currType, "S");
                         estTrees = 0.0;
                         totalGrsP = 0.0;
                         totalNetP = 0.0;
@@ -253,7 +264,7 @@ namespace CruiseProcessing
         }   //  end AccumulateAllData
 
 
-        private void LoadGroupInfo(string reportType, IEnumerable<LCDDO> justGroups, StratumDO sdo)
+        private void LoadGroupInfo(string reportType, List<LCDDO> justGroups, StratumDO sdo)
         {
             //  Works for LD3-LD8
             //  find current report type and load groups for each
@@ -275,7 +286,7 @@ namespace CruiseProcessing
             return;
         }   //  end LoadGroupInfo
 
-        private void LoadGroup(string currType, IEnumerable<LCDDO> justGroups)
+        private void LoadGroup(string currType, List<LCDDO> justGroups)
         {
             //  Loads group for current type
             //  LD3-LD8
@@ -330,16 +341,19 @@ namespace CruiseProcessing
         }   //  end LoadGroup
 
 
-        private void SumUp(IEnumerable<LCDDO> justList, IEnumerable<StratumDO> sList)
+        private void SumUp(List<LCDDO> justList)
         {
             double strAcres = 0.0;
             foreach (LCDDO jl in justList)
             {
                 //  need correct acres for each stratum
-                
-                StratumDO stratum = sList.FirstOrDefault(s => s.Code == jl.Stratum);
-                if(stratum != null)
-                    strAcres = Utilities.ReturnCorrectAcres(jl.Stratum, (long)stratum.Stratum_CN);
+                int nthRow = sList.FindIndex(
+                    delegate(StratumDO s)
+                    {
+                        return s.Code == jl.Stratum;
+                    });
+                if(nthRow >= 0)
+                    strAcres = Utilities.ReturnCorrectAcres(jl.Stratum,bslyr,(long)sList[nthRow].Stratum_CN);
 
                 //  modify strata acres based on report number.  prorated reports should not be expanded by acres
                 if (currentReport != "LD1" && currentReport != "LD2")
@@ -366,8 +380,8 @@ namespace CruiseProcessing
                 } //  end switch
                 if (jl.STM == "Y")
                     estTrees += jl.SumExpanFactor;
-                else if (Utilities.MethodLookup(jl.Stratum) == "3P" ||
-                        Utilities.MethodLookup(jl.Stratum) == "S3P")
+                else if (Utilities.MethodLookup(jl.Stratum, bslyr) == "3P" ||
+                        Utilities.MethodLookup(jl.Stratum, bslyr) == "S3P")
                     estTrees += jl.TalliedTrees;
                 else estTrees += jl.SumExpanFactor * strAcres;
             }   //  end foreach loop
@@ -432,7 +446,7 @@ namespace CruiseProcessing
 
         private void LoadList(StratumDO sdo, string reportType, double ETS, double TGV, double TNV, 
                                 string currPrd, string currSpec, string currSG, string whichSection,
-                                string whichProd, IEnumerable<PRODO> proList)
+                                string whichProd)
         {
             //  find group and load into LiveDeadRecords list
             //  works for LD3-LD8
@@ -463,10 +477,14 @@ namespace CruiseProcessing
             if (nthRow >= 0)
             {
                 //  need proration factor for this unit
-                PRODO prodo = proList.FirstOrDefault(p => p.Stratum == sdo.Code && p.CuttingUnit == cuttingUnit.Code &&
-                                p.SampleGroup == currSG);
-                if (prodo != null)
-                    proratFactor = prodo.ProrationFactor;
+                int ithRow = proList.FindIndex(
+                    delegate(PRODO p)
+                    {
+                        return p.Stratum == sdo.Code && p.CuttingUnit == cuttingUnit.Code &&
+                                p.SampleGroup == currSG;
+                    });
+                if (ithRow >= 0)
+                    proratFactor = proList[ithRow].ProrationFactor;
 
                 switch (whichSection)
                 {
@@ -793,7 +811,7 @@ namespace CruiseProcessing
             StringBuilder sb = new StringBuilder();
             for (int k = 0; k < leftSide.Count(); k++)
             {
-                sb.Remove(0, sb.Length);
+                sb.Clear();
                 sb.Append(leftSide[k]);
                 sb.Append(rightSide[k]);
                 completeHeader[k] = sb.ToString();

@@ -9,24 +9,24 @@ using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
-    public static class QualityAdjMethods
+    public class QualityAdjMethods
     {
         //  edit checks
-        public static int CheckEquations(IEnumerable<QualityAdjEquationDO> qaeList)
+        public int CheckEquations(List<QualityAdjEquationDO> qaeList)
         {
-
             int errorsFound = 0;
+            ErrorLogMethods elm = new ErrorLogMethods();
             foreach (QualityAdjEquationDO qed in qaeList)
             {
                 if (qed.QualityAdjEq != "QUAL0391" && qed.QualityAdjEq != "QUAL0392")
                 {
-                    ErrorLogMethods.LoadError("Quality Adjustment", "E", "1", (long)qed.rowID, "QualityAdjEq");
+                    elm.LoadError("Quality Adjustment", "E", "1", (long)qed.rowID, "QualityAdjEq");
                     errorsFound++;
                 }   //  endif equation is bad
                 if (qed.Coefficient1 == 0 && qed.Coefficient2 == 0 &&
                     qed.Coefficient3 == 0 && qed.Coefficient4 == 0)
                 {
-                    ErrorLogMethods.LoadError("Quality Adjustment", "E", "2", (long)qed.rowID, "Coefficient");
+                    elm.LoadError("Quality Adjustment", "E", "2", (long)qed.rowID, "Coefficient");
                     errorsFound++;
                 }   //  endif coefficients are missing
             }   //  end foreach loop
@@ -34,7 +34,7 @@ namespace CruiseProcessing
         }   //  end CheckEquations
 
 
-        public static ArrayList buildPrintArray(QualityAdjEquationDO qae)
+        public ArrayList buildPrintArray(QualityAdjEquationDO qae)
         {
             string fieldFormat = "{0,8:F4}";
             string yearFormat = "{0,0:F4}";

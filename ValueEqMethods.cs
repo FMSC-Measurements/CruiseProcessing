@@ -9,12 +9,11 @@ using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
-    public static class ValueEqMethods
+    public class ValueEqMethods
     {
         //  edit checks
-        public static int CheckEquations(IEnumerable<ValueEquationDO> valList, string currRegion)
+        public int CheckEquations(List<ValueEquationDO> valList, string currRegion)
         {
-
             //  Per K.Andregg some time ago, value is not used in Region 8
             string[] R1equations = new string[8] {"VLPP0101", "VLPP0102", "VLPP0103", "VLPP0104",
 						                              "VLPP0106", "VLPP0107", "VLPP0110", "VLPP0112"};
@@ -33,7 +32,7 @@ namespace CruiseProcessing
 							                           "VLPP0913", "VLPP0914"};
             string[] R10equations = new string[8] {"VLPP0001", "VLPP0002", "VLPP0003", "VLPP0004",
 						                               "VLPP0006", "VLPP0007", "VLPP0010", "VLPP0012"};
-            
+            ErrorLogMethods elm = new ErrorLogMethods();
             int errorsFound = 0;
             bool badEquation = false;
             bool badCoefficient = false;
@@ -97,13 +96,13 @@ namespace CruiseProcessing
 
                 if (badEquation)
                 {
-                    ErrorLogMethods.LoadError("ValueEquation", "E", "1", (long)val.rowID, "ValueEquationNumber");
+                    elm.LoadError("ValueEquation", "E", "1", (long)val.rowID, "ValueEquationNumber");
                     errorsFound++;
                     badEquation = false;
                 }   //  endif bad equation
                 if (badCoefficient)
                 {
-                    ErrorLogMethods.LoadError("ValueEquation", "E", "2", (long)val.rowID, "Coefficient");
+                    elm.LoadError("ValueEquation", "E", "2", (long)val.rowID, "Coefficient");
                     errorsFound++;
                     badCoefficient = false;
                 }   //  endif badCoefficient

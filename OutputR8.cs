@@ -34,7 +34,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             // grad LCD list to see if there's volume for the report
-            List<LCDDO> lcdList = Global.BL.getLCD().ToList();
+            List<LCDDO> lcdList = bslyr.getLCD();
             currGRSbdft = lcdList.Sum(l => l.SumGBDFT);
             currGRScuft = lcdList.Sum(l => l.SumGCUFT);
             if (currGRSbdft == 0 && currGRScuft == 0)
@@ -48,7 +48,8 @@ namespace CruiseProcessing
             {
                 case "R801":
                     //  total sale acres
-                    double totalAcres = Global.BL.getCuttingUnits().Sum(c => c.Area);
+                    List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+                    double totalAcres = cutList.Sum(c => c.Area);
                     //  create complete header
                     completeHeader = createCompleteHeader(totalAcres);
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.B2DC, reportConstants.FCTO);
@@ -64,15 +65,20 @@ namespace CruiseProcessing
                     }   //  end for j loop
 
                     //  Uses cut and measured trees only
-                    AccumulateVolume(Global.BL.getTreeCalculatedValues().Where(
-                        tcv => tcv.Tree.SampleGroup.CutLeave == "C" && tcv.Tree.CountOrMeasure == "M"));
+                    List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues();
+                    List<TreeCalculatedValuesDO> justTrees = treeList.FindAll(
+                        delegate(TreeCalculatedValuesDO tcv)
+                        {
+                            return tcv.Tree.SampleGroup.CutLeave == "C" && tcv.Tree.CountOrMeasure == "M";
+                        });
+                    AccumulateVolume(justTrees);
                     WriteReport(strWriteOut, ref pageNumb, rh, totalAcres);
                     break;
                 case "R802":
                     rh.createReportTitle(currentTitle, 6, 0, 0, "BY SAMPLE GROUP, SPECIES, AND PRODUCT", reportConstants.FCTO);
                     numOlines = 0;
                     //  processed by group
-                    IEnumerable<SampleGroupDO> justGroups = Global.BL.getSampleGroups("WHERE CutLeave = ? GROUP BY Code");
+                    List<SampleGroupDO> justGroups = bslyr.getSampleGroups("WHERE CutLeave = ? GROUP BY Code");
                     OutputSawtimber(strWriteOut, ref pageNumb, rh, justGroups, lcdList);
                     numOlines = 0;
                     OutputProduct8(strWriteOut, ref pageNumb, rh, justGroups, lcdList);
@@ -84,7 +90,7 @@ namespace CruiseProcessing
         }   //  end CreateR8Reports
 
 
-        private void AccumulateVolume(IEnumerable<TreeCalculatedValuesDO> justTrees)
+        private void AccumulateVolume(List<TreeCalculatedValuesDO> justTrees)
         {
             //  R801
             string prevST = "*";
@@ -95,7 +101,7 @@ namespace CruiseProcessing
                 //  get acres for stratum change
                 if (prevST != jt.Tree.Stratum.Code)
                 {
-                    currAC = Utilities.ReturnCorrectAcres(jt.Tree.Stratum.Code, (long)jt.Tree.Stratum_CN);
+                    currAC = Utilities.ReturnCorrectAcres(jt.Tree.Stratum.Code, bslyr, (long)jt.Tree.Stratum_CN);
                     prevST = jt.Tree.Stratum.Code;
                 }   //  endif previous stratum
 
@@ -393,7 +399,7 @@ namespace CruiseProcessing
 
 
         private void OutputSawtimber(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        IEnumerable<SampleGroupDO> justGroups, IEnumerable<LCDDO> lcdList)
+                                        List<SampleGroupDO> justGroups, List<LCDDO> lcdList)
         {
             //  R802    --  sawtimber page
             RegionalReports r1 = new RegionalReports();
@@ -403,15 +409,20 @@ namespace CruiseProcessing
             //  process by sample group
             foreach (SampleGroupDO jg in justGroups)
             {
+                List<LCDDO> justSpecies = lcdList.FindAll(
+                    delegate(LCDDO l)
+                    {
+                        return l.CutLeave == "C" && l.PrimaryProduct == "01" && l.SampleGroup == jg.Code;
+                    });
+
                 WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                            rRH.R802sawtimber, 14, ref pageNumb, "");
 
                 //  accumulate data by species
                 string prevST = "*";
                 double currAC = 0;
-                List<StratumDO> sList = Global.BL.getStratum().ToList();
-                foreach (LCDDO js in lcdList.Where(
-                    l => l.CutLeave == "C" && l.PrimaryProduct == "01" && l.SampleGroup == jg.Code))
+                List<StratumDO> sList = bslyr.getStratum();
+                foreach (LCDDO js in justSpecies)
                 {
                     //  find species in listToOutput or add it
                     int nthRow = listToOutput.FindIndex(
@@ -427,7 +438,7 @@ namespace CruiseProcessing
                             {
                                 return s.Code == js.Stratum;
                             });
-                        currAC = Utilities.ReturnCorrectAcres(js.Stratum, (long)sList[mthRow].Stratum_CN);
+                        currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[mthRow].Stratum_CN);
                         prevST = js.Stratum;
                     }   //  endif
 
@@ -505,7 +516,7 @@ namespace CruiseProcessing
 
 
         private void OutputProduct8(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        IEnumerable<SampleGroupDO> justGroups, IEnumerable<LCDDO> lcdList)
+                                        List<SampleGroupDO> justGroups, List<LCDDO> lcdList)
         {
             //  R802    --  product 8 
             RegionalReports r2 = new RegionalReports();
@@ -515,8 +526,11 @@ namespace CruiseProcessing
                 //  process by sample group
                 foreach (SampleGroupDO jg in justGroups)
                 {
-                        List<LCDDO> justSpecies = lcdList.Where(
-                            l => l.CutLeave == "C" && l.PrimaryProduct == "08" && l.SampleGroup == jg.Code).ToList();
+                        List<LCDDO> justSpecies = lcdList.FindAll(
+                            delegate(LCDDO l)
+                            {
+                                return l.CutLeave == "C" && l.PrimaryProduct == "08" && l.SampleGroup == jg.Code;
+                            });
 
                             WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                                     rRH.R802product08, 14, ref pageNumb, "");
@@ -524,7 +538,7 @@ namespace CruiseProcessing
                     //  accumulate data by species
                     string prevST = "*";
                     double currAC = 0;
-                    List<StratumDO> sList = Global.BL.getStratum().ToList();
+                    List<StratumDO> sList = bslyr.getStratum();
                     foreach (LCDDO js in justSpecies)
                     {
                         //  find species in listToOutput or add it
@@ -536,8 +550,12 @@ namespace CruiseProcessing
                         //  find strata acres as needed
                         if (prevST != js.Stratum)
                         {
-                            StratumDO stratum = sList.First(s => s.Code == js.Stratum);
-                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, (long)stratum.Stratum_CN);
+                            int mthRow = sList.FindIndex(
+                                delegate(StratumDO s)
+                                {
+                                    return s.Code == js.Stratum;
+                                });
+                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[mthRow].Stratum_CN);
                             prevST = js.Stratum;
                         }   //  endif
 
@@ -618,7 +636,7 @@ namespace CruiseProcessing
 
 
         private void OutputPulpwood(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        IEnumerable<SampleGroupDO> justGroups, IEnumerable<LCDDO> lcdList)
+                                        List<SampleGroupDO> justGroups, List<LCDDO> lcdList)
         {
             //  R802    --  pulpwood page
             RegionalReports r3 = new RegionalReports();
@@ -628,20 +646,27 @@ namespace CruiseProcessing
                 //  process by sample group
                 foreach (SampleGroupDO jg in justGroups)
                 {
-                        List<LCDDO> justSpecies = lcdList.Where(
-                            l => l.CutLeave == "C" && l.SampleGroup == jg.Code &&
-                                        l.PrimaryProduct != "01" && l.PrimaryProduct != "08").ToList();
+                        List<LCDDO> justSpecies = lcdList.FindAll(
+                            delegate(LCDDO l)
+                            {
+                                return l.CutLeave == "C" && l.SampleGroup == jg.Code &&
+                                        l.PrimaryProduct != "01" && l.PrimaryProduct != "08";
+                            });
                             WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                             rRH.R802pulpwood, 14, ref pageNumb, "");
 
                     //  accumulate data by species
                     string prevST = "*";
                     double currAC = 0;
-                    List<StratumDO> sList = Global.BL.getStratum().ToList();
+                    List<StratumDO> sList = bslyr.getStratum();
                     foreach (LCDDO js in justSpecies)
                     {
                         //  find species in listToOutput or add it
-                        RegionalReports rr = listToOutput.FirstOrDefault(l => l.value1 == js.Species);
+                        int nthRow = listToOutput.FindIndex(
+                            delegate(RegionalReports l)
+                            {
+                                return l.value1 == js.Species;
+                            });
                         //  find strata acres as needed
                         if (prevST != js.Stratum)
                         {
@@ -650,11 +675,11 @@ namespace CruiseProcessing
                                 {
                                     return s.Code == js.Stratum;
                                 });
-                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, (long)sList[mthRow].Stratum_CN);
+                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[mthRow].Stratum_CN);
                             prevST = js.Stratum;
                         }   //  endif
 
-                        if (rr == null)
+                        if (nthRow == -1)
                         {
                             // add species
                             RegionalReports r = new RegionalReports();
@@ -665,13 +690,13 @@ namespace CruiseProcessing
                             r.value10 = js.SumNCUFTtop * currAC;
                             listToOutput.Add(r);
                         }
-                        else
+                        else if (nthRow >= 0)
                         {
                             //  update listToOutput
-                            rr.value7 += js.SumExpanFactor * currAC;
-                            rr.value8 += js.SumNBDFT * currAC;
-                            rr.value9 += js.SumNCUFT * currAC;
-                            rr.value10 += js.SumNCUFTtop * currAC;
+                            listToOutput[nthRow].value7 += js.SumExpanFactor * currAC;
+                            listToOutput[nthRow].value8 += js.SumNBDFT * currAC;
+                            listToOutput[nthRow].value9 += js.SumNCUFT * currAC;
+                            listToOutput[nthRow].value10 += js.SumNCUFTtop * currAC;
                         }   //  endif nthRow
                     }   //  end foreach on justSpecies
 

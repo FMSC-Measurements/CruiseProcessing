@@ -37,6 +37,7 @@ namespace CruiseProcessing
         private int ModelCode = 0;
         private static StringBuilder MainTitle = new StringBuilder(256);
         private static StringBuilder MainTitle_TW = new StringBuilder(256);
+        public CPbusinessLayer bslyr = new CPbusinessLayer();
         [DllImport("LocalVolume.dll", EntryPoint = "?GetLocalTable@CMakeLocalVolumeTable@@QAEXQAMQANHHPAN22PAM3PAH@Z", CallingConvention = CallingConvention.StdCall)]
         extern static void GetLocalTable(float[] DBHarray, double[] VolArray, int nItem, int TitleCode, ref double coef1, ref double coef2, 
                                     ref double coef3, ref float meanSqEr, ref float rSquared, ref int ModelCode);
@@ -55,11 +56,11 @@ namespace CruiseProcessing
             useNet.Checked = true;
             volumeToUse = "Net";
             //  then we need the unique species/product groups plus live/dead for the grid
-            rgList = Global.BL.GetUniqueSpeciesGroups().ToList();
+            rgList = bslyr.GetUniqueSpeciesGroups();
             SpeciesGroups.DataSource = rgList;
 
             //  remove existing regressions in table
-            Global.BL.DeleteRegressions();
+            bslyr.DeleteRegressions();
         }   //  end setupDialog
 
 
@@ -147,9 +148,11 @@ namespace CruiseProcessing
             {
                 if (rl.rgSelected == 1)
                 {
+                    //  pull trees
+                    List<TreeCalculatedValuesDO> justTrees = bslyr.getRegressTrees(rl.rgSpecies, rl.rgProduct, rl.rgLiveDead, "M");
+
                     //  load up arrays
-                    foreach (TreeCalculatedValuesDO jt in
-                        Global.BL.getRegressTrees(rl.rgSpecies, rl.rgProduct, rl.rgLiveDead, "M"))
+                    foreach (TreeCalculatedValuesDO jt in justTrees)
                     {
                         // load DBH or DRC
                         float jd = new float();
@@ -314,7 +317,8 @@ namespace CruiseProcessing
             }   //  endif topwood
 
             //  Save results
-            Global.BL.SaveRegress(resultsList);
+            bslyr.SaveRegress(resultsList);
+            bslyr.fileName = fileName;
 
             return;
         }   //  end onRegression
@@ -324,6 +328,8 @@ namespace CruiseProcessing
         {
             //  call class to generate reports
             LocalVolumeReports lvr = new LocalVolumeReports();
+            lvr.bslyr.fileName = bslyr.fileName;
+            lvr.bslyr.DAL = bslyr.DAL;
             int nResult = lvr.OutputLocalVolume(fileName);
             if (nResult == 0)
             {
@@ -348,7 +354,7 @@ namespace CruiseProcessing
             //  they wouldn't regress weight.  Some regions (like 6) have different rules but would still not
             //  regress directly on weight but would select probably CUFT for regression.
             double totalVolume = 0;
-            IEnumerable<TreeCalculatedValuesDO> checkVolume = Global.BL.getTreeCalculatedValues();
+            List<TreeCalculatedValuesDO> checkVolume = bslyr.getTreeCalculatedValues();
             switch (UOMtoUse)
             {
                 case "03 -- Cubic foot":
@@ -381,16 +387,21 @@ namespace CruiseProcessing
 
         private void groupSelected(object sender, DataGridViewCellEventArgs e)
         {
+            List<TreeDO> tList = bslyr.getTrees();
+            List<TreeDO> justGroups = new List<TreeDO>();
             //  pull group from tree data and update number of trees selected
             int nthRow = SpeciesGroups.CurrentCell.RowIndex;
             string currSP = SpeciesGroups.Rows[nthRow].Cells[1].Value.ToString();
             string currPP = SpeciesGroups.Rows[nthRow].Cells[2].Value.ToString();
             string currLD = SpeciesGroups.Rows[nthRow].Cells[3].Value.ToString();
             //  pull volume for group selected
-            IEnumerable<TreeDO> justGroups = Global.BL.getTrees().Where(
-                t => t.CountOrMeasure == "M" && t.Species == currSP &&
+            justGroups = tList.FindAll(
+                delegate(TreeDO t)
+                {
+                    return t.CountOrMeasure == "M" && t.Species == currSP &&
                         t.SampleGroup.PrimaryProduct == currPP &&
-                        t.LiveDead == currLD);
+                        t.LiveDead == currLD;
+                });
             object chk = SpeciesGroups.Rows[nthRow].Cells[0].GetEditedFormattedValue(nthRow, DataGridViewDataErrorContexts.CurrentCellChange);
             if((bool)chk == true)
             {

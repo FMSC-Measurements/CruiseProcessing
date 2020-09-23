@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
+using CruiseDAL;
 
 namespace CruiseProcessing
 {
@@ -16,6 +17,8 @@ namespace CruiseProcessing
         public int templateFlag;
         public int whichProcess;
         string currentRegion;
+        public DAL DAL { get; set; }
+        //CPbusinessLayer bslyr = new CPbusinessLayer();
         //public string[,] addedReports = new string[,] { {"A14", "Summary of Species Based on Unit Level Data" },
           //                                              {"R208", "Stewardship Average Product Cost"},
             //                                            {"LV01","Volume Summary for Sample Group"},
@@ -136,6 +139,8 @@ namespace CruiseProcessing
             // let user know it's happening
             //  replace this with the processing status window
             ProcessStatus statusDlg = new ProcessStatus();
+            //statusDlg.bslyr = bslyr;
+            statusDlg.DAL = DAL;
             statusDlg.fileName = fileName;
             statusDlg.ShowDialog();   
             Cursor.Current = this.Cursor;
@@ -316,6 +321,7 @@ namespace CruiseProcessing
                         DialogResult dr = MessageBox.Show("Do you want to use a different filename for any changes made?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (dr == DialogResult.Yes)
                         {
+                            
                             //  show dialog to captue new filanem
                             EnterNewFilename enf = new EnterNewFilename();
                             enf.ShowDialog();
@@ -325,13 +331,14 @@ namespace CruiseProcessing
                             newTemplateFile = enf.templateFilename;
                             newTemplateFile = newTemplateFile.Insert(0, pathName);
                             File.Copy(fileName, newTemplateFile, true);
-                            //Global.BL.fileName = newTemplateFile;
-                            Global.Init(new CPbusinessLayer(new CruiseDAL.DAL(newTemplateFile), newTemplateFile));
+                            fileName = newTemplateFile;
+                            DAL = new DAL(newTemplateFile);
                             templateFlag = 1;
                         }
                         else if (dr == DialogResult.No)
                         {
-                            Global.Init(new CPbusinessLayer(new CruiseDAL.DAL(newTemplateFile), newTemplateFile));
+                            //fileName = fileName;
+                            DAL = new DAL(fileName);
                             if (fileName.EndsWith(".CUT") || fileName.EndsWith(".cut"))
                             {
                                 newTemplateFile = fileName;
@@ -353,9 +360,10 @@ namespace CruiseProcessing
             if (templateFlag == 0)
             {
                 //  check for fatal errors before doing anything else --  October 2014
-                Global.Init(new CPbusinessLayer(new CruiseDAL.DAL(fileName), fileName));
+                //fileName = fileName;
+                DAL = new DAL(fileName);
                 string[] errors;
- //               bool ithResult = Global.BL.DAL.HasCruiseErrors(out errors);
+ //               bool ithResult = bslyr.DAL.HasCruiseErrors(out errors);
                 bool ithResult = false;
                 if (ithResult)
                 {
@@ -386,7 +394,9 @@ namespace CruiseProcessing
                     menuButton5.Enabled = true;
 
                     //  need region number in order to hide volume button as well as region 9 button
-                    currentRegion = Global.BL.getRegion();
+                    List<SaleDO> saleList = new List<SaleDO>();
+                    saleList = DAL.Read<SaleDO>("Sale", null, null);
+                    currentRegion = saleList[0].Region; 
                 }   //  endif
             }   //  endif tempalteFlag
             //  add file name to title line at top
@@ -398,11 +408,17 @@ namespace CruiseProcessing
 
         }   //  end onFile
 
+
         private void onButton1Click(object sender, EventArgs e)
         {
-            if(whichProcess == 1)       //  equations
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+
+            if (whichProcess == 1)       //  equations
             {
                 VolumeEquations volEqObj = new VolumeEquations();
+                volEqObj.bslyr.fileName = fileName;
+                volEqObj.bslyr.DAL = DAL;
                 if (templateFlag == 0)
                 {
                     int nResult = volEqObj.setupDialog();
@@ -420,20 +436,23 @@ namespace CruiseProcessing
             }
             else if(whichProcess == 2)  //  reports
             {
+                //  calls routine to add standard and regional reports
+                List<ReportsDO> currentReports = new List<ReportsDO>();
                 if (templateFlag == 1)
                 {
-                    Global.Init(new CPbusinessLayer(new CruiseDAL.DAL(newTemplateFile), newTemplateFile));
+                    bslyr.fileName = newTemplateFile;
+                    bslyr.DAL = new DAL(newTemplateFile);
                 }
-                //else Global.BL.fileName = fileName;
+                else bslyr.fileName = fileName;
                 //  get all reports
-                List<ReportsDO> currentReports = Global.BL.GetReports().ToList();
+                currentReports = bslyr.GetReports();
                 //  and get the all reports array
                 allReportsArray ara = new allReportsArray();
                 //  then check for various conditions to know what to do with the reports list
                 if (currentReports.Count == 0)
                 {
                     currentReports = ReportMethods.fillReportsList();
-                    Global.BL.SaveReports(currentReports);
+                    bslyr.SaveReports(currentReports);
                 }
                 else if (currentReports.Count < ara.reportsArray.GetLength(0))
                 {
@@ -442,21 +461,23 @@ namespace CruiseProcessing
                     {
                         //  old reports -- update list
                         currentReports = ReportMethods.updateReportsList(currentReports, ara);
-                        Global.BL.SaveReports(currentReports);
+                        bslyr.SaveReports(currentReports);
                     }
                     else
                     {
                         //  new reports -- just add
                         currentReports = ReportMethods.addReports(currentReports, ara);
-                        Global.BL.SaveReports(currentReports);
+                        bslyr.SaveReports(currentReports);
                     }   //  endif
                 }   //  endif
                 //  now get reports selected
-                currentReports = ReportMethods.deleteReports(currentReports);
-                currentReports = Global.BL.GetSelectedReports().ToList();
+                currentReports = ReportMethods.deleteReports(currentReports, bslyr);
+                currentReports = bslyr.GetSelectedReports();
                 //  Get selected reports 
                 ReportsDialog rd = new ReportsDialog();
                 rd.fileName = fileName;
+                rd.bslyr.fileName = bslyr.fileName;
+                rd.bslyr.DAL = bslyr.DAL;
                 rd.reportList = currentReports;
                 rd.templateFlag = templateFlag;
                 rd.setupDialog();
@@ -464,29 +485,23 @@ namespace CruiseProcessing
             }
             else if(whichProcess == 4)  //  output
             {
-
+                
                 //  Pull reports selected
+                bslyr.fileName = fileName;
                 //  See if volume has been calculated (sum expansion factor since those are calculated before volume)
                 //  July 2014 -- However it looks like expansion factors could be present but volume is not
                 //  need to pull calculated values as well and sum net volumes
-                //List<TreeDO> tList = Global.BL.getTrees();
-                double summedEF = Global.BL.getTrees().Sum(t => t.ExpansionFactor);
-                //List<TreeCalculatedValuesDO> tcvList = Global.BL.getTreeCalculatedValues();
-                double summedNetBDFT = 0;
-                double summedNetCUFT = 0;
-
-                foreach (TreeCalculatedValuesDO tcv in Global.BL.getTreeCalculatedValues())
-                {
-                    summedNetBDFT += tcv.NetBDFTPP;
-                    summedNetCUFT += tcv.NetCUFTPP;
-                }
-
+                List<TreeDO> tList = bslyr.getTrees();
+                double summedEF = tList.Sum(t => t.ExpansionFactor);
+                List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
+                double summedNetBDFT = tcvList.Sum(tc => tc.NetBDFTPP);
+                double summedNetCUFT = tcvList.Sum(tc => tc.NetCUFTPP);
                 if (summedEF == 0 && summedNetBDFT == 0 && summedNetCUFT == 0)
                 {
                     MessageBox.Show("Looks like volume has not been calculated.\nReports cannot be produced without calculated volume.\nPlease calculate volume before continuing.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }   //  endif no volume for reports
-                List<ReportsDO> selectedReports = Global.BL.GetSelectedReports().ToList(); 
+                List<ReportsDO> selectedReports = bslyr.GetSelectedReports(); 
 
                 //  no reports?  let user know to go back and select reports
                 if (selectedReports.Count == 0)
@@ -500,6 +515,7 @@ namespace CruiseProcessing
                 tfo.selectedReports = selectedReports;
                 tfo.fileName = fileName;
                 tfo.currRegion = currentRegion;
+                tfo.bslyr = bslyr;
                 tfo.setupDialog();
                 tfo.ShowDialog();
                 string outFile = tfo.outFile;
@@ -537,6 +553,8 @@ namespace CruiseProcessing
             if(whichProcess == 1)   //  equations
             {
                 ValueEquations valEqObj = new ValueEquations();
+                valEqObj.bslyr.fileName = fileName;
+                valEqObj.bslyr.DAL = DAL;
                 int nResult = valEqObj.setupDialog();
                 if(nResult == 1)
                     valEqObj.ShowDialog();
@@ -545,6 +563,8 @@ namespace CruiseProcessing
             {
                 //  calls routine to add graphical reports
                 GraphReportsDialog grd = new GraphReportsDialog();
+                grd.bslyr.fileName = fileName;
+                grd.bslyr.DAL = DAL;
                 grd.setupDialog();
                 grd.ShowDialog();
                 return;
@@ -554,6 +574,8 @@ namespace CruiseProcessing
                 //  calls routine to create an html output file
                 HTMLoutput ho = new HTMLoutput();
                 ho.fileName = fileName;
+                ho.bslyr.fileName = fileName;
+                ho.bslyr.DAL = DAL;
                 ho.CreateHTMLfile();
                 return;
             }   //  endif whichProcess
@@ -574,8 +596,8 @@ namespace CruiseProcessing
 /*            if(whichProcess == 1)   //  equations
             {
                 QualityAdjEquations quaEqObj = new QualityAdjEquations();
-                quaEqObj.Global.BL.fileName = Global.BL.fileName;
-                quaEqObj.Global.BL.DAL = Global.BL.DAL;
+                quaEqObj.bslyr.fileName = bslyr.fileName;
+                quaEqObj.bslyr.DAL = bslyr.DAL;
                 quaEqObj.setupDialog();
                 quaEqObj.ShowDialog();
 
@@ -586,6 +608,8 @@ namespace CruiseProcessing
                 //  calls routine to create pdf file
                 PDFfileOutput pfo = new PDFfileOutput();
                 pfo.fileName = fileName;
+                pfo.bslyr.fileName = fileName;
+                pfo.bslyr.DAL = DAL;
                 int nResult = pfo.setupDialog();
                 if(nResult == 0)
                     pfo.ShowDialog();
@@ -607,6 +631,9 @@ namespace CruiseProcessing
             {
                 //  calls R8 volume equation entry
                 R8VolEquation r8vol = new R8VolEquation();
+                r8vol.bslyr.fileName = fileName;
+                r8vol.fileName = fileName;
+                r8vol.bslyr.DAL = DAL;
                 r8vol.ShowDialog();
 
             }
@@ -615,6 +642,8 @@ namespace CruiseProcessing
                 //  calls routine to create CSV output file
                 SelectCSV sc = new SelectCSV();
                 sc.fileName = fileName;
+                sc.bslyr.fileName = fileName;
+                sc.bslyr.DAL = DAL;
                 sc.setupDialog();
                 sc.ShowDialog();
             }   //  endif whichProcess
@@ -635,6 +664,8 @@ namespace CruiseProcessing
                 //  calls R9 volume equation entry
                 R9VolEquation r9vol = new R9VolEquation();
                 r9vol.fileName = fileName;
+                r9vol.bslyr.fileName = fileName;
+                r9vol.bslyr.DAL = DAL;
                 r9vol.setupDialog();
                 r9vol.ShowDialog();
             }
@@ -667,6 +698,8 @@ namespace CruiseProcessing
            
                 LocalVolume lv = new LocalVolume();
                 lv.fileName = fileName;
+                lv.bslyr.fileName = fileName;
+                lv.bslyr.DAL = DAL;
                 lv.setupDialog();
                 lv.ShowDialog();
                 return;
@@ -677,7 +710,7 @@ namespace CruiseProcessing
         private void onAboutClick(object sender, EventArgs e)
         {
             //  Show version number etc here
-            MessageBox.Show("CruiseProcessing Version 2019.09.04\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("CruiseProcessing Version 2019.10.01\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }   //  end onAboutClick
 
@@ -685,6 +718,8 @@ namespace CruiseProcessing
         {
             int mResult = -1;
             ModifyWeightFactors mwf = new ModifyWeightFactors();
+            mwf.bslyr.fileName = fileName;
+            mwf.bslyr.DAL = DAL;
             mResult = mwf.setupDialog();
             if(mResult == 1) mwf.ShowDialog();
             return;
@@ -693,6 +728,8 @@ namespace CruiseProcessing
         private void onModMerchRules(object sender, EventArgs e)
         {
             ModifyMerchRules mmr = new ModifyMerchRules();
+            mmr.bslyr.fileName = fileName;
+            mmr.bslyr.DAL = DAL;
             mmr.setupDialog();
             mmr.ShowDialog();
             //MessageBox.Show("Under construction", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);

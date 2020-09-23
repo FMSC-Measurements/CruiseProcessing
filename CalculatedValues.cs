@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CruiseDAL.DataObjects;
+using CruiseDAL;
 using CruiseDAL.Schema;
 
 namespace CruiseProcessing
@@ -11,54 +12,82 @@ namespace CruiseProcessing
     {
     #region
         public string fileName;
+        public DAL DAL { get; set; }
         private double firstSum = 0.0;
         private double talliedSum = 0.0;
         private double totalKPI = 0.0;
         private double totalMeasuredKPI = 0.0;
     #endregion
+        public void CalcValues()
+        {
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+            bslyr.fileName = fileName;
 
+            List<SampleGroupDO> sgList = bslyr.getSampleGroups();
+            List<TreeDefaultValueDO> tdvList = bslyr.getTreeDefaults();
+            List<CountTreeDO> ctList = bslyr.getCountTrees();
+            List<PlotDO> pList = bslyr.getPlots();
+
+            ClearCalculatedTables();
+            MakePopulationIDs(sgList, tdvList);
+
+        }
         //  this will contain methods for any calculated values
         public void ClearCalculatedTables()
         {
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+            bslyr.fileName = fileName;
             //  if any of these tables have data, delete all
             //  Tree calculated values
-            //List<TreeCalculatedValuesDO> tcvList = Global.BL.getTreeCalculatedValues();
-            
+            //List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
+
             //if (tcvList.Count > 0)
-                Global.BL.deleteTreeCalculatedValues();
+            bslyr.deleteTreeCalculatedValues();
+            //bslyr.fileName = fileName;
 
             //  Log stock
-            //List<LogStockDO> lsList = Global.BL.getLogStock();
-            //if (lsList.Count > 0)
-                Global.BL.DeleteLogStock();
+            //List<LogStockDO> lsList = bslyr.getLogStock();
+           // if (lsList.Count > 0)
+                bslyr.DeleteLogStock();
+           // bslyr.fileName = fileName;
 
             //  LCD
-            //List<LCDDO> lcdList = Global.BL.getLCD();
+            //List<LCDDO> lcdList = bslyr.getLCD();
             //if (lcdList.Count > 0)
-                Global.BL.DeleteLCD();
+                bslyr.DeleteLCD();
+            //bslyr.fileName = fileName;
 
             //  POP
-            //List<POPDO> popList = Global.BL.getPOP();
-            //if (popList.Count > 0)
-                Global.BL.DeletePOP();
+            //List<POPDO> popList = bslyr.getPOP();
+           // if (popList.Count > 0)
+                bslyr.DeletePOP();
+            //bslyr.fileName = fileName;
 
             //  PRO
-            //List<PRODO> proList = Global.BL.getPRO();
+            //List<PRODO> proList = bslyr.getPRO();
             //if (proList.Count > 0)
-                Global.BL.DeletePRO();
+                bslyr.DeletePRO();
+            //bslyr.fileName = fileName;
 
             return;
         }   //  end ClearCalculatedTables
 
-        public void MakePopulationIDs(List<SampleGroupDO> sgList)
+        public void MakePopulationIDs(List<SampleGroupDO> sgList, List<TreeDefaultValueDO> tdvList)
         {
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+            bslyr.fileName = fileName;
+            //  Load ID info into tables
             List<LCDDO> lcdList = new List<LCDDO>();
             List<POPDO> popList = new List<POPDO>();
             List<PRODO> proList = new List<PRODO>();
+            List<TreeDO> tList = bslyr.getTrees();
 
             //  need to check Contract Species in TDV table before doing unique
             //  reset to a blank if it is null -- September 2016
-            List<TreeDefaultValueDO> treeDefaults = Global.BL.getTreeDefaults().ToList();
+            List<TreeDefaultValueDO> treeDefaults = bslyr.getTreeDefaults();
             foreach(TreeDefaultValueDO tdv in treeDefaults)
             {
                 if (tdv.ContractSpecies == null)
@@ -66,16 +95,16 @@ namespace CruiseProcessing
                 else if (tdv.ContractSpecies == "")
                     tdv.ContractSpecies = " ";
             }   //  end foreach
-            Global.BL.SaveTreeDefaults(treeDefaults);
+            bslyr.SaveTreeDefaults(treeDefaults);
 
             foreach (SampleGroupDO sgd in sgList)
             {
+                
                 //  Load LCD population IDs
                 //  Need unique species, livedead and grade from Tree table
                 // not sure about the count table -- need IDs from there?  11/2012
-
-                //List<TreeDO> distinctSpecies = Global.BL.GetDistinctSpecies((long)sgd.SampleGroup_CN).ToList();
-                foreach (TreeDO t in Global.BL.GetDistinctSpecies((long)sgd.SampleGroup_CN))
+                List<TreeDO> distinctSpecies = bslyr.GetDistinctSpecies((long)sgd.SampleGroup_CN);
+                foreach(TreeDO t in distinctSpecies)
                 {
                     LCDDO lcd = new LCDDO();
                     lcd.CutLeave = sgd.CutLeave;
@@ -122,17 +151,15 @@ namespace CruiseProcessing
                 //  Add non-sure-to-measure first  and then STM
                 pop.STM = "N";
                 popList.Add(pop);
-                //List<TreeDO> justSTM = tList.FindAll(
-                //    delegate(TreeDO td)
-                //    {
-                //        return sgd.CutLeave == td.SampleGroup.CutLeave && sgd.Stratum.Code == td.Stratum.Code &&
-                //                    sgd.Code == td.SampleGroup.Code && sgd.PrimaryProduct == td.SampleGroup.PrimaryProduct &&
-                //                    sgd.SecondaryProduct == td.SampleGroup.SecondaryProduct && sgd.UOM == td.SampleGroup.UOM &&
-                //                    td.STM == "Y";
-                //   });
-
-                //                List<TreeDO> justSTM = Global.BL.getTreeJustSTM((long)sgd.SampleGroup_CN, "Y");
-                if (Global.BL.getTrees().Any(tre => tre.SampleGroup_CN == sgd.SampleGroup_CN && tre.STM == "Y"))
+                List<TreeDO> justSTM = tList.FindAll(
+                    delegate(TreeDO td)
+                    {
+                        return sgd.CutLeave == td.SampleGroup.CutLeave && sgd.Stratum.Code == td.Stratum.Code &&
+                                    sgd.Code == td.SampleGroup.Code && sgd.PrimaryProduct == td.SampleGroup.PrimaryProduct &&
+                                    sgd.SecondaryProduct == td.SampleGroup.SecondaryProduct && sgd.UOM == td.SampleGroup.UOM &&
+                                    td.STM == "Y";
+                    });
+                if (justSTM.Count > 0)
                 {
                     POPDO popSTM = new POPDO();
                     popSTM.CutLeave = sgd.CutLeave;
@@ -147,8 +174,8 @@ namespace CruiseProcessing
 
                 //  Load PRO population IDs
                 //  These need cutting unit numbers -- from Cutting Unit 
-
-                foreach (CuttingUnitStratumDO cudo in Global.BL.getCuttingUnitStratum((long)sgd.Stratum_CN))
+                List<CuttingUnitStratumDO> strataUnits = bslyr.getCuttingUnitStratum((long)sgd.Stratum_CN);
+                foreach (CuttingUnitStratumDO cudo in strataUnits)
                 {
                     PRODO pro = new PRODO();
                     pro.CutLeave = sgd.CutLeave;
@@ -162,19 +189,16 @@ namespace CruiseProcessing
                     //  Add non-sure-to-measure first  and then STM
                     pro.STM = "N";
                     proList.Add(pro);
-                    //                    justSTM = tList.FindAll(
-                    //                        delegate(TreeDO td)
-                    //                        {
-                    //                            return sgd.CutLeave == td.SampleGroup.CutLeave && sgd.Stratum.Code == td.Stratum.Code &&
-                    //                                        cudo.CuttingUnit.Code == td.CuttingUnit.Code &&
-                    //                                        sgd.Code == td.SampleGroup.Code && sgd.PrimaryProduct == td.SampleGroup.PrimaryProduct &&
-                    //                                        sgd.SecondaryProduct == td.SampleGroup.SecondaryProduct && sgd.UOM == td.SampleGroup.UOM &&
-                    //                                        td.STM == "Y";
-                    //                        });
-
-                    //justSTM = Global.BL.getTreeJustSTM((long)sgd.SampleGroup_CN, (long)cudo.CuttingUnit_CN, "Y");
-                    if (Global.BL.getTrees().Any(tre => tre.SampleGroup_CN == sgd.SampleGroup_CN && tre.STM == "Y" &&
-                                      tre.CuttingUnit_CN == cudo.CuttingUnit_CN))
+                    justSTM = tList.FindAll(
+                        delegate(TreeDO td)
+                        {
+                            return sgd.CutLeave == td.SampleGroup.CutLeave && sgd.Stratum.Code == td.Stratum.Code &&
+                                        cudo.CuttingUnit.Code == td.CuttingUnit.Code &&
+                                        sgd.Code == td.SampleGroup.Code && sgd.PrimaryProduct == td.SampleGroup.PrimaryProduct &&
+                                        sgd.SecondaryProduct == td.SampleGroup.SecondaryProduct && sgd.UOM == td.SampleGroup.UOM &&
+                                        td.STM == "Y";
+                        });
+                    if (justSTM.Count > 0)
                     {
                         PRODO proSTM = new PRODO();
                         proSTM.CutLeave = sgd.CutLeave;
@@ -189,9 +213,11 @@ namespace CruiseProcessing
                     }   //  endif
                 }   //  end foreach loop on strataUnits
             }   //  end foreach loop on SampleGroup
-            Global.BL.SaveLCD(lcdList);
-            Global.BL.SavePOP(popList);
-            Global.BL.SavePRO(proList);
+            bslyr.SaveLCD(lcdList);
+            bslyr.SavePOP(popList);
+            bslyr.SavePRO(proList);
+
+            return;
         }   //  end MakePopulationIDs
 
 
@@ -200,36 +226,37 @@ namespace CruiseProcessing
         //  April 2013
         //  methods to sum trees and KPI for individual methods
         public void SumTreeCountsLCD(string currST, List<CountTreeDO> ctList, List<PlotDO> justPlots, 
-                                     string currMethod, List<LCDDO> lcdList)
+                                            List<LCDDO> justCurrentLCD, string currMethod, List<LCDDO> lcdList)
         {
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+            bslyr.fileName = fileName;
+
             string currSG = "*";
             string prevSP = "*";
             //  Sums trees and counts from either the CountTree table or tree count records
-            //List<LCDDO> justCurrentLCD = lcdList.FindAll(lcd => lcd.Stratum == currST);
-
-            foreach (LCDDO lcd in lcdList.Where(lcd => lcd.Stratum == currST))
+            foreach (LCDDO lcd in justCurrentLCD)
             {
                 firstSum = 0.0;
                 talliedSum = 0.0;
                 totalMeasuredKPI = 0.0;
                 totalKPI = 0.0;
                 //  find measured trees for current LCD group
-                List<TreeDO> lcdTrees = Global.BL.getLCDtrees(lcd, "M").ToList();
+                List<TreeDO> lcdTrees = bslyr.getLCDtrees(lcd, "M");
                 //  measured trees is just a count of the trees for current LCD group
-                lcd.MeasuredTrees = lcdTrees.Count;
+                lcd.MeasuredTrees = lcdTrees.Count();
                
                 //  now need count trees from tree count records
-                List<TreeDO> lcdCntTrees = Global.BL.getLCDtrees(lcd, "C").ToList();
+                List<TreeDO> lcdCntTrees = bslyr.getLCDtrees(lcd, "C");
                 //  Sum all tree counts for first stage and total tallied
                 //  see note in POP section on 100% method
                 if (currMethod == "STR" || currMethod == "100")
-                    firstSum = lcdTrees.Count;
+                    firstSum = lcdTrees.Count();
                 else if(currMethod != "3P")
                 {
                     firstSum = lcdTrees.Sum(tdo => tdo.TreeCount);
                     firstSum += lcdCntTrees.Sum(tdo => tdo.TreeCount);
                 }
-
                 if (lcd.STM == "Y")
                 {
                     firstSum += lcd.MeasuredTrees;
@@ -248,9 +275,10 @@ namespace CruiseProcessing
                     }   //  endif on current method
                 }   //  endif
                 //  insurance trees go into just the tallied tree count
-                talliedSum += Global.BL.getLCDtrees(lcd, "I").Sum(tdo => tdo.TreeCount);
+                List<TreeDO> lcdInsurance = bslyr.getLCDtrees(lcd, "I");
+                talliedSum += lcdInsurance.Sum(tdo => tdo.TreeCount);
                 //  Complete totals based on method --  KPIs too
-                
+                List<CountTreeDO> lcdCountCounts = new List<CountTreeDO>();
                 switch (currMethod)
                 {
                     case "STR":
@@ -292,35 +320,27 @@ namespace CruiseProcessing
                         break;
                     case "3P":
                     case "S3P":
-                        //lcdCountCounts = Global.BL.getLCDCounts(lcd);
-
-                        //lcdCountCounts = ctList.FindAll(
-                        //    delegate(CountTreeDO ctd)
-                        //    {
-                        //        return lcd.CutLeave == ctd.SampleGroup.CutLeave &&
-                        //               lcd.Stratum == ctd.SampleGroup.Stratum.Code &&
-                        //               lcd.SampleGroup == ctd.SampleGroup.Code &&
-                        //              lcd.Species == ctd.TreeDefaultValue.Species &&
-                        //               lcd.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
-                         //              lcd.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
-                         //              lcd.UOM == ctd.SampleGroup.UOM && 
-                         //              lcd.LiveDead == ctd.TreeDefaultValue.LiveDead &&
-                         //              lcd.Yield == ctd.SampleGroup.Stratum.YieldComponent &&
-                         //              //  per K.Cormier, dropping contract species from LCD ID
-                         //              //lcd.ContractSpecies == ctd.TreeDefaultValue.ContractSpecies &&
-                         //              lcd.TreeGrade == ctd.TreeDefaultValue.TreeGrade;
-                         //   });
+                        lcdCountCounts = ctList.FindAll(
+                            delegate(CountTreeDO ctd)
+                            {
+                                return lcd.CutLeave == ctd.SampleGroup.CutLeave &&
+                                       lcd.Stratum == ctd.SampleGroup.Stratum.Code &&
+                                       lcd.SampleGroup == ctd.SampleGroup.Code &&
+                                       lcd.Species == ctd.TreeDefaultValue.Species &&
+                                       lcd.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
+                                       lcd.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
+                                       lcd.UOM == ctd.SampleGroup.UOM && 
+                                       lcd.LiveDead == ctd.TreeDefaultValue.LiveDead &&
+                                       lcd.Yield == ctd.SampleGroup.Stratum.YieldComponent &&
+                                       //  per K.Cormier, dropping contract species from LCD ID
+                                       //lcd.ContractSpecies == ctd.TreeDefaultValue.ContractSpecies &&
+                                       lcd.TreeGrade == ctd.TreeDefaultValue.TreeGrade;
+                            });
                         if (lcd.STM == "N")
                         {
                             firstSum += lcd.MeasuredTrees;
-                            //talliedSum += lcdCountCounts.Sum(ctd => ctd.TreeCount);
-                            //totalKPI += lcdCountCounts.Sum(ctd => ctd.SumKPI);
-
-                            foreach (CountTreeDO ctd in Global.BL.getLCDCounts(lcd))
-                            {
-                                talliedSum += ctd.TreeCount;
-                                totalKPI += ctd.SumKPI;
-                            }
+                            talliedSum += lcdCountCounts.Sum(ctd => ctd.TreeCount);
+                            totalKPI += lcdCountCounts.Sum(ctd => ctd.SumKPI);
                         }
                          
                         //  Sum measured KPI from trees
@@ -374,34 +394,35 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Save list before continuing
-            Global.BL.SaveLCD(lcdList);
-
+            bslyr.SaveLCD(lcdList);
             return;
         }   //  end SumTreeCountsLCD
 
 
         public void SumTreeCountsPOP(string currST, List<CountTreeDO> ctList, List<PlotDO> justPlots, 
-                                     string currMethod, List<POPDO> popList)
+                                            List<POPDO> justCurrentPOP, string currMethod, List<POPDO> popList)
         {
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+            bslyr.fileName = fileName;
             //  also need first and second stage sample counts
             double stage1 = 0.0;
 
             double stage2 = 0.0;
             //  Sums trees and counts from either the Count Tree table or tree count records
-
-            foreach (POPDO pop in POPmethods.GetStratumData(popList, currST, ""))
+            foreach (POPDO pop in justCurrentPOP)
             {
                 firstSum = 0.0;
                 talliedSum = 0.0;
                 totalKPI = 0.0;
                 totalMeasuredKPI = 0.0;
                 //  find measured trees for current POP group
-                var popTrees = Global.BL.getPOPtrees(pop, "M");
+                List<TreeDO> popTrees = bslyr.getPOPtrees(pop, "M");
                 //  measured tree is just a count of the trees for the current group
                 pop.MeasuredTrees = popTrees.Count();
 
                 //  now need count trees from tree count records
-                var popCntTrees = Global.BL.getPOPtrees(pop, "C");
+                List<TreeDO> popCntTrees = bslyr.getPOPtrees(pop, "C");
 
                 //  sum all tree counts for first stage and total tallied
                 if (currMethod == "STR" || currMethod == "100")
@@ -434,7 +455,7 @@ namespace CruiseProcessing
                     }   //  endif on current method
                 }   //  endif
                 //  insurance trees go into just the tallied tree count
-                var lcdInsurance = Global.BL.getPOPtrees(pop, "I");
+                List<TreeDO> lcdInsurance = bslyr.getPOPtrees(pop, "I");
                 talliedSum += lcdInsurance.Sum(tdo => tdo.TreeCount);
                 //  Complete totals for tree count and stage samples and KPIs based on method
                 stage1 = justPlots.Count();
@@ -446,43 +467,37 @@ namespace CruiseProcessing
                         break;
                     case "STR":
                         stage1 = popTrees.Count();
-                        //popCountCounts = ctList.FindAll(
-                        //    delegate(CountTreeDO ctd)
-                        //    {
-                        //        return pop.CutLeave == ctd.SampleGroup.CutLeave &&
-                        //               pop.Stratum == ctd.SampleGroup.Stratum.Code &&
-                        //               pop.SampleGroup == ctd.SampleGroup.Code &&
-                        //               pop.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
-                        //               pop.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
-                        //               pop.UOM == ctd.SampleGroup.UOM;
-                         //   });
-                        talliedSum += Global.BL.getPOPCounts(pop).Sum(ctd => ctd.TreeCount);
+                        popCountCounts = ctList.FindAll(
+                            delegate(CountTreeDO ctd)
+                            {
+                                return pop.CutLeave == ctd.SampleGroup.CutLeave &&
+                                       pop.Stratum == ctd.SampleGroup.Stratum.Code &&
+                                       pop.SampleGroup == ctd.SampleGroup.Code &&
+                                       pop.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
+                                       pop.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
+                                       pop.UOM == ctd.SampleGroup.UOM;
+                            });
+                        talliedSum += popCountCounts.Sum(ctd => ctd.TreeCount);
                         break;
                     case "S3P":
                     case "3P":
                         if (currMethod == "S3P") stage2 = popTrees.Count();
-                       // popCountCounts = ctList.FindAll(
-                       //     delegate(CountTreeDO ctd)
-                       //     {
-                       //         return pop.CutLeave == ctd.SampleGroup.CutLeave &&
-                       //                pop.Stratum == ctd.SampleGroup.Stratum.Code &&
-                       //                pop.SampleGroup == ctd.SampleGroup.Code &&
-                        //               pop.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
-                        //               pop.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
-                        //               pop.UOM == ctd.SampleGroup.UOM;
-                        //    });
+                        popCountCounts = ctList.FindAll(
+                            delegate(CountTreeDO ctd)
+                            {
+                                return pop.CutLeave == ctd.SampleGroup.CutLeave &&
+                                       pop.Stratum == ctd.SampleGroup.Stratum.Code &&
+                                       pop.SampleGroup == ctd.SampleGroup.Code &&
+                                       pop.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
+                                       pop.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
+                                       pop.UOM == ctd.SampleGroup.UOM;
+                            });
                         if (pop.STM == "N")
                         {
                             stage1 = popTrees.Count();
                             firstSum += pop.MeasuredTrees;
-
-                            foreach (CountTreeDO ctd in Global.BL.getPOPCounts(pop))
-                            {
-                                talliedSum += ctd.TreeCount;
-                                totalKPI += ctd.SumKPI;
-                            }
-                            //talliedSum += popCountCounts.Sum(ctd => ctd.TreeCount);
-                            //totalKPI += popCountCounts.Sum(ctd => ctd.SumKPI);
+                            talliedSum += popCountCounts.Sum(ctd => ctd.TreeCount);
+                            totalKPI += popCountCounts.Sum(ctd => ctd.SumKPI);
                         }
                         //  Sum measured KPI from trees
                         totalMeasuredKPI = popTrees.Sum(tdo => tdo.KPI);
@@ -518,16 +533,20 @@ namespace CruiseProcessing
                         //  Stage 2 samples
                         foreach(PlotDO pdo in justPlots)
                         {
-                            TreeDO tree = popTrees.FirstOrDefault(tdo => tdo.Plot_CN == pdo.Plot_CN);
-                            if (tree != null)
+                            int nthRow = popTrees.FindIndex(
+                                delegate(TreeDO tdo)
+                                {
+                                    return tdo.Plot_CN == pdo.Plot_CN;
+                                });
+                            if(nthRow >= 0)
                             {
                                 stage2++;
-                                //nthRow = -1;
+                                nthRow = -1;
                             }   //  endif nthRow
                         }   //  end foreach loop
                         //  this will probably no longer work on legacy data until
                         //  the conversion program handles this change
-                        if (popTrees.Count() > 0)
+                        if (popTrees.Count > 0)
                         {
                             //  means there are measured trees so this was a measured plot
                             //  KPI in the plot table is measured
@@ -561,34 +580,31 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Save list before continuing
-            Global.BL.SavePOP(popList);
+            bslyr.SavePOP(popList);
 
             return;
         }   //  end SumTreeCountsPOP
 
 
-        public void SumTreeCountsPRO(string currST, long strCN, List<TreeDO> tList, List<CuttingUnitDO> cuList, List<CountTreeDO> ctList, 
-                            List<SampleGroupDO> sgList, List<PlotDO> justPlots,List<PRODO> proList, string currMethod)
+        public void SumTreeCountsPRO(string currST, List<CountTreeDO> ctList, List<PlotDO> justPlots, List<PRODO> justCurrentPRO, string currMethod, List<PRODO> proList)
         {
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+            bslyr.fileName = fileName;
             //  Sums tree counts from either the Count Tree table or tree count records
-            foreach (PRODO pro in Global.BL.getPRO(currST))
+            foreach (PRODO pro in justCurrentPRO)
             {
                 firstSum = 0.0;
                 talliedSum = 0.0;
                 totalKPI = 0.0;
                 totalMeasuredKPI = 0.0;
-                // find SgCN and cuCN
-                long cuCN = (long)cuList.Find(cu => cu.Code == pro.CuttingUnit).CuttingUnit_CN;
-                long sgCN = (long)sgList.Find(sg => sg.Code == pro.SampleGroup && sg.Stratum_CN == strCN).SampleGroup_CN;
                 //  find measured trees for current PRO group
-//                var proTrees = Global.BL.getPROtrees(pro, "M");
-                var proTrees = tList.FindAll(t => t.SampleGroup_CN == sgCN && t.CuttingUnit_CN == cuCN && 
-                                             t.CountOrMeasure == "M" && t.STM == pro.STM);
+                List<TreeDO> proTrees = bslyr.getPROtrees(pro, "M");
                 //  measured trees is just a count of the trees for current PRO group
                 pro.MeasuredTrees = proTrees.Count();
 
                 //  now need count trees from tree count records
-                var proCntTrees = Global.BL.getPROtrees(pro, "C");
+                List<TreeDO> proCntTrees = bslyr.getPROtrees(pro, "C");
                 //  Sum all tree counts for first stage and total tallied
                 //  see note in POP or LCD section on 100% method
                 if (currMethod == "STR" || currMethod == "100")
@@ -617,30 +633,25 @@ namespace CruiseProcessing
                     }   //  endif on current method
                 }   //  endif
                 //  insurance trees go into just the tallied tree count
-                //var lcdInsurance = Global.BL.getPROtrees(pro, "I");
-                var lcdInsurance = tList.FindAll(t => t.SampleGroup_CN == sgCN && t.CuttingUnit_CN == cuCN &&
-                                             t.CountOrMeasure == "I" && t.STM == pro.STM);
+                List<TreeDO> lcdInsurance = bslyr.getPROtrees(pro, "I");
                 talliedSum += lcdInsurance.Sum(tdo => tdo.TreeCount);
                 //  Complete totals and KPIs based on method
-                var proCountCounts = ctList.FindAll(ct => ct.SampleGroup_CN == sgCN && ct.CuttingUnit_CN == cuCN);
-
+                List<CountTreeDO> proCountCounts = new List<CountTreeDO>();
                 switch (currMethod)
                 {
                     case "3P":
                     case "S3P":
-//                        proCountCounts = Global.BL.getPROCounts(pro);
-                        
-//                        proCountCounts = ctList.FindAll(
-//                            delegate(CountTreeDO ctd)
-//                            {
-//                                return pro.CutLeave == ctd.SampleGroup.CutLeave &&
-//                                       pro.Stratum == ctd.SampleGroup.Stratum.Code &&
-//                                       pro.SampleGroup == ctd.SampleGroup.Code &&
-//                                       pro.CuttingUnit == ctd.CuttingUnit.Code &&
-//                                       pro.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
-//                                       pro.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
-//                                       pro.UOM == ctd.SampleGroup.UOM;
-//                            });
+                        proCountCounts = ctList.FindAll(
+                            delegate(CountTreeDO ctd)
+                            {
+                                return pro.CutLeave == ctd.SampleGroup.CutLeave &&
+                                       pro.Stratum == ctd.SampleGroup.Stratum.Code &&
+                                       pro.SampleGroup == ctd.SampleGroup.Code &&
+                                       pro.CuttingUnit == ctd.CuttingUnit.Code &&
+                                       pro.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
+                                       pro.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
+                                       pro.UOM == ctd.SampleGroup.UOM;
+                            });
                         if (pro.STM == "N")
                         {
                             firstSum += pro.MeasuredTrees;
@@ -660,18 +671,17 @@ namespace CruiseProcessing
                         }   //  endif on current method
                         break;
                     case "STR":
-                        //proCountCounts = Global.BL.getPROCounts(pro);
-//                        proCountCounts = ctList.FindAll(
-//                            delegate(CountTreeDO ctd)
-//                            {
-//                                return pro.CutLeave == ctd.SampleGroup.CutLeave &&
-//                                       pro.Stratum == ctd.SampleGroup.Stratum.Code &&
-//                                       pro.SampleGroup == ctd.SampleGroup.Code &&
-//                                       pro.CuttingUnit == ctd.CuttingUnit.Code &&
-//                                       pro.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
-//                                       pro.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
-//                                       pro.UOM == ctd.SampleGroup.UOM;
-//                            });
+                        proCountCounts = ctList.FindAll(
+                            delegate(CountTreeDO ctd)
+                            {
+                                return pro.CutLeave == ctd.SampleGroup.CutLeave &&
+                                       pro.Stratum == ctd.SampleGroup.Stratum.Code &&
+                                       pro.SampleGroup == ctd.SampleGroup.Code &&
+                                       pro.CuttingUnit == ctd.CuttingUnit.Code &&
+                                       pro.PrimaryProduct == ctd.SampleGroup.PrimaryProduct &&
+                                       pro.SecondaryProduct == ctd.SampleGroup.SecondaryProduct &&
+                                       pro.UOM == ctd.SampleGroup.UOM;
+                            });
                         talliedSum += proCountCounts.Sum(ctd => ctd.TreeCount);
                         break;
                     case "F3P":
@@ -719,13 +729,16 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Save list before continuing
-            Global.BL.SavePRO(proList);
+            bslyr.SavePRO(proList);
 
             return;
         }   //  end SumTreeCountsPRO
 
-        public void CalcExpFac(StratumDO sdo, List<PlotDO> justPlots, List<POPDO> popList)
+        public void CalcExpFac(StratumDO sdo, List<PlotDO> justPlots, List<POPDO> justCurrentPOP)
         {
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+            bslyr.fileName = fileName;
             //  Calculates expansion factor, tree factor and point factor for each tree in the current population
             double EF = 0.0;        //  expansion factor
             double TF = 0.0;        //  tree factor
@@ -736,22 +749,26 @@ namespace CruiseProcessing
             double totalMeasPlots = 0.0;
 
             //  process by population
-            foreach (POPDO pdo in POPmethods.GetStratumData(popList, sdo.Code, ""))
+            foreach (POPDO pdo in justCurrentPOP)
             {
                 //  pull trees for population
-                List<TreeDO> justTrees = Global.BL.getPOPtrees(pdo, sdo.Method == "FIXCNT" ? "C" : "M").ToList();
-                //if (sdo.Method == "FIXCNT")
-                //    justTrees = Global.BL.getPOPtrees(pdo, "C");
-                //else
-                //    justTrees = Global.BL.getPOPtrees(pdo, "M");
+                List<TreeDO> justTrees = new List<TreeDO>();
+                if (sdo.Method == "FIXCNT")
+                    justTrees = bslyr.getPOPtrees(pdo, "C");
+                else
+                    justTrees = bslyr.getPOPtrees(pdo, "M");
 
                 //  3PPNT uses measured plots
                 if (sdo.Method == "3PPNT")
                 {
                     foreach (PlotDO p in justPlots)
                     {
-                        TreeDO tdo = justTrees.FirstOrDefault(td => td.Plot_CN == p.Plot_CN && td.Stratum_CN == p.Stratum_CN);
-                        if (tdo != null)
+                        int nthRow = justTrees.FindIndex(
+                            delegate(TreeDO td)
+                            {
+                                return td.Plot_CN == p.Plot_CN && td.Stratum_CN == p.Stratum_CN;
+                            });
+                        if (nthRow >= 0)
                             totalMeasPlots++;
                     }   //  end foreach loop
                 }   //  endif Method is 3PPNT
@@ -854,11 +871,12 @@ namespace CruiseProcessing
                     tdo.PointFactor = (float)PF;
                 }   //  end foreach loop on justTrees
                 //  save this bunch of trees
-                Global.BL.SaveTrees(justTrees);
+                bslyr.SaveTrees(justTrees);
             }   //  end foreach loop on justCurrentPOP
 
             return;
         }   //  end CalcExpFac
+
 
     }   //  end CalculatedValues
 }

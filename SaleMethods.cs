@@ -11,20 +11,19 @@ namespace CruiseProcessing
     {
         //  this will contain methods such as retrieving region or district or whatever from SaleDO
         //  and edit checks
-        public static int MoreThanOne(IEnumerable<SaleDO> saleList)
+        public static int MoreThanOne(List<SaleDO> saleList)
         {
-            if (saleList.Count() > 1)
+            if (saleList.Count > 1)
                 return 28;
-            else if (saleList.Count() == 0)
+            else if (saleList.Count == 0)
                 return 0;
             else return 1;
         }   //  end MoreThanOne
 
 
-        public static int BlankSaleNum(IEnumerable<SaleDO> saleList)
+        public static int BlankSaleNum(List<SaleDO> saleList)
         {
-            SaleDO sale = saleList.First();
-            if (sale.SaleNumber == "" || sale.SaleNumber == null)
+            if (saleList[0].SaleNumber == "" || saleList[0].SaleNumber == null)
                 return 8;       //  returns error number for blank field
             else return -1;
         }   //  end BlankSaleNum
