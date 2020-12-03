@@ -221,7 +221,7 @@ namespace CruiseProcessing
                 totalGrsS = 0.0;
                 totalNetS = 0.0;
                 //  Pull LCD for current stratum
-                List<LCDDO> listToProrate = bslyr.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ?", "PrimaryProduct,SecondaryProduct,Species");
+                List<LCDDO> listToProrate = bslyr.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2", "PrimaryProduct,SecondaryProduct,Species");
                 for(int j=0;j<3;j++)
                 {
                     switch (j)

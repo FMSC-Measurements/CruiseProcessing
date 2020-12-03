@@ -129,8 +129,8 @@ namespace CruiseProcessing
                 //  pull group from LCD
                 StringBuilder sb = new StringBuilder();
                 sb.Clear();
-                sb.Append("WHERE Species = ? AND PrimaryProduct = ? AND SecondaryProduct = ? AND ");
-                sb.Append(" LiveDead = ? AND ContractSpecies = ? AND CutLeave = ?");
+                sb.Append("WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND ");
+                sb.Append(" LiveDead = @p4 AND ContractSpecies = @p5 AND CutLeave = @p6");
                 List<LCDDO> groupData = bslyr.GetLCDdata(sb.ToString(), jg, 4, "");
 
                 //  Find weight factors etc for current group
@@ -310,7 +310,7 @@ namespace CruiseProcessing
                     finishColumnHeaders(rh.WT5columns, sd.Code, ref completeHeader);
 
                     //  pull stratum and species groups from LCD
-                    List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? GROUP BY ", "Species", "C", sd.Code);
+                    List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 GROUP BY ", "Species", "C", sd.Code);
                     //  loop by species groups
                     foreach (LCDDO jg in justGroups)
                     {
@@ -661,7 +661,7 @@ namespace CruiseProcessing
             string[] completeHeader = new string[4];
             finishColumnHeaders(rh.WT5columns, "OVERALL SALE SUMMARY", ref completeHeader);
             //  Order LCD by species and biomass product
-            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "Species,BiomassProduct", "C", "");
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "Species,BiomassProduct", "C", "");
             foreach (LCDDO jg in justGroups)
             {
                 List<LCDDO> groupData = LCDmethods.GetCutOrLeave(lcdList, "C", jg.Species, "", "");
@@ -731,7 +731,7 @@ namespace CruiseProcessing
                         List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues((int)s.Stratum_CN);
                         currAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long)s.Stratum_CN);
                         //  Pull stratum and species groups from LCD
-                        List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?", 
+                        List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ", 
                                                                 "GROUP BY Species", "C", s.Code, "");
                         //  Load these groups into a BiomassData list
                         foreach (LCDDO jg in justGroups)
@@ -798,7 +798,7 @@ namespace CruiseProcessing
                             //  pull trees for the current stratum
                             List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN);
                              //  Pull stratum and species groups from LCD
-                            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
+                            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
                                                             "GROUP BY Species", "C", stratum.Code, "");
                             //  Load this groups into the Biomass Data list
                             currAcres = Utilities.ReturnCorrectAcres(stratum.Code, bslyr, 
@@ -1370,7 +1370,7 @@ namespace CruiseProcessing
         private void LoadSummaryGroups(List<BiomassData> summaryList, List<TreeDefaultValueDO> tdList)
         {
             //  Pull species groups from LCD to load into summary list
-            List<LCDDO> summaryGroups = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+            List<LCDDO> summaryGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
             foreach (LCDDO sg in summaryGroups)
             {
                 //  find FIA code

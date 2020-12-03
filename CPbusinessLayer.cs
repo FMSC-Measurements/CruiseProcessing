@@ -5,6 +5,7 @@ using System.Text;
 using System.Data.SQLite;
 using CruiseDAL.DataObjects;
 
+
 namespace CruiseProcessing
 {
     public class CPbusinessLayer
@@ -12,25 +13,24 @@ namespace CruiseProcessing
         #region
         public string fileName;
         //StringBuilder sb = new StringBuilder();
-       // string[] parameterValues = new string[11];
-       // string[] selectValues = new string[11];
-      //  string[] selectParameters = new string[11];
+        // string[] parameterValues = new string[11];
+        // string[] selectValues = new string[11];
+        //  string[] selectParameters = new string[11];
         public CruiseDAL.DAL DAL;
-       // List<SaleDO> saleList = new List<SaleDO>();
-       // List<StratumDO> stList = new List<StratumDO>();
+        // List<SaleDO> saleList = new List<SaleDO>();
+        // List<StratumDO> stList = new List<StratumDO>();
         //List<CuttingUnitDO> cutList = new List<CuttingUnitDO>();
-       // List<SampleGroupDO> sgList = new List<SampleGroupDO>();
-       // List<TreeDO> tList = new List<TreeDO>();
-       // List<TreeDefaultValueDO> tdvList = new List<TreeDefaultValueDO>();
-       // List<PlotDO> pList = new List<PlotDO>();
-       // List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
+        // List<SampleGroupDO> sgList = new List<SampleGroupDO>();
+        // List<TreeDO> tList = new List<TreeDO>();
+        // List<TreeDefaultValueDO> tdvList = new List<TreeDefaultValueDO>();
+        // List<PlotDO> pList = new List<PlotDO>();
+        // List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         #endregion
 
-// *******************************************************************************************
+        // *******************************************************************************************
         public string createNewTableQuery(string tableName, params string[] valuesList)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Clear();
             sb.Append("CREATE TABLE ");
             sb.Append(tableName);
             sb.Append(" (");
@@ -107,33 +107,33 @@ namespace CruiseProcessing
             string[] valuesList;
             string queryString = "";
             //  build query
-            if(tableName == "ExportValues")
+            if (tableName == "ExportValues")
             {
                 valuesList = createExportArray();
                 queryString = createNewTableQuery(tableName, valuesList);
             }
-            else if(tableName == "LogMatrix")
+            else if (tableName == "LogMatrix")
             {
                 valuesList = createLogMatrixArray();
                 queryString = createNewTableQuery(tableName, valuesList);
             }
-            else if(tableName == "StewProductCosts")
+            else if (tableName == "StewProductCosts")
             {
                 valuesList = createStewCostsArray();
                 queryString = createNewTableQuery("StewProductCosts", valuesList);
-            
+
             }   //  endif 
 
             DAL.Execute(queryString);
             //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-           // {
-           //     sqlconn.Open();
-           //     SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-           //     sqlcmd.CommandText = queryString;
-           //     sqlcmd.ExecuteNonQuery();
+            // {
+            //     sqlconn.Open();
+            //     SQLiteCommand sqlcmd = sqlconn.CreateCommand();
+            //     sqlcmd.CommandText = queryString;
+            //     sqlcmd.ExecuteNonQuery();
 
-           //     sqlconn.Close();
-           // }   //  end using
+            //     sqlconn.Close();
+            // }   //  end using
 
             return 1;
         }   //  end createNewTable
@@ -141,40 +141,8 @@ namespace CruiseProcessing
 
         public bool doesTableExist(string tableName)
         {
-            //  make sure filename is complete
-            fileName = checkFileName(fileName);
-
-            //  find table in database
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-                StringBuilder sb = new StringBuilder();
-                sb.Clear();
-                sb.Append("SELECT name FROM sqlite_master WHERE type='table' AND name='");
-                sb.Append(tableName);
-                sb.Append("';");
-
-                sqlcmd.CommandText = sb.ToString();
-                sqlcmd.ExecuteNonQuery();
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    string currentState = sqlconn.State.ToString();
-                    sqlconn.Close();
-                    currentState = sqlconn.State.ToString();
-                    return true;
-                }
-                else
-                {
-                    string currentState = sqlconn.State.ToString();
-                    sqlconn.Close();
-                    currentState = sqlconn.State.ToString();
-                    return false;
-                }   //  endif reader has rows
-
-            }   //  end using
-        }   //  end doesTableExist
+            return DAL.CheckTableExists(tableName);
+        }
 
         /*        public void ContainColumn(string ColumnName, string TableName)
                 {
@@ -194,416 +162,448 @@ namespace CruiseProcessing
         //  Gets on each table -- pulls all data from specified table
         public List<SaleDO> getSale()
         {
-            return DAL.Read<SaleDO>("Sale", null, null);
+            return DAL.From<SaleDO>().Read().ToList();
         }   //  end getSale
 
         public List<StratumDO> getStratum()
         {
-            return DAL.Read<StratumDO>("Stratum", "ORDER BY Code", null);
+            return DAL.From<StratumDO>().OrderBy("Code").Read().ToList();
         }   //  end getStratum
 
         public List<CuttingUnitDO> getCuttingUnits()
         {
-            return DAL.Read<CuttingUnitDO>("CuttingUnit", "ORDER BY CODE", null);
+            return DAL.From<CuttingUnitDO>().OrderBy("Code").Read().ToList();
         }   //  end getCuttingUnits
 
         public List<CuttingUnitDO> getPaymentUnits()
         {
-            return DAL.Read<CuttingUnitDO>("CuttingUnit", "GROUP BY PaymentUnit", null);
+            return DAL.From<CuttingUnitDO>().GroupBy("PaymentUnit").Read().ToList();
         }   //  end getPaymentUnits
 
         public List<CuttingUnitDO> getLoggingMethods()
         {
             //  returns unique logging methods
-            return DAL.Read<CuttingUnitDO>("CuttingUnit", "GROUP BY LoggingMethod", null);
+            return DAL.From<CuttingUnitDO>().GroupBy("LoggingMethod").Read().ToList();
         }   //  end getLoggingMethods
 
         public List<CuttingUnitStratumDO> getCuttingUnitStratum(long currStratumCN)
         {
-            return DAL.Read<CuttingUnitStratumDO>("CuttingUnitStratum", "WHERE Stratum_CN = ?", currStratumCN);
+            return DAL.From<CuttingUnitStratumDO>().Where("Stratum_CN = @p1").Read(currStratumCN).ToList();
         }   //  end getCuttingUnitStratum
-        
-        
+
+
         public List<PlotDO> getPlots()
         {
-            return DAL.Read<PlotDO>("Plot", "ORDER BY PLOTNUMBER", null);
+            return DAL.From<PlotDO>().OrderBy("PlotNumber").Read().ToList();
         }   //  end getPlots
 
         public List<SampleGroupDO> getSampleGroups()
         {
-            return DAL.Read<SampleGroupDO>("SampleGroup", null, null);
+            return DAL.From<SampleGroupDO>().Read().ToList();
         }   //  end getSampleGroups
 
         public List<TreeDefaultValueDO> getTreeDefaults()
         {
-            return DAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null);
+            return DAL.From<TreeDefaultValueDO>().Read().ToList();
         }   //  end getTreeDefaults
 
         public List<CountTreeDO> getCountTrees()
         {
-            return DAL.Read<CountTreeDO>("CountTree", null, null);
+            return DAL.From<CountTreeDO>().Read().ToList();
         }   //  end getCountTrees
 
         public List<TreeDO> getTrees()
         {
-            return DAL.Read<TreeDO>("Tree", null, null);
+            return DAL.From<TreeDO>().Read().ToList();
         }   //  end getTrees
 
         public List<LogDO> getLogs()
         {
-            return DAL.Read<LogDO>("Log", null, null);
+            return DAL.From<LogDO>().Read().ToList();
         }   //  end getLogs
 
         public List<LogStockDO> getLogStock()
         {
-            return DAL.Read<LogStockDO>("LogStock", null, null);
+            return DAL.From<LogStockDO>().Read().ToList();
         }   //  end getLogStock
 
         public List<VolumeEquationDO> getVolumeEquations()
         {
-            return DAL.Read<VolumeEquationDO>("VolumeEquation", null, null);
+            return DAL.From<VolumeEquationDO>().Read().ToList();
         }   //  end getVolumeEquations
 
         public List<ValueEquationDO> getValueEquations()
         {
-            return DAL.Read<ValueEquationDO>("ValueEquation", null, null);
+            return DAL.From<ValueEquationDO>().Read().ToList();
         }   //  end getValueEquations
 
 
         public List<BiomassEquationDO> getBiomassEquations()
         {
-            return DAL.Read<BiomassEquationDO>("BiomassEquation", null, null);
+            return DAL.From<BiomassEquationDO>().Read().ToList();
         }   //  end getBiomassEquations
-        
+
         public List<QualityAdjEquationDO> getQualAdjEquations()
         {
-            return DAL.Read<QualityAdjEquationDO>("QualityAdjEquation", null, null);
+            return DAL.From<QualityAdjEquationDO>().Read().ToList();
         }   //  end getQualAdjEquations
 
 
         public List<TreeEstimateDO> getTreeEstimates()
         {
-            return DAL.Read<TreeEstimateDO>("TreeEstimate", null, null);
+            return DAL.From<TreeEstimateDO>().Read().ToList();
         }   //  end getTreeEstimates
 
-//  TreeCalculatedValues
-// *******************************************************************************************
+        //  TreeCalculatedValues
+        // *******************************************************************************************
         public List<TreeCalculatedValuesDO> getTreeCalculatedValues()
         {
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", null, null);
+            return DAL.From<TreeCalculatedValuesDO>().Read().ToList();
         }   //  end getTreeCalculatedValues
 
         public List<TreeCalculatedValuesDO> getTreeCalculatedValues(int currStratumCN)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree WHERE Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("AND Tree.Stratum_CN = ?");
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currStratumCN);
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Where("t.Stratum_CN = @p1")
+                .Read(currStratumCN).ToList();
         }   //  end getTreeCalculatedValues
 
 
         public List<TreeCalculatedValuesDO> getTreeCalculatedValues(int currStratumCN, int currUnitCN)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree WHERE Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("AND Tree.Stratum_CN = ? AND Tree.CuttingUnit_CN = ?");
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currStratumCN, currUnitCN);
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Where("t.Stratum_CN = @p1 AND t.CuttingUnit_CN = @p2")
+                .Read(currStratumCN, currUnitCN)
+                .ToList();
         }   //  end getTreeCalculatedValues
 
 
         public List<TreeCalculatedValuesDO> getTreeCalculatedValues(string currSP)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree WHERE Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("AND Tree.Species = ?");
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currSP);
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Where("t.Species = @p1")
+                .Read(currSP).ToList();
         }   //  end getTreeCalculatedValues
 
 
         public List<TreeCalculatedValuesDO> getTreeCalculatedValues(int currStratumCN, string orderBy)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree WHERE Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("AND Tree.Stratum_CN = ? ORDER BY ");
-            sb.Append(orderBy);
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currStratumCN);
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Where("t.Stratum_CN = @p1")
+                .OrderBy(orderBy)
+                .Read(currStratumCN)
+                .ToList();
         }   //  end getTreeCalculatedValues
 
 
         public List<TreeCalculatedValuesDO> getTreeCalculatedValues(string currCL, string orderBy, string reportType)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            //  works for stand table reports which are by stratum
-            if (reportType == "STRATUM")
-            {
-                sb.Append("JOIN Tree ON Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-                sb.Append("JOIN SampleGroup JOIN Stratum WHERE Tree.Stratum_CN = Stratum.Stratum_CN ");
-                sb.Append("AND Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN AND ");
-                sb.Append("SampleGroup.CutLeave = ? ORDER BY ");
-                sb.Append(orderBy);
-            }
-            else if (reportType == "SALE")
-            {
-                sb.Append("JOIN Tree ON Tree.Tree_CN == TreeCalculatedValues.Tree_CN ");
-                sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN WHERE ");
-                sb.Append("SampleGroup.CutLeave = ? ORDER BY ");
-                sb.Append(orderBy);
-            }   //  endif reportType
-
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currCL);
+            // TODO remove param reportType
+            // rewritten Dec 2020 - Ben
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("Stratum AS st", "USING (Stratum_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)") 
+                .Where("sg.CutLeave = @p1")
+                .OrderBy(orderBy)
+                .Read(currCL)
+                .ToList();
         }   //  end getTreeCalculatedValues
 
 
         public List<TreeCalculatedValuesDO> getStewardshipTrees(string currUnit, string currSP, string currPP)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("JOIN CuttingUnit ON Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN WHERE SampleGroup.CutLeave = ? ");
-            sb.Append("AND CuttingUnit.Code = ? AND Tree.Species = ? AND SampleGroup.PrimaryProduct = ?");
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), "C", currUnit, currSP, currPP);
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                .Where("sg.CutLeave = @p1 AND cu.Code = @p2 AND t.Species = @p3 AND sg.PrimaryProduct = @p4")
+                .Read("C", currUnit, currSP, currPP)
+                .ToList();
         }   //  end getStewardshipTrees
 
 
         public List<TreeCalculatedValuesDO> getRegressTrees(string currSP, string currPR, string currLD, string currCM)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN WHERE ");
-            sb.Append("Tree.Species = ? AND SampleGroup.PrimaryProduct = ? AND ");
-            sb.Append("Tree.LiveDead = ? AND Tree.CountOrMeasure = ?");
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currSP, currPR, currLD, currCM);
+            return DAL.From<TreeCalculatedValuesDO>()
+               .Join("Tree AS t", "USING (Tree_CN)")
+               .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+               .Where("t.Species = @p1 ANd sg.PrimaryProduct = @p2 AND t.LiveDead = @p3 AND t.CountOrMeasure = @p4")
+               .Read(currSP, currPR, currLD, currCM).ToList();
         }   //  end getRegressTrees
 
 
-//  Log Table and Log Stock Table
-// *******************************************************************************************
+        //  Log Table and Log Stock Table
+        // *******************************************************************************************
         public List<LogDO> getTreeLogs(long currTreeCN)
         {
-            return DAL.Read<LogDO>("Log", "WHERE Tree_CN = ?", currTreeCN);
+            return DAL.From<LogDO>()
+                .Where("Tree_CN = @p1")
+                .Read(currTreeCN).ToList();
         }   //  getTreeLogs
 
 
         public List<LogDO> getTreeLogs()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Log ON Log.Tree_CN = Tree.Tree_CN");
-            return DAL.Read<LogDO>("Log",sb.ToString());
+            // TODO check calling code, original query should have thrown exception
+            //StringBuilder sb = new StringBuilder();
+            //sb.Clear();
+            //sb.Append("JOIN Log ON Log.Tree_CN = Tree.Tree_CN");
+            return DAL.From<LogDO>().Read().ToList();
         }   //  end getTreeLogs
 
 
         public List<LogStockDO> getLogStockSorted()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("LEFT JOIN Plot ON Tree.Plot_CN = Plot.Plot_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("JOIN CuttingUnit ON Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN WHERE ");
-            sb.Append("SampleGroup.CutLeave = 'C' ORDER BY Stratum.Code,CAST(CuttingUnit.Code AS NUMERIC),Plot.PlotNumber");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString());
+            return DAL.From<LogStockDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("Stratum AS st", "USING (Stratum_CN)")
+                .LeftJoin("Plot AS p", "USING (Plot_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
+                .Where("sg.CutLeave = 'C'")
+                .OrderBy("st.Code", "CAST(CuttingUnit.Code AS NUMERIC)", "p.PlotNumber")
+                .Read().ToList();
         }   //  end getLogStockSorted
 
 
 
         public List<LogStockDO> getCullLogs(long currTreeCN, string currGrade)
         {
-            return DAL.Read<LogStockDO>("LogStock", "WHERE Tree_CN = ? AND Grade = ?", currTreeCN, currGrade);
+            return DAL.From<LogStockDO>()
+                .Where("Tree_CN = @p1 AND Grade = @p2")
+                .Read(currTreeCN, currGrade).ToList();
         }   //  end getCullLogs
 
 
         public List<LogStockDO> getLogDIBs()
         {
-            return DAL.Read<LogStockDO>("LogStock", "GROUP BY DIBClass");
+            return DAL.From<LogStockDO>().GroupBy("DIBClass").Read().ToList();
         }   //  end getLogDIBS
 
 
         public List<LogStockDO> getCutOrLeaveLogs(string currCL)
         {
             //  Pulls logs for Region 10 L1 output files
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN WHERE ");
-            sb.Append("SampleGroup.CutLeave = ? ORDER BY Species");
-            return DAL.Read<LogStockDO>("LogStock",sb.ToString(),currCL);
+            return DAL.From<LogStockDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                .Where("sg.CutLeave = @p1")
+                .OrderBy("Species")
+                .Read(currCL).ToList();
         }   //  end getCutLogs
 
 
         public List<LogStockDO> getCutLogs()
         {
             //  Pulls just cut logs
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN WHERE ");
-            sb.Append("SampleGroup.CutLeave = 'C' ORDER BY Species");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString());
+            return DAL.From<LogStockDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                .Where("sg.CutLeave = 'C'")
+                .OrderBy("Species")
+                .Read().ToList();
         }   //  end getCutLogs
 
 
         public List<LogStockDO> getCutLogs(string currCL, string currSP, string currPP, int byDIBclass)
         {
             //  Needed for R501 report
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = ? AND Tree.Species = ? AND SampleGroup.PrimaryProduct = ?");
             if (byDIBclass == 1)
-                sb.Append(" GROUP BY DIBClass");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString(), currCL, currSP, currPP);
+            {
+                return DAL.From<LogStockDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                .Where("sg.CutLeave = @p1 AND t.Species = @p2 AND sg.PrimaryProduct = @p3")
+                .GroupBy("DIBClass")
+                .Read(currCL, currSP, currPP).ToList();
+            }
+            else
+            {
+                return DAL.From<LogStockDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                .Where("sg.CutLeave = @p1 AND t.Species = @p2 AND sg.PrimaryProduct = @p3")
+                .Read(currCL, currSP, currPP).ToList();
+            }
         }   //  end getCutLogs
 
 
         public List<LogStockDO> getCutLogs(string currSP, string currSort, string currGrade)
         {
+            // TODO check calling code. original quiry should have thrown error
+
+            //StringBuilder sb = new StringBuilder();
+            //sb.Clear();
+            //sb.Append("JOIN LogStock ON LogStock.Tree_CN = Tree.Tree_CN ");
+            //sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
+            //sb.Append("WHERE SampleGroup.CutLeave = ? AND Tree.Species = ? ");
+            //sb.Append("AND LogStock.ExportGrade = ? AND LogStock.Grade = ?");
+
             //  used in EX reports
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN LogStock ON LogStock.Tree_CN = Tree.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = ? AND Tree.Species = ? ");
-            sb.Append("AND LogStock.ExportGrade = ? AND LogStock.Grade = ?");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString(), "C", currSP, currSort, currGrade);
+            return DAL.From<LogStockDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                .Where("sg.CutLeave = 'C' AND t.Species = @p1 AND LogStock.ExportGrade = @p2 AND LogStock.Grade = @p3")
+                .Read(currSP, currSort, currGrade)
+                .ToList();
+
         }   //  end getCutLogs
 
 
         public List<LogStockDO> getLogSorts(string currSP)
         {
+            // TODO check calling code. original quiry should have thrown error
+            //StringBuilder sb = new StringBuilder();
+            //sb.Append("JOIN LogStock ON LogStock.Tree_CN = Tree.Tree_CN ");
+            //sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
+            //if (currSP != "")
+            //    sb.Append("WHERE SampleGroup.CutLeave = ? AND Tree.Species = ? ");
+            //else sb.Append("WHERE SampleGroup.CutLeave = ?");
+            //sb.Append("GROUP BY ExportGrade,Grade");
+            //if (currSP != "")
+            //    return DAL.Read<LogStockDO>("LogStock", sb.ToString(), "C", currSP);
+            //else return DAL.Read<LogStockDO>("LogStock", sb.ToString(), "C");
+
             //  used in EX reports
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN LogStock ON LogStock.Tree_CN = Tree.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            if(currSP != "")
-                sb.Append("WHERE SampleGroup.CutLeave = ? AND Tree.Species = ? ");
-            else sb.Append("WHERE SampleGroup.CutLeave = ?");
-            sb.Append("GROUP BY ExportGrade,Grade");
-            if (currSP != "")
-                return DAL.Read<LogStockDO>("LogStock", sb.ToString(), "C", currSP);
-            else return DAL.Read<LogStockDO>("LogStock", sb.ToString(), "C");
+            var qb = DAL.From<LogStockDO>()
+                .Join("Tree AS t", "USING (Tree_CN)")
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)");
+
+            if (currSP != null)
+            { qb.Where("SampleGroup.CutLeave = @p1 AND Tree.Species = @p2"); }
+            else
+            { qb.Where("SampleGroup.CutLeave = @p1"); }
+            qb.GroupBy("ExportGrade", "Grade");
+
+            return qb.Read("C", currSP).ToList();
         }   //  end getLogSorts
 
 
-        public List<LogStockDO> getLogSpecies(string currSP, float minDIB, float maxDIB, 
+        public List<LogStockDO> getLogSpecies(string currSP, float minDIB, float maxDIB,
                                               string currST, string currGrade)
         {
             //  used mostly for BLM09 and BLM10 reports
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN WHERE ");
-            sb.Append("SampleGroup.CutLeave = 'C' AND Stratum.Code = ? AND CountOrMeasure = 'M' AND ");
-            sb.Append("Tree.Species = ? AND LogStock.Grade = ? AND DIBclass >= ? AND DIBclass <= ? ");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString(), currST, currSP, currGrade, minDIB, maxDIB);
+            return DAL.From<LogStockDO>()
+               .Join("Tree AS t", "USING (Tree_CN)")
+               .Join("Stratum AS st", "USING (Stratum_CN)")
+               .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M AND t.Species = @p2 AND LogStock.Grade = @p3 AND DIBClass >= @p4 AND DIBClass <= @p5")
+               .Read(currST, currSP, currGrade, minDIB, maxDIB).ToList();
         }   //  end getLogSpecies
 
 
         public List<LogStockDO> getStrataLogs(string currST, string currGrade)
         {
             //  used mostly for BLM reports
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN WHERE ");
-            sb.Append("SampleGroup.CutLeave = 'C' AND Stratum.Code = ? AND CountOrMeasure = 'M' AND ");
-            sb.Append("LogStock.Grade = ? ");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString(), currST, currGrade);
+            return DAL.From<LogStockDO>()
+               .Join("Tree AS t", "USING (Tree_CN)")
+               .Join("Stratum AS st", "USING (Stratum_CN)")
+               .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M AND LogStock.Grade = @p3")
+               .Read(currST, currGrade).ToList();
         }   //  end getStrataLogs
 
 
 
         public List<LogStockDO> getStrataLogs(string currSP, string currST, string currSG, string currSTM, string currGrade)
         {
+
+            //StringBuilder sb = new StringBuilder();
+            //sb.Clear();
+            //sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
+            //sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
+            //sb.Append("JOIN CuttingUnit ON Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN ");
+            //sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
+            //sb.Append("WHERE SampleGroup.CutLeave = 'C' AND CountOrMeasure = 'M' AND STM = ? ");
+            //sb.Append("AND Stratum.Code = ? AND Species = ? AND SampleGroup.Code = ? AND ");
+            //sb.Append("LogStock.Grade = ?");
+
             //  used in BLM reports
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = LogStock.Tree_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("JOIN CuttingUnit ON Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = 'C' AND CountOrMeasure = 'M' AND STM = ? ");
-            sb.Append("AND Stratum.Code = ? AND Species = ? AND SampleGroup.Code = ? AND ");
-            sb.Append("LogStock.Grade = ?");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString(), currSTM, currST, currSP, currSG, currGrade);
+            return DAL.From<LogStockDO>()
+               .Join("Tree AS t", "USING (Tree_CN)")
+               .Join("Stratum AS st", "USING (Stratum_CN)")
+               .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+               .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
+               .Where("sg.CutLeave = 'C' AND CountOrMeasure = 'M' AND STM = @p1 AND st.Code = @p2 AND t.Species = @p3 AND sg.Code =  @p4 AND LogStock.Grade = @p5")
+               .Read(currSTM, currST, currSP, currSG, currGrade)
+               .ToList();
+
         }   //  end getStrataLogs
 
 
         public List<LogStockDO> getUnitLogs(long currST_CN, long currCU_CN, string currGrade, string currSTM)
         {
             // mostly for BLM reports
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN == LogStock.Tree_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("JOIN CuttingUnit ON Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = 'C' AND Stratum.Stratum_CN = ? AND ");
-            sb.Append("CuttingUnit.CuttingUnit_CN = ? AND LogStock.Grade = ? AND Tree.STM = ? ");
-            return DAL.Read<LogStockDO>("LogStock", sb.ToString(), currST_CN, currCU_CN, currGrade, currSTM);
+            return DAL.From<LogStockDO>()
+               .Join("Tree AS t", "USING (Tree_CN)")
+               .Join("Stratum AS st", "USING (Stratum_CN)")
+               .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+               .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
+               .Where("sg.CutLeave = 'C' AND st.Stratum_CN = @p1 AND cu.CuttingUnit_CN = @p2 AND LogStock.Grade = @p3 AND t.STM = @p4")
+               .Read(currST_CN, currCU_CN, currGrade, currSTM)
+               .ToList();
         }   //  end getUnitLogs
 
 
-//  Error Log Table
-// *******************************************************************************************
+        //  Error Log Table
+        // *******************************************************************************************
         public List<ErrorLogDO> getErrorMessages(string errLevel, string errProgram)
         {
             List<ErrorLogDO> errLog = new List<ErrorLogDO>();
             if (errProgram == "FScruiser")
-                return DAL.Read<ErrorLogDO>("ErrorLog", "WHERE Level = ? AND (Program LIKE'%FScruiser%' OR Program LIKE '%CruiseSystemManager%' OR Program LIKE '%CruiseManage%')", errLevel);
+                return DAL.From<ErrorLogDO>()
+                    .Where("Level = @p1 AND (Program LIKE'%FScruiser%' OR Program LIKE '%CruiseSystemManager%' OR Program LIKE '%CruiseManage%')")
+                    .Read(errLevel)
+                    .ToList();
             else if (errProgram == "CruiseProcessing")
-                return DAL.Read<ErrorLogDO>("ErrorLog", "WHERE Level = ? AND Program = ?", errLevel, errProgram);
+                return DAL.From<ErrorLogDO>()
+                    .Where("Level = @p1 AND Program = @p2")
+                    .Read(errLevel, errProgram)
+                    .ToList();
 
             return errLog;
         }   //  end getErrorMessages
 
 
-//  LCD POP and PRO Tables
-// *******************************************************************************************
+        //  LCD POP and PRO Tables
+        // *******************************************************************************************
         public List<LCDDO> getLCD()
         {
-            return DAL.Read<LCDDO>("LCD", null, null);
+            return DAL.From<LCDDO>().Read().ToList();
         }   //  end getLCD
 
         public List<POPDO> getPOP()
         {
-            return DAL.Read<POPDO>("POP", null, null);
+            return DAL.From<POPDO>().Read().ToList();
         }   //  end getPOP
 
         public List<PRODO> getPRO()
         {
-            return DAL.Read<PRODO>("PRO", null, null);
+            return DAL.From<PRODO>().Read().ToList();
         }   //  end getPRO
 
-//  Miscellaneous tables like log matrix, regression results
-// *******************************************************************************************
+        //  Miscellaneous tables like log matrix, regression results
+        // *******************************************************************************************
         public List<LogMatrixDO> getLogMatrix(string currReport)
         {
-            return DAL.Read<LogMatrixDO>("LogMatrix", "WHERE ReportNumber = ?", currReport);
+            return DAL.From<LogMatrixDO>().Where("ReportNumber = @p1").Read(currReport).ToList();
         }   //  end getLogMatrix
 
 
         public List<RegressionDO> getRegressionResults()
         {
             //  pulls regression data for local volume reports
-            return DAL.Read<RegressionDO>("Regression", null, null);
+            return DAL.From<RegressionDO>().Read().ToList();
         }   //  end getRegressionResults
 
 
-//  functions returning single elements
-// *******************************************************************************************
+        //  functions returning single elements
+        // *******************************************************************************************
         //  like region
         public string getRegion()
         {
@@ -634,116 +634,119 @@ namespace CruiseProcessing
 
         public string getUOM(int currStratumCN)
         {
-            List<SampleGroupDO> sgList = DAL.Read<SampleGroupDO>("SampleGroup", "WHERE Stratum_CN = ?", currStratumCN);
+            List<SampleGroupDO> sgList = DAL.From<SampleGroupDO>()
+                .Where("Stratum_CN = @p1")
+                .Read(currStratumCN)
+                .ToList();
+
             return sgList[0].UOM;
         }   //  end getUOM
 
-//  Sample Groups
-// *******************************************************************************************
+        //  Sample Groups
+        // *******************************************************************************************
         public List<SampleGroupDO> getSampleGroups(int currStratumCN)
         {
-            return DAL.Read<SampleGroupDO>("SampleGroup", "WHERE Stratum_CN = ?", currStratumCN);
+            return DAL.From<SampleGroupDO>()
+                .Where("Stratum_CN = @p1")
+                .Read(currStratumCN)
+                .ToList();
+
         }   //  end getSampleGroups
 
         public List<SampleGroupDO> getSampleGroups(string qString)
         {
+            // TODO calls to this function need to be rewritten. The qString param isn't needed
+            // return DAL.Read<SampleGroupDO>("SampleGroup", qString, "C");
+
             //  returns just unique sample groups
-            return DAL.Read<SampleGroupDO>("SampleGroup", qString, "C");
+            return DAL.From<SampleGroupDO>().Where("CutLeave = 'C'").GroupBy("Code").Read().ToList();
         }   //  end getSampleGroups
 
 
-// *******************************************************************************************
+        // *******************************************************************************************
         //  Like variable log length from global configuration
         public string getVLL()
         {
-            List<GlobalsDO> globList = DAL.Read<GlobalsDO>("Globals", "WHERE Key = ? AND Block = ?", "VLL", "Global");
+            List<GlobalsDO> globList = DAL.From<GlobalsDO>().Where("Key = @p1 AND Block = @p2").Read("VLL", "Global").ToList();
             if (globList.Count > 0)
                 return "V";
             else return "false";
         }   //  end getVLL
 
 
-//  Stratum table
-// *******************************************************************************************
+        //  Stratum table
+        // *******************************************************************************************
         public List<StratumDO> GetCurrentStratum(string currentStratum)
         {
             //  Pull current stratum from table
-            return DAL.Read<StratumDO>("Stratum", "WHERE Code = ?", currentStratum);
+            return DAL.From<StratumDO>().Where("Code = @p1").Read(currentStratum).ToList();
         }   //  end GetCurrentStratum
 
 
         //  just FIXCNT methods
         public List<StratumDO> justFIXCNTstrata()
         {
-            return DAL.Read<StratumDO>("Stratum", "WHERE Method = ?", "FIXCNT");
+            return DAL.From<StratumDO>().Where("Method = @p1").Read("FIXCNT").ToList();
         }   //  end justFIXCNTstrata
 
 
-//  Plot table
-// *******************************************************************************************
+        //  Plot table
+        // *******************************************************************************************
         public List<PlotDO> GetStrataPlots(string currStratum)
         {
-            List<StratumDO> stList = DAL.Read<StratumDO>("Stratum", "WHERE Code = ?", currStratum);
-            List<PlotDO> pList = new List<PlotDO>();
-
-            foreach (StratumDO sdo in stList)
-            {
-                pList =  DAL.Read<PlotDO>("Plot", "WHERE Stratum_CN = ?", sdo.Stratum_CN);
-            }   //  end foreach loop
-            
-            return pList;
+            return DAL.From<PlotDO>()
+                .Join("Stratum AS st", "USING (Stratum_CN)")
+                .Where("st.Code = @p1")
+                .Read(currStratum)
+                .ToList();
         }   //  end GetStrataPlots
 
 
         public List<PlotDO> getPlotsOrdered()
         {
-
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Stratum JOIN CuttingUnit WHERE Plot.Stratum_CN = Stratum.Stratum_CN AND ");
-            sb.Append("Plot.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN");
-            sb.Append(" ORDER BY Stratum.Code,CuttingUnit.Code,PlotNumber");
-            return DAL.Read<PlotDO>("Plot",sb.ToString());
+            return DAL.From<PlotDO>()
+                .Join("Stratum AS st", "USING (Stratum_CN)")
+                .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN")
+                .OrderBy("st.Code", "cu.Code", "PlotNumber")
+                .Read().ToList();
         }   //  end getPlotsOrdered
 
 
-//  LCD table
-// *******************************************************************************************
-        public List<LCDDO> getLCDOrdered(string searchString, string orderBy, string currCutLeave, 
+        //  LCD table
+        // *******************************************************************************************
+        public List<LCDDO> getLCDOrdered(string searchString, string orderBy, string currCutLeave,
                                             string currST, string currPP)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append(searchString);
+            sb.AppendLine(searchString);
             sb.Append(orderBy);
             if (currST == "")
-                return DAL.Read<LCDDO>("LCD", sb.ToString(), currCutLeave);
+                return DAL.Read<LCDDO>("SELECT * FROM LCD " + sb.ToString() + ";", new object[] { currCutLeave }).ToList();
             else if (currCutLeave == "")
-                return DAL.Read<LCDDO>("LCD", sb.ToString(), currST);
+                return DAL.Read<LCDDO>("SELECT * FROM LCD " + sb.ToString() + ";", new object[] { currST }).ToList();
             else if (currCutLeave != "" && currST != "" && currPP != "")
-                return DAL.Read<LCDDO>("LCD", sb.ToString(), currCutLeave, currST, currPP);
-            else return DAL.Read<LCDDO>("LCD", sb.ToString(), currCutLeave, currST);
+                return DAL.Read<LCDDO>("SELECT * FROM LCD " + sb.ToString() + ";", new object[] { currCutLeave, currST, currPP }).ToList();
+            else return DAL.Read<LCDDO>("SELECT * FROM LCD " + sb.ToString() + ";", new object[] { currCutLeave, currST }).ToList();
         }   //  end getLCDOrdered
 
 
-        public List<LCDDO> getLCDOrdered(string searchString, string orderBy, string currCutLeave, 
+        public List<LCDDO> getLCDOrdered(string searchString, string orderBy, string currCutLeave,
                                             string currPP)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append(searchString);
+            sb.AppendLine(searchString);
             sb.Append(orderBy);
             if (currPP != "")
-                return DAL.Read<LCDDO>("LCD", sb.ToString(), currCutLeave, currPP);
-            else return  DAL.Read<LCDDO>("LCD", sb.ToString(), currCutLeave);
+                return DAL.Read<LCDDO>("SELECT * FROM LCD " + sb.ToString() + ";", new object[] { currCutLeave, currPP }).ToList();
+            else return DAL.Read<LCDDO>("SELECT * FROM LCD " + sb.ToString() + ";", new object[] { currCutLeave }).ToList();
         }   //  end getLCDOrdered
 
 
         public List<LCDDO> GetLCDgroup(string currST, int currRPT, string currCL)
         {
-            List<LCDDO> justGroup = new List<LCDDO>();
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
+            // rewritten Dec 2020 - Ben
+
+            StringBuilder sb = new StringBuilder();;
             switch (currRPT)
             {
                 case 1:         //  VSM1
@@ -776,107 +779,17 @@ namespace CruiseProcessing
                     sb.Append("SELECT Species FROM LCD WHERE CutLeave='C' GROUP BY Species");
                     break;
             }   //  end switch on report number
-            string prevFileName = fileName;
-            fileName = checkFileName(fileName);
 
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-
-                sqlcmd.CommandText = sb.ToString();
-                sqlcmd.ExecuteNonQuery();
-
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    while (sdrReader.Read())
-                    {
-                        LCDDO ld = new LCDDO();
-                        switch (currRPT)
-                        {
-                            case 1:
-                                ld.Stratum = sdrReader.GetString(0);
-                                ld.Species = sdrReader.GetString(1);
-                                ld.PrimaryProduct = sdrReader.GetString(2);
-                                ld.SecondaryProduct = sdrReader.GetString(3);
-                                ld.UOM = sdrReader.GetString(4);
-                                ld.LiveDead = sdrReader.GetString(5);
-                                ld.CutLeave = sdrReader.GetString(6);
-                                ld.Yield = sdrReader.GetString(7);
-                                ld.SampleGroup = sdrReader.GetString(8);
-                                ld.TreeGrade = sdrReader.GetString(9);
-                                ld.ContractSpecies = sdrReader.GetString(10);
-                                ld.STM = sdrReader.GetString(11);
-                                break;
-                            case 2:
-                                ld.Stratum = sdrReader.GetString(0);
-                                ld.PrimaryProduct = sdrReader.GetString(1);
-                                ld.SecondaryProduct = sdrReader.GetString(2);
-                                ld.UOM = sdrReader.GetString(3);
-                                ld.SampleGroup = sdrReader.GetString(4);
-                                ld.CutLeave = sdrReader.GetString(5);
-                                ld.STM = sdrReader.GetString(6);
-                                break;
-                            case 3:
-                                ld.Stratum = sdrReader.GetString(0);
-                                ld.PrimaryProduct = sdrReader.GetString(1);
-                                ld.SecondaryProduct = sdrReader.GetString(2);
-                                ld.UOM = sdrReader.GetString(3);
-                                break;
-                            case 4:     //  WT1
-                                ld.Species = sdrReader.GetString(0);
-                                ld.PrimaryProduct = sdrReader.GetString(1);
-                                ld.SecondaryProduct = sdrReader.GetString(2);
-                                ld.LiveDead = sdrReader.GetString(3);
-                                ld.ContractSpecies = sdrReader.GetString(4);
-                                break;
-                            case 5:     //  WT4
-                                ld.Species = sdrReader.GetString(0);
-                                break;
-                        }   //  end switch
-                        justGroup.Add(ld);
-                    }   //  end while read
-                }   //  endif
-                sqlconn.Close();
-            }   //  end using
-
-            fileName = prevFileName;
-            return justGroup;
+            return DAL.Query<LCDDO>(sb.ToString()).ToList();
         }   //  end GetLCDgroup
 
         public List<LCDDO> GetLCDgroup(string fileName, string groupedBy)
         {
-            //  overloaded for stat report  ST3
-            List<LCDDO> justGroup = new List<LCDDO>();
-            string tempFileName = checkFileName(fileName);
-            using (SQLiteConnection sqlconn = new SQLiteConnection(tempFileName))
-            {
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-                StringBuilder sb = new StringBuilder();
-                sb.Clear();
-                sb.Append("SELECT Stratum,PrimaryProduct,SecondaryProduct,UOM FROM LCD WHERE CutLeave = 'C' GROUP BY ");
-                sb.Append(groupedBy);
-                sqlcmd.CommandText = sb.ToString();
-                sqlcmd.ExecuteNonQuery();
+            // rewritten Dec 2020 - Ben
 
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    while (sdrReader.Read())
-                    {
-                        LCDDO ld = new LCDDO();
-                        ld.Stratum = sdrReader.GetString(0);
-                        ld.PrimaryProduct = sdrReader.GetString(1);
-                        ld.SecondaryProduct = sdrReader.GetString(2);
-                        ld.UOM = sdrReader.GetString(3);
-                        justGroup.Add(ld);
-                    }   //  end while reader
-                }   //  endif reader has rows
-                sqlconn.Close();
-            }   //  end using
-            return justGroup;
+            //  overloaded for stat report  ST3
+
+            return DAL.Query<LCDDO>("SELECT Stratum,PrimaryProduct,SecondaryProduct,UOM FROM LCD WHERE CutLeave = 'C' GROUP BY " + groupedBy).ToList();
         }   //  end GetLCDgroup
 
 
@@ -888,24 +801,26 @@ namespace CruiseProcessing
             //  3 = VSM3
             //  4 = WT1
             //  5 = R301
-            
+
+            var commandText = "SELECT * FROM LCD " + whereClause + ";";
+
             switch (reportNum)
             {
                 case 1:
-                    return DAL.Read<LCDDO>("LCD", whereClause, lcd.Stratum, lcd.Species, lcd.PrimaryProduct, lcd.UOM,
-                                            lcd.LiveDead, lcd.CutLeave, lcd.Yield, lcd.SampleGroup, lcd.TreeGrade, lcd.STM);
-                                            //  September 2016 -- dropping contract species from LCD identifier
-                                            //lcd.ContractSpecies, lcd.STM);
-                case 2:     
-                    return DAL.Read<LCDDO>("LCD", whereClause, lcd.Stratum, lcd.PrimaryProduct, lcd.UOM, currCL, 
-                                                lcd.SampleGroup, lcd.STM);
+                    return DAL.Read<LCDDO>(commandText, new object[] { lcd.Stratum, lcd.Species, lcd.PrimaryProduct, lcd.UOM,
+                                            lcd.LiveDead, lcd.CutLeave, lcd.Yield, lcd.SampleGroup, lcd.TreeGrade, lcd.STM }).ToList();
+                //  September 2016 -- dropping contract species from LCD identifier
+                //lcd.ContractSpecies, lcd.STM);
+                case 2:
+                    return DAL.Read<LCDDO>(commandText, new object[] { lcd.Stratum, lcd.PrimaryProduct, lcd.UOM, currCL,
+                                                lcd.SampleGroup, lcd.STM }).ToList();
                 case 3:
-                    return DAL.Read<LCDDO>("LCD", whereClause, lcd.Stratum, lcd.PrimaryProduct, lcd.UOM, currCL, lcd.STM);
+                    return DAL.Read<LCDDO>(commandText, new object[] { lcd.Stratum, lcd.PrimaryProduct, lcd.UOM, currCL, lcd.STM }).ToList();
                 case 4:
-                    return DAL.Read<LCDDO>("LCD", whereClause, lcd.Species, lcd.PrimaryProduct, lcd.SecondaryProduct, 
-                                                lcd.LiveDead, lcd.ContractSpecies, "C");
+                    return DAL.Read<LCDDO>(commandText, new object[] { lcd.Species, lcd.PrimaryProduct, lcd.SecondaryProduct,
+                                                lcd.LiveDead, lcd.ContractSpecies, "C" }).ToList();
                 case 5:
-                    return DAL.Read<LCDDO>("LCD", whereClause, "C", lcd.Species, lcd.PrimaryProduct, lcd.ContractSpecies);
+                    return DAL.Read<LCDDO>(commandText, new object[] { "C", lcd.Species, lcd.PrimaryProduct, lcd.ContractSpecies }).ToList();
             }   //  end switch
             List<LCDDO> emptyList = new List<LCDDO>();
             return emptyList;
@@ -914,199 +829,187 @@ namespace CruiseProcessing
 
         public List<LCDDO> GetLCDdata(string currST, string whereClause, string orderBy)
         {
+            var commandText = "SELECT * FROM LCD " + whereClause + ";";
+
             //  works for UC1/UC2 reports -- maybe all UC reports?
-            return DAL.Read<LCDDO>("LCD", whereClause, currST, "C", orderBy);
+            return DAL.Read<LCDDO>(commandText, new object[] { currST, "C", orderBy }).ToList();
         }   //  end GetLCDdata
 
 
         public List<LCDDO> GetLCDdata(string whereClause, string currST)
         {
+            var commandText = "SELECT * FROM LCD " + whereClause + ";";
+
             //  works for regional report R104
-            return DAL.Read<LCDDO>("LCD", whereClause, currST);
+            return DAL.Read<LCDDO>(commandText, new[] { currST }).ToList();
         }   //  end GetLCDdata
 
 
         public List<TreeCalculatedValuesDO> GetLCDtrees(string currST, LCDDO ldo, string currCM)
         {
             //  captures tree calculated values for LCD summation in SumAll
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("JOIN TreeDefaultValue ON Tree.TreeDefaultValue_CN = TreeDefaultValue.TreeDefaultValue_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("WHERE Stratum.Code = ? AND SampleGroup.CutLeave = ? AND SampleGroup.Code = ? ");
-            sb.Append("AND Tree.Species = ? AND SampleGroup.PrimaryProduct = ? AND ");
-            sb.Append("SampleGroup.SecondaryProduct = ? AND SampleGroup.UOM = ? AND ");
-            sb.Append("Tree.LiveDead = ? AND Tree.Grade = ? AND Stratum.YieldComponent = ? AND ");
-            //sb.Append("Tree.LiveDead = ? AND Tree.Grade = ? AND TreeDefaultValue.Chargeable = ? AND ");
+
             //  September 2016 -- per K.Cormier -- dropping contract species from LCD identifier
-            //sb.Append("TreeDefaultValue.ContractSpecies = ? AND Tree.STM = ? and Tree.CountOrMeasure = ?");
-            sb.Append("Tree.STM = ? and Tree.CountOrMeasure = ?");
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currST, ldo.CutLeave, 
-                                        ldo.SampleGroup, ldo.Species, ldo.PrimaryProduct, ldo.SecondaryProduct, 
-                                        //  see comment above
-                                        //ldo.UOM, ldo.LiveDead, ldo.TreeGrade, ldo.Yield, ldo.ContractSpecies, 
-                                        ldo.UOM, ldo.LiveDead, ldo.TreeGrade, ldo.Yield,  
-                                        ldo.STM, currCM);
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree", "USING (Tree_CN)")
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Join("TreeDefaultValue", "USING (TreeDefaultValue_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1 AND SampleGroup.CutLeave = @p2 AND SampleGroup.Code = @p3 " +
+                        "AND Tree.Species = @p4 AND SampleGroup.PrimaryProduct = @p5 AND " +
+                        "SampleGroup.SecondaryProduct = @p6 AND SampleGroup.UOM = @p7 AND " +
+                        "Tree.LiveDead = @p8 AND Tree.Grade = @p9 AND Stratum.YieldComponent = @p10 AND " +
+                        "Tree.STM = @p11 and Tree.CountOrMeasure = @p12")
+                .Read(currST, ldo.CutLeave,
+                        ldo.SampleGroup, ldo.Species, ldo.PrimaryProduct, ldo.SecondaryProduct,
+                        //  see comment above
+                        //ldo.UOM, ldo.LiveDead, ldo.TreeGrade, ldo.Yield, ldo.ContractSpecies, 
+                        ldo.UOM, ldo.LiveDead, ldo.TreeGrade, ldo.Yield,
+                        ldo.STM, currCM).ToList();
         }   //  end GetLCDtrees
 
-// POP table
-// *******************************************************************************************
+        // POP table
+        // *******************************************************************************************
         public List<TreeCalculatedValuesDO> GetPOPtrees(POPDO pdo, string currST, string currCM)
         {
             //  captures tree calculated values for POP summation in SumAll
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Tree ON Tree.Tree_CN = TreeCalculatedValues.Tree_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("WHERE Stratum.Code = ? AND SampleGroup.CutLeave = ? AND SampleGroup.Code = ? ");
-            sb.Append("AND SampleGroup.PrimaryProduct = ? AND SampleGroup.SecondaryProduct = ? AND ");
-            sb.Append("Tree.STM = ? AND Tree.CountOrMeasure = ?");
-            return DAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", sb.ToString(), currST,
-                                pdo.CutLeave, pdo.SampleGroup, pdo.PrimaryProduct, 
-                                pdo.SecondaryProduct, pdo.STM, currCM);
+
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree", "USING (Tree_CN)")
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1 AND SampleGroup.CutLeave = @p2 AND SampleGroup.Code = @p3 " +
+                "AND SampleGroup.PrimaryProduct = @p4 AND SampleGroup.SecondaryProduct = @p5 AND " +
+                "Tree.STM = @p6 AND Tree.CountOrMeasure = @p7")
+                .Read(currST, pdo.CutLeave, pdo.SampleGroup, pdo.PrimaryProduct,
+                        pdo.SecondaryProduct, pdo.STM, currCM).ToList();
         }   //  end GetPOPtrees
 
 
         public List<POPDO> GetUOMfromPOP()
         {
-            return DAL.Read<POPDO>("POP", "GROUP BY UOM", null);
+            return DAL.From<POPDO>().GroupBy("UOM").Read().ToList();
         }   //  end GetUOMfromPOP
 
 
-//  PRO table
-// *******************************************************************************************
+        //  PRO table
+        // *******************************************************************************************
         public List<PRODO> getPROunit(string currCU)
         {
-            return DAL.Read<PRODO>("PRO", "WHERE CuttingUnit = ?", currCU);
+            return DAL.From<PRODO>().Where("CuttingUnit = @p1").Read(currCU).ToList();
         }   //  end getPRO
 
 
-//  Count table
-// *******************************************************************************************
+        //  Count table
+        // *******************************************************************************************
         public List<CountTreeDO> getCountTrees(long currSG_CN)
         {
-            return DAL.Read<CountTreeDO>("CountTree", " WHERE SampleGroup_CN = ?", currSG_CN);
+            return DAL.From<CountTreeDO>().Where("SampleGroup_CN = @p1").Read(currSG_CN).ToList();
         }   //  end overload of getCountTrees
 
 
         public List<CountTreeDO> getCountsOrdered()
         {
-            return DAL.Read<CountTreeDO>("CountTree", "ORDER BY CuttingUnit_CN");
+            return DAL.From<CountTreeDO>().OrderBy("CuttingUnit_CN").Read().ToList();
         }   //  end getCountsOrdered
 
 
         public List<CountTreeDO> getCountsOrdered(string searchString, string orderBy, string[] searchValues)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append(searchString);
-            sb.Append(orderBy);
-            return DAL.Read<CountTreeDO>("CountTree", sb.ToString(), searchValues);
+            return DAL.Read<CountTreeDO>("SELECT * FROM CountTree " + searchString + orderBy + ";", searchValues).ToList();
         }   //  end getCountsOrdered
 
-//  Tree table
-// *******************************************************************************************
+        //  Tree table
+        // *******************************************************************************************
         public List<TreeDO> getTreesOrdered(string searchString, string orderBy, string[] searchValues)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append(searchString);
-            sb.Append(orderBy);
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), searchValues);
+            return DAL.Read<TreeDO>("SELECT * FROM Tree " + searchString + orderBy + ";", searchValues).ToList();
         }   //  end getTreesOrdered
 
 
         public List<TreeDO> getTreesSorted()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN CuttingUnit ON Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("LEFT OUTER JOIN Plot ON Tree.Plot_CN = Plot.Plot_CN ");
-            sb.Append("ORDER BY Stratum.Code, CuttingUnit.Code, ifnull(Plot.PlotNumber, 0), Tree.TreeNumber;");
-
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), null);
+            return DAL.From<TreeDO>()
+                .Join("CuttingUnit", "USING (CuttingUnit_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .LeftJoin("Plot", "USING (Plot_CN)")
+                .OrderBy("Stratum.Code", "CuttingUnit.Code", "ifnull(Plot.PlotNumber, 0)", "Tree.TreeNumber")
+                .Read().ToList();
         }   //  end getTreesSorted
 
 
         public List<TreeDO> getUnitTrees(long currST_CN, long currCU_CN)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("JOIN CuttingUnit on Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = 'C' AND Tree.CountOrMeasure = 'M' ");
-            sb.Append("AND Tree.Stratum_CN = ? AND Tree.CuttingUnit_CN = ?");
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), currST_CN, currCU_CN);
+            return DAL.From<TreeDO>()
+                .Join("CuttingUnit", "USING (CuttingUnit_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Where("SampleGroup.CutLeave = 'C' AND Tree.CountOrMeasure = 'M' AND Tree.Stratum_CN = @p1 AND Tree.CuttingUnit_CN = @p2")
+                .Read(currST_CN, currCU_CN).ToList();
         }   //  end getUnitTrees
 
 
         public List<TreeDO> getUniqueStewardGroups()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = ? ");
-            sb.Append("GROUP BY CuttingUnit_CN,Species,Tree.SampleGroup_CN");
-
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), "C");
+            return DAL.From<TreeDO>()
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Where("SampleGroup.CutLeave = 'C'")
+                .GroupBy("CuttingUnit_CN", "Species", "Tree.SampleGroup_CN")
+                .Read().ToList();
         }   //  end getUniqueStewardGroups
 
 
         public List<TreeDO> getTreeDBH(string currCL)
         {
             //  works for stand tables DIB classes for the sale
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = ? AND Tree.CountOrMeasure = 'M' ");
-            sb.Append("GROUP BY DBH");
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), currCL);
+
+            return DAL.From<TreeDO>()
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Where(" SampleGroup.CutLeave = @p1 AND Tree.CountOrMeasure = 'M'")
+                .GroupBy("DBH")
+                .Read(currCL).ToList();
+
         }   //  end getTreeDBH
 
 
         public List<TreeDO> getTreeDBH(string currCL, string currST, string currCM)
         {
             //  works for stand tables DIB classes for current stratum
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN ");
-            sb.Append("JOIN Stratum ON Tree.Stratum_CN = Stratum.Stratum_CN ");
-            sb.Append("WHERE SampleGroup.CutLeave = ? AND Stratum.Code = ? AND Tree.CountOrMeasure = ? ");
-            sb.Append("GROUP BY DBH");
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), currCL, currST, currCM);
+
+            return DAL.From<TreeDO>()
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Where(" SampleGroup.CutLeave = @p1 AND Stratum.Code = @p2 AND Tree.CountOrMeasure = @p3")
+                .GroupBy("DBH")
+                .Read(currCL, currST, currCM).ToList();
         }   //  end getTreeDBH
 
 
         public List<TreeDO> JustMeasuredTrees()
         {
-            return DAL.Read<TreeDO>("Tree", "WHERE CountOrMeasure = ?", "M");
+            return DAL.From<TreeDO>().Where("CountOrMeasure = 'M'").Read().ToList();
         }   //  end JustMeasuredTrees
 
 
         public List<TreeDO> JustMeasuredTrees(long currST_CN)
         {
-            return DAL.Read<TreeDO>("Tree", "WHERE CountOrMeasure = ? AND Stratum_CN = ?", "M", currST_CN);
+            return DAL.From<TreeDO>().Where("CountOrMeasure = 'M' AND Stratum_CN = @p1").Read(currST_CN).ToList();
         }   //  end overloaded JustMeasuredTrees
 
 
         public List<TreeDO> JustUnitTrees(long currST_CN, long currCU_CN)
         {
-            return DAL.Read<TreeDO>("Tree", "WHERE Stratum_CN = ? AND CuttingUnit_CN = ?", currST_CN, currCU_CN);
+            return DAL.From<TreeDO>().Where("Stratum_CN = @p1 AND CuttingUnit_CN = @p2").Read(currST_CN, currCU_CN).ToList();
         }   //  end JustUnitTrees
 
         public List<TreeDO> JustFIXCNTtrees(long currST_CN)
         {
-            return DAL.Read<TreeDO>("Tree", "WHERE CountOrMeasure = ? AND Stratum_CN = ?", "C", currST_CN);
+            return DAL.From<TreeDO>().Where("CountOrMeasure = 'C' AND Stratum_CN = @p1").Read(currST_CN).ToList();
         }   //  end JustFIXCNTtrees
 
 
-//  Save data
-// *******************************************************************************************
+        //  Save data
+        // *******************************************************************************************
         public void SaveTreeCalculatedValues(List<TreeCalculatedValuesDO> tcvList)
         {
             foreach (TreeCalculatedValuesDO tcv in tcvList)
@@ -1155,7 +1058,7 @@ namespace CruiseProcessing
 
         public void SaveLogMatrix(List<LogMatrixDO> lmList, string currReport)
         {
-                List<LogMatrixDO> currLogMatrix = getLogMatrix(currReport);
+            List<LogMatrixDO> currLogMatrix = getLogMatrix(currReport);
             //  same problem as with volume equations below.
             // need to delete current report form log matrix before saving
             if (currReport != "")
@@ -1169,7 +1072,7 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                 }   //  endif
             }   //  endif
-            foreach(LogMatrixDO lmx in lmList)
+            foreach (LogMatrixDO lmx in lmList)
             {
                 if (lmx.DAL == null)
                 {
@@ -1192,15 +1095,15 @@ namespace CruiseProcessing
             foreach (VolumeEquationDO vdo in volList)
             {
                 int nthRow = volumeEquationList.FindIndex(
-                    delegate(VolumeEquationDO ve)
+                    delegate (VolumeEquationDO ve)
                     {
                         return ve.VolumeEquationNumber == vdo.VolumeEquationNumber && ve.Species == vdo.Species &&
                                 ve.PrimaryProduct == vdo.PrimaryProduct;
                     });
-                if(nthRow < 0)
+                if (nthRow < 0)
                     vdo.Delete();
             }   //  end foreach loop
-          
+
             foreach (VolumeEquationDO veq in volumeEquationList)
             {
                 if (veq.DAL == null)
@@ -1227,7 +1130,7 @@ namespace CruiseProcessing
             foreach (ValueEquationDO v in vList)
             {
                 int nthRow = valList.FindIndex(
-                    delegate(ValueEquationDO ved)
+                    delegate (ValueEquationDO ved)
                     {
                         return ved.ValueEquationNumber == v.ValueEquationNumber && ved.Species == v.Species;
                     });
@@ -1257,7 +1160,7 @@ namespace CruiseProcessing
             foreach (QualityAdjEquationDO qdo in qaList)
             {
                 int nthRow = qaEquationList.FindIndex(
-                    delegate(QualityAdjEquationDO qed)
+                    delegate (QualityAdjEquationDO qed)
                     {
                         return qed.QualityAdjEq == qdo.QualityAdjEq && qed.Species == qdo.Species;
                     });
@@ -1306,23 +1209,28 @@ namespace CruiseProcessing
 
         public void SaveErrorMessages(List<ErrorLogDO> errList)
         {
+            // rewritten DEC 2020 - Ben
+
             DAL = new CruiseDAL.DAL(fileName);
-            //  February 2015 -- due to constraining levels in the error log table
-            //  duplicates are not allowed.  for example, if a Region 8 volume equation
-            //  has two errors on the same tree (BDFT and CUFT), only one error is allowed
-            //  to be logged in the table
-            //  so need to check for that warning/error already existing in the table and skip if it is
-            List<ErrorLogDO> currentList = DAL.Read<ErrorLogDO>("ErrorLog", null, null);
 
             foreach (ErrorLogDO eld in errList)
             {
-                if (currentList.FindIndex(el => el.TableName == eld.TableName && el.CN_Number == eld.CN_Number &&
-                            el.ColumnName == eld.ColumnName && el.Level == eld.Level) != null)
+
+                if (eld.DAL == null)
+                { eld.DAL = DAL; }
+
+
+                //  February 2015 -- due to constraining levels in the error log table
+                //  duplicates are not allowed.  for example, if a Region 8 volume equation
+                //  has two errors on the same tree (BDFT and CUFT), only one error is allowed
+                //  to be logged in the table
+                //  so we will ignore uniqe errors when saving
+                try
                 {
-                    if (eld.DAL == null)
-                        eld.DAL = DAL;
                     eld.Save();
-                }   //  endif
+                }
+                catch (FMSC.ORM.UniqueConstraintException)
+                { }
             }   //  end foreach loop
 
             return;
@@ -1371,13 +1279,14 @@ namespace CruiseProcessing
         }   //  end SavePRO
 
 
-//  Get select data
-// *******************************************************************************************
+        //  Get select data
+        // *******************************************************************************************
         public ArrayList GetJustSpecies(string whichTable)
         {
-            ArrayList justSpecies = new ArrayList();
+            // TODO rewrite calling code to not use ArrayList
+            // rewritten Dec 2020 - Ben
+
             StringBuilder sb = new StringBuilder();
-            sb.Clear();
             sb.Append("SELECT DISTINCT Species FROM ");
             if (whichTable == "Tree")
             {
@@ -1385,28 +1294,9 @@ namespace CruiseProcessing
                 sb.Append(" WHERE CountOrMeasure='M'");
             }
             else sb.Append(whichTable);
-            fileName = checkFileName(fileName);
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
 
-                sqlcmd.CommandText = sb.ToString();
-                sqlcmd.ExecuteNonQuery();
-
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    while (sdrReader.Read())
-                    {
-                        string temp = sdrReader.GetString(0);
-                        if (temp != "")
-                            justSpecies.Add(temp);
-                    }   //  end while read
-                }   //  endif
-                sqlconn.Close();
-            }   //  end using
-            return justSpecies;
+            var result = DAL.QueryScalar<string>(sb.ToString()).ToList();
+            return new ArrayList(result);
         }   //  end GetJustSpecies
 
 
@@ -1414,77 +1304,32 @@ namespace CruiseProcessing
         {
             ArrayList justProduct = new ArrayList();
             StringBuilder sb = new StringBuilder();
-            sb.Clear();
             sb.Append("SELECT DISTINCT PrimaryProduct FROM TreeDefaultValue");
-            fileName = checkFileName(fileName);
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
 
-                sqlcmd.CommandText = sb.ToString();
-                sqlcmd.ExecuteNonQuery();
+            var result = DAL.QueryScalar<string>(sb.ToString()).ToList();
+            return new ArrayList(result);
 
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    while (sdrReader.Read())
-                    {
-                        string temp = sdrReader.GetString(0);
-                        if (temp != "")
-                            justProduct.Add(temp);
-                    }   //  end while read
-                }   //  endif
-                sqlconn.Close();
-            }   //  end using
-            return justProduct; ;
         }   //  end GetJustPrimaryProduct
 
 
         public ArrayList GetJustSampleGroups()
         {
-            ArrayList justSampleGroups = new ArrayList();
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("SELECT Code FROM SampleGroup GROUP BY Code");
-            List<SampleGroupDO> SgList = DAL.Read<SampleGroupDO>("SampleGroup", "GROUP BY Code", null);
-           foreach(SampleGroupDO sdr in SgList)
-            {
-                string temp = sdr.Code.ToString();
-                justSampleGroups.Add(temp);
-            }
-            //            fileName = checkFileName(fileName);
-            //            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            //            {
-            //                sqlconn.Open();
-            //                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
+            // rewritten Dec 2020 - Ben
+            var result = DAL.QueryScalar<string>("SELECT DISTINCT Code FROM SampleGroup;").ToList();
+            return new ArrayList(result);
 
-            //                sqlcmd.CommandText = sb.ToString();
-            //                sqlcmd.ExecuteNonQuery();
-
-            //                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-            //                if (sdrReader.HasRows)
-            //                {
-    
-           // while (sdrReader.Read())
-             //       {
-               //         string temp = sdrReader.GetString(0);
-                 //       justSampleGroups.Add(temp);
-                   // }   //  end while read
-//                }   //  endif
-//                sqlconn.Close();
-//            }   //  end using
-            return justSampleGroups;
         }   //  end GetJustSampleGroups
 
-// *  July 2017 -- changes to Region 8 volume equations -- this code is no longer used
-// * July 2017 --  decision made to hold off on releasing the changes to R8 volume equations
-// * so this code is replaced.
+        // *  July 2017 -- changes to Region 8 volume equations -- this code is no longer used
+        // * July 2017 --  decision made to hold off on releasing the changes to R8 volume equations
+        // * so this code is replaced.
         public ArrayList GetProduct08Species()
         {
+            // TODO optimize
+
             ArrayList justSpecies = new ArrayList();
 
-            List<TreeDefaultValueDO> tdvList = DAL.Read<TreeDefaultValueDO>("TreeDefaultValue", "WHERE PrimaryProduct = ? GROUP BY Species", "08");
+            List<TreeDefaultValueDO> tdvList = DAL.From<TreeDefaultValueDO>().Where("PrimaryProduct = '08'").GroupBy("Species").Read().ToList();
 
             foreach (TreeDefaultValueDO tdv in tdvList)
                 justSpecies.Add(tdv.Species);
@@ -1492,30 +1337,32 @@ namespace CruiseProcessing
             return justSpecies;
         }   //  end GetProduct08Species
 
-/*  December 2013 -- need to change where species/product comes from.  Template files will have all volume equations
- *  but it was found if only one or more species are used, folks don't want to see all those equations
- *  so changed this to pull those combinations from Tree instead of the default
+        /*  December 2013 -- need to change where species/product comes from.  Template files will have all volume equations
+         *  but it was found if only one or more species are used, folks don't want to see all those equations
+         *  so changed this to pull those combinations from Tree instead of the default
+                public string[,] GetUniqueSpeciesProduct()
+                {
+                    DAL = new CruiseDAL.DAL(fileName);
+
+                    List<TreeDefaultValueDO> tdvList = DAL.Read<TreeDefaultValueDO>("TreeDefaultValue", "GROUP BY Species, PrimaryProduct", null);
+                    int numSpecies = tdvList.Count();
+                    string[,] speciesProduct = new string[numSpecies, 2];
+                    int nthRow = 0;
+                    foreach (TreeDefaultValueDO tdv in tdvList)
+                    {
+                        speciesProduct[nthRow,0] = tdv.Species;
+                        speciesProduct[nthRow,1] = tdv.PrimaryProduct;
+                        nthRow++;
+                    }   //  end foreach loop
+                    return speciesProduct;
+                }   //  end GetUniqueSpeciesProduct
+        */
+
         public string[,] GetUniqueSpeciesProduct()
         {
-            DAL = new CruiseDAL.DAL(fileName);
+            // TODO optimize
 
-            List<TreeDefaultValueDO> tdvList = DAL.Read<TreeDefaultValueDO>("TreeDefaultValue", "GROUP BY Species, PrimaryProduct", null);
-            int numSpecies = tdvList.Count();
-            string[,] speciesProduct = new string[numSpecies, 2];
-            int nthRow = 0;
-            foreach (TreeDefaultValueDO tdv in tdvList)
-            {
-                speciesProduct[nthRow,0] = tdv.Species;
-                speciesProduct[nthRow,1] = tdv.PrimaryProduct;
-                nthRow++;
-            }   //  end foreach loop
-            return speciesProduct;
-        }   //  end GetUniqueSpeciesProduct
-*/
-
-        public string[,] GetUniqueSpeciesProduct()
-        {
-            List<TreeDO> tList = DAL.Read<TreeDO>("Tree", "GROUP BY Species,SampleGroup_CN", null);
+            List<TreeDO> tList = DAL.From<TreeDO>().GroupBy("Species", "SampleGroup_CN").Read().ToList();
             int numSpecies = tList.Count();
             string[,] speciesProduct = new string[numSpecies, 2];
             int nthRow = -1;
@@ -1532,9 +1379,9 @@ namespace CruiseProcessing
                 {
                     //if (t.CountOrMeasure != "I")
                     //{
-                        nthRow++;
-                        speciesProduct[nthRow, 0] = t.Species;
-                        speciesProduct[nthRow, 1] = t.SampleGroup.PrimaryProduct;
+                    nthRow++;
+                    speciesProduct[nthRow, 0] = t.Species;
+                    speciesProduct[nthRow, 1] = t.SampleGroup.PrimaryProduct;
                     //}   //  endif
                 }   //  endif
             }   //  end foreach loop
@@ -1545,17 +1392,21 @@ namespace CruiseProcessing
 
         public List<TreeDO> GetUniqueSpecies()
         {
-            return DAL.Read<TreeDO>("Tree", "GROUP BY Species", null);
+            // TODO optimize this method and calling methods
+
+            return DAL.From<TreeDO>().GroupBy("Species").Read().ToList();
         }   //  end GetUniqueSpecies
 
 
         public string[,] GetStrataUnits(long currST_CN)
         {
+            // TODO optimize
+
             //  Get all units for the current stratum
             int nthRow = 0;
             string[,] unitAcres = new string[25, 2];
 
-            List<StratumDO> stList = DAL.Read<StratumDO>("Stratum", "WHERE Stratum_CN = ?", currST_CN);
+            List<StratumDO> stList = DAL.From<StratumDO>().Where("Stratum_CN = @p1").Read(currST_CN).ToList();
             foreach (StratumDO sd in stList)
             {
                 sd.CuttingUnits.Populate();
@@ -1575,9 +1426,11 @@ namespace CruiseProcessing
 
         public ArrayList GetUnitStrata(string currUnit)
         {
+            // TODO optimize
+
             ArrayList unitStratum = new ArrayList();
 
-            List<CuttingUnitDO> cList = DAL.Read<CuttingUnitDO>("CuttingUnit", "WHERE Code = ?", currUnit);
+            List<CuttingUnitDO> cList = DAL.From<CuttingUnitDO>().Where("Code = @p1").Read(currUnit).ToList();
             foreach (CuttingUnitDO cud in cList)
             {
                 cud.Strata.Populate();
@@ -1590,10 +1443,12 @@ namespace CruiseProcessing
 
         public List<JustDIBs> GetJustDIBs()
         {
+            // TODO can be improved. Just use JustDIB as the data object instead of using VolEq and an intermediate
+
             //  retrieve species, product and both DIBs from volume equation table
             List<JustDIBs> jstDIBs = new List<JustDIBs>();
 
-            List<VolumeEquationDO> volList = DAL.Read<VolumeEquationDO>("VolumeEquation", "GROUP BY Species,PrimaryProduct", null);
+            List<VolumeEquationDO> volList = DAL.From<VolumeEquationDO>().GroupBy("Species", "PrimaryProduct").Read().ToList();
             foreach (VolumeEquationDO veq in volList)
             {
                 JustDIBs js = new JustDIBs();
@@ -1610,50 +1465,56 @@ namespace CruiseProcessing
 
         public List<TreeDefaultValueDO> GetUniqueSpeciesProductLiveDead()
         {
-            //  make sure filename is complete
-            fileName = checkFileName(fileName);
+            ////  make sure filename is complete
+            //fileName = checkFileName(fileName);
 
-            //  build query string
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("SELECT DISTINCT Species,LiveDead,PrimaryProduct FROM TreeDefaultValue");
-            List<TreeDefaultValueDO> tdvList = new List<TreeDefaultValueDO>();
+            ////  build query string
+            //StringBuilder sb = new StringBuilder();
+            //sb.Clear();
+            //sb.Append("SELECT DISTINCT Species,LiveDead,PrimaryProduct FROM TreeDefaultValue");
+            //List<TreeDefaultValueDO> tdvList = new List<TreeDefaultValueDO>();
 
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
+            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
+            //{
+            //    sqlconn.Open();
+            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
 
-                sqlcmd.CommandText = sb.ToString();
-                sqlcmd.ExecuteNonQuery();
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    while (sdrReader.Read())
-                    {
-                        TreeDefaultValueDO td = new TreeDefaultValueDO();
-                        td.Species = sdrReader.GetString(0);
-                        td.LiveDead = sdrReader.GetString(1);
-                        td.PrimaryProduct = sdrReader.GetString(2);
-                        tdvList.Add(td);
-                    }   //  end while read
-                }   //  endif
-                sqlconn.Close();
-            }   //  end using
-            return tdvList;
+            //    sqlcmd.CommandText = sb.ToString();
+            //    sqlcmd.ExecuteNonQuery();
+            //    SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
+            //    if (sdrReader.HasRows)
+            //    {
+            //        while (sdrReader.Read())
+            //        {
+            //            TreeDefaultValueDO td = new TreeDefaultValueDO();
+            //            td.Species = sdrReader.GetString(0);
+            //            td.LiveDead = sdrReader.GetString(1);
+            //            td.PrimaryProduct = sdrReader.GetString(2);
+            //            tdvList.Add(td);
+            //        }   //  end while read
+            //    }   //  endif
+            //    sqlconn.Close();
+            //}   //  end using
+            //return tdvList;
+
+
+            // rewritten Dec 2020 - Ben
+            return DAL.Read<TreeDefaultValueDO>("SELECT DISTINCT Species,LiveDead,PrimaryProduct FROM TreeDefaultValue", null).ToList();
         }   //  end GetUniqueSpeciesProductLiveDead
 
 
         public List<RegressGroups> GetUniqueSpeciesGroups()
         {
+            // TODO optimize
+
             //  used for Local Volume table
 
-            List<TreeDO> tList = DAL.Read<TreeDO>("Tree", "WHERE CountOrMeasure = ? GROUP BY Species,SampleGroup_CN,LiveDead", "M");
+            List<TreeDO> tList = DAL.From<TreeDO>().Where("CountOrMeasure = 'M'").GroupBy("Species", "SampleGroup_CN", "LiveDead").Read().ToList();
 
             List<RegressGroups> rgList = new List<RegressGroups>();
             foreach (TreeDO t in tList)
             {
-                if(!rgList.Exists(r=>r.rgSpecies==t.Species && r.rgLiveDead == t.LiveDead && r.rgProduct==t.SampleGroup.PrimaryProduct))
+                if (!rgList.Exists(r => r.rgSpecies == t.Species && r.rgLiveDead == t.LiveDead && r.rgProduct == t.SampleGroup.PrimaryProduct))
                 {
                     RegressGroups r = new RegressGroups();
                     r.rgSpecies = t.Species;
@@ -1670,7 +1531,7 @@ namespace CruiseProcessing
 
         public List<TreeDO> GetDistinctSpecies(long SG_CN)
         {
-            return DAL.Read<TreeDO>("Tree", "WHERE SampleGroup_CN = ? GROUP BY Species,LiveDead,Grade,STM", SG_CN);
+            return DAL.From<TreeDO>().Where("SampleGroup_CN = @p1").GroupBy("Species", "LiveDead", "Grade", "STM").Read(SG_CN).ToList();
         }   //  end GetDistinctSpecies
 
 
@@ -1678,43 +1539,40 @@ namespace CruiseProcessing
         public List<TreeDO> getLCDtrees(LCDDO currLCD, string cntMeas)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Clear();
-            sb.Append("JOIN Stratum JOIN SampleGroup WHERE Tree.LiveDead = ? AND Tree.Species = ? AND Tree.Grade = ? AND ");
+            sb.Append("JOIN Stratum JOIN SampleGroup WHERE Tree.LiveDead = @p1 AND Tree.Species = @p2 AND Tree.Grade = @p3 AND ");
             sb.Append("Stratum.Stratum_CN = Tree.Stratum_CN AND ");
-            sb.Append("Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN AND SampleGroup.Code = ? AND ");
-            sb.Append("Stratum.Code = ? AND Tree.CountOrMeasure = ? AND Tree.STM = ?");
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), currLCD.LiveDead, currLCD.Species, currLCD.TreeGrade, 
-                                            currLCD.SampleGroup, currLCD.Stratum, cntMeas, currLCD.STM);
+            sb.Append("Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN AND SampleGroup.Code = @p4 AND ");
+            sb.Append("Stratum.Code = @p5 AND Tree.CountOrMeasure = @p6 AND Tree.STM = @p7");
+            return DAL.Read<TreeDO>("SELECT * FROM Tree " + sb.ToString() + ";", new object[] { currLCD.LiveDead, currLCD.Species, currLCD.TreeGrade,
+                                            currLCD.SampleGroup, currLCD.Stratum, cntMeas, currLCD.STM }).ToList();
         }   //  end getLCDtrees
 
 
         public List<TreeDO> getPOPtrees(POPDO currPOP, string cntMeas)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Clear();
+            StringBuilder sb = new StringBuilder();;
             sb.Append("JOIN Stratum JOIN SampleGroup WHERE Stratum.Stratum_CN = Tree.Stratum_CN AND ");
             sb.Append("Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN AND ");
-            sb.Append("SampleGroup.Code = ? AND Stratum.Code = ? AND Tree.CountOrMeasure = ? AND Tree.STM = ?");
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), currPOP.SampleGroup, currPOP.Stratum, cntMeas, currPOP.STM);
+            sb.Append("SampleGroup.Code = @p1 AND Stratum.Code = @p2 AND Tree.CountOrMeasure = @p3 AND Tree.STM = @p4");
+            return DAL.Read<TreeDO>("SELECT * FROM Tree " + sb.ToString() + ";", new object[] { currPOP.SampleGroup, currPOP.Stratum, cntMeas, currPOP.STM }).ToList();
         }   //  end getPOPtrees
 
 
         public List<TreeDO> getPROtrees(PRODO currPRO, string cntMeas)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Clear();
             sb.Append("JOIN Stratum JOIN SampleGroup JOIN CuttingUnit WHERE Stratum.Stratum_CN = Tree.Stratum_CN AND ");
             sb.Append("Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN AND ");
             sb.Append("Tree.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN AND ");
-            sb.Append("SampleGroup.Code = ? AND Stratum.Code = ? AND CuttingUnit.Code = ? AND Tree.CountOrMeasure = ? ");
-            sb.Append("AND Tree.STM = ?");
-            return DAL.Read<TreeDO>("Tree", sb.ToString(), currPRO.SampleGroup, currPRO.Stratum, currPRO.CuttingUnit, cntMeas, currPRO.STM);
+            sb.Append("SampleGroup.Code = @p1 AND Stratum.Code = @p2 AND CuttingUnit.Code = @p3 AND Tree.CountOrMeasure = @p4 ");
+            sb.Append("AND Tree.STM = @p5");
+            return DAL.Read<TreeDO>("SELECT * FROM Tree " + sb.ToString() + ";", new object[] { currPRO.SampleGroup, currPRO.Stratum, currPRO.CuttingUnit, cntMeas, currPRO.STM }).ToList();
         }   //  end getPROtrees
 
 
 
-//  Reports table
-// *******************************************************************************************
+        //  Reports table
+        // *******************************************************************************************
         public void SaveReports(List<ReportsDO> rList)
         {
             //  This saves the updated reports list
@@ -1733,119 +1591,51 @@ namespace CruiseProcessing
         public List<ReportsDO> GetReports()
         {
             //  Retrieve reports
-            return DAL.Read<ReportsDO>("Reports", "ORDER BY ReportID", null);
+            return DAL.From<ReportsDO>().OrderBy("ReportID").Read().ToList();
         }   //  end GetReports
 
 
         public List<ReportsDO> GetSelectedReports()
         {
-            return DAL.Read<ReportsDO>("Reports", "WHERE Selected = ? OR Selected = ? ORDER BY ReportID", "True", "1");
+            return DAL.From<ReportsDO>().Where("Selected = 'True' OR Selected = '1'").OrderBy("ReportID").Read().ToList();
         }   //  end GetSelectedReports
 
 
 
         public void updateReports(List<ReportsDO> reportList)
         {
+            // rewritten Dec 2020 - Ben
             //  this updates the reports list after user has selected reports
-            //  make sure filename is complete
- //           fileName = checkFileName(fileName);
 
-            //  open connection and update records
-//            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-//            {
-//                sqlconn.Open();
-//                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-                StringBuilder sb = new StringBuilder();
-
-                foreach (ReportsDO rdo in reportList)
-                {
-                    sb.Clear();
-                    sb.Append("UPDATE Reports SET Selected='");
-                    sb.Append(rdo.Selected);
-                    sb.Append("' WHERE ReportID='");
-                    sb.Append(rdo.ReportID);
-                    sb.Append("';");
-                    DAL.Execute(sb.ToString());
-//                    sqlcmd.CommandText = sb.ToString();
-//                    sqlcmd.ExecuteNonQuery();
-                }   //  end foreach loop
-//                sqlconn.Close();
-//            }   //  end using            
+            foreach (ReportsDO rdo in reportList)
+            {
+                DAL.Execute("UPDATE Report SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
+            }   //  end foreach loop     
             return;
         }   //  end updateReports
 
 
         public void deleteReport(string reptToDelete)
         {
+            // rewritten Dec 2020 - Ben
+
             //  deletes the report from the reports table
-            //  make sure filename is complete
-            //fileName = checkFileName(fileName);
-
-            //  open connection and delete record
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-           // {
-             //   sqlconn.Open();
-              //  SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-
-                StringBuilder sb = new StringBuilder();
-                sb.Clear();
-                sb.Append("DELETE FROM Reports WHERE ReportID='");
-                sb.Append(reptToDelete);
-                sb.Append("';");
-                DAL.Execute(sb.ToString());
-
-     //       sqlcmd.CommandText = sb.ToString();
-       //         sqlcmd.ExecuteNonQuery();
-
-         //       sqlconn.Close();
-           // }   //  end using
-            return;
+            DAL.Execute("DELETE FROM Reports WHERE ReportID= @p1;", reptToDelete);
         }   //  end deleteReport
 
 
-//  Specific to EX reports
-// *******************************************************************************************
+        //  Specific to EX reports
+        // *******************************************************************************************
         public List<exportGrades> GetExportGrade()
         {
-            List<exportGrades> egList = new List<exportGrades>();
-            // make sure filename is complete
-            fileName = checkFileName(fileName);
+            // rewritten Dec 2020 - Ben
 
-            //  open connection and get data
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                // open connection
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-                sqlcmd.CommandText = "SELECT * FROM ExportValues";
-                sqlcmd.ExecuteNonQuery();
+            return DAL.Query<exportGrades>("SELECT * FROM ExportValues;").ToList();
 
-                //  Open reader and get data
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    while (sdrReader.Read())
-                    {
-                        exportGrades eg = new exportGrades();
-                        eg.exportSort = sdrReader.GetString(0);
-                        eg.exportGrade = sdrReader.GetString(1);
-                        eg.exportCode = sdrReader.GetString(2);
-                        eg.exportName = sdrReader.GetString(3);
-                        eg.minDiam = sdrReader.GetDouble(4);
-                        eg.minLength = sdrReader.GetDouble(5);
-                        eg.minBDFT = sdrReader.GetDouble(6);
-                        eg.maxDefect = sdrReader.GetDouble(7);
-                        egList.Add(eg);
-                    }   //  end while
-                }   //  endif reader has rows
-                sqlconn.Close();
-            }   //  end using
-
-            return egList;
         }   //  end GetExportGrade
 
 
-        public void SaveExportGrade(List<exportGrades> sortList, 
+        public void SaveExportGrade(List<exportGrades> sortList,
                                     List<exportGrades> gradeList, bool tableExists)
         {
             //  make sure filename is complete
@@ -1854,112 +1644,66 @@ namespace CruiseProcessing
             //  open connection and save data
             //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
             //{
-                //  open connection
+            //  open connection
             //    sqlconn.Open();
             //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
 
-                //  if table exists, delete all rows
-                if (tableExists == true)
-                {
-                    //sqlcmd.CommandText = "DELETE FROM ExportValues";
-                    //sqlcmd.ExecuteNonQuery();
-                    DAL.Execute("DELETE FROM ExportValues");
-                }   //  endif
+            //  if table exists, delete all rows
+            if (tableExists == true)
+            {
+                //sqlcmd.CommandText = "DELETE FROM ExportValues";
+                //sqlcmd.ExecuteNonQuery();
+                DAL.Execute("DELETE FROM ExportValues");
+            }   //  endif
 
-                StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             //  create query for each list
-                foreach (exportGrades eg in sortList)
-                {
-                    sb.Clear();
-                    sb = eg.createInsertQuery(eg, "sort");
-                    DAL.Execute(sb.ToString());
-                   // sqlcmd.CommandText = sb.ToString();
-                   // sqlcmd.ExecuteNonQuery();
-                }   //  end foreach on sortList
+            foreach (exportGrades eg in sortList)
+            {
+                var _sb = eg.createInsertQuery(eg, "sort");
+                DAL.Execute(_sb.ToString());
+                // sqlcmd.CommandText = sb.ToString();
+                // sqlcmd.ExecuteNonQuery();
+            }   //  end foreach on sortList
 
-                foreach (exportGrades eg in gradeList)
-                {
-                    sb.Clear();
-                    sb = eg.createInsertQuery(eg, "grade");
-                    DAL.Execute(sb.ToString());
+            foreach (exportGrades eg in gradeList)
+            {
+                var _sb = eg.createInsertQuery(eg, "grade");
+                DAL.Execute(_sb.ToString());
 
-                //sqlcmd.CommandText = sb.ToString();
-                 //   sqlcmd.ExecuteNonQuery();
-                }   //  end foreach on gradeList
+            }   //  end foreach on gradeList
                 //sqlconn.Close();
-            //}   //  end using
+                //}   //  end using
 
             return;
         }   //  end SaveExportGrade
 
 
-//  specific to stewardship reports (R208)
-// *******************************************************************************************
+        //  specific to stewardship reports (R208)
+        // *******************************************************************************************
         public List<StewProductCosts> getStewCosts()
         {
-            List<StewProductCosts> stList = new List<StewProductCosts>();
-            //  make sure filename is complete
-            fileName = checkFileName(fileName);
+            // rewritten Dec 2020 - Ben
 
-            //  open connection and get data
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-                sqlcmd.CommandText = "SELECT * FROM StewProductCosts";
-                sqlcmd.ExecuteNonQuery();
-
-                //  open reader
-                SQLiteDataReader sdrReader = sqlcmd.ExecuteReader();
-                if (sdrReader.HasRows)
-                {
-                    while (sdrReader.Read())
-                    {
-                        StewProductCosts st = new StewProductCosts();
-                        st.costUnit = sdrReader.GetString(0);
-                        st.costSpecies = sdrReader.GetString(1);
-                        st.costProduct = sdrReader.GetString(2);
-                        st.costPounds = sdrReader.GetFloat(3);
-                        st.costCost = sdrReader.GetFloat(4);
-                        st.scalePC = sdrReader.GetFloat(5);
-                        st.includeInReport = sdrReader.GetString(6);
-                        stList.Add(st);
-                    }   //  end while read
-                }   //  endif has rows
-                sqlconn.Close();
-            }   //  end using
-            return stList;
+            return DAL.Query<StewProductCosts>("SELECT * FROM StewProductCosts;").ToList();
         }   //  end getStewCosts
 
 
         public void SaveStewCosts(List<StewProductCosts> stList)
         {
-            //  make sure filename is complete
-            // fileName = checkFileName(fileName);
-
-            //  open connection and save data
-            // using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            // {
-            // sqlconn.Open();
-            // SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-            StringBuilder sb = new StringBuilder();
+            // TODO
             foreach (StewProductCosts st in stList)
             {
-                    sb.Clear();
-                    sb = st.createInsertQuery(st);
-                    DAL.Execute(sb.ToString());
-                    //sqlcmd.CommandText = sb.ToString();
-                    //sqlcmd.ExecuteNonQuery();
-             }   //  end foreach loop                
-                //sqlconn.Close();
-            //}   //  end using
-            return;
+                var sb = st.createInsertQuery(st);
+                DAL.Execute(sb.ToString());
+
+            }   //  end foreach loop                
         }   //  end SaveStewCosts
 
 
 
-//  Delete all records from tables containing calculated values
-// *******************************************************************************************
+        //  Delete all records from tables containing calculated values
+        // *******************************************************************************************
         public void deleteTreeCalculatedValues()
         {
             //  the following code is what Ben Campbell suggested but it runs REALLY SLOW
@@ -2072,26 +1816,28 @@ namespace CruiseProcessing
 
         public void DeletePRO()
         {
-            //  see note above concerning this code
-            //List<PRODO> proList = getPRO();
-            //foreach (PRODO prdo in proList)
-            //    prdo.Delete();
-            //  make sure filename is complete
-            fileName = checkFileName(fileName);
+            ////  see note above concerning this code
+            ////List<PRODO> proList = getPRO();
+            ////foreach (PRODO prdo in proList)
+            ////    prdo.Delete();
+            ////  make sure filename is complete
+            //fileName = checkFileName(fileName);
 
-            //   open connection and delete data
-            using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            {
-                //  open connection
-                sqlconn.Open();
-                SQLiteCommand sqlcmd = sqlconn.CreateCommand();
+            ////   open connection and delete data
+            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
+            //{
+            //    //  open connection
+            //    sqlconn.Open();
+            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
 
-                //  delete all rows
-                sqlcmd.CommandText = "DELETE FROM PRO WHERE PRO_CN>0";
-                sqlcmd.ExecuteNonQuery();
-                sqlconn.Close();
-            }   //  end using
-            return;
+            //    //  delete all rows
+            //    sqlcmd.CommandText = "DELETE FROM PRO WHERE PRO_CN>0";
+            //    sqlcmd.ExecuteNonQuery();
+            //    sqlconn.Close();
+            //}   //  end using
+            //return;
+
+            DAL.Execute("DELETE FROM PRO WHERE PRO_CN>0");
         }   //  end deletePRO
 
 
@@ -2127,14 +1873,14 @@ namespace CruiseProcessing
 
             //  open connection and delete data
             //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-           // {
+            // {
             //    sqlconn.Open();
             //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
             //    //  delete all rows
             //    sqlcmd.CommandText = ("DELETE FROM VolumeEquation");
             //    sqlcmd.ExecuteNonQuery();
             //    sqlconn.Close();
-                DAL.Execute("DELETE FROM VolumeEquation");
+            DAL.Execute("DELETE FROM VolumeEquation");
             //}   //  end using
             //return;
         }   //  end deleteVolumeEquations
@@ -2185,27 +1931,17 @@ namespace CruiseProcessing
             //  open connection and delete data
             //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
             //{
-                //sqlconn.Open();
-                //SQLiteCommand sqlcmd = sqlconn.CreateCommand();
+            //sqlconn.Open();
+            //SQLiteCommand sqlcmd = sqlconn.CreateCommand();
 
-                //  delete all rows
-                //sqlcmd.CommandText = "DELETE FROM BiomassEquation WHERE rowid>=0";
-                DAL.Execute("DELETE FROM BiomassEquation WHERE rowid >= 0");
-                //sqlcmd.ExecuteNonQuery();
-                //sqlconn.Close();
+            //  delete all rows
+            //sqlcmd.CommandText = "DELETE FROM BiomassEquation WHERE rowid>=0";
+            DAL.Execute("DELETE FROM BiomassEquation WHERE rowid >= 0");
+            //sqlcmd.ExecuteNonQuery();
+            //sqlconn.Close();
             //}   //  end using
             return;
         }   //  end clearBiomassEquations
-
-        // To make filename complete
-        private string checkFileName(string fileName)
-        {
-            if (!fileName.StartsWith("Data Source"))
-                return fileName.Insert(0, "Data Source = ");
-
-            return fileName;
-
-        }   //  end checkFileName
 
 
         public void SaveTreeDefaults(List<TreeDefaultValueDO> treeDefaults)

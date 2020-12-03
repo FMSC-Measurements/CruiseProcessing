@@ -90,7 +90,7 @@ namespace CruiseProcessing
                     fieldLengths = new int[] { 2, 6, 8, 4, 4, 7, 8, 11, 12, 6, 12, 11, 11, 14, 10, 5 };
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
                     //  pull groups from LCD
-                    List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY UOM,PrimaryProduct,Species,ContractSpecies", "C", "");
+                    List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY UOM,PrimaryProduct,Species,ContractSpecies", "C", "");
                     createR101(speciesList, strWriteOut, ref pageNum, rh, lcdList);
                     break;
                 case "R102":
@@ -409,7 +409,7 @@ namespace CruiseProcessing
                         foreach (StratumDO stratum in ju.Strata)
                         {
                             //  pull strata from lcdList
-                            List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? AND PrimaryProduct = ?",
+                            List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 AND PrimaryProduct = @p3 ",
                                                                         "", "C", stratum.Code, prodList[j]);
                             foreach (LCDDO js in justStrata)
                             {
