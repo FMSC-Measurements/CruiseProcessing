@@ -487,6 +487,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="cruisetree_trees.ico" />
+    <Content Include="NBEL.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="vollib.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\DataSources\CruiseDAL.DataObjects.LogMatrixDO.datasource" />
     <None Include="Properties\DataSources\RegressGroups.datasource" />
     <None Include="Resources\CSVfile.bmp" />
@@ -509,9 +515,11 @@
     <Compile Remove="WeightEquations.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.5.1.35" />
-    <PackageReference Include="FMSC.ORM" Version="2.4.7" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.110" />
+    <None Remove="NBEL.dll" />
+    <None Remove="vollib.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CruiseDAL.V2" Version="2.7.0.70" />
     <PackageReference Include="ZedGraph" Version="5.1.7" />
     <PackageReference Include="ZedGraph.Web" Version="5.1.5" />
   </ItemGroup>
