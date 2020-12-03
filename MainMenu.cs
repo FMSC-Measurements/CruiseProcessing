@@ -395,7 +395,7 @@ namespace CruiseProcessing
 
                     //  need region number in order to hide volume button as well as region 9 button
                     List<SaleDO> saleList = new List<SaleDO>();
-                    saleList = DAL.Read<SaleDO>("Sale", null, null);
+                    saleList = DAL.From<SaleDO>().Read().ToList();
                     currentRegion = saleList[0].Region; 
                 }   //  endif
             }   //  endif tempalteFlag

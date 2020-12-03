@@ -189,12 +189,12 @@ namespace CruiseProcessing
             List<LCDDO> LCDlist = new List<LCDDO>();
             if (currST != "")
             {
-                LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species,SampleGroup,LiveDead", "C", currST);
+                LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species,SampleGroup,LiveDead", "C", currST);
             }   //  endif currST not blank
 
             if (currPP != "")
             {
-                LCDlist = bslyr.getLCDOrdered("WHERE PrimaryProduct = ? ORDER BY ", "ContractSpecies", currPP,"");
+                LCDlist = bslyr.getLCDOrdered("WHERE PrimaryProduct = @p1 ORDER BY ", "ContractSpecies", currPP,"");
             }   //  endif currPP not blank
 
 
@@ -216,10 +216,10 @@ namespace CruiseProcessing
                     return LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,SecondaryProduct,Species", "C","");
               */
                 case 8:         //  order by primary product, species and tree grade
-                    LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? ORDER BY ", "PrimaryProduct,Species,TreeGrade", "C", "");
+                    LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ORDER BY ", "PrimaryProduct,Species,TreeGrade", "C", "");
                     break;
                 case 9:         //  really grouped by primary product and species for live/dead reports
-                    LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "PrimaryProduct,SecondaryProduct,Species", "C", "");
+                    LCDlist = bslyr.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "PrimaryProduct,SecondaryProduct,Species", "C", "");
                     break;
             }   //  end switch
             return LCDlist;
@@ -229,7 +229,7 @@ namespace CruiseProcessing
         public static List<LCDDO> GetStratumGroupedBy(string fileName, string currentST, CPbusinessLayer bslyr)
         {
             List<LCDDO> justStratum = new List<LCDDO>();
-            justStratum = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?  GROUP BY ","SampleGroup,Species,STM","C",currentST);
+            justStratum = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2  GROUP BY ","SampleGroup,Species,STM","C",currentST);
             return justStratum;
         }   //  end GetStratumGroupedBy
 

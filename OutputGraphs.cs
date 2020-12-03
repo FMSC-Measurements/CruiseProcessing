@@ -29,7 +29,7 @@ namespace CruiseProcessing
             List<TreeDO> tList = bslyr.getTrees();
             List<LCDDO> lcdList = bslyr.getLCD();
             List<StratumDO> sList = bslyr.getStratum();
-            List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+            List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
             //  pull salename and number to put in graph title
             //  also need it to create subfolder for graphs
             List<SaleDO> saleList = bslyr.getSale();
@@ -139,7 +139,7 @@ namespace CruiseProcessing
                     gf.ShowDialog();
                     break;
                 case "GR04":
-                    List<LCDDO> justProduct = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY PrimaryProduct", "C", "");
+                    List<LCDDO> justProduct = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY PrimaryProduct", "C", "");
 
                     speciesTotal.Clear();
                     //  total net CUFT volume for sawtimber only

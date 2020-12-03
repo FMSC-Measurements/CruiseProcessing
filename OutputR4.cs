@@ -95,7 +95,7 @@ namespace CruiseProcessing
                     completeHeader = createCompleteHeader();
                     rh.createReportTitle(currentTitle, 6, 0, 0, volTitle, reportConstants.FCTO_PPO);
                     //  group LCD by species as the first two reports run by species
-                    List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species,PrimaryProduct", "C", "");
+                    List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species,PrimaryProduct", "C", "");
                     foreach(LCDDO sl in speciesList)
                     {
                         AccumulateSpeciesVolume(lcdList,sl.Species, hgtOne, sl.PrimaryProduct);
@@ -265,7 +265,7 @@ namespace CruiseProcessing
                     foreach (StratumDO stratum in ju.Strata)
                     {
                         //  pull strata from LCD table
-                        List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?", "", 
+                        List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ", "", 
                                                                         "C", stratum.Code, "");
                         foreach (LCDDO js in justStrata)
                         {

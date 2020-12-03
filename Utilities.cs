@@ -95,20 +95,27 @@ namespace CruiseProcessing
 
         public static string CurrentDLLversion()
         {
-            //  Get current DLL version from volume library
-            int iCurrentDate = 0;
-            CalculateTreeValues.VERNUM2(ref iCurrentDate);
+            try
+            {
+                //  Get current DLL version from volume library
+                int iCurrentDate = 0;
+                CalculateTreeValues.VERNUM2(ref iCurrentDate);
 
-            //  Convert to a string to reformat date
-            string sTemp = Convert.ToString(iCurrentDate);
-            StringBuilder sDate = new StringBuilder();
-            sDate.Append(sTemp.Substring(4,2));
-            sDate.Append(".");
-            sDate.Append(sTemp.Substring(6,2));
-            sDate.Append(".");
-            sDate.Append(sTemp.Substring(0, 4));
+                //  Convert to a string to reformat date
+                string sTemp = Convert.ToString(iCurrentDate);
+                StringBuilder sDate = new StringBuilder();
+                sDate.Append(sTemp.Substring(4, 2));
+                sDate.Append(".");
+                sDate.Append(sTemp.Substring(6, 2));
+                sDate.Append(".");
+                sDate.Append(sTemp.Substring(0, 4));
 
-            return sDate.ToString();
+                return sDate.ToString();
+            }
+            catch
+            {
+                return "0.0.0.0";
+            }
         }   //  end CurrentDLLversion
 
 

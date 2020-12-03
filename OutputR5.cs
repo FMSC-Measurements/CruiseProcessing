@@ -32,7 +32,7 @@ namespace CruiseProcessing
             fieldLengths = new int[] { 2, 12, 14, 16, 16, 16, 11 };
             //  This report prints a page for each species/product combination and log DIB classes
             //  pull species/product combinations from LCD to ultimately pull log data
-            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species,PrimaryProduct", "C", "");
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species,PrimaryProduct", "C", "");
             foreach (LCDDO jg in justGroups)
             {
                 //  get DIB classes for this group

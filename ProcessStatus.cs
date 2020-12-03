@@ -117,7 +117,7 @@ namespace CruiseProcessing
             //  put a warning message in the error log table indicating the secondary product was set to a default
             //  June 2013
             List<SaleDO> saleList = new List<SaleDO>();
-            saleList = DAL.Read<SaleDO>("Sale", null, null);
+            saleList = DAL.From<SaleDO>().Read().ToList();
             string currRegion = saleList[0].Region;
 
             //string currRegion = bslyr.getRegion();

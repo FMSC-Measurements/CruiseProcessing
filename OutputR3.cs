@@ -28,7 +28,7 @@ namespace CruiseProcessing
             rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
             fieldLengths = new int[] { 1, 7, 3, 6, 8, 9, 7, 10, 8, 9, 9, 8, 7, 8, 7 };
             //  pull groups from LCD
-            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "ContractSpecies,Species", "C", "");
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "ContractSpecies,Species", "C", "");
             //  loop by group and sum values
             string currCS = "**";
             List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
@@ -78,7 +78,7 @@ namespace CruiseProcessing
             if (jg.ContractSpecies == null)
                 rr.value3 = " ";
             else rr.value3 = jg.ContractSpecies;
-            List<LCDDO> lcdList = bslyr.GetLCDdata("WHERE CutLeave = ? AND Species = ? AND PrimaryProduct = ? AND ContractSpecies = ?", jg, 5, "");
+            List<LCDDO> lcdList = bslyr.GetLCDdata("WHERE CutLeave = @p1 AND Species = @p2 AND PrimaryProduct = @p3 AND ContractSpecies = @p4", jg, 5, "");
             //  sum up values needed
             foreach (LCDDO l in lcdList)
             {
