@@ -519,7 +519,7 @@
     <None Remove="vollib.dll" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.0.70" />
+    <PackageReference Include="CruiseDAL.V2" Version="2.7.1.73" />
     <PackageReference Include="ZedGraph" Version="5.1.7" />
     <PackageReference Include="ZedGraph.Web" Version="5.1.5" />
   </ItemGroup>
