@@ -233,7 +233,7 @@ namespace CruiseProcessing
                             break;
                         default:
                             //  otherwise data comes from LCD and is NOT expanded
-                            lcdList = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species", currCL, stratum.Code);
+                            lcdList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species", currCL, stratum.Code);
                             List<LCDDO> currGroup = new List<LCDDO>();
                             //  find species to process
                             currGroup = lcdList.FindAll(delegate (LCDDO l) { return l.Species == gtp; });

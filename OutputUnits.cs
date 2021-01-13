@@ -121,10 +121,10 @@ namespace CruiseProcessing
                             case "STR":
                             case "S3P":
                             case "3P":
-                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ?", orderBy);                        
+                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2", orderBy);                        
                                 break;
                             default:
-                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = ? AND CutLeave = ? ", orderBy);
+                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2 ", orderBy);
                                 break;
                         }   //  end switch on method
                         LoadAndPrintProrated(strWriteOut, s, currentReport, rh, ref pageNumb);
@@ -966,7 +966,7 @@ namespace CruiseProcessing
                             break;
                         default:
                             //  otherwise data comes from LCD and is NOT expanded
-                            lcdList = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ", "Species", currCL, stratum.Code);
+                            lcdList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species", currCL, stratum.Code);
                             List<LCDDO> currGroup = new List<LCDDO>();
                             if (currentReport == "UC5" || currentReport == "LV05")
                             {
@@ -1053,7 +1053,7 @@ namespace CruiseProcessing
                                 break;
                             default:
                                 //  any other method comes from the LCD table
-                                lcdList = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY ",
+                                lcdList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ",
                                                     "Species", "C", s.Code, "");
                                 List<LCDDO> currGroup = lcdList.FindAll(
                                     delegate(LCDDO l)

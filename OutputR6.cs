@@ -64,7 +64,7 @@ namespace CruiseProcessing
                      break;
                  case "R604":       case "R605":
                      //  need species list as each table will be a species
-                     List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+                     List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
                      //  and log records
                      List<LogStockDO> logList = bslyr.getCutLogs();
 
@@ -152,7 +152,7 @@ namespace CruiseProcessing
                      foreach (StratumDO stratum in ju.Strata)
                      {
                          //  need species for the strata
-                         List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
+                         List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
                                                     "ORDER BY Species", "C", stratum.Code);
                          //  process by species
                          string prevSP = "*";

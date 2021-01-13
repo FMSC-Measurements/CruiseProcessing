@@ -62,7 +62,7 @@ namespace CruiseProcessing
             List<StratumDO> sList = bslyr.getStratum();
             List<LogStockDO> logList = bslyr.getCutLogs();
             //  group LCD by species as many reports run by species
-            List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+            List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = @p1", "GROUP BY Species", "C", "");
             switch (currentReport)
             {
                 case "R001":        case "R002":
@@ -519,7 +519,7 @@ namespace CruiseProcessing
                 //  pull log stock records ordered by species
                 List<LogStockDO> justLogs = bslyr.getCutLogs();
                 //  also need a list of just species
-                List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+                List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
                 foreach (LCDDO sl in speciesList)
                 {
                     //  sum logs for current species

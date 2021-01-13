@@ -83,7 +83,7 @@ namespace CruiseProcessing
                     //  reports for defect -- either 1 or 2 inch diameter class; board foot or cubic foot
                     numOlines = 0;
                     StringBuilder secondLine = new StringBuilder();
-                    List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? ", 
+                    List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", 
                                                             "GROUP BY Species", "C", "");
                     //  setup main header based on report
                     rh.createReportTitle(currentTitle, 4, 31, 32, reportConstants.FCTO_PPO,"");
@@ -113,11 +113,11 @@ namespace CruiseProcessing
                     numOlines = 0;
                     rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FPPO, reportConstants.FCTO);
                     fieldLengths = new int[] { 3, 10, 19, 13, 14, 16, 5 };
-                    List<LCDDO> justCS = bslyr.getLCDOrdered("WHERE CutLeave = ? GROUP BY ", "ContractSpecies", "C", "");
+                    List<LCDDO> justCS = bslyr.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "ContractSpecies", "C", "");
                     foreach (LCDDO jc in justCS)
                     {
                         //  find all species for current contract species
-                        List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE ContractSpecies = ? GROUP BY ", "Species", jc.ContractSpecies, "");
+                        List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE ContractSpecies = @p1 GROUP BY ", "Species", jc.ContractSpecies, "");
                         AccumulateByContractSpecies(justGroups, lcdList);
                         WriteSpeciesGroups(strWriteOut, ref pageNumb, rh);
                         updateSubtotal("", 0, "");
@@ -235,7 +235,7 @@ namespace CruiseProcessing
         {
             //  R201
             //  need current stratum grouped by species, PP and SP
-            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? GROUP BY ", 
+            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 GROUP BY ", 
                                                         "Species,PrimaryProduct,SecondaryProduct", "C", currST);
             //  loop by groups to get data to sum from LCD
             foreach (LCDDO jg in justGroups)
@@ -346,7 +346,7 @@ namespace CruiseProcessing
                                                         (long)stratum.Stratum_CN);
 
                 //  need all species for this stratum
-                List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ?",
+                List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
                                                         "GROUP BY Species,PrimaryProduct", "C", stratum.Code, "");
                 //  pull all trees for product codes 14 and 20 and each species         
                 double totalStems = 0;

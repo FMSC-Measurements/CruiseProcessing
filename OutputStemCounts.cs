@@ -40,7 +40,7 @@ namespace CruiseProcessing
             foreach (StratumDO jf in justFIXCNT)
             {
                 //  pull species for the stratum
-                List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ",
+                List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
                                                         "GROUP BY Species", "C", jf.Code, "");                
                 //  pull current stratum from tree
                 List<TreeDO> justTrees = bslyr.JustFIXCNTtrees((long)jf.Stratum_CN);
