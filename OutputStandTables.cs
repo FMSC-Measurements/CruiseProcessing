@@ -203,9 +203,9 @@ namespace CruiseProcessing
                     //  load column headers here
                     List<LCDDO> justGroups = new List<LCDDO>();
                     if (whatProduct == "BOTH")
-                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = ?", "GROUP BY Stratum,Species", s.Code, whatCutCode);
+                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = @p1 ", "GROUP BY Stratum,Species", s.Code, whatCutCode);
                     else
-                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = ?", "GROUP BY Stratum,Species,PrimaryProduct,UOM", s.Code, whatCutCode);
+                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = @p1 ", "GROUP BY Stratum,Species,PrimaryProduct,UOM", s.Code, whatCutCode);
                     //  loop through calculated data to fill stand table
                     processGroups(justGroups, strWriteOut, rh, ref pageNumb, justStrataData, classInterval, s.Code);
 

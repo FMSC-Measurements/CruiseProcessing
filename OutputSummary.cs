@@ -167,11 +167,11 @@ namespace CruiseProcessing
                         foreach (LCDDO lcd in currentGroup)
                         {
                             StringBuilder sb = new StringBuilder();
-                            sb.Append("WHERE Stratum = ? AND Species = ? AND PrimaryProduct = ? AND UOM = ? AND ");
-                            sb.Append("LiveDead = ? AND CutLeave = ? AND Yield = ? AND SampleGroup = ? AND ");
+                            sb.Append("WHERE Stratum = @p1 AND Species = @p2 AND PrimaryProduct = @p3 AND UOM = @p4 AND ");
+                            sb.Append("LiveDead = @p5 AND CutLeave = @p6 AND Yield = @p7 AND SampleGroup = @p8 AND ");
                             //  September 2016 -- per K.Cormier -- dropping contract species from LCD identifier
                             //sb.Append("TreeGrade = ? AND ContractSpecies = ? AND STM = ?");
-                            sb.Append("TreeGrade = ? AND STM = ?");
+                            sb.Append("TreeGrade = @p9 AND STM = @p10");
                             currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 1, "");
                             //  need to get sourceFlag
                             FindSourceFlag(currentData);
@@ -207,8 +207,8 @@ namespace CruiseProcessing
                             foreach (LCDDO lcd in currentGroup)
                             {
                                 StringBuilder sb = new StringBuilder();
-                                sb.Append("WHERE Stratum = ? AND PrimaryProduct = ? AND UOM = ? AND CutLeave = ? ");
-                                sb.Append("AND SampleGroup = ? AND STM = ?");
+                                sb.Append("WHERE Stratum = @p1 AND PrimaryProduct = @p2 AND UOM = @p3 AND CutLeave = @p4 ");
+                                sb.Append("AND SampleGroup = @p5 AND STM = @p6");
                                 currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 2, currCL);
                                 //  set sourceflag
                                 FindSourceFlag(currentData);
@@ -246,7 +246,7 @@ namespace CruiseProcessing
                             foreach (LCDDO lcd in currentGroup)
                             {
                                 StringBuilder sb = new StringBuilder();
-                                sb.Append("WHERE Stratum = ? AND PrimaryProduct = ? AND UOM = ? AND CutLeave = ?");
+                                sb.Append("WHERE Stratum = @p1 AND PrimaryProduct = @p2 AND UOM = @p3 AND CutLeave = @p4");
                                 currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 3, currCL);
                                 //  set sourceflag
                                 FindSourceFlag(currentData);

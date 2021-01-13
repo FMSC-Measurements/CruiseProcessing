@@ -47,7 +47,11 @@ namespace CruiseProcessing
             int errorsFound = 0;
             //  find each species or species/product combination in volume equations
             int nthRow = -1;
-            List<TreeDO> tList1 = DAL.Read<TreeDO>("Tree", "JOIN SampleGroup ON Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN GROUP BY Tree.Species,SampleGroup.PrimaryProduct", null);
+            List<TreeDO> tList1 = DAL.From<TreeDO>()
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .GroupBy("Tree.Species", "SampleGroup.PrimaryProduct")
+                .Read().ToList();
+
             //List<TreeDO> tList1 = DAL.Read<TreeDO>("Tree", "GROUP BY Species, Tree.SampleGroup.PrimaryProduct", null);
             VolumeEquationDO ved;
             foreach (TreeDO td in tList1)

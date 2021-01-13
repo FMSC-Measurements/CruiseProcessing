@@ -139,7 +139,7 @@ namespace CruiseProcessing
                 case "BLM08":        //  report by unit and species -- prorated
                     cutList = bslyr.getCuttingUnits();
                     List<CSVlist> CSV7and8 = new List<CSVlist>();
-                    speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ?", "GROUP BY Species", "C", "");
+                    speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
                     numOlines = 0;
                     fieldLengths = new int[] { 1, 6, 10, 6, 10, 9, 11, 11, 5, 7, 11, 9, 9, 9, 8 };
                     completeHeader = createCompleteHeader();
@@ -238,7 +238,7 @@ namespace CruiseProcessing
                 r.Value1 = sg.Species;
 
                 //  find all species in LCD
-                List<LCDDO> currentSpecies = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Species = ?", 
+                List<LCDDO> currentSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Species = @p2 ", 
                                                         "", "C", sg.Species, "");
                 foreach (LCDDO cs in currentSpecies)
                 {

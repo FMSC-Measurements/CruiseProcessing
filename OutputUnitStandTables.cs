@@ -144,20 +144,20 @@ namespace CruiseProcessing
             {
                 case "Species":
                     if (whatProduct == "SAW")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND PrimaryProduct = ? ",
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND PrimaryProduct = @p2 ",
                                                             "GROUP BY Species", "C", "01");
                     else if (whatProduct == "NSAW" || whatProduct == "BOTH")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY Species", "C", "");
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
                     break;
                 case "SampleGroup":
                     if (whatProduct == "SAW")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? AND PrimaryProduct = ? ", 
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND PrimaryProduct = @p2 ", 
                                                             "GROUP BY SampleGroup", "C", "01");
                     else if (whatProduct == "NSAW" || whatProduct == "BOTH")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY SampleGroup", "C", "");
+                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY SampleGroup", "C", "");
                     break;
                 case "ContractSpecies":
-                    speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = ? ", "GROUP BY ContractSpecies", "C", "");
+                    speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY ContractSpecies", "C", "");
                     break;
             }   //  end switch
 
