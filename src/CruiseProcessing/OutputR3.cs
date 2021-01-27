@@ -14,7 +14,7 @@ namespace CruiseProcessing
         #region
         public string currentReport;
         private int[] fieldLengths;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
         private regionalReportHeaders rRH = new regionalReportHeaders();
@@ -119,40 +119,40 @@ namespace CruiseProcessing
                 prtFields.Add(lto.value2.PadLeft(2, ' '));
                 prtFields.Add(lto.value3.PadRight(4, ' '));
                 //  gross and net ccf
-                prtFields.Add(Utilities.Format("{0,7:F0}", lto.value8 / 100).ToString().PadLeft(7, ' '));
-                prtFields.Add(Utilities.Format("{0,7:F0}", lto.value10 / 100).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F0}", lto.value8 / 100).PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F0}", lto.value10 / 100).PadLeft(7, ' '));
                 //  CCF defect
                 if (lto.value8 > 0 && lto.value2 == "01")
                     calcValue = ((lto.value8 - lto.value10) / lto.value8) * 100;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  total trees
-                prtFields.Add(Utilities.Format("{0,7:F0}", lto.value13).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F0}", lto.value13).PadLeft(7, ' '));
                 //  average gross CF per tree
                 if (lto.value13 > 0)
                     calcValue = lto.value8 / lto.value13;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(4, ' '));
+                prtFields.Add(String.Format("{0,4:F0}", calcValue).PadLeft(4, ' '));
                 //  average gross CF per acres
                 if (totalSaleAcres > 0)
                     calcValue = lto.value8 / totalSaleAcres;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,6:F0}", calcValue).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F0}", calcValue).PadLeft(6, ' '));
                 //  Quad mean DBH
                 if (lto.value13 > 0)
                     calcValue = Math.Sqrt(lto.value12 / lto.value13);
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  board foot cubic foot ratio
                 if (lto.value8 > 0)
                     calcValue = (lto.value7 / lto.value8) / 10;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F4}", calcValue).ToString().Replace("0.",".").PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F4}", calcValue).Replace("0.",".").PadLeft(5, ' '));
                 //  MBF values
-                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value7 / 1000).ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value9 / 1000).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F0}", lto.value7 / 1000).PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F0}", lto.value9 / 1000).PadLeft(6, ' '));
                 //  CCF topwood
-                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value11 / 100).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F0}", lto.value11 / 100).PadLeft(6, ' '));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -206,40 +206,40 @@ namespace CruiseProcessing
             {
                 strWriteOut.Write("    TOTAL- ");
                 strWriteOut.Write(t.Value1.PadRight(6, ' '));
-                strWriteOut.Write(Utilities.Format("{0,7:F0}", t.Value8 / 100).ToString().PadLeft(7, ' '));
-                strWriteOut.Write(Utilities.Format("{0,7:F0}", t.Value10 / 100).ToString().PadLeft(8, ' '));
+                strWriteOut.Write(String.Format("{0,7:F0}", t.Value8 / 100).PadLeft(7, ' '));
+                strWriteOut.Write(String.Format("{0,7:F0}", t.Value10 / 100).PadLeft(8, ' '));
                 //  CCF defect
                 if (t.Value8 > 0)
                     calcValue = ((t.Value8 - t.Value10) / t.Value8) * 100;
                 else calcValue = 0;
-                strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(7, ' '));
+                strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(7, ' '));
                 //  total trees
-                strWriteOut.Write(Utilities.Format("{0,7:F0}", t.Value13).ToString().PadLeft(9, ' '));
+                strWriteOut.Write(String.Format("{0,7:F0}", t.Value13).PadLeft(9, ' '));
                 //  average gross CF per tree
                 if (t.Value13 > 0)
                     calcValue = t.Value8 / t.Value13;
                 else calcValue = 0;
-                strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(7, ' '));
+                strWriteOut.Write(String.Format("{0,4:F0}", calcValue).PadLeft(7, ' '));
                 //  average gross CF per acre
                 if (totalSaleAcres > 0)
                     calcValue = t.Value8 / totalSaleAcres;
                 else calcValue = 0;
-                strWriteOut.Write(Utilities.Format("{0,6:F0}", calcValue).ToString().PadLeft(10, ' '));
+                strWriteOut.Write(String.Format("{0,6:F0}", calcValue).PadLeft(10, ' '));
                 //  quad mean DBH
                 if (t.Value13 > 0)
                     calcValue = Math.Sqrt(t.Value12 / t.Value13);
                 else calcValue = 0;
-                strWriteOut.Write(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
+                strWriteOut.Write(String.Format("{0,8:F1}", calcValue).PadLeft(8, ' '));
                 //  Board foot cubic foot ratio
                 if (t.Value8 > 0)
                     calcValue = (t.Value7 / t.Value8) / 10;
                 else calcValue = 0;
-                strWriteOut.Write(Utilities.Format("{0,5:F4}", calcValue).ToString().Replace("0.",".").PadLeft(9, ' '));
+                strWriteOut.Write(String.Format("{0,5:F4}", calcValue).Replace("0.",".").PadLeft(9, ' '));
                 //  MBF values
-                strWriteOut.Write(Utilities.Format("{0,6:F0}", t.Value7 / 1000).ToString().PadLeft(9, ' '));
-                strWriteOut.Write(Utilities.Format("{0,6:F0}", t.Value9 / 1000).ToString().PadLeft(7, ' '));
+                strWriteOut.Write(String.Format("{0,6:F0}", t.Value7 / 1000).PadLeft(9, ' '));
+                strWriteOut.Write(String.Format("{0,6:F0}", t.Value9 / 1000).PadLeft(7, ' '));
                 //  CCF topwood
-                strWriteOut.WriteLine(Utilities.Format("{0,6:F0}", t.Value11 / 100).ToString().PadLeft(8, ' '));
+                strWriteOut.WriteLine(String.Format("{0,6:F0}", t.Value11 / 100).PadLeft(8, ' '));
             }   //  end foreach loop
             strWriteOut.WriteLine("");
             strWriteOut.WriteLine("");

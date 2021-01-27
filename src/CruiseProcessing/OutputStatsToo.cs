@@ -15,7 +15,7 @@ namespace CruiseProcessing
         #region
         public string currentReport;
         private int[] fieldLengths;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[7];
         private List<POPDO> popList = new List<POPDO>();
         private List<LCDDO> lcdList = new List<LCDDO>();
@@ -656,20 +656,20 @@ namespace CruiseProcessing
             prtFields.Add(groupSums[0].UOM.PadLeft(2, ' '));
 
             //  Gross numbers
-            prtFields.Add(Utilities.Format(fieldFormat1, FinalGrossVol));
+            prtFields.Add(String.Format(fieldFormat1, FinalGrossVol));
             if(FinalGrossVol > 0) FinalGrossErr = Math.Sqrt(FinalGrossErr2) / FinalGrossVol;
-            prtFields.Add(Utilities.Format(fieldFormat2, FinalGrossErr));
+            prtFields.Add(String.Format(fieldFormat2, FinalGrossErr));
             //  Calculate confidence intervals
-            prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "-")));
-            prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "+")));
+            prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "-")));
+            prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "+")));
 
             //  Net numbers
-            prtFields.Add(Utilities.Format(fieldFormat1, FinalNetVol));
+            prtFields.Add(String.Format(fieldFormat1, FinalNetVol));
             if(FinalNetVol > 0) FinalNetErr = Math.Sqrt(FinalNetErr2) / FinalNetVol;
-            prtFields.Add(Utilities.Format(fieldFormat2, FinalNetErr));
+            prtFields.Add(String.Format(fieldFormat2, FinalNetErr));
             //  Calculate confidence intervals
-            prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalNetVol, FinalNetErr, "-")));
-            prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalNetVol, FinalNetErr, "+")));
+            prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalNetVol, FinalNetErr, "-")));
+            prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalNetVol, FinalNetErr, "+")));
 
             switch (prodType)
             {
@@ -724,12 +724,12 @@ namespace CruiseProcessing
             prtFields.Add(groupSums[0].UOM.PadLeft(2, ' '));
 
             //  Gross numbers (only one set of numbers for dollar value)
-            prtFields.Add(Utilities.Format(fieldFormat1, FinalGrossVol));
+            prtFields.Add(String.Format(fieldFormat1, FinalGrossVol));
             if (FinalGrossVol > 0) FinalGrossErr = Math.Sqrt(FinalGrossErr2) / FinalGrossVol;
-            prtFields.Add(Utilities.Format(fieldFormat2, FinalGrossErr));
+            prtFields.Add(String.Format(fieldFormat2, FinalGrossErr));
             //  Calculate confidence intervals
-            prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "-")));
-            prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "+")));
+            prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "-")));
+            prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(FinalGrossVol, FinalGrossErr, "+")));
 
             if (FinalGrossVol > 0)
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -1017,25 +1017,25 @@ namespace CruiseProcessing
 
 
                 //  Gross values
-                prtFields.Add(Utilities.Format(fieldFormat1, rs.Value3));
+                prtFields.Add(String.Format(fieldFormat1, rs.Value3));
                 //  Calculate final error
                 if(rs.Value3 > 0) finalErr = Math.Sqrt(rs.Value5) / rs.Value3;
-                prtFields.Add(Utilities.Format(fieldFormat2, finalErr));
+                prtFields.Add(String.Format(fieldFormat2, finalErr));
                 //  Calculate confidence intervals
-                prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value3, finalErr, "-")));
-                prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value3, finalErr, "+")));
+                prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value3, finalErr, "-")));
+                prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value3, finalErr, "+")));
 
                 //  net is only for ST3
                 if (currentReport == "ST3")
                 {
                     //  net values
-                    prtFields.Add(Utilities.Format(fieldFormat1, rs.Value4));
+                    prtFields.Add(String.Format(fieldFormat1, rs.Value4));
                     //  Calculate final error
                     if (rs.Value4 > 0) finalErr = Math.Sqrt(rs.Value6) / rs.Value4;
-                    prtFields.Add(Utilities.Format(fieldFormat2, finalErr));
+                    prtFields.Add(String.Format(fieldFormat2, finalErr));
                     //  Calculate confidence intervals
-                    prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value4, finalErr, "-")));
-                    prtFields.Add(Utilities.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value4, finalErr, "+")));
+                    prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value4, finalErr, "-")));
+                    prtFields.Add(String.Format(fieldFormat3, CommonStatistics.CalculateConfidence(rs.Value4, finalErr, "+")));
                 }   //  endif on current report
 
                 //  output record

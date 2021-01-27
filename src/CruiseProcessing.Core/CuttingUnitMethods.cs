@@ -55,9 +55,9 @@ namespace CruiseProcessing
         }   //  end GetUnitAcres
 
 
-        public static ArrayList buildPrintArray(CuttingUnitDO cul, string cruiseName)
+        public static List<string> buildPrintArray(CuttingUnitDO cul, string cruiseName)
         {
-            ArrayList cutUnitArray = new ArrayList();
+            List<string> cutUnitArray = new List<string>();
             cutUnitArray.Add("   ");
             cutUnitArray.Add(cruiseName.PadRight(5, ' '));
             cutUnitArray.Add(cul.Code.PadLeft(3, ' '));
@@ -70,9 +70,9 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
         //  overloaded to build line for payment unit page in A01 report
-        public static ArrayList buildPrintArray(CuttingUnitDO cud, string cruiseName, string currentStratum)
+        public static List<string> buildPrintArray(CuttingUnitDO cud, string cruiseName, string currentStratum)
         {
-            ArrayList currArray = new ArrayList();
+            List<string> currArray = new List<string>();
             currArray.Add("     ");
             currArray.Add(cruiseName.PadRight(5,' '));
             currArray.Add(cud.Code.PadLeft(3,' '));

@@ -220,61 +220,61 @@ namespace CruiseProcessing
                             switch (jg)
                             {
                                 case 0:
-                                    pot.value2 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value2 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 1:
-                                    pot.value3 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value3 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 2:
-                                    pot.value4 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value4 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 3:
-                                    pot.value5 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value5 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 4:
-                                    pot.value6 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value6 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 5:
-                                    pot.value7 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value7 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 6:
-                                    pot.value8 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value8 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 7:
-                                    pot.value9 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value9 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 8:
-                                    pot.value10 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value10 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 9:
-                                    pot.value11 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value11 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 10:
-                                    pot.value12 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value12 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 11:
-                                    pot.value13 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value13 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 12:
-                                    pot.value14 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value14 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 13:
-                                    pot.value15 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value15 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 14:
-                                    pot.value16 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value16 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 15:
-                                    pot.value17 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value17 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 16:
-                                    pot.value18 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value18 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 17:
-                                    pot.value19 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value19 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                                 case 18:
-                                    pot.value20 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                    pot.value20 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                     break;
                             }   // end switch
                         }   //  endif calcValue greater than zero
@@ -450,61 +450,61 @@ namespace CruiseProcessing
                         switch (jg)
                         {
                             case 0:
-                                pot.value2 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value2 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 1:
-                                pot.value3 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value3 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 2:
-                                pot.value4 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value4 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 3:
-                                pot.value5 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value5 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 4:
-                                pot.value6 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value6 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 5:
-                                pot.value7 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value7 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 6:
-                                pot.value8 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value8 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 7:
-                                pot.value9 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value9 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 8:
-                                pot.value10 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value10 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 9:
-                                pot.value11 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value11 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 10:
-                                pot.value12 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value12 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 11:
-                                pot.value13 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value13 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 12:
-                                pot.value14 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value14 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 13:
-                                pot.value15 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value15 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 14:
-                                pot.value16 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value16 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 15:
-                                pot.value17 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value17 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 16:
-                                pot.value18 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value18 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 17:
-                                pot.value19 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value19 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                             case 18:
-                                pot.value20 = Utilities.Format("{0,6:F2}", calcValue).ToString().PadLeft(6, ' ');
+                                pot.value20 = String.Format("{0,6:F2}", calcValue).PadLeft(6, ' ');
                                 break;
                         }   // end switch
                     }
@@ -598,11 +598,11 @@ namespace CruiseProcessing
                     //  write group line
                     strWriteOut.Write("      ");
                     strWriteOut.Write(jg.RegressModel.PadRight(11, ' '));
-                    strWriteOut.Write(Utilities.Format("{0,6:F0}", jg.TotalTrees).ToString().PadRight(8, ' '));
-                    strWriteOut.Write(Utilities.Format("{0,6:F4}", jg.Rsquared).ToString().PadRight(9, ' '));
-                    strWriteOut.Write(Utilities.Format("{0,7:F4}", jg.MeanSE).ToString().PadRight(10, ' '));
-                    strWriteOut.Write(Utilities.Format("{0,3:F1}", jg.rMinDbh).ToString().PadRight(7, ' '));
-                    strWriteOut.Write(Utilities.Format("{0,3:F1}", jg.rMaxDbh).ToString().PadRight(7, ' '));
+                    strWriteOut.Write(String.Format("{0,6:F0}", jg.TotalTrees).PadRight(8, ' '));
+                    strWriteOut.Write(String.Format("{0,6:F4}", jg.Rsquared).PadRight(9, ' '));
+                    strWriteOut.Write(String.Format("{0,7:F4}", jg.MeanSE).PadRight(10, ' '));
+                    strWriteOut.Write(String.Format("{0,3:F1}", jg.rMinDbh).PadRight(7, ' '));
+                    strWriteOut.Write(String.Format("{0,3:F1}", jg.rMaxDbh).PadRight(7, ' '));
                     //  build equation
                     StringBuilder currEquation = buildEquation(jg.CoefficientA, jg.CoefficientB, jg.CoefficientC, jg.RegressModel);
                     strWriteOut.WriteLine(currEquation.ToString());
@@ -683,30 +683,30 @@ namespace CruiseProcessing
             StringBuilder regrEq = new StringBuilder();
 
             //  every equation starts with coefficient 1
-            regrEq.Append(Utilities.Format("{0,8:F6}", coef1).ToString());
+            regrEq.Append(String.Format("{0,8:F6}", coef1));
 
             switch (currModel)
             {
                 case "Linear":
                     regrEq.Append(" + ");
-                    regrEq.Append(Utilities.Format("{0,8:F6}", coef2).ToString());
+                    regrEq.Append(String.Format("{0,8:F6}", coef2));
                     regrEq.Append("*DBH");
                     break;
                 case "Quadratic":
                     regrEq.Append(" + ");
-                    regrEq.Append(Utilities.Format("{0,8:F6}", coef2).ToString());
+                    regrEq.Append(String.Format("{0,8:F6}", coef2));
                     regrEq.Append("*DBH + ");
-                    regrEq.Append(Utilities.Format("{0,8:F6}", coef3).ToString());
+                    regrEq.Append(String.Format("{0,8:F6}", coef3));
                     regrEq.Append("*DBH*DBH");
                     break;
                 case "Log":
                     regrEq.Append(" + ");
-                    regrEq.Append(Utilities.Format("{0,8:F6}", coef2).ToString());
+                    regrEq.Append(String.Format("{0,8:F6}", coef2));
                     regrEq.Append("*ln(DBH)");
                     break;
                 case "Power":
                     regrEq.Append("*(DBH^");
-                    regrEq.Append(Utilities.Format("{0,8:F6}", coef2).ToString());
+                    regrEq.Append(String.Format("{0,8:F6}", coef2));
                     regrEq.Append(")");
                     break;
             }   //  end switch

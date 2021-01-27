@@ -45,15 +45,15 @@ namespace CruiseProcessing
             return errorsFound;
         }   //  end CheckAllUOMandCutLeave
 
-        public ArrayList buildPrintArray(SampleGroupDO sg)
+        public List<string> buildPrintArray(SampleGroupDO sg)
         {
-            ArrayList sgArray = new ArrayList();
+            var sgArray = new List<string>();
             sgArray.Add("");
             sgArray.Add(sg.Stratum.Code.PadLeft(2, ' '));
             sgArray.Add(sg.Code.PadLeft(2, ' '));
-            sgArray.Add(Utilities.Format("{0,4:F0}", sg.SamplingFrequency).ToString().PadLeft(4, ' '));
-            sgArray.Add(Utilities.Format("{0,4:F0}", sg.KZ).ToString().PadLeft(4, ' '));
-            sgArray.Add(Utilities.Format("{0,4:F0}", sg.BigBAF).ToString().PadLeft(4, ' '));
+            sgArray.Add(String.Format("{0,4:F0}", sg.SamplingFrequency).PadLeft(4, ' '));
+            sgArray.Add(String.Format("{0,4:F0}", sg.KZ).PadLeft(4, ' '));
+            sgArray.Add(String.Format("{0,4:F0}", sg.BigBAF).PadLeft(4, ' '));
             //sgArray.Add(Utilities.FormatField(sg.SmallFPS, "{0,4:F0}").ToString().PadLeft(4, ' '));
             sgArray.Add("    ");
             if (sg.Description == null)

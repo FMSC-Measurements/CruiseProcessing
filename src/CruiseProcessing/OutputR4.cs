@@ -15,7 +15,7 @@ namespace CruiseProcessing
         #region
         public string currentReport;
         private int[] fieldLengths;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
         private regionalReportHeaders rRH = new regionalReportHeaders();
@@ -394,57 +394,57 @@ namespace CruiseProcessing
                 prtFields.Add(lto.value1.PadRight(6, ' '));
                 prtFields.Add(lto.value2.PadLeft(2, '0'));
                 //  gross volume
-                prtFields.Add(Utilities.Format("{0,10:F0}", lto.value7).ToString().PadLeft(10, ' '));
+                prtFields.Add(String.Format("{0,10:F0}", lto.value7).PadLeft(10, ' '));
                 //  defect percent
                 if (lto.value7 > 0)
                     calcValue = ((lto.value7 - lto.value8) / lto.value7) * 100;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  net volume and number of trees
-                prtFields.Add(Utilities.Format("{0,10:F0}", lto.value8).ToString().PadLeft(10, ' '));
-                prtFields.Add(Utilities.Format("{0,8:F0}", lto.value13).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,10:F0}", lto.value8).PadLeft(10, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", lto.value13).PadLeft(8, ' '));
                 //  gross volume per acre
                 if (totAC > 0)
                     calcValue = lto.value7 / totAC;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", calcValue).PadLeft(8, ' '));
                 //  net volume per acre
                 if (totAC > 0)
                     calcValue = lto.value8 / totAC;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", calcValue).PadLeft(8, ' '));
                 //  trees per acre
                 if (totAC > 0)
                     calcValue = lto.value13 / totAC;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F1}", calcValue).PadLeft(6, ' '));
                 //  quad mean DBH
                 if (lto.value13 > 0)
                     calcValue = Math.Sqrt(lto.value9 / lto.value13);
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  mean height
                 if (lto.value13 > 0)
                     calcValue = lto.value10 / lto.value13;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  net per tree
                 if (lto.value13 > 0)
                     calcValue = lto.value8 / lto.value13;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", calcValue).PadLeft(8, ' '));
                 //  logs per gross volume
                 if(lto.value7 > 0)
                     calcValue = lto.value11 / (lto.value7 / convFactor);
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(6,' '));
+                prtFields.Add(String.Format("{0,6:F1}", calcValue).PadLeft(6,' '));
                 //  net log scale value
                 if (lto.value12 > 0)
                 {
                     if (lto.value8 > 0)
                     {
                         calcValue = lto.value12 / (lto.value8 / convFactor);
-                        prtFields.Add(Utilities.Format("{0,8:F2}", calcValue).ToString().PadLeft(8, ' '));
+                        prtFields.Add(String.Format("{0,8:F2}", calcValue).PadLeft(8, ' '));
                     }
                     else prtFields.Add("        ");
                 }   //  endif
@@ -480,52 +480,52 @@ namespace CruiseProcessing
                     prtFields.Add("   ");
                 prtFields.Add(lto.value2.PadLeft(2, '0'));
                 // gross volume
-                prtFields.Add(Utilities.Format("{0,10:F0}", lto.value7).ToString().PadLeft(10, ' '));
+                prtFields.Add(String.Format("{0,10:F0}", lto.value7).PadLeft(10, ' '));
                 //  defect percent
                 if (lto.value7 > 0)
                     calcValue = ((lto.value7 - lto.value8) / lto.value7) * 100;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  net volume and number of trees
-                prtFields.Add(Utilities.Format("{0,10:F0}", lto.value8).ToString().PadLeft(10, ' '));
-                prtFields.Add(Utilities.Format("{0,8:F0}", lto.value13).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,10:F0}", lto.value8).PadLeft(10, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", lto.value13).PadLeft(8, ' '));
                 //  gross volume per acre
                 if (totAC > 0)
                     calcValue = lto.value7 / totAC;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", calcValue).PadLeft(8, ' '));
                 //  net volume per acre
                 if (totAC > 0)
                     calcValue = lto.value8 / totAC;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", calcValue).PadLeft(8, ' '));
                 //  trees per acre
                 if (totAC > 0)
                     calcValue = lto.value13 / totAC;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F1}", calcValue).PadLeft(6, ' '));
                 //  quad mean DBH
                 if (lto.value13 > 0)
                     calcValue = Math.Sqrt(lto.value9 / lto.value13);
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  mean height
                 if (lto.value13 > 0)
                     calcValue = lto.value10 / lto.value13;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                 //  net per tree
                 if (lto.value13 > 0)
                     calcValue = lto.value8 / lto.value13;
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", calcValue).PadLeft(8, ' '));
                 //  logs per gross volume
                 if (lto.value7 > 0)
                     calcValue = lto.value11 / (lto.value7 / convFactor);
                 else calcValue = 0.0;
-                prtFields.Add(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F1}", calcValue).PadLeft(6, ' '));
                 //  total logging method acres
-                prtFields.Add(Utilities.Format("{0,8:F1}", lto.value12).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F1}", lto.value12).PadLeft(8, ' '));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   // end foreach loop
@@ -576,57 +576,57 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(" TOTALS/AVE ");
             //  gross volume
-            strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value7).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(String.Format("{0,10:F0}", totalToOutput[0].Value7).PadLeft(10, ' '));
             //  defect percent
             if (totalToOutput[0].Value7 > 0)
                 calcValue = ((totalToOutput[0].Value7 - totalToOutput[0].Value8) / totalToOutput[0].Value7) * 100;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(8, ' '));
             //  net volume and expansion factor
-            strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value8).ToString().PadLeft(12, ' '));
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value13).ToString().PadLeft(12, ' '));
+            strWriteOut.Write(String.Format("{0,10:F0}", totalToOutput[0].Value8).PadLeft(12, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value13).PadLeft(12, ' '));
             //  gross volume per acre
             if (totAC > 0)
                 calcValue = totalToOutput[0].Value7 / totAC;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(11, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", calcValue).PadLeft(11, ' '));
             //  net volume per acre
             if (totAC > 0)
                 calcValue = totalToOutput[0].Value8 / totAC;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", calcValue).PadLeft(10, ' '));
             //  trees per acre
             if (totAC > 0)
                 calcValue = totalToOutput[0].Value13 / totAC;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(String.Format("{0,6:F1}", calcValue).PadLeft(10, ' '));
             //  quad mean dbh
             if (totalToOutput[0].Value13 > 0)
                 calcValue = Math.Sqrt(totalToOutput[0].Value9 / totalToOutput[0].Value13);
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(8, ' '));
             //  mean height
             if (totalToOutput[0].Value13 > 0)
                 calcValue = totalToOutput[0].Value10 / totalToOutput[0].Value13;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(9, ' '));
             //  net volume per tree
             if (totalToOutput[0].Value13 > 0)
                 calcValue = totalToOutput[0].Value8 / totalToOutput[0].Value13;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", calcValue).PadLeft(9, ' '));
             //  logs per volume
             if(totalToOutput[0].Value7 > 0)
                 calcValue = totalToOutput[0].Value11 /(totalToOutput[0].Value7/convFactor);
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(8,' '));
+            strWriteOut.Write(String.Format("{0,6:F1}", calcValue).PadLeft(8,' '));
             //  net log scale value
             if(totalToOutput[0].Value12 > 0)
             {
                 if(totalToOutput[0].Value8 > 0)
                 {
                     calcValue = totalToOutput[0].Value12 / (totalToOutput[0].Value8 / convFactor);
-                    strWriteOut.WriteLine(Utilities.Format("{0,8:F2}", calcValue).ToString().PadLeft(10,' '));
+                    strWriteOut.WriteLine(String.Format("{0,8:F2}", calcValue).PadLeft(10,' '));
                 }
                 else strWriteOut.WriteLine("          ");
             }
@@ -655,52 +655,52 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(" TOTALS/AVE   ");
             //  gross volume
-            strWriteOut.Write(Utilities.Format("{0,10:F0}", Total7).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(String.Format("{0,10:F0}", Total7).PadLeft(10, ' '));
             //  defect percent
             if (Total7 > 0)
                 calcValue = ((Total7) - Total8) / Total7 * 100;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(7, ' '));
+            strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(7, ' '));
             //  net volume and expansion factor
-            strWriteOut.Write(Utilities.Format("{0,10:F0}", Total8).ToString().PadLeft(14, ' '));
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", Total13).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(String.Format("{0,10:F0}", Total8).PadLeft(14, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", Total13).PadLeft(9, ' '));
             //  gross volume per acre
             if (Total12 > 0)
                 calcValue = Total7 / Total12;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", calcValue).PadLeft(10, ' '));
             //  net volume per acre
             if (Total12> 0)
                 calcValue = Total8 / Total12;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(11, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", calcValue).PadLeft(11, ' '));
             //  trees per acre
             if (Total12 > 0)
                 calcValue = Total13 / Total12;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(String.Format("{0,6:F1}", calcValue).PadLeft(10, ' '));
             //  quad mean dbh
             if (Total11 > 0)
                 calcValue = Math.Sqrt(Total9 / Total13);
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(9, ' '));
             //  mean height
             if (Total13 > 0)
                 calcValue = Total10 / Total13;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(9, ' '));
             //  net volume per tree
             if (Total13 > 0)
                 calcValue = Total8 / Total13;
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(String.Format("{0,8:F0}", calcValue).PadLeft(9, ' '));
             //  logs per volume
             if (Total7 > 0)
                 calcValue = Total11 / (Total7 / convFactor);
             else calcValue = 0.0;
-            strWriteOut.Write(Utilities.Format("{0,6:F1}", calcValue).ToString().PadLeft(7, ' '));
+            strWriteOut.Write(String.Format("{0,6:F1}", calcValue).PadLeft(7, ' '));
             //  unit acres
-            strWriteOut.WriteLine(Utilities.Format("{0,8:F1}", Total12).ToString().PadLeft(9, ' '));
+            strWriteOut.WriteLine(String.Format("{0,8:F1}", Total12).PadLeft(9, ' '));
             return;
         }   //  end writeTotalLine
 

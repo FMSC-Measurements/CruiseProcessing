@@ -14,7 +14,7 @@ namespace CruiseProcessing
         #region
         public string currRept;
         private int[] fieldLengths;
-        private ArrayList prtFields;
+        private List<string> prtFields;
         private StringBuilder sb = new StringBuilder();
         private int firstLine = 0;
         private List<ReportSubtotal> productSubTotal = new List<ReportSubtotal>();
@@ -229,7 +229,7 @@ namespace CruiseProcessing
                                         int whichLine, List<ReportSubtotal> listToPrint)
         {
             fieldLengths = new int[] { 1, 3, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 8 };
-            prtFields = new ArrayList();
+            prtFields = new List<string>();
 
             foreach (ReportSubtotal rs in listToPrint)
             {
@@ -256,18 +256,18 @@ namespace CruiseProcessing
                 }   //  end switch
 
                 //  add grade volumes 
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value3));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value4));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value5));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value6));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value7));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value8));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value9));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value10));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value11));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value12));
-                prtFields.Add(Utilities.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value13));
-                prtFields.Add(Utilities.Format("{0,8:F0}".ToString().PadLeft(8, ' '), rs.Value14));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value3));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value4));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value5));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value6));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value7));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value8));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value9));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value10));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value11));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value12));
+                prtFields.Add(String.Format("{0,7:F0}".ToString().PadLeft(7, ' '), rs.Value13));
+                prtFields.Add(String.Format("{0,8:F0}".ToString().PadLeft(8, ' '), rs.Value14));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
 

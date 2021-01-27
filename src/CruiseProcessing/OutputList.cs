@@ -16,10 +16,10 @@ namespace CruiseProcessing
             double totalPlots;
             public string currentReport;
             private int[] fieldLengths;
-            private ArrayList prtFields = new ArrayList();
+            private List<string> prtFields = new List<string>();
             private float summedValue = 0;
             private string[] completeHeader;
-            private ArrayList fieldsToPrint;
+            private List<string> fieldsToPrint;
             private List<TreeDO> tList = new List<TreeDO>();
             private List<TreeCalculatedValuesDO> tcvList = new List<TreeCalculatedValuesDO>();
             private List<LogStockDO> lsList = new List<LogStockDO>();

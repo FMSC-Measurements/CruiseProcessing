@@ -13,7 +13,7 @@ namespace CruiseProcessing
     {
         #region
         public string currentReport;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[3];
         private List<StandTables> countsToOutput = new List<StandTables>();
         private string oneHeader = "CUTTING UNIT:  ";
@@ -257,49 +257,49 @@ namespace CruiseProcessing
                     switch (k)
                     {
                         case 0:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species1).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species1).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 1:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species2).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species2).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 2:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species3).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species3).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 3:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species4).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species4).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 4:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species5).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species5).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 5:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species6).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species6).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 6:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species7).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species7).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 7:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species8).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species8).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 8:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species9).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species9).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 9:
-                            prtFields.Add(Utilities.Format("{0,9:F1}", cto.species10).ToString().PadLeft(9, ' '));
+                            prtFields.Add(String.Format("{0,9:F1}", cto.species10).PadLeft(9, ' '));
                             prtFields.Add(verticalLine);
                             break;
                     }   //  end switch
                 }   //  end foreach loop on just species
                 //  load line total
-                prtFields.Add(Utilities.Format("{0,9:F1}", cto.lineTotal).ToString().PadLeft(9, ' '));
+                prtFields.Add(String.Format("{0,9:F1}", cto.lineTotal).PadLeft(9, ' '));
                 printOneRecord(strWriteOut, prtFields);
             }   //  end foreach loop
             // output total line
@@ -360,12 +360,12 @@ namespace CruiseProcessing
                         calcValue = countsToOutput.Sum(c => c.species10);
                         break;
                 }   //  end switch
-                strWriteOut.Write(Utilities.Format("{0,9:F1}", calcValue).ToString().PadLeft(9, ' '));
+                strWriteOut.Write(String.Format("{0,9:F1}", calcValue).PadLeft(9, ' '));
                 strWriteOut.Write(verticalLine);
             }   //  end for k loop
             //  sum up total column
             calcValue = countsToOutput.Sum(c => c.lineTotal);
-            strWriteOut.WriteLine(Utilities.Format("{0,9:F1}", calcValue).ToString().PadLeft(9, ' '));
+            strWriteOut.WriteLine(String.Format("{0,9:F1}", calcValue).PadLeft(9, ' '));
             return;
         }   //  end outputTotalLine
 

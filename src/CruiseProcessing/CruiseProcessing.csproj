@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Build Config">
-    <TargetFramework>net461</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
+    <TargetFrameworks>net472</TargetFrameworks>
+    <PlatformTarget>x86</PlatformTarget>
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <StartupObject>$(RootNamespace).Program</StartupObject>

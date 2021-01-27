@@ -13,7 +13,7 @@ namespace CruiseProcessing
     {
         #region
         public string currentReport;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private double unitPF = 0;
         private string[] columnHeader = new string[3];
         private List<StandTables> reportData = new List<StandTables>();
@@ -798,50 +798,50 @@ namespace CruiseProcessing
                     switch (k)
                     {
                         case 0:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species1).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species1).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 1:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species2).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species2).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 2:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species3).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species3).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 3:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species4).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species4).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 4:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species5).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species5).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 5:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species6).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species6).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 6:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species7).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species7).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 7:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species8).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species8).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 8:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species9).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species9).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                         case 9:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", rd.species10).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", rd.species10).PadLeft(8, ' '));
                             prtFields.Add(verticalBar);
                             break;
                     }   //  end switch on k
                 }   // end for k loop
                 //  output line total column if this is the last page
                 if (lastPage)
-                    prtFields.Add(Utilities.Format("{0,9:F0}", rd.lineTotal).ToString().PadLeft(9, ' '));
+                    prtFields.Add(String.Format("{0,9:F0}", rd.lineTotal).PadLeft(9, ' '));
 
                 printOneRecord(strWriteOut, prtFields);
                 //  clear print fields for next line
@@ -853,14 +853,14 @@ namespace CruiseProcessing
             prtFields.Add("  TOTALS  | ");
             for (int k = 0; k < lastGroup; k++)
             {
-                prtFields.Add(Utilities.Format("{0,8:F0}", columnTotals[k]).ToString().PadLeft(8,' '));
+                prtFields.Add(String.Format("{0,8:F0}", columnTotals[k]).PadLeft(8,' '));
                 prtFields.Add(verticalBar);
             }   //  end for k loop
             if(lastPage)
             {
                 // sum up line totals
                 columnTotals[10] = reportData.Sum(r => r.lineTotal);
-                prtFields.Add(Utilities.Format("{0,9:F0}", columnTotals[10]).ToString().PadLeft(9,' '));
+                prtFields.Add(String.Format("{0,9:F0}", columnTotals[10]).PadLeft(9,' '));
             }   //  endif lastPage
             printOneRecord(strWriteOut,prtFields);
             return;
@@ -1229,9 +1229,9 @@ namespace CruiseProcessing
                     prtFields.Add("               ");
                     prtFields.Add(currCS.PadRight(4, ' '));
                     prtFields.Add("       ");
-                    prtFields.Add(Utilities.Format("{0,7:F0}", sawVol / 100).ToString().PadLeft(7, ' '));
+                    prtFields.Add(String.Format("{0,7:F0}", sawVol / 100).PadLeft(7, ' '));
                     prtFields.Add("          ");
-                    prtFields.Add(Utilities.Format("{0,7:F0}", nonsawVol / 100).ToString().PadLeft(7, ' '));
+                    prtFields.Add(String.Format("{0,7:F0}", nonsawVol / 100).PadLeft(7, ' '));
                     printOneRecord(strWriteOut, prtFields);
                     break;
                 case "UC26":
@@ -1242,15 +1242,15 @@ namespace CruiseProcessing
                     {
                         prtFields.Add(currPU.PadLeft(4,' '));
                         prtFields.Add("     ");
-                        prtFields.Add(Utilities.Format("{0,5:F0}", currAcres).ToString().PadLeft(5,' '));
+                        prtFields.Add(String.Format("{0,5:F0}", currAcres).PadLeft(5,' '));
                     }
                     else prtFields.Add("              ");
                     prtFields.Add("     ");
                     prtFields.Add(currCS.PadRight(4,' '));
                     prtFields.Add("       ");
-                    prtFields.Add(Utilities.Format("{0,7:F2}", sawVol / 100).ToString().PadLeft(7,' '));
+                    prtFields.Add(String.Format("{0,7:F2}", sawVol / 100).PadLeft(7,' '));
                     prtFields.Add("          ");
-                    prtFields.Add(Utilities.Format("{0,7:F2}", nonsawVol / 100).ToString().PadLeft(7,' '));
+                    prtFields.Add(String.Format("{0,7:F2}", nonsawVol / 100).PadLeft(7,' '));
                     printOneRecord(strWriteOut, prtFields);
                     break;
             }   //  end switch on report
@@ -1280,17 +1280,17 @@ namespace CruiseProcessing
             prtFields.Add(" ");
             prtFields.Add(totalText[1]);
             prtFields.Add("      ");
-            prtFields.Add(Utilities.Format("{0,5:F0}", currAcres).ToString().PadLeft(5, ' '));
+            prtFields.Add(String.Format("{0,5:F0}", currAcres).PadLeft(5, ' '));
             prtFields.Add("    ");
             prtFields.Add(totalText[2]);
             prtFields.Add("         ");
             if (currentReport == "UC26")
-                prtFields.Add(Utilities.Format("{0,7:F2}", sawVol / 100).ToString().PadLeft(7, ' '));
-            else prtFields.Add(Utilities.Format("{0,7:F0}", sawVol / 100).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F2}", sawVol / 100).PadLeft(7, ' '));
+            else prtFields.Add(String.Format("{0,7:F0}", sawVol / 100).PadLeft(7, ' '));
             prtFields.Add("          ");
             if (currentReport == "UC26")
-                prtFields.Add(Utilities.Format("{0,7:F2}", NSawVol / 100).ToString().PadLeft(7, ' '));
-            else prtFields.Add(Utilities.Format("{0,7:F0}", NSawVol / 100).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F2}", NSawVol / 100).PadLeft(7, ' '));
+            else prtFields.Add(String.Format("{0,7:F0}", NSawVol / 100).PadLeft(7, ' '));
 
             printOneRecord(strWriteOut, prtFields);
             strWriteOut.WriteLine(reportConstants.longLine);
@@ -1317,8 +1317,8 @@ namespace CruiseProcessing
                 prtFields.Add(cs.Value1.PadRight(4, ' '));
                 prtFields.Add("       ");
                 if (currentReport == "UC26")
-                    prtFields.Add(Utilities.Format("{0,7:F2}", cs.Value3 / 100).ToString().PadLeft(7, ' '));
-                else prtFields.Add(Utilities.Format("{0,7:F0}", cs.Value3 / 100).ToString().PadLeft(7, ' '));
+                    prtFields.Add(String.Format("{0,7:F2}", cs.Value3 / 100).PadLeft(7, ' '));
+                else prtFields.Add(String.Format("{0,7:F0}", cs.Value3 / 100).PadLeft(7, ' '));
                 totalNonSaw += cs.Value4;
                 printOneRecord(strWriteOut, prtFields);
             }   //  end foreach loop
@@ -1326,8 +1326,8 @@ namespace CruiseProcessing
             prtFields.Clear();
             prtFields.Add("                                                   NS              ---          ");
             if (currentReport == "UC26")
-                prtFields.Add(Utilities.Format("{0,7:F2}", totalNonSaw / 100).ToString().PadLeft(7, ' '));
-            else prtFields.Add(Utilities.Format("{0,7:F0}", totalNonSaw / 100).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F2}", totalNonSaw / 100).PadLeft(7, ' '));
+            else prtFields.Add(String.Format("{0,7:F0}", totalNonSaw / 100).PadLeft(7, ' '));
             printOneRecord(strWriteOut, prtFields);
             return;
         }   //  end writeSummary
@@ -1341,15 +1341,15 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(reportConstants.longLine);
             prtFields.Clear();
             prtFields.Add("          GRAND TOTALS      ALL           ");
-            prtFields.Add(Utilities.Format("{0,5:F0}", totAcres).ToString().PadLeft(5, ' '));
+            prtFields.Add(String.Format("{0,5:F0}", totAcres).PadLeft(5, ' '));
             prtFields.Add("    ALL         ");
             if (currentReport == "UC26")
-                prtFields.Add(Utilities.Format("{0,7:F2}", gSawVol / 100).ToString().PadLeft(7, ' '));
-            else prtFields.Add(Utilities.Format("{0,7:F0}", gSawVol / 100).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F2}", gSawVol / 100).PadLeft(7, ' '));
+            else prtFields.Add(String.Format("{0,7:F0}", gSawVol / 100).PadLeft(7, ' '));
             prtFields.Add("          ");
             if (currentReport == "UC26")
-                prtFields.Add(Utilities.Format("{0,7:F2}", gNonSawVol / 100).ToString().PadLeft(7, ' '));
-            else prtFields.Add(Utilities.Format("{0,7:F0}", gNonSawVol / 100).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F2}", gNonSawVol / 100).PadLeft(7, ' '));
+            else prtFields.Add(String.Format("{0,7:F0}", gNonSawVol / 100).PadLeft(7, ' '));
 
             printOneRecord(strWriteOut, prtFields);
             return;

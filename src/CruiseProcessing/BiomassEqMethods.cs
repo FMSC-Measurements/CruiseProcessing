@@ -32,10 +32,10 @@ namespace CruiseProcessing
         }   //  end FindFactor
 
         
-        public static ArrayList buildPrintArray(BiomassEquationDO bioDO, int printSpecies)
+        public static List<string> buildPrintArray(BiomassEquationDO bioDO, int printSpecies)
         {
             string fieldFormat = "{0,5:F1}";
-            ArrayList bioArray = new ArrayList();
+            var bioArray = new List<string>();
             bioArray.Add(" ");
             if (printSpecies == 1)
             {

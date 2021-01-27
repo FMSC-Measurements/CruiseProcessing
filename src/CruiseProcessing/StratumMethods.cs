@@ -59,32 +59,32 @@ namespace CruiseProcessing
         }   //  end GetStratumCN
 
 
-        public static ArrayList buildPrintArray(StratumDO stl, string cruiseName, double totalAcres,
+        public static List<string> buildPrintArray(StratumDO stl, string cruiseName, double totalAcres,
                                                     double numPlots)
         {
             //  parameter list will have two other fields -- strata acres and number of plots
-            ArrayList stratumArray = new ArrayList();
+            var stratumArray = new List<string>();
             stratumArray.Add("   ");
             stratumArray.Add(cruiseName.PadRight(5, ' '));
             stratumArray.Add(stl.Code.PadLeft(2, ' '));
 
             stratumArray.Add(stl.Method.PadRight(6, ' '));
-            stratumArray.Add(Utilities.Format("{0,6:F2}", totalAcres).ToString().PadLeft(6, ' '));
-            stratumArray.Add(Utilities.Format("{0,7:F2}", stl.BasalAreaFactor).ToString().PadLeft(7, ' '));
-            stratumArray.Add(Utilities.Format("{0,4:F0}", stl.FixedPlotSize).ToString().PadLeft(3, ' '));
-            stratumArray.Add(Utilities.Format("{0,3:F0}", numPlots).ToString().PadLeft(3, ' '));
+            stratumArray.Add(String.Format("{0,6:F2}", totalAcres).PadLeft(6, ' '));
+            stratumArray.Add(String.Format("{0,7:F2}", stl.BasalAreaFactor).PadLeft(7, ' '));
+            stratumArray.Add(String.Format("{0,4:F0}", stl.FixedPlotSize).PadLeft(3, ' '));
+            stratumArray.Add(String.Format("{0,3:F0}", numPlots).PadLeft(3, ' '));
             stratumArray.Add(stl.Description ?? (" ").PadRight(25, ' '));
-            stratumArray.Add(Utilities.Format("{0,2:F0}", stl.Month).ToString());
-            stratumArray.Add(Utilities.Format("{0,4:F0}", stl.Year).ToString());
+            stratumArray.Add(String.Format("{0,2:F0}", stl.Month));
+            stratumArray.Add(String.Format("{0,4:F0}", stl.Year));
 
             return stratumArray;
         }   //  end buildPrintArray
 
 
-        public static ArrayList buildPrintArray(TreeCalculatedValuesDO tcv, string currUOM, ref int firstLine)
+        public static List<string> buildPrintArray(TreeCalculatedValuesDO tcv, string currUOM, ref int firstLine)
         {
             //  currently for VSM4 (CP4) report only
-            ArrayList prtArray = new ArrayList();
+            var prtArray = new List<string>();
 
             prtArray.Add("");
             if (firstLine == 0)
@@ -105,35 +105,35 @@ namespace CruiseProcessing
             else prtArray.Add("    ");
             prtArray.Add(tcv.Tree.TreeNumber.ToString().PadLeft(4, ' '));
             prtArray.Add(tcv.Tree.Species.PadRight(6, ' '));
-            prtArray.Add(Utilities.Format("{0,5:F1}", tcv.Tree.DBH).ToString().PadLeft(5, ' '));
+            prtArray.Add(String.Format("{0,5:F1}", tcv.Tree.DBH).PadLeft(5, ' '));
             
             //  volumes used depend on current UOM
             double currVolume = 0;
             switch (currUOM)
             {
                 case "03":
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.GrossCUFTPP));
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.NetCUFTPP));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.GrossCUFTPP));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.NetCUFTPP));
                     currVolume = tcv.NetCUFTPP;
                     break;
                 case "01":
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.GrossBDFTPP));
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.NetBDFTPP));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.GrossBDFTPP));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.NetBDFTPP));
                     currVolume = tcv.NetBDFTPP;
                     break;
                 case "05":
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.BiomassMainStemPrimary));
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.BiomassMainStemPrimary));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.BiomassMainStemPrimary));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.BiomassMainStemPrimary));
                     currVolume = tcv.BiomassMainStemPrimary;
                     break;
                 case "02":
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.CordsPP));
-                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.CordsPP));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.CordsPP));
+                    prtArray.Add(String.Format("{0,7:F1}", tcv.CordsPP));
                     currVolume = tcv.CordsPP;
                     break;
             }   //  end switch on UOM
 
-            prtArray.Add(Utilities.Format("{0,8:F2}", tcv.Tree.ExpansionFactor));
+            prtArray.Add(String.Format("{0,8:F2}", tcv.Tree.ExpansionFactor));
             prtArray.Add(tcv.Tree.KPI.ToString().PadLeft(5, ' '));
             //  April 2017 --  separate KPI from count table since it includes measured KPI
             prtArray.Add("     ");
@@ -141,7 +141,7 @@ namespace CruiseProcessing
             
             //  calculate ratio
             if (tcv.Tree.KPI > 0)
-                prtArray.Add(Utilities.Format("{0,7:F3}", (currVolume / tcv.Tree.KPI)));
+                prtArray.Add(String.Format("{0,7:F3}", (currVolume / tcv.Tree.KPI)));
             else prtArray.Add("       ");
             //  and finally marker's initials
             if (tcv.Tree != null && tcv.Tree.Initials != null)
