@@ -61,7 +61,7 @@ namespace CruiseProcessing
             cutUnitArray.Add("   ");
             cutUnitArray.Add(cruiseName.PadRight(5, ' '));
             cutUnitArray.Add(cul.Code.PadLeft(3, ' '));
-            cutUnitArray.Add(Utilities.FormatField(cul.Area,"{0,7:F2}").ToString().PadLeft(7, ' '));
+            cutUnitArray.Add(String.Format("{0,7:F2}", cul.Area).PadLeft(7, ' '));
             cutUnitArray.Add(cul.Description??(" ").PadRight(25, ' '));
             cutUnitArray.Add(cul.LoggingMethod??(" ").PadRight(3, ' '));
             cutUnitArray.Add(cul.PaymentUnit??(" ").PadLeft(4, ' '));
