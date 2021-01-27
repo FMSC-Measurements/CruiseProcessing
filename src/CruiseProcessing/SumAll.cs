@@ -614,7 +614,7 @@ namespace CruiseProcessing
                 {
                     //  since this totals plot values using tree count, find all trees in Tree for this plot
                     string[] valuesArray = new string[3] { plt.Plot_CN.ToString(), plt.Stratum_CN.ToString(), pdo.SampleGroup };
-                    List<TreeDO> justTrees = bslyr.getTreesOrdered("WHERE Plot_CN = ? AND Stratum_CN = ? ORDER BY ", 
+                    List<TreeDO> justTrees = bslyr.getTreesOrdered("WHERE Plot_CN = @p1 AND Stratum_CN = @p2 ORDER BY ", 
                                                                 "TreeNumber", valuesArray);
                     List<TreeDO> currentSampleGroup = justTrees.FindAll(
                         delegate(TreeDO t)

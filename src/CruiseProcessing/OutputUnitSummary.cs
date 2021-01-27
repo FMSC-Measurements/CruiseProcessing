@@ -64,7 +64,7 @@ namespace CruiseProcessing
                         case "F3P":     case "FIXCNT":
                             //  get trees ordered by sample group and species for each unit
                             string[] searchValues = new string[2] { s.Stratum_CN.ToString(), cu.CuttingUnit_CN.ToString() };
-                            List<TreeDO> justTrees = bslyr.getTreesOrdered("WHERE Stratum_CN = ? AND CuttingUnit_CN = ? ORDER BY ",
+                            List<TreeDO> justTrees = bslyr.getTreesOrdered("WHERE Stratum_CN = @p1 AND CuttingUnit_CN = @p2 ORDER BY ",
                                                                                 "Species", searchValues);
 
                             foreach (TreeDO jt in justTrees)
@@ -163,7 +163,7 @@ namespace CruiseProcessing
                         case "100":
                             //  100% method has measured trees only no counts
                             string[] searchValues = new string[2] { s.Stratum_CN.ToString(), cud.CuttingUnit_CN.ToString() };
-                            List<TreeDO> justMeasured = bslyr.getTreesOrdered("WHERE Tree.CountOrMeasure = 'M' AND Tree.Stratum_CN = ? AND Tree.CuttingUnit_CN = ? ORDER BY ", 
+                            List<TreeDO> justMeasured = bslyr.getTreesOrdered("WHERE Tree.CountOrMeasure = 'M' AND Tree.Stratum_CN = @p1 AND Tree.CuttingUnit_CN = @p2 ORDER BY ", 
                                                             "Species", searchValues);
                             foreach (TreeDO jm in justMeasured)
                             {
@@ -250,9 +250,9 @@ namespace CruiseProcessing
                             //  so if the count table returns 0 rows, need count records from the
                             //  tree table as well as measured trees.
                             if (cntList.Count == 0)
-                                justMeasured = bslyr.getTreesOrdered("WHERE Tree.TreeCount > 0 AND Tree.Stratum_CN = ? AND Tree.CuttingUnit_CN = ? ORDER BY ",
+                                justMeasured = bslyr.getTreesOrdered("WHERE Tree.TreeCount > 0 AND Tree.Stratum_CN = @p1 AND Tree.CuttingUnit_CN = @p2 ORDER BY ",
                                                             "Species", srchValues);
-                            else justMeasured = bslyr.getTreesOrdered("WHERE Tree.CountOrMeasure = 'M' AND Tree.TreeCount > 0 AND Tree.Stratum_CN = ? AND Tree.CuttingUnit_CN = ? ORDER BY ",
+                            else justMeasured = bslyr.getTreesOrdered("WHERE Tree.CountOrMeasure = 'M' AND Tree.TreeCount > 0 AND Tree.Stratum_CN = @p1 AND Tree.CuttingUnit_CN = @p2 ORDER BY ",
                                                         "Species", srchValues);
                             foreach(TreeDO jm in justMeasured)
                             {
