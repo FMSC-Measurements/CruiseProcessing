@@ -705,7 +705,7 @@ namespace CruiseProcessing
         {
             return DAL.From<PlotDO>()
                 .Join("Stratum AS st", "USING (Stratum_CN)")
-                .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN")
+                .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
                 .OrderBy("st.Code", "cu.Code", "PlotNumber")
                 .Read().ToList();
         }   //  end getPlotsOrdered
