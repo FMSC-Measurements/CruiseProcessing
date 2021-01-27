@@ -15,7 +15,7 @@ namespace CruiseProcessing
         private int pageNumber = 0;
         private string outFile;
         private int[] fieldLengths;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private StringBuilder currError = new StringBuilder();
         private StringBuilder ident = new StringBuilder();
         private string errMessage;
@@ -188,7 +188,7 @@ namespace CruiseProcessing
                     else prtFields.Add(eld.Message);
                     //  add appriorate identifier for table
                     ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                    prtFields.Add(ident);
+                    prtFields.Add(ident.ToString());
                     StringBuilder sb = buildPrintLine(fieldLengths, prtFields);
                     WriteCurrentError(strWriteOut, ref pageNumber, sb);
                     sb.Clear();
@@ -239,7 +239,7 @@ namespace CruiseProcessing
             else
             {
                 ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                prtFields.Add(ident);
+                prtFields.Add(ident.ToString());
             }   //  endif
             return;
         }   //  end SaleError
@@ -263,7 +263,7 @@ namespace CruiseProcessing
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
                 ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                prtFields.Add(ident);
+                prtFields.Add(ident.ToString());
             }   //  endif
             return;
         }   //  end StratumErrors
@@ -287,7 +287,7 @@ namespace CruiseProcessing
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
                 ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                prtFields.Add(ident);
+                prtFields.Add(ident.ToString());
             }   //  endif
             return;
         }   //  end UnitErrors
@@ -321,7 +321,7 @@ namespace CruiseProcessing
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
                 ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                prtFields.Add(ident);
+                prtFields.Add(ident.ToString());
             }   //  endif
             return;
         }   //  end TreeErrors
@@ -339,7 +339,7 @@ namespace CruiseProcessing
             prtFields.Add(currError.ToString().PadRight(70, ' '));
 
             ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-            prtFields.Add(ident);
+            prtFields.Add(ident.ToString());
 
             return;
         }   //  end LogErrors
@@ -364,7 +364,7 @@ namespace CruiseProcessing
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
                 ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                prtFields.Add(ident);
+                prtFields.Add(ident.ToString());
             }   //  endif
 
             return;
@@ -390,7 +390,7 @@ namespace CruiseProcessing
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
                 ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                prtFields.Add(ident);
+                prtFields.Add(ident.ToString());
             }   //  endif
             return;
         }   //  end ValEqErrors
@@ -415,7 +415,7 @@ namespace CruiseProcessing
                 currError.Append(errMessage);
                 prtFields.Add(currError.ToString().PadRight(70, ' '));
                 ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-                prtFields.Add(ident);
+                prtFields.Add(ident.ToString());
             }   //  endif
             return;
         }   //  end QAErrors
@@ -450,7 +450,7 @@ namespace CruiseProcessing
             prtFields.Add(currError.ToString().PadRight(70, ' '));
     
             ident = Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr);
-            prtFields.Add(ident);
+            prtFields.Add(ident.ToString());
             return;
         }   //  end SGErrors
 

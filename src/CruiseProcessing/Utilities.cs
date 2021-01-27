@@ -119,39 +119,6 @@ namespace CruiseProcessing
         }   //  end CurrentDLLversion
 
 
-        public static StringBuilder Format(string formatOfField, float fieldToFormat)
-        {
-            StringBuilder SB = new StringBuilder();
-            SB.Clear();
-            SB.AppendFormat(formatOfField, fieldToFormat);
-            return SB;
-        }   //  end FormatField for floats
-
-        public static StringBuilder Format(string formatOfField, double fieldToFormat)
-        {
-            StringBuilder SB = new StringBuilder();
-            SB.Clear();
-            SB.AppendFormat(formatOfField, fieldToFormat);
-            return SB;
-        }   //  end FormatField for doubles
-
-        public static StringBuilder Format(string formatOfField, long fieldToFormat)
-        {
-            StringBuilder SB = new StringBuilder();
-            SB.Clear();
-            SB.AppendFormat(formatOfField, fieldToFormat);
-            return SB;
-        }   //  end FormatField for longs
-
-        public static StringBuilder FormatField(string formatOfField, int fieldToFormat)
-        {
-            StringBuilder SB = new StringBuilder();
-            SB.Clear();
-            SB.AppendFormat(formatOfField, fieldToFormat);
-            return SB;
-        }   //  end FormatField for int
-
-
         public static void LogError(string tableName, int table_CN, string errLevel, string errMessage, string filename)
         {
             List<ErrorLogDO> errList = new List<ErrorLogDO>();

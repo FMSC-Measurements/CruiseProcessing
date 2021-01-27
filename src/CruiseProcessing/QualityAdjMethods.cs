@@ -34,21 +34,21 @@ namespace CruiseProcessing
         }   //  end CheckEquations
 
 
-        public ArrayList buildPrintArray(QualityAdjEquationDO qae)
+        public List<string> buildPrintArray(QualityAdjEquationDO qae)
         {
             string fieldFormat = "{0,8:F4}";
             string yearFormat = "{0,0:F4}";
-            ArrayList qualArray = new ArrayList();
+            var qualArray = new List<string>();
             qualArray.Add(" ");
             qualArray.Add(qae.Species.PadRight(6, ' '));
             qualArray.Add(qae.QualityAdjEq);
-            qualArray.Add(Utilities.Format(yearFormat, qae.Year).ToString());
-            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient1).ToString());
-            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient2).ToString());
-            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient3).ToString());
-            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient4).ToString());
-            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient5).ToString());
-            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient6).ToString());
+            qualArray.Add(String.Format(yearFormat, qae.Year));
+            qualArray.Add(String.Format(fieldFormat, qae.Coefficient1));
+            qualArray.Add(String.Format(fieldFormat, qae.Coefficient2));
+            qualArray.Add(String.Format(fieldFormat, qae.Coefficient3));
+            qualArray.Add(String.Format(fieldFormat, qae.Coefficient4));
+            qualArray.Add(String.Format(fieldFormat, qae.Coefficient5));
+            qualArray.Add(String.Format(fieldFormat, qae.Coefficient6));
 
             return qualArray;
         }   //  end buildPrintArray

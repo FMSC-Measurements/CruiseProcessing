@@ -15,7 +15,7 @@ namespace CruiseProcessing
         public string currentReport;
         public string currCL;
         private int[] fieldLengths;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[9];
         private List<POPDO> popList = new List<POPDO>();
         private int[] pagesToPrint = new int[3];
@@ -420,48 +420,48 @@ namespace CruiseProcessing
                 case 1:
                     prtFields.Add("1");
                     //  number of sample trees
-                    prtFields.Add(Utilities.Format(fieldFormat1, p.FirstStageTrees));
+                    prtFields.Add(String.Format(fieldFormat1, p.FirstStageTrees));
                     //  Big N
                     switch (currMeth)
                     {
                         case "100":     case "STR":     case "S3P":     case "3P":
-                            prtFields.Add(Utilities.Format(fieldFormat1, p.TalliedTrees));
+                            prtFields.Add(String.Format(fieldFormat1, p.TalliedTrees));
                             break;
                         default:
                             prtFields.Add("    0");
                             break;
                     }   //  end switch on current method
                     //  Small N
-                    prtFields.Add(Utilities.Format(fieldFormat1, p.StageOneSamples));
+                    prtFields.Add(String.Format(fieldFormat1, p.StageOneSamples));
 
-                    prtFields.Add(Utilities.Format(fieldFormat2, stage1Stats[0].theTvalue));
-                    prtFields.Add(Utilities.Format(fieldFormat3, stage1Stats[0].theMean));
-                    prtFields.Add(Utilities.Format(fieldFormat4, stage1Stats[0].SumOfX));
-                    prtFields.Add(Utilities.Format(fieldFormat5, stage1Stats[0].SumOfX2));
-                    prtFields.Add(Utilities.Format(fieldFormat6, stage1Stats[0].theSD));
-                    prtFields.Add(Utilities.Format(fieldFormat7, stage1Stats[0].theCV));
-                    prtFields.Add(Utilities.Format(fieldFormat8, stage1Stats[0].theSE));
-                    prtFields.Add(Utilities.Format(fieldFormat7, stage1Stats[0].theSampErr));
-                    prtFields.Add(Utilities.Format(fieldFormat9, stage1Stats[0].CombSampErr));
+                    prtFields.Add(String.Format(fieldFormat2, stage1Stats[0].theTvalue));
+                    prtFields.Add(String.Format(fieldFormat3, stage1Stats[0].theMean));
+                    prtFields.Add(String.Format(fieldFormat4, stage1Stats[0].SumOfX));
+                    prtFields.Add(String.Format(fieldFormat5, stage1Stats[0].SumOfX2));
+                    prtFields.Add(String.Format(fieldFormat6, stage1Stats[0].theSD));
+                    prtFields.Add(String.Format(fieldFormat7, stage1Stats[0].theCV));
+                    prtFields.Add(String.Format(fieldFormat8, stage1Stats[0].theSE));
+                    prtFields.Add(String.Format(fieldFormat7, stage1Stats[0].theSampErr));
+                    prtFields.Add(String.Format(fieldFormat9, stage1Stats[0].CombSampErr));
                     break;
                 case 2:
                     prtFields.Add("2");
                     //  number of sample trees
-                    prtFields.Add(Utilities.Format(fieldFormat1, p.MeasuredTrees));
+                    prtFields.Add(String.Format(fieldFormat1, p.MeasuredTrees));
                     //  Big N becomes stage 1 small N
-                    prtFields.Add(Utilities.Format(fieldFormat1, p.StageOneSamples));
+                    prtFields.Add(String.Format(fieldFormat1, p.StageOneSamples));
                     //  Small N becomes stage 2 samples
-                    prtFields.Add(Utilities.Format(fieldFormat1, p.StageTwoSamples));
+                    prtFields.Add(String.Format(fieldFormat1, p.StageTwoSamples));
 
-                    prtFields.Add(Utilities.Format(fieldFormat2, stage2Stats[0].theTvalue));
-                    prtFields.Add(Utilities.Format(fieldFormat3, stage2Stats[0].theMean));
-                    prtFields.Add(Utilities.Format(fieldFormat4, stage2Stats[0].SumOfX));
-                    prtFields.Add(Utilities.Format(fieldFormat5, stage2Stats[0].SumOfX2));
-                    prtFields.Add(Utilities.Format(fieldFormat6, stage2Stats[0].theSD));
-                    prtFields.Add(Utilities.Format(fieldFormat7, stage2Stats[0].theCV));
-                    prtFields.Add(Utilities.Format(fieldFormat8, stage2Stats[0].theSE));
-                    prtFields.Add(Utilities.Format(fieldFormat7, stage2Stats[0].theSampErr));
-                    prtFields.Add(Utilities.Format(fieldFormat9, stage2Stats[0].CombSampErr));
+                    prtFields.Add(String.Format(fieldFormat2, stage2Stats[0].theTvalue));
+                    prtFields.Add(String.Format(fieldFormat3, stage2Stats[0].theMean));
+                    prtFields.Add(String.Format(fieldFormat4, stage2Stats[0].SumOfX));
+                    prtFields.Add(String.Format(fieldFormat5, stage2Stats[0].SumOfX2));
+                    prtFields.Add(String.Format(fieldFormat6, stage2Stats[0].theSD));
+                    prtFields.Add(String.Format(fieldFormat7, stage2Stats[0].theCV));
+                    prtFields.Add(String.Format(fieldFormat8, stage2Stats[0].theSE));
+                    prtFields.Add(String.Format(fieldFormat7, stage2Stats[0].theSampErr));
+                    prtFields.Add(String.Format(fieldFormat9, stage2Stats[0].CombSampErr));
                     break;
             }   //  end switch on whichStage
             printOneRecord(fieldLengths, prtFields, strWriteOut);

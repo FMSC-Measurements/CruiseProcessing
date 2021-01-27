@@ -56,9 +56,9 @@ namespace CruiseProcessing
         }   //  end check3Pcounts
 
 
-        public static ArrayList buildPrintArray(CountTreeDO cdo, string stratumCode)
+        public static List<string> buildPrintArray(CountTreeDO cdo, string stratumCode)
         {
-            ArrayList countList = new ArrayList();
+            var countList = new List<string>();
             countList.Add(" ");
             countList.Add(cdo.CuttingUnit.Code.PadLeft(3,' '));
             countList.Add(stratumCode.PadLeft(2,' '));

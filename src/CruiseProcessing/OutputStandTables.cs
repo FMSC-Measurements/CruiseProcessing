@@ -13,7 +13,7 @@ namespace CruiseProcessing
     {
         #region
         public string currentReport;
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private double strAcres = 0;
         private int nthRow = 0;
         private double currEF = 0;
@@ -583,50 +583,50 @@ namespace CruiseProcessing
                     switch (k)
                     {
                         case 0:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species1).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species1).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 1:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species2).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species2).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 2:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species3).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species3).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 3:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species4).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species4).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 4:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species5).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species5).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 5:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species6).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species6).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 6:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species7).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species7).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 7:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species8).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species8).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 8:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species9).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species9).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                         case 9:
-                            prtFields.Add(Utilities.Format("{0,8:F0}", ltp.species10).ToString().PadLeft(8, ' '));
+                            prtFields.Add(String.Format("{0,8:F0}", ltp.species10).PadLeft(8, ' '));
                             prtFields.Add(verticalLine);
                             break;
                     }   //  end switch
                 }   //  end for k loop
                 //  output line total column if this is the last page
                 if (lastPage)
-                    prtFields.Add(Utilities.Format("{0,9:F0}", ltp.lineTotal).ToString().PadLeft(9, ' '));
+                    prtFields.Add(String.Format("{0,9:F0}", ltp.lineTotal).PadLeft(9, ' '));
                 printOneRecord(strWriteOut, prtFields);
                 //  clear print fields for next line
                 prtFields.Clear();
@@ -637,14 +637,14 @@ namespace CruiseProcessing
             prtFields.Add(" TOTALS |");
             for (int k = 0; k < lastTotal; k++)
             {
-                prtFields.Add(Utilities.Format("{0,8:F0}", columnTotals[k]).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", columnTotals[k]).PadLeft(8, ' '));
                 prtFields.Add(verticalLine);
             }   //  end for k loop
             if (lastPage)
             {
                 //  sum up line totals
                 columnTotals[10] = listToPrint.Sum(l => l.lineTotal);
-                prtFields.Add(Utilities.Format("{0,9:F0}", columnTotals[10]).ToString().PadLeft(9, ' '));
+                prtFields.Add(String.Format("{0,9:F0}", columnTotals[10]).PadLeft(9, ' '));
             }   //  endif
             printOneRecord(strWriteOut, prtFields);
             return;

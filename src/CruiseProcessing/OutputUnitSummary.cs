@@ -16,7 +16,7 @@ namespace CruiseProcessing
         private List<RegionalReports> areaBasedOutput = new List<RegionalReports>();
         private List<RegionalReports> treeBasedBySpecies = new List<RegionalReports>();
         private List<RegionalReports> treeBaseBySampleGroup = new List<RegionalReports>();
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private int[] fieldLengths;
         #endregion
 
@@ -379,7 +379,7 @@ namespace CruiseProcessing
                 if (abo.value7 > 0 && abo.value11 > 0)
                 {
                     calcValue = (abo.value7 * abo.value12) / abo.value11;
-                    prtFields.Add(Utilities.Format("{0,6:F0}", calcValue).ToString().PadLeft(6, ' '));
+                    prtFields.Add(String.Format("{0,6:F0}", calcValue).PadLeft(6, ' '));
                 }
                 else if (abo.value7 == 0)
                     prtFields.Add("      ");
@@ -387,7 +387,7 @@ namespace CruiseProcessing
                 if (abo.value8 > 0 && abo.value11 > 0)
                 {
                     calcValue = (abo.value8 * abo.value13) / abo.value11;
-                    prtFields.Add(Utilities.Format("{0,7:F0}", calcValue).ToString().PadLeft(7, ' '));
+                    prtFields.Add(String.Format("{0,7:F0}", calcValue).PadLeft(7, ' '));
                 }
                 else if(abo.value8 == 0)
                     prtFields.Add("       ");
@@ -420,7 +420,7 @@ namespace CruiseProcessing
                 prtFields.Add(tbo.value4.PadRight(6, ' '));
                 prtFields.Add(tbo.value5.PadLeft(2, ' '));
                 prtFields.Add("      ");
-                prtFields.Add(Utilities.Format("{0,7:F0}", tbo.value8).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F0}", tbo.value8).PadLeft(7, ' '));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -449,7 +449,7 @@ namespace CruiseProcessing
                 prtFields.Add(tbo.value4.PadLeft(6, ' '));
                 prtFields.Add(tbo.value5.PadLeft(2, ' '));
                 prtFields.Add("      ");
-                prtFields.Add(Utilities.Format("{0,7:F0}", tbo.value8).ToString().PadLeft(7, ' '));
+                prtFields.Add(String.Format("{0,7:F0}", tbo.value8).PadLeft(7, ' '));
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
             strWriteOut.WriteLine(reportConstants.subtotalLine2);

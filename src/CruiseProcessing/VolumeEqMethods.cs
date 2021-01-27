@@ -356,18 +356,18 @@ namespace CruiseProcessing
         }   //  end fillFields
 
 
-        public ArrayList buildMerchArray(VolumeEquationDO vel)
+        public List<string> buildMerchArray(VolumeEquationDO vel)
         {
-            ArrayList merchArray = new ArrayList();
+            var merchArray = new List<string>();
             merchArray.Add(" ");
             merchArray.Add(vel.VolumeEquationNumber.PadRight(10,' '));
             merchArray.Add(vel.PrimaryProduct.PadLeft(2, ' '));
-            merchArray.Add(Utilities.Format("{0,2:F1}", vel.Trim).ToString());
-            merchArray.Add(Utilities.Format("{0,2:F0}", vel.MinLogLengthPrimary).ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.Format("{0,2:F0}", vel.MaxLogLengthPrimary).ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.Format("{0,2:F0}", vel.SegmentationLogic).ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.Format("{0,2:F0}", vel.MinMerchLength).ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.Format("{0,1:F0}", vel.EvenOddSegment).ToString());
+            merchArray.Add(String.Format("{0,2:F1}", vel.Trim));
+            merchArray.Add(String.Format("{0,2:F0}", vel.MinLogLengthPrimary).PadLeft(2,' '));
+            merchArray.Add(String.Format("{0,2:F0}", vel.MaxLogLengthPrimary).PadLeft(2,' '));
+            merchArray.Add(String.Format("{0,2:F0}", vel.SegmentationLogic).PadLeft(2,' '));
+            merchArray.Add(String.Format("{0,2:F0}", vel.MinMerchLength).PadLeft(2,' '));
+            merchArray.Add(String.Format("{0,1:F0}", vel.EvenOddSegment));
             if (vel.PrimaryProduct == "01")
                 merchArray.Add("N/A");
             else
@@ -386,20 +386,20 @@ namespace CruiseProcessing
         }   //  end buildMerchArray
 
 
-        public ArrayList buildPrintArray(VolumeEquationDO vel)
+        public List<string> buildPrintArray(VolumeEquationDO vel)
         {
             string fieldFormat = "{0,2:F1}";
-            ArrayList volArray = new ArrayList();
+            var volArray = new List<string>();
             volArray.Add("     ");
             volArray.Add(vel.Species.PadRight(6, ' '));
             volArray.Add(vel.PrimaryProduct.PadLeft(2, '0'));
             volArray.Add(vel.VolumeEquationNumber);
-            volArray.Add(Utilities.Format(fieldFormat, vel.StumpHeight).ToString());
+            volArray.Add(String.Format(fieldFormat, vel.StumpHeight));
             if (vel.CalcTotal == 0)
                 volArray.Add("NO ");
             else if (vel.CalcTotal == 1)
                 volArray.Add("YES");
-            volArray.Add(Utilities.Format(fieldFormat, vel.TopDIBPrimary).ToString());
+            volArray.Add(String.Format(fieldFormat, vel.TopDIBPrimary));
             if (vel.CalcBoard == 0)
                 volArray.Add("NO ");
             else if (vel.CalcBoard == 1)
@@ -412,7 +412,7 @@ namespace CruiseProcessing
                 volArray.Add("NO ");
             else if (vel.CalcCord == 1)
                 volArray.Add("YES");
-            volArray.Add(Utilities.Format(fieldFormat, vel.TopDIBSecondary).ToString());
+            volArray.Add(String.Format(fieldFormat, vel.TopDIBSecondary));
             if (vel.CalcTopwood == 0)
             {
                 volArray.Add("NO ");

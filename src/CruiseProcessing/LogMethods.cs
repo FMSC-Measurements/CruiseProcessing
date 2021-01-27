@@ -151,9 +151,9 @@ namespace CruiseProcessing
 
 
         //  build functions for printing
-        public ArrayList buildPrintArray(List<LogDO> currLogs, int begLog, int endLog)
+        public List<string> buildPrintArray(List<LogDO> currLogs, int begLog, int endLog)
         {
-            ArrayList logArray = new ArrayList();
+            var logArray = new List<string>();
 
             logArray.Add(" ");
             logArray.Add(currLogs[0].Tree.Stratum.Code.PadLeft(2, ' '));
@@ -229,13 +229,13 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public ArrayList buildPrintArray(LogStockDO lsdo)
+        public List<string> buildPrintArray(LogStockDO lsdo)
         {
             //  builds line for fall, buck and scale report (A09)
             string fieldFormat2 = "{0,5:F0}";
             string fieldFormat3 = "{0,5:F1}";
 
-            ArrayList logArray = new ArrayList();
+            var logArray = new List<string>();
             logArray.Add(" ");
             logArray.Add(lsdo.Tree.Stratum.Code.PadLeft(2, ' '));
             logArray.Add(lsdo.Tree.CuttingUnit.Code.PadLeft(3, ' '));
@@ -248,16 +248,16 @@ namespace CruiseProcessing
             else logArray.Add("    ");
             logArray.Add(lsdo.Tree.TreeNumber.ToString().PadLeft(4, ' '));
             logArray.Add(lsdo.LogNumber.ToString().PadLeft(4, ' '));
-            logArray.Add(Utilities.Format(fieldFormat2, lsdo.SmallEndDiameter).ToString().PadLeft(5, ' '));
-            logArray.Add(Utilities.Format(fieldFormat2, lsdo.LargeEndDiameter).ToString().PadLeft(5, ' '));
+            logArray.Add(String.Format(fieldFormat2, lsdo.SmallEndDiameter).PadLeft(5, ' '));
+            logArray.Add(String.Format(fieldFormat2, lsdo.LargeEndDiameter).PadLeft(5, ' '));
             logArray.Add(lsdo.Length.ToString().PadLeft(4, ' '));
             if (lsdo.Grade == null || lsdo.Grade == "" || lsdo.Grade == " ")
                 logArray.Add("0");
             else logArray.Add(lsdo.Grade);
             logArray.Add(lsdo.GrossBoardFoot.ToString().PadLeft(7, ' '));
-            logArray.Add(Utilities.Format(fieldFormat3, lsdo.GrossCubicFoot).ToString().PadLeft(5, ' '));
+            logArray.Add(String.Format(fieldFormat3, lsdo.GrossCubicFoot).PadLeft(5, ' '));
             logArray.Add(lsdo.NetBoardFoot.ToString().PadLeft(7, ' '));
-            logArray.Add(Utilities.Format(fieldFormat3, lsdo.NetCubicFoot).ToString().PadLeft(5, ' '));
+            logArray.Add(String.Format(fieldFormat3, lsdo.NetCubicFoot).PadLeft(5, ' '));
             logArray.Add(lsdo.PercentRecoverable.ToString().PadLeft(3, ' '));
             logArray.Add(lsdo.SeenDefect.ToString().PadLeft(3, ' '));
 
@@ -265,7 +265,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public ArrayList buildPrintArray(LogStockDO lsdo, double totalEF)
+        public List<string> buildPrintArray(LogStockDO lsdo, double totalEF)
         {
             //  builds line for log file report (L1)
             string fieldFormat1 = "{0,5:F1}";
@@ -274,7 +274,7 @@ namespace CruiseProcessing
             string fieldFormat5 = "{0,6:F1}";
             string fieldFormat6 = "{0,8:F3}";
 
-            ArrayList logArray = new ArrayList();
+            var logArray = new List<string>();
             logArray.Add("  ");
             logArray.Add(lsdo.Tree.Stratum.Code.PadLeft(2, ' '));
             logArray.Add(lsdo.Tree.CuttingUnit.Code.PadLeft(3, ' '));
@@ -288,22 +288,22 @@ namespace CruiseProcessing
             logArray.Add(lsdo.Tree.SampleGroup.PrimaryProduct.PadLeft(2, ' '));
             logArray.Add(lsdo.Tree.SampleGroup.UOM.PadLeft(2, ' '));
             logArray.Add(lsdo.LogNumber.ToString().PadLeft(4, ' '));
-            logArray.Add(Utilities.Format(fieldFormat1, lsdo.SmallEndDiameter).ToString().PadLeft(5, ' '));
-            logArray.Add(Utilities.Format(fieldFormat1, lsdo.LargeEndDiameter).ToString().PadLeft(5, ' '));
-            logArray.Add(Utilities.Format(fieldFormat1, lsdo.Length).ToString().PadLeft(5, ' '));
+            logArray.Add(String.Format(fieldFormat1, lsdo.SmallEndDiameter).PadLeft(5, ' '));
+            logArray.Add(String.Format(fieldFormat1, lsdo.LargeEndDiameter).PadLeft(5, ' '));
+            logArray.Add(String.Format(fieldFormat1, lsdo.Length).PadLeft(5, ' '));
             if (lsdo.Grade == null || lsdo.Grade == "" || lsdo.Grade == " ")
                 logArray.Add("0");
             else logArray.Add(lsdo.Grade);
-            logArray.Add(Utilities.Format(fieldFormat3, lsdo.SeenDefect).ToString().PadLeft(3, ' '));
-            logArray.Add(Utilities.Format(fieldFormat4, lsdo.PercentRecoverable).ToString().PadLeft(4, ' '));
-            logArray.Add(Utilities.Format(fieldFormat5, lsdo.GrossBoardFoot).ToString().PadLeft(6,' '));
-            logArray.Add(Utilities.Format(fieldFormat5, lsdo.BoardFootRemoved).ToString().PadLeft(6,' '));
-            logArray.Add(Utilities.Format(fieldFormat5, lsdo.NetBoardFoot).ToString().PadLeft(6,' '));
-            logArray.Add(Utilities.Format(fieldFormat5, lsdo.GrossCubicFoot).ToString().PadLeft(6, ' '));
-            logArray.Add(Utilities.Format(fieldFormat5, lsdo.CubicFootRemoved).ToString().PadLeft(6, ' '));
-            logArray.Add(Utilities.Format(fieldFormat5, lsdo.NetCubicFoot).ToString().PadLeft(6, ' '));
+            logArray.Add(String.Format(fieldFormat3, lsdo.SeenDefect).PadLeft(3, ' '));
+            logArray.Add(String.Format(fieldFormat4, lsdo.PercentRecoverable).PadLeft(4, ' '));
+            logArray.Add(String.Format(fieldFormat5, lsdo.GrossBoardFoot).PadLeft(6,' '));
+            logArray.Add(String.Format(fieldFormat5, lsdo.BoardFootRemoved).PadLeft(6,' '));
+            logArray.Add(String.Format(fieldFormat5, lsdo.NetBoardFoot).PadLeft(6,' '));
+            logArray.Add(String.Format(fieldFormat5, lsdo.GrossCubicFoot).PadLeft(6, ' '));
+            logArray.Add(String.Format(fieldFormat5, lsdo.CubicFootRemoved).PadLeft(6, ' '));
+            logArray.Add(String.Format(fieldFormat5, lsdo.NetCubicFoot).PadLeft(6, ' '));
             logArray.Add(lsdo.DIBClass.ToString().PadLeft(2, ' '));
-            logArray.Add(Utilities.Format(fieldFormat6, totalEF).ToString().PadLeft(9, ' '));
+            logArray.Add(String.Format(fieldFormat6, totalEF).PadLeft(9, ' '));
 
             return logArray;
         }   //  end buildPrintArray

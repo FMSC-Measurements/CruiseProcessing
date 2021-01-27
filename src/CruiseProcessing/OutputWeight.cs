@@ -21,7 +21,7 @@ namespace CruiseProcessing
         #region
         public string currentReport;
         private int[] fieldLengths;
-        private ArrayList prtFields;
+        private List<string> prtFields;
         private List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
         private List<StratumDO> sList = new List<StratumDO>();
         private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
@@ -87,7 +87,7 @@ namespace CruiseProcessing
                     return;
                 }   //  endif
             }   //  endif on currentReport
-            prtFields = new ArrayList();
+            prtFields = new List<string>();
 
             switch (currentReport)
             {
@@ -385,13 +385,13 @@ namespace CruiseProcessing
                 else prtFields.Add(jg.ContractSpecies.PadLeft(4, ' '));
                 prtFields.Add(jg.PrimaryProduct.PadLeft(2, '0'));
                 prtFields.Add("P");
-                prtFields.Add(Utilities.Format("{0,8:F0}", Math.Floor(currGRS + 0.501)).ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.Format("{0,8:F2}", currWFprimary).ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.Format("{0,11:F0}", Math.Round(currGRS, 0, MidpointRounding.AwayFromZero) * currWFprimary).ToString().PadLeft(11, ' '));
-                prtFields.Add(Utilities.Format("{0,6:F2}", currPCRprimary).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", Math.Floor(currGRS + 0.501)).PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F2}", currWFprimary).PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,11:F0}", Math.Round(currGRS, 0, MidpointRounding.AwayFromZero) * currWFprimary).PadLeft(11, ' '));
+                prtFields.Add(String.Format("{0,6:F2}", currPCRprimary).PadLeft(6, ' '));
                 poundsPP = Math.Round(currGRS, 0, MidpointRounding.AwayFromZero) * currWFprimary * (currPCRprimary / 100);
-                prtFields.Add(Utilities.Format("{0,11:F0}", poundsPP).ToString().PadLeft(11, ' '));
-                prtFields.Add(Utilities.Format("{0,10:F2}", poundsPP / 2000).ToString().PadLeft(10, ' '));
+                prtFields.Add(String.Format("{0,11:F0}", poundsPP).PadLeft(11, ' '));
+                prtFields.Add(String.Format("{0,10:F2}", poundsPP / 2000).PadLeft(10, ' '));
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
                 numOlines++;
             }   //  endif
@@ -407,15 +407,15 @@ namespace CruiseProcessing
                 else prtFields.Add(jg.ContractSpecies.PadLeft(4, ' '));
                 prtFields.Add(jg.SecondaryProduct.PadLeft(2, '0'));
                 prtFields.Add("S");
-                prtFields.Add(Utilities.Format("{0,8:F0}", Math.Floor(currGRST + 0.501)).ToString().PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", Math.Floor(currGRST + 0.501)).PadLeft(8, ' '));
                 if (currWFsecondary == 0.0) currWFsecondary = currWFprimary;
                 if (currPCRsecondary == 0.0) currPCRsecondary = currPCRprimary;
-                prtFields.Add(Utilities.Format("{0,8:F2}", currWFsecondary).ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.Format("{0,11:F0}", Math.Round(currGRST, 0, MidpointRounding.AwayFromZero) * currWFsecondary).ToString().PadLeft(11, ' '));
-                prtFields.Add(Utilities.Format("{0,6:F2}", currPCRsecondary).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,8:F2}", currWFsecondary).PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,11:F0}", Math.Round(currGRST, 0, MidpointRounding.AwayFromZero) * currWFsecondary).PadLeft(11, ' '));
+                prtFields.Add(String.Format("{0,6:F2}", currPCRsecondary).PadLeft(6, ' '));
                 poundsSP = Math.Round(currGRST, 0, MidpointRounding.AwayFromZero) * currWFsecondary * (currPCRsecondary / 100);
-                prtFields.Add(Utilities.Format("{0,11:F0}", poundsSP).ToString().PadLeft(11, ' '));
-                prtFields.Add(Utilities.Format("{0,10:F2}", poundsSP / 2000).ToString().PadLeft(10, ' '));
+                prtFields.Add(String.Format("{0,11:F0}", poundsSP).PadLeft(11, ' '));
+                prtFields.Add(String.Format("{0,10:F2}", poundsSP / 2000).PadLeft(10, ' '));
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
                 numOlines++;
             }   //  endif secondary has volume
@@ -443,9 +443,9 @@ namespace CruiseProcessing
                 prtFields.Add("     ");
             }   //  endif it's the first line
             prtFields.Add(currSP.PadLeft(6, ' '));
-            prtFields.Add(Utilities.Format("{0,5:F2}", unitSaw / 2000).ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.Format("{0,5:F2}", unitNonsawPP / 2000).ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.Format("{0,5:F2}", unitNonsawSP / 2000).ToString().PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,5:F2}", unitSaw / 2000).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,5:F2}", unitNonsawPP / 2000).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,5:F2}", unitNonsawSP / 2000).PadLeft(8, ' '));
             printOneRecord(fieldLengths, prtFields, strWriteOut);
         }   //  end WriteCurrentGroup
 
@@ -462,15 +462,15 @@ namespace CruiseProcessing
             //prtFields.Add(currBP.PadLeft(2, '0'));
             prtFields.Add("  ");
             prtFields.Add("|"  );
-            prtFields.Add(Utilities.Format("{0,8:F1}", MSprim / 2000).ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.Format("{0,8:F1}", MSsecd / 2000).ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.Format("{0,8:F1}", bioTip / 2000).ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.Format("{0,8:F1}", bioBran / 2000).ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.Format("{0,8:F1}", bioFol / 2000).ToString().PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F1}", MSprim / 2000).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F1}", MSsecd / 2000).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F1}", bioTip / 2000).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F1}", bioBran / 2000).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F1}", bioFol / 2000).PadLeft(8, ' '));
             prtFields.Add("|");
-            prtFields.Add(Utilities.Format("{0,8:F1}", bioTot / 2000).ToString().PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F1}", bioTot / 2000).PadLeft(8, ' '));
             double overallTotal = MSprim + MSsecd + bioTip + bioBran + bioFol;
-            prtFields.Add(Utilities.Format("{0,8:F1}", overallTotal / 2000).ToString().PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F1}", overallTotal / 2000).PadLeft(8, ' '));
             printOneRecord(fieldLengths, prtFields, strWriteOut);
             prtFields.Clear();
             return;
@@ -561,7 +561,7 @@ namespace CruiseProcessing
                     strWriteOut.Write("          ");
                     strWriteOut.Write(rs.Value2.PadRight(3, ' '));
                     strWriteOut.Write("P      ");
-                    strWriteOut.WriteLine(Utilities.Format("{0,10:F2}", rs.Value3).ToString().PadLeft(10, ' '));
+                    strWriteOut.WriteLine(String.Format("{0,10:F2}", rs.Value3).PadLeft(10, ' '));
                     totalTons += rs.Value3;
                 }
                 if (rs.Value4 > 0)
@@ -571,13 +571,13 @@ namespace CruiseProcessing
                     strWriteOut.Write("          ");
                     strWriteOut.Write(rs.Value2.PadRight(3, ' '));
                     strWriteOut.Write("S      ");
-                    strWriteOut.WriteLine(Utilities.Format("{0,10:F2}", rs.Value4).ToString().PadLeft(10, ' '));
+                    strWriteOut.WriteLine(String.Format("{0,10:F2}", rs.Value4).PadLeft(10, ' '));
                     totalTons += rs.Value4;
                 }   //  endif
             }   //  end foreach loop on subtotals
             strWriteOut.WriteLine("           						  ____________________________________");
             strWriteOut.Write("                   TOTAL TONS REMOVED         ");
-            strWriteOut.WriteLine(Utilities.Format("{0,10:F2}", totalTons).ToString().PadLeft(10, ' '));
+            strWriteOut.WriteLine(String.Format("{0,10:F2}", totalTons).PadLeft(10, ' '));
             strWriteOut.WriteLine("\n");
             //  write footer
             for (int k = 0; k < 5; k++)
@@ -631,20 +631,20 @@ namespace CruiseProcessing
                                 completeHeader, 4, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(" ALL SPECIES   |  ");
-            strWriteOut.Write(Utilities.Format("{0,8:F1}", subValue1 / 2000).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,8:F1}", subValue1 / 2000).PadLeft(8, ' '));
             strWriteOut.Write("   ");
-            strWriteOut.Write(Utilities.Format("{0,8:F1}", subValue2 / 2000).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,8:F1}", subValue2 / 2000).PadLeft(8, ' '));
             strWriteOut.Write("    ");
-            strWriteOut.Write(Utilities.Format("{0,8:F1}", subValue3 / 2000).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,8:F1}", subValue3 / 2000).PadLeft(8, ' '));
             strWriteOut.Write("    ");
-            strWriteOut.Write(Utilities.Format("{0,8:F1}", subValue4 / 2000).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,8:F1}", subValue4 / 2000).PadLeft(8, ' '));
             strWriteOut.Write("    ");
-            strWriteOut.Write(Utilities.Format("{0,8:F1}", subValue5 / 2000).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,8:F1}", subValue5 / 2000).PadLeft(8, ' '));
             strWriteOut.Write("   | ");
-            strWriteOut.Write(Utilities.Format("{0,8:F1}", subValue6 / 2000).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(String.Format("{0,8:F1}", subValue6 / 2000).PadLeft(8, ' '));
             strWriteOut.Write("   ");
             double overallTotal = subValue1 + subValue2 + subValue3 + subValue4 + subValue5;
-            strWriteOut.WriteLine(Utilities.Format("{0,8:F1}", overallTotal / 2000).ToString().PadLeft(8, ' '));
+            strWriteOut.WriteLine(String.Format("{0,8:F1}", overallTotal / 2000).PadLeft(8, ' '));
             strWriteOut.WriteLine("");
             strWriteOut.WriteLine(rh.WT5footer[0]);
             strWriteOut.WriteLine(rh.WT5footer[1]);
@@ -1108,7 +1108,7 @@ namespace CruiseProcessing
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n+1, bList);
                 //  total column
-                prtFields.Add(Utilities.Format("{0,6:F2}", lineTotal / 2000).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
                 printOneRecord(strWriteOut, prtFields);
                 lineTotal = 0;
                 prtFields.Clear();
@@ -1128,7 +1128,7 @@ namespace CruiseProcessing
                 if (n != 3)
                 {
                     //  no line total for FLIW
-                    prtFields.Add(Utilities.Format("{0,6:F2}", lineTotal / 2000).ToString().PadLeft(6, ' '));
+                    prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
                     printOneRecord(strWriteOut, prtFields);
                 }
                 else printOneRecord(strWriteOut,prtFields);
@@ -1147,7 +1147,7 @@ namespace CruiseProcessing
                 prtFields.Add(rh.WT2crown[n]);
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n+10, bList);
-                prtFields.Add(Utilities.Format("{0,6:F2}", lineTotal / 2000).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
                 printOneRecord(strWriteOut, prtFields);
                 lineTotal = 0;
             }   //  end for n loop
@@ -1197,11 +1197,11 @@ namespace CruiseProcessing
                 sumValue += b.DSTquarterInch;
                 sumValue += b.DSTthreeInch;
                 sumValue += b.DSTthreePlus;
-                prtFields.Add(Utilities.Format("{0,6:F2}", sumValue / 2000).ToString().PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:F2}", sumValue / 2000).PadLeft(6, ' '));
                 prtFields.Add("    ");
                 overallTotal += sumValue;
             }   //  end foreach loop
-            prtFields.Add(Utilities.Format("{0,6:F2}", overallTotal / 2000).ToString().PadLeft(6, ' '));
+            prtFields.Add(String.Format("{0,6:F2}", overallTotal / 2000).PadLeft(6, ' '));
             printOneRecord(strWriteOut, prtFields);
 
             //  print footer
@@ -1219,7 +1219,7 @@ namespace CruiseProcessing
                 case 1:     //  crown needles
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.needles / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.needles / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.needles;
                     }   //  end foreach loop
@@ -1227,7 +1227,7 @@ namespace CruiseProcessing
                 case 2:     //  crown quarter inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.quarterInch / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.quarterInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.quarterInch;
                     }   //  end foreach loop
@@ -1235,7 +1235,7 @@ namespace CruiseProcessing
                 case 3:     //  crown one inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.oneInch / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.oneInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.oneInch;
                     }   //  end foreach loop
@@ -1243,7 +1243,7 @@ namespace CruiseProcessing
                 case 4:     //  crown three inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.threeInch / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.threeInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.threeInch;
                     }   //  end foreach loop
@@ -1251,7 +1251,7 @@ namespace CruiseProcessing
                 case 5:     //  crown three inch plus
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.threePlus / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.threePlus / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.threePlus;
                     }   //  end foreach loop
@@ -1259,7 +1259,7 @@ namespace CruiseProcessing
                 case 6:     //  topwood
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.topwoodDryWeight / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.topwoodDryWeight / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.topwoodDryWeight;
                     }   //  end foreach loop
@@ -1267,7 +1267,7 @@ namespace CruiseProcessing
                 case 7:     //  cull volume
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.cullLogWgt / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.cullLogWgt / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.cullLogWgt;
                     }   //  end foreach loop
@@ -1275,7 +1275,7 @@ namespace CruiseProcessing
                 case 8:     //  cull chunk weight
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.cullChunkWgt / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.cullChunkWgt / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.cullChunkWgt;
                     }   //  end foreach loop
@@ -1283,7 +1283,7 @@ namespace CruiseProcessing
                 case 9:     //  FLIW -- has no total column
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.FLIW).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.FLIW).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine = 0;
                     }   //  end foreach loop
@@ -1291,7 +1291,7 @@ namespace CruiseProcessing
                 case 10:    //  dam small trees needles
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.DSTneedles / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.DSTneedles / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.DSTneedles;
                     }   //  end foreach loop
@@ -1299,7 +1299,7 @@ namespace CruiseProcessing
                 case 11:        //  dam small trees quarter inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.DSTquarterInch / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.DSTquarterInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.DSTquarterInch;
                     }   //  end foreach loop
@@ -1307,7 +1307,7 @@ namespace CruiseProcessing
                 case 12:        //  dam small trees one inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.DSToneInch / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.DSToneInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.DSToneInch;
                     }   //  end foreach loop
@@ -1315,7 +1315,7 @@ namespace CruiseProcessing
                 case 13:        //  dam small trees three inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.DSTthreeInch / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.DSTthreeInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.DSTthreeInch;
                     }   //  end foreach loop
@@ -1323,7 +1323,7 @@ namespace CruiseProcessing
                 case 14:        //  dam small trees three inch plus
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(Utilities.Format("{0,6:F2}", b.DSTthreePlus / 2000).ToString().PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.DSTthreePlus / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine += b.DSTthreePlus;
                     }   //  end foreach loop

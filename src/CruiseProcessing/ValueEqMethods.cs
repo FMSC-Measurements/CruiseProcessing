@@ -112,11 +112,11 @@ namespace CruiseProcessing
 
 
 
-        public static ArrayList buildPrintArray(ValueEquationDO val)
+        public static List<string> buildPrintArray(ValueEquationDO val)
         {
             StringBuilder sb = new StringBuilder();
             string fieldFormat = "{0,11:F7}";;
-            ArrayList valArray = new ArrayList();
+            var valArray = new List<string>();
             valArray.Add(" ");
             valArray.Add(val.Species.PadRight(6, ' '));
             valArray.Add(val.PrimaryProduct.PadLeft(2, '0'));
@@ -124,12 +124,12 @@ namespace CruiseProcessing
             valArray.Add(val.ValueEquationNumber);
 
             //  coefficients
-            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient1).ToString());
-            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient2).ToString());
-            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient3).ToString());
-            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient4).ToString());
-            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient5).ToString());
-            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient6).ToString());
+            valArray.Add(String.Format(fieldFormat, val.Coefficient1));
+            valArray.Add(String.Format(fieldFormat, val.Coefficient2));
+            valArray.Add(String.Format(fieldFormat, val.Coefficient3));
+            valArray.Add(String.Format(fieldFormat, val.Coefficient4));
+            valArray.Add(String.Format(fieldFormat, val.Coefficient5));
+            valArray.Add(String.Format(fieldFormat, val.Coefficient6));
             return valArray;
         }   //  end buildPrintArray
     }

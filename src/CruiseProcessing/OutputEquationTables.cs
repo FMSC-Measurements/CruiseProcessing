@@ -30,7 +30,7 @@ namespace CruiseProcessing
                     WriteReportHeading(strWriteOut, "VOLUME EQUATION TABLE", "", "", rh.VolEqHeaders, 12, ref pageNumb, "");
 
                     int[] fieldLengths = new int[15] { 5, 10, 6, 14, 11, 10, 6, 6, 6, 14, 6, 6, 6, 9, 7 };
-                    ArrayList prtFields = new ArrayList();
+                    var prtFields = new List<string>();
                     foreach (VolumeEquationDO vel in veqList)
                     {
                         //  build an array of fields to pass into creating a data table for printing
@@ -49,7 +49,7 @@ namespace CruiseProcessing
                     WriteReportHeading(strWriteOut, "VALUE EQUATION TABLE", "", "", rh.ValEqHeaders, 9, ref pageNumb, "");
 
                     int[] fieldLengths = new int[11] { 1, 10, 8, 5, 12, 16, 16, 16, 16, 16, 12 };
-                    ArrayList prtFields = new ArrayList();
+                    var prtFields = new List<string>();
                     foreach (ValueEquationDO val in valList)
                     {
                         // build array first of fields to pass for creating data table
@@ -68,7 +68,7 @@ namespace CruiseProcessing
                     WriteReportHeading(strWriteOut, "BIOMASS EQUATION TABLE", "", "", rh.BiomassHeaders, 10, ref pageNumb, "");
 
                     int[] fieldLengths = new int[12] { 2, 8, 5, 20, 7, 8, 8, 4, 6, 9, 6, 1 };
-                    ArrayList prtFields = new ArrayList();
+                    var prtFields = new List<string>();
                     string prevSP = "**";
                     string prevPP = "**";
                     int printSpecies = 0;
@@ -107,7 +107,7 @@ namespace CruiseProcessing
                     WriteReportHeading(strWriteOut, "QUALITY ADJUSTMENT EQUATION TABLE", "", "", rh.QualityEqHeaders, 8, ref pageNumb, "");
 
                     int[] fieldLengths = new int[10] { 5, 7, 15, 13, 15, 15, 15, 15, 15, 15 };
-                    ArrayList prtFields = new ArrayList();
+                    var prtFields = new List<string>();
                     foreach (QualityAdjEquationDO qal in qualList)
                     {
                         //  build array of fields for creating data table

@@ -413,15 +413,13 @@ namespace CruiseProcessing
         }   //  end createTextFile
 
 
-        public StringBuilder buildPrintLine(int[] fieldLengths, ArrayList oneLine)
+        public StringBuilder buildPrintLine(int[] fieldLengths, IEnumerable<string> oneLine)
         {
             StringBuilder printLine = new StringBuilder();
-            string fieldToAdd;
             int k = 0;
-            foreach(object obj in oneLine)
+            foreach(var str in oneLine)
             {
-                fieldToAdd = Convert.ToString(obj);
-                printLine.Append(fieldToAdd.PadRight(fieldLengths[k]));
+                printLine.Append(str.PadRight(fieldLengths[k]));
                 k++;
             }   //  end foreach loop
 
@@ -669,17 +667,19 @@ namespace CruiseProcessing
         }   //  end captureSTMtrees
         
 
-        public void printOneRecord(StreamWriter strWriteOut, ArrayList prtFields)
+        public void printOneRecord(StreamWriter strWriteOut, IEnumerable<string> prtFields)
         {
             StringBuilder oneRecord = new StringBuilder();
-            for (int k = 0; k < prtFields.Count; k++)
-                oneRecord.Append(prtFields[k]);
+            foreach(var str in prtFields)
+            {
+                oneRecord.Append(str);
+            }
             strWriteOut.WriteLine(oneRecord.ToString());
             numOlines++;
         }   //  end printOneRecord
 
 
-        public void printOneRecord(int[] fieldLengths, ArrayList prtFields, StreamWriter strWriteOut)
+        public void printOneRecord(int[] fieldLengths, IEnumerable<string> prtFields, StreamWriter strWriteOut)
         {
             StringBuilder oneRecord = buildPrintLine(fieldLengths, prtFields);
             strWriteOut.WriteLine(oneRecord.ToString());

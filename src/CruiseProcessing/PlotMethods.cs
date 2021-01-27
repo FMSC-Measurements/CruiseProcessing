@@ -39,10 +39,10 @@ namespace CruiseProcessing
         }   //  end FindDuplicatePlots
 
 
-        public static ArrayList buildPrintArray(PlotDO pl, string cruiseName, string stratumCode, 
+        public static List<string> buildPrintArray(PlotDO pl, string cruiseName, string stratumCode, 
                                                     string unitCode)
         {
-            ArrayList plotArray = new ArrayList();
+            var plotArray = new List<string>();
             plotArray.Add("     ");
             plotArray.Add(cruiseName.PadRight(5, ' '));
             plotArray.Add(pl.PlotNumber.ToString().PadLeft(4, ' '));
@@ -58,10 +58,10 @@ namespace CruiseProcessing
             return plotArray;
         }   //  end buildPrintArray
 
-        public static ArrayList buildPrintArray(PlotDO pl, string stratumCode, string unitCode)
+        public static List<string> buildPrintArray(PlotDO pl, string stratumCode, string unitCode)
         {
             //  overloaded to build array for report A13 (A14) -- plot page
-            ArrayList plotArray = new ArrayList();
+            var plotArray = new List<string>();
             string fieldFormat1 = "{0,10:F2}";
             string fieldFormat2 = "{0,9:F2}";
           
@@ -72,13 +72,13 @@ namespace CruiseProcessing
                 plotArray.Add(pl.PlotNumber.ToString().PadLeft(4, ' '));
                 plotArray.Add(unitCode.PadLeft(3, ' '));
                 plotArray.Add(stratumCode.PadLeft(2, ' '));
-                plotArray.Add(Utilities.Format(fieldFormat1, pl.XCoordinate).ToString());
+                plotArray.Add(String.Format(fieldFormat1, pl.XCoordinate));
                 if (pl.YCoordinate == 0.0)
                     plotArray.Add("---------");
-                else plotArray.Add(Utilities.Format(fieldFormat2, pl.YCoordinate).ToString());
+                else plotArray.Add(String.Format(fieldFormat2, pl.YCoordinate));
                 if (pl.ZCoordinate == 0.0)
                     plotArray.Add("---------");
-                else plotArray.Add(Utilities.Format(fieldFormat1, pl.ZCoordinate).ToString());
+                else plotArray.Add(String.Format(fieldFormat1, pl.ZCoordinate));
                 plotArray.Add(pl.MetaData??(" "));
             }   //  endif coordinates exist
             return plotArray;

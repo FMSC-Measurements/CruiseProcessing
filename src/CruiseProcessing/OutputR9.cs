@@ -21,7 +21,7 @@ namespace CruiseProcessing
         private double sumEstTrees, sumTipwood;
 
         public string currCL = "C";
-        private ArrayList prtFields = new ArrayList();
+        private List<string> prtFields = new List<string>();
         private List<StratumDO> sList = new List<StratumDO>();
         private List<TreeCalculatedValuesDO> tcvList = new List<TreeCalculatedValuesDO>();
         private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
@@ -378,14 +378,14 @@ namespace CruiseProcessing
 
 
             //  Expansion factor is first
-            prtFields.Add(Utilities.Format(fieldFormat5, numTrees));
+            prtFields.Add(String.Format(fieldFormat5, numTrees));
              //  This is estimated number of trees -- all methods except 3P
              //if (currTipwood == 0.0)
              //       prtFields.Add("      0");
             // else prtFields.Add(Utilities.FormatField(estTrees, fieldFormat5));
             //  load volumes
 
-            prtFields.Add(Utilities.Format(fieldFormat3, currTipwood));
+            prtFields.Add(String.Format(fieldFormat3, currTipwood));
 
             printOneRecord(fieldLengths, prtFields, strWriteOut);
             return;

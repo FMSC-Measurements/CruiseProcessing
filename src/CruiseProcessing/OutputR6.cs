@@ -14,7 +14,7 @@ namespace CruiseProcessing
          #region
          public string currentReport;
          private int[] fieldLengths;
-         private ArrayList prtFields = new ArrayList();
+         private List<string> prtFields = new List<string>();
          private List<RegionalReports> listToOutput = new List<RegionalReports>();
          private List<RegionalReports> unitSubtotal = new List<RegionalReports>();
          private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
@@ -466,7 +466,7 @@ namespace CruiseProcessing
                  if (us.value1 == null)
                      strWriteOut.Write("   ");
                  else strWriteOut.Write(us.value1.PadLeft(3, ' '));
-                 strWriteOut.Write(Utilities.Format("{0,7:F1}", us.value10).ToString().PadLeft(17, ' '));
+                 strWriteOut.Write(String.Format("{0,7:F1}", us.value10).PadLeft(17, ' '));
                  strWriteOut.Write(us.value5.PadLeft(15, ' '));
                  strWriteOut.Write(us.value6.PadLeft(10, ' '));
                  strWriteOut.Write(us.value3.PadLeft(8, ' '));
@@ -475,8 +475,8 @@ namespace CruiseProcessing
                      calcValue = Math.Floor(((us.value7 - us.value8) / us.value7) * 100);
                  else calcValue = 0.0;
                  if (calcValue < 0) calcValue = 0;
-                 strWriteOut.Write(Utilities.Format("{0,3:F0}", calcValue).ToString().PadLeft(7, ' '));
-                 strWriteOut.WriteLine(Utilities.Format("{0,10:F2}", us.value8 / convFactor).ToString().PadLeft(28, ' '));
+                 strWriteOut.Write(String.Format("{0,3:F0}", calcValue).PadLeft(7, ' '));
+                 strWriteOut.WriteLine(String.Format("{0,10:F2}", us.value8 / convFactor).PadLeft(28, ' '));
                  numOlines++;
              }  //  end foreach loop on unit subtotals
              strWriteOut.WriteLine(reportConstants.longLine);
@@ -530,13 +530,13 @@ namespace CruiseProcessing
              foreach (ReportSubtotal tto in totalToOutput)
              {
                  strWriteOut.Write(tto.Value1.PadLeft(46, ' '));
-                 strWriteOut.WriteLine(Utilities.Format("{0,10:F2}", tto.Value3 / convFactor).ToString().PadLeft(42, ' '));
+                 strWriteOut.WriteLine(String.Format("{0,10:F2}", tto.Value3 / convFactor).PadLeft(42, ' '));
                  numOlines++;
                  grandTotal += tto.Value3;
              }  //  end foreach in totalToOutput
              strWriteOut.WriteLine(reportConstants.longLine);
              strWriteOut.Write("                                            GRAND TOTAL                       ");
-             strWriteOut.WriteLine(Utilities.Format("{0,10:F2}", grandTotal / convFactor).ToString().PadLeft(10, ' '));
+             strWriteOut.WriteLine(String.Format("{0,10:F2}", grandTotal / convFactor).PadLeft(10, ' '));
              numOlines = numOlines + 2;
              //  write footer lines
              WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
@@ -570,7 +570,7 @@ namespace CruiseProcessing
                      prtFields.Add("  ");
                  else prtFields.Add(lto.value1.PadLeft(2, ' '));
                  prtFields.Add(lto.value2.PadLeft(3, ' '));
-                 prtFields.Add(Utilities.Format("{0,7:F1}", lto.value10).ToString().PadLeft(7, ' '));
+                 prtFields.Add(String.Format("{0,7:F1}", lto.value10).PadLeft(7, ' '));
                  if (lto.value4 == null)
                      prtFields.Add("   ");
                  else prtFields.Add(lto.value4.PadLeft(3, ' '));
@@ -582,9 +582,9 @@ namespace CruiseProcessing
                      calcValue = Math.Floor(((lto.value7 - lto.value8) / lto.value7) * 100);
                  else calcValue = 0.0;
                  if (calcValue < 0) calcValue = 0;
-                 prtFields.Add(Utilities.Format("{0,3:F0}", calcValue).ToString().PadLeft(3, ' '));
+                 prtFields.Add(String.Format("{0,3:F0}", calcValue).PadLeft(3, ' '));
                  //  and net volume
-                 prtFields.Add(Utilities.Format("{0,10:F2}", lto.value8 / convFactor).ToString().PadLeft(10, ' '));
+                 prtFields.Add(String.Format("{0,10:F2}", lto.value8 / convFactor).PadLeft(10, ' '));
 
                  printOneRecord(fieldLengths, prtFields, strWriteout);
              }  //  end foreach loop on listToOutput
@@ -605,25 +605,25 @@ namespace CruiseProcessing
                  prtFields.Add(" ");
                  prtFields.Add(lto.value1.PadLeft(2, ' '));
                  //  sawtimber columns
-                 prtFields.Add(Utilities.Format("{0,8:F2}", lto.value7 / convFactor).ToString().PadLeft(8, ' '));
-                 prtFields.Add(Utilities.Format("{0,8:F2}", lto.value8 / convFactor).ToString().PadLeft(8, ' '));
+                 prtFields.Add(String.Format("{0,8:F2}", lto.value7 / convFactor).PadLeft(8, ' '));
+                 prtFields.Add(String.Format("{0,8:F2}", lto.value8 / convFactor).PadLeft(8, ' '));
                  if (lto.value7 > 0)
                      calcValue = ((lto.value7 - lto.value8) / lto.value7) * 100;
                  else calcValue = 0.0;
-                 prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                 prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                  //  non-sawtimber columns
-                 prtFields.Add(Utilities.Format("{0,8:F2}", lto.value10 / convFactor).ToString().PadLeft(8, ' '));
-                 prtFields.Add(Utilities.Format("{0,8:F2}", lto.value11 / convFactor).ToString().PadLeft(8, ' '));
+                 prtFields.Add(String.Format("{0,8:F2}", lto.value10 / convFactor).PadLeft(8, ' '));
+                 prtFields.Add(String.Format("{0,8:F2}", lto.value11 / convFactor).PadLeft(8, ' '));
                  if (lto.value10 > 0)
                      calcValue = ((lto.value10 - lto.value11) / lto.value10) * 100;
                  else calcValue = 0.0;
-                 prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
+                 prtFields.Add(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
                  //  cull logs
-                 prtFields.Add(Utilities.Format("{0,9:F2}", lto.value13 / convFactor).ToString().PadLeft(9, ' '));
+                 prtFields.Add(String.Format("{0,9:F2}", lto.value13 / convFactor).PadLeft(9, ' '));
                  //  total gross volume
-                 prtFields.Add(Utilities.Format("{0,9:F2}", lto.value14 / convFactor).ToString().PadLeft(9, ' '));
+                 prtFields.Add(String.Format("{0,9:F2}", lto.value14 / convFactor).PadLeft(9, ' '));
                  //  total net volume
-                 prtFields.Add(Utilities.Format("{0,9:F2}", lto.value15 / convFactor).ToString().PadLeft(9, ' '));
+                 prtFields.Add(String.Format("{0,9:F2}", lto.value15 / convFactor).PadLeft(9, ' '));
                  printOneRecord(fieldLengths, prtFields, strWriteOut);
              }  //  end foreach loop
              return;
@@ -642,32 +642,32 @@ namespace CruiseProcessing
              //  sawtimber columns
              totalGRS = listToOutput.Sum(lto => lto.value7);
              totalNET = listToOutput.Sum(lto => lto.value8);
-             strWriteOut.Write(Utilities.Format("{0,8:F2}", totalGRS / convFactor).ToString().PadLeft(8, ' '));
-             strWriteOut.Write(Utilities.Format("{0,8:F2}", totalNET / convFactor).ToString().PadLeft(10, ' '));
+             strWriteOut.Write(String.Format("{0,8:F2}", totalGRS / convFactor).PadLeft(8, ' '));
+             strWriteOut.Write(String.Format("{0,8:F2}", totalNET / convFactor).PadLeft(10, ' '));
              if (totalGRS > 0)
                  calcValue = ((totalGRS - totalNET) / totalGRS) * 100;
              else calcValue = 0.0;
-             strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(10, ' '));
+             strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(10, ' '));
              strWriteOut.Write("%");
              // non-sawtimber columns
              totalGRS = listToOutput.Sum(lto => lto.value10);
              totalNET = listToOutput.Sum(lto => lto.value11);
-             strWriteOut.Write(Utilities.Format("{0,8:F2}", totalGRS / convFactor).ToString().PadLeft(14, ' '));
-             strWriteOut.Write(Utilities.Format("{0,8:F2}", totalNET / convFactor).ToString().PadLeft(10, ' '));
+             strWriteOut.Write(String.Format("{0,8:F2}", totalGRS / convFactor).PadLeft(14, ' '));
+             strWriteOut.Write(String.Format("{0,8:F2}", totalNET / convFactor).PadLeft(10, ' '));
              if (totalGRS > 0)
                  calcValue = ((totalGRS - totalNET) / totalGRS) * 100;
              else calcValue = 0.0;
-             strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(9, ' '));
+             strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(9, ' '));
              strWriteOut.Write("%");
              //  cull log
              calcValue = listToOutput.Sum(lto => lto.value13);
-             strWriteOut.Write(Utilities.Format("{0,9:F2}", calcValue / convFactor).ToString().PadLeft(14, ' '));
+             strWriteOut.Write(String.Format("{0,9:F2}", calcValue / convFactor).PadLeft(14, ' '));
              //  total gross
              calcValue = listToOutput.Sum(lto => lto.value14);
-             strWriteOut.Write(Utilities.Format("{0,9:F2}", calcValue / convFactor).ToString().PadLeft(16, ' '));
+             strWriteOut.Write(String.Format("{0,9:F2}", calcValue / convFactor).PadLeft(16, ' '));
              //  total net
              calcValue = listToOutput.Sum(lto => lto.value15);
-             strWriteOut.WriteLine(Utilities.Format("{0,9:F2}", calcValue / convFactor).ToString().PadLeft(14, ' '));
+             strWriteOut.WriteLine(String.Format("{0,9:F2}", calcValue / convFactor).PadLeft(14, ' '));
              return;
          }  //  PrintTotal
 
@@ -704,7 +704,7 @@ namespace CruiseProcessing
              string[] finnishHeader = new string[7];
              finnishHeader[0] = rRH.R604R605columns[0].Replace("XX", tableNumber.ToString().PadLeft(2, ' '));
              finnishHeader[1] = rRH.R604R605columns[1].Replace("ZZZZZZ", currSP.PadRight(6, ' '));
-             string printAvgDBH = Utilities.Format("{0,6:F1}", avgDBH).ToString();
+             string printAvgDBH = String.Format("{0,6:F1}", avgDBH);
              finnishHeader[2] = rRH.R604R605columns[2].Replace("TTTTTT", printAvgDBH.PadLeft(6,' '));
              // load rest of header
              for (int k = 3; k < 7; k++)
