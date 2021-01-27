@@ -1,163 +1,95 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net40</TargetFramework>
-    <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
-    <StartupObject>CruiseProcessing.Program</StartupObject>
-    <FileUpgradeFlags />
-    <UpgradeBackupLocation />
     <AssemblyTitle>CruiseProcessing</AssemblyTitle>
     <Company>USDA Forest Service</Company>
     <Product>CruiseProcessing</Product>
     <Copyright>Copyright © USDA Forest Service 2011</Copyright>
+    <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
+    
+  </PropertyGroup>
+
+  <PropertyGroup Label="Build Config">
+    <TargetFramework>net461</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <StartupObject>$(RootNamespace).Program</StartupObject>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <PlatformTarget>x86</PlatformTarget>
-    <Optimize>true</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Remove="Backup\**" />
-    <Compile Remove="nuget\**" />
-    <Compile Remove="packages\**" />
-    <EmbeddedResource Remove="Backup\**" />
-    <EmbeddedResource Remove="nuget\**" />
-    <EmbeddedResource Remove="packages\**" />
-    <None Remove="Backup\**" />
-    <None Remove="nuget\**" />
-    <None Remove="packages\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="itextsharp, Version=5.4.2.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
-      <HintPath>bin\x86\Debug\itextsharp.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="itextsharp">
+      <HintPath>..\libs\itextsharp.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions" />
+    <!--<Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Deployment" />
-    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms" />-->
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="CapturePercentRemoved.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="CapturePercentRemoved.cs" />
     <Compile Update="CapturePercentRemoved.Designer.cs">
       <DependentUpon>CapturePercentRemoved.cs</DependentUpon>
     </Compile>
-    <Compile Update="EnterNewFilename.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="EnterNewFilename.cs" />
     <Compile Update="EnterNewFilename.Designer.cs">
       <DependentUpon>EnterNewFilename.cs</DependentUpon>
     </Compile>
-    <Compile Update="ExportDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="ExportDialog.cs" />
     <Compile Update="ExportDialog.Designer.cs">
       <DependentUpon>ExportDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="FLIWdlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="FLIWdlg.cs" />
     <Compile Update="FLIWdlg.Designer.cs">
       <DependentUpon>FLIWdlg.cs</DependentUpon>
     </Compile>
-    <Compile Update="GraphForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="GraphForm.cs" />
     <Compile Update="GraphForm.Designer.cs">
       <DependentUpon>GraphForm.cs</DependentUpon>
     </Compile>
-    <Compile Update="graphOutputDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="graphOutputDialog.cs" />
     <Compile Update="graphOutputDialog.Designer.cs">
       <DependentUpon>graphOutputDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="GraphReportsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="GraphReportsDialog.cs" />
     <Compile Update="GraphReportsDialog.Designer.cs">
       <DependentUpon>GraphReportsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="LocalVolume.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="LocalVolume.cs" />
     <Compile Update="LocalVolume.Designer.cs">
       <DependentUpon>LocalVolume.cs</DependentUpon>
     </Compile>
-    <Compile Update="LogMatrixUpdate.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="LogMatrixUpdate.cs" />
     <Compile Update="LogMatrixUpdate.Designer.cs">
       <DependentUpon>LogMatrixUpdate.cs</DependentUpon>
     </Compile>
-    <Compile Update="MainMenu.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="MainMenu.cs" />
     <Compile Update="MainMenu.Designer.cs">
       <DependentUpon>MainMenu.cs</DependentUpon>
     </Compile>
-    <Compile Update="ModifyMerchRules.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="ModifyMerchRules.cs" />
     <Compile Update="ModifyMerchRules.Designer.cs">
       <DependentUpon>ModifyMerchRules.cs</DependentUpon>
     </Compile>
-    <Compile Update="ModifyWeightFactors.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="ModifyWeightFactors.cs" />
     <Compile Update="ModifyWeightFactors.Designer.cs">
       <DependentUpon>ModifyWeightFactors.cs</DependentUpon>
     </Compile>
-    <Compile Update="PasswordProtect.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="PasswordProtect.cs" />
     <Compile Update="PasswordProtect.Designer.cs">
       <DependentUpon>PasswordProtect.cs</DependentUpon>
     </Compile>
-    <Compile Update="PDFfileOutput.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="PDFfileOutput.cs" />
     <Compile Update="PDFfileOutput.Designer.cs">
       <DependentUpon>PDFfileOutput.cs</DependentUpon>
     </Compile>
-    <Compile Update="PDFwatermarkDlg.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="PDFwatermarkDlg.cs" />
     <Compile Update="PDFwatermarkDlg.Designer.cs">
       <DependentUpon>PDFwatermarkDlg.cs</DependentUpon>
     </Compile>
-    <Compile Update="PrintPreview.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="PrintPreview.cs" />
     <Compile Update="PrintPreview.Designer.cs">
       <DependentUpon>PrintPreview.cs</DependentUpon>
     </Compile>
-    <Compile Update="ProcessStatus.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="ProcessStatus.cs" />
     <Compile Update="ProcessStatus.Designer.cs">
       <DependentUpon>ProcessStatus.cs</DependentUpon>
     </Compile>
@@ -316,105 +248,71 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Update="QualityAdjEquations.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="QualityAdjEquations.cs" />
     <Compile Update="QualityAdjEquations.Designer.cs">
       <DependentUpon>QualityAdjEquations.cs</DependentUpon>
     </Compile>
-    <Compile Update="R8product08.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="R8product08.cs" />
     <Compile Update="R8product08.Designer.cs">
       <DependentUpon>R8product08.cs</DependentUpon>
     </Compile>
-    <Compile Update="R8PulpwoodMeasurement.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="R8PulpwoodMeasurement.cs" />
     <Compile Update="R8PulpwoodMeasurement.Designer.cs">
       <DependentUpon>R8PulpwoodMeasurement.cs</DependentUpon>
     </Compile>
-    <Compile Update="R8Topwood.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="R8Topwood.cs" />
     <Compile Update="R8Topwood.Designer.cs">
       <DependentUpon>R8Topwood.cs</DependentUpon>
     </Compile>
-    <Compile Update="R8VolEquation.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="R8VolEquation.cs" />
     <Compile Update="R8VolEquation.Designer.cs">
       <DependentUpon>R8VolEquation.cs</DependentUpon>
     </Compile>
-    <Compile Update="R9TopDIB.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="R9TopDIB.cs" />
     <Compile Update="R9TopDIB.Designer.cs">
       <DependentUpon>R9TopDIB.cs</DependentUpon>
     </Compile>
-    <Compile Update="R9Topwood.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="R9Topwood.cs" />
     <Compile Update="R9Topwood.Designer.cs">
       <DependentUpon>R9Topwood.cs</DependentUpon>
     </Compile>
-    <Compile Update="R9VolEquation.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="R9VolEquation.cs" />
     <Compile Update="R9VolEquation.Designer.cs">
       <DependentUpon>R9VolEquation.cs</DependentUpon>
     </Compile>
-    <Compile Update="ReportsDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="ReportsDialog.cs" />
     <Compile Update="ReportsDialog.Designer.cs">
       <DependentUpon>ReportsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Update="SecurityQuestion.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="SecurityQuestion.cs" />
     <Compile Update="SecurityQuestion.Designer.cs">
       <DependentUpon>SecurityQuestion.cs</DependentUpon>
     </Compile>
-    <Compile Update="SelectCSV.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="SelectCSV.cs" />
     <Compile Update="SelectCSV.Designer.cs">
       <DependentUpon>SelectCSV.cs</DependentUpon>
     </Compile>
-    <Compile Update="selectLength.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="selectLength.cs" />
     <Compile Update="selectLength.Designer.cs">
       <DependentUpon>selectLength.cs</DependentUpon>
     </Compile>
-    <Compile Update="StewardshipProductCosts.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="StewardshipProductCosts.cs" />
     <Compile Update="StewardshipProductCosts.Designer.cs">
       <DependentUpon>StewardshipProductCosts.cs</DependentUpon>
     </Compile>
-    <Compile Update="TemplateRegionForest.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="TemplateRegionForest.cs" />
     <Compile Update="TemplateRegionForest.Designer.cs">
       <DependentUpon>TemplateRegionForest.cs</DependentUpon>
     </Compile>
-    <Compile Update="TextFileOutput.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="TextFileOutput.cs" />
     <Compile Update="TextFileOutput.Designer.cs">
       <DependentUpon>TextFileOutput.cs</DependentUpon>
     </Compile>
-    <Compile Update="ValueEquations.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="ValueEquations.cs" />
     <Compile Update="ValueEquations.Designer.cs">
       <DependentUpon>ValueEquations.cs</DependentUpon>
     </Compile>
-    <Compile Update="VolumeEquations.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="VolumeEquations.cs" />
     <Compile Update="VolumeEquations.Designer.cs">
       <DependentUpon>VolumeEquations.cs</DependentUpon>
     </Compile>
@@ -487,10 +385,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="cruisetree_trees.ico" />
-    <Content Include="NBEL.dll">
+    <Content Include="../libs/NBEL.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="vollib.dll">
+    <Content Include="../libs/vollib.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Properties\DataSources\CruiseDAL.DataObjects.LogMatrixDO.datasource" />
@@ -519,8 +417,10 @@
     <None Remove="vollib.dll" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.1.73" />
     <PackageReference Include="ZedGraph" Version="5.1.7" />
     <PackageReference Include="ZedGraph.Web" Version="5.1.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />
   </ItemGroup>
 </Project>

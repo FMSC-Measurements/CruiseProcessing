@@ -41,6 +41,8 @@ namespace CruiseProcessing
                 string outputMessage = "ERRORS FROM FSCRUISER FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
                 MessageBox.Show(outputMessage, "ERRORS", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 //  request made to open error report in preview -- May 2015
+
+
                 PrintPreview pp = new PrintPreview();
                 pp.fileName = outputFileName;
                 pp.setupDialog();

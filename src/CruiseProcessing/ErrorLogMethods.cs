@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using System.Windows.Forms;
 
 
 namespace CruiseProcessing
@@ -47,9 +47,11 @@ namespace CruiseProcessing
                     string warnMsg = "WARNING!  Stratum ";
                     warnMsg += str.Code;
                     warnMsg += " has no trees recorded.  Some reports may not be complete.\nContinue?";
+
                     DialogResult dr = MessageBox.Show(warnMsg, "WARNING", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                     if (dr == DialogResult.No)
                         return -1;
+
                 }   //  endif no trees
 
                 //  What needs to be checked?  By method
