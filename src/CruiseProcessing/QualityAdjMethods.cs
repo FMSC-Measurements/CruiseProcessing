@@ -42,13 +42,13 @@ namespace CruiseProcessing
             qualArray.Add(" ");
             qualArray.Add(qae.Species.PadRight(6, ' '));
             qualArray.Add(qae.QualityAdjEq);
-            qualArray.Add(Utilities.FormatField(qae.Year,yearFormat).ToString());
-            qualArray.Add(Utilities.FormatField(qae.Coefficient1, fieldFormat).ToString());
-            qualArray.Add(Utilities.FormatField(qae.Coefficient2, fieldFormat).ToString());
-            qualArray.Add(Utilities.FormatField(qae.Coefficient3, fieldFormat).ToString());
-            qualArray.Add(Utilities.FormatField(qae.Coefficient4, fieldFormat).ToString());
-            qualArray.Add(Utilities.FormatField(qae.Coefficient5, fieldFormat).ToString());
-            qualArray.Add(Utilities.FormatField(qae.Coefficient6, fieldFormat).ToString());
+            qualArray.Add(Utilities.Format(yearFormat, qae.Year).ToString());
+            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient1).ToString());
+            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient2).ToString());
+            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient3).ToString());
+            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient4).ToString());
+            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient5).ToString());
+            qualArray.Add(Utilities.Format(fieldFormat, qae.Coefficient6).ToString());
 
             return qualArray;
         }   //  end buildPrintArray

@@ -378,14 +378,14 @@ namespace CruiseProcessing
 
 
             //  Expansion factor is first
-            prtFields.Add(Utilities.FormatField(numTrees, fieldFormat5));
+            prtFields.Add(Utilities.Format(fieldFormat5, numTrees));
              //  This is estimated number of trees -- all methods except 3P
              //if (currTipwood == 0.0)
              //       prtFields.Add("      0");
             // else prtFields.Add(Utilities.FormatField(estTrees, fieldFormat5));
             //  load volumes
 
-            prtFields.Add(Utilities.FormatField(currTipwood, fieldFormat3));
+            prtFields.Add(Utilities.Format(fieldFormat3, currTipwood));
 
             printOneRecord(fieldLengths, prtFields, strWriteOut);
             return;

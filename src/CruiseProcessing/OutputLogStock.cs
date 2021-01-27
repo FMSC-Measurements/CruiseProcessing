@@ -414,67 +414,67 @@ namespace CruiseProcessing
                 switch (currentReport)
                 {
                     case "L2":
-                        prtFields.Add(Utilities.FormatField(ol.Value3 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value4 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value5 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value6 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value7 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value8 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value9 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value10 / convFactor, formatOne).ToString().PadLeft(9, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value11 / convFactor, formatTwo).ToString().PadLeft(10, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value12 / convFactor, formatTwo).ToString().PadLeft(10, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value13 / convFactor, formatTwo).ToString().PadLeft(10, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value14 / convFactor, formatTwo).ToString().PadLeft(10, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value3 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value4 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value5 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value6 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value7 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value8 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value9 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value10 / convFactor).ToString().PadLeft(9, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value11 / convFactor).ToString().PadLeft(10, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value12 / convFactor).ToString().PadLeft(10, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value13 / convFactor).ToString().PadLeft(10, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value14 / convFactor).ToString().PadLeft(10, ' '));
                         if (ol.Value14 > 0)
                             printOneRecord(fieldLengths, prtFields, strWriteOut);
                         break;
                     case "L8":
                         //  primary product
-                        prtFields.Add(Utilities.FormatField(ol.Value3, formatOne).ToString().PadLeft(8, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value4, formatTwo).ToString().PadLeft(11, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value5, formatTwo).ToString().PadLeft(11, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value6, formatTwo).ToString().PadLeft(11, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value7, formatTwo).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value3).ToString().PadLeft(8, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value4).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value5).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value6).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value7).ToString().PadLeft(11, ' '));
                         //  secondary product
-                        prtFields.Add(Utilities.FormatField(ol.Value8, formatOne).ToString().PadLeft(8, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value9, formatTwo).ToString().PadLeft(11, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value10, formatTwo).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value8).ToString().PadLeft(8, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value9).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value10).ToString().PadLeft(11, ' '));
                         //  total cubic foot
-                        prtFields.Add(Utilities.FormatField(ol.Value11, formatOne).ToString().PadLeft(8, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value12, formatTwo).ToString().PadLeft(11, ' '));
-                        prtFields.Add(Utilities.FormatField(ol.Value13, formatTwo).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value11).ToString().PadLeft(8, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value12).ToString().PadLeft(11, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value13).ToString().PadLeft(11, ' '));
                         if (ol.Value11 > 0)
                             printOneRecord(fieldLengths, prtFields, strWriteOut);
                         break;
                     case "L10":
-                        prtFields.Add(Utilities.FormatField(ol.Value3 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value3 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value4 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value4 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value5 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value5 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value6 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value6 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value7 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value7 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value8 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value8 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value9 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value9 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value10 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value10 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value11 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value11 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value12 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value12 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value13 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value13 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value14 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value14 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value15 / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format(formatOne, ol.Value15 / convFactor).ToString().PadLeft(5, ' '));
                         prtFields.Add(verticalBar);
-                        prtFields.Add(Utilities.FormatField(ol.Value16 / convFactor, formatTwo).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format(formatTwo, ol.Value16 / convFactor).ToString().PadLeft(6, ' '));
                         if (ol.Value16 > 0)
                             printOneRecord(fieldLengths, prtFields, strWriteOut);
                         break;
@@ -501,63 +501,63 @@ namespace CruiseProcessing
             switch(currentReport)
             {
                 case "L2":
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value3) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value4) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value5) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value6) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value7) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value8) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value9) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value10) / convFactor, formatOne)).ToString().PadLeft(9, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value11) / convFactor, formatTwo)).ToString().PadLeft(10, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value12) / convFactor, formatTwo)).ToString().PadLeft(10, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value13) / convFactor, formatTwo)).ToString().PadLeft(10, ' ');
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value14) / convFactor, formatTwo)).ToString().PadLeft(10, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value3) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value4) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value5) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value6) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value7) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value8) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value9) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value10) / convFactor)).ToString().PadLeft(9, ' ');
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value11) / convFactor)).ToString().PadLeft(10, ' ');
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value12) / convFactor)).ToString().PadLeft(10, ' ');
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value13) / convFactor)).ToString().PadLeft(10, ' ');
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value14) / convFactor)).ToString().PadLeft(10, ' ');
                     break;
                 case "L8":
                     //  primary product
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value3), formatOne).ToString().PadLeft(8, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value4), formatTwo).ToString().PadLeft(11, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value5), formatTwo).ToString().PadLeft(11, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value6), formatTwo).ToString().PadLeft(11, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value7), formatTwo).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value3)).ToString().PadLeft(8, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value4)).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value5)).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value6)).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value7)).ToString().PadLeft(11, ' '));
                     //  secondary product
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value8), formatOne).ToString().PadLeft(8, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value9), formatTwo).ToString().PadLeft(11, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value10), formatTwo).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value8)).ToString().PadLeft(8, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value9)).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value10)).ToString().PadLeft(11, ' '));
                     //  total cubic foot
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value11), formatOne).ToString().PadLeft(8, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value12), formatTwo).ToString().PadLeft(11, ' '));
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(l => l.Value13), formatTwo).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(l => l.Value11)).ToString().PadLeft(8, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value12)).ToString().PadLeft(11, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(l => l.Value13)).ToString().PadLeft(11, ' '));
                     break;
             case "L10":
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value3) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value3) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value4) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value4) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value5) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value5) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value6) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value6) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value7) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value7) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value8) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value8) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value9) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value9) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value10) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value10) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value11) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value11) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value12) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value12) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value13) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value13) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value14) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value14) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value15) / convFactor, formatOne).ToString().PadLeft(5, ' '));
+                    pageTotals.Add(Utilities.Format(formatOne, outputList.Sum(o => o.Value15) / convFactor).ToString().PadLeft(5, ' '));
                     pageTotals.Add(verticalBar);
-                    pageTotals.Add(Utilities.FormatField(outputList.Sum(o => o.Value16) / convFactor, formatTwo).ToString().PadLeft(6, ' '));
+                    pageTotals.Add(Utilities.Format(formatTwo, outputList.Sum(o => o.Value16) / convFactor).ToString().PadLeft(6, ' '));
                     break;
             }   //  end switch
             strWriteOut.WriteLine(reportConstants.longLine);

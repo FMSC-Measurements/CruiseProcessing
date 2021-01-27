@@ -69,13 +69,13 @@ namespace CruiseProcessing
             stratumArray.Add(stl.Code.PadLeft(2, ' '));
 
             stratumArray.Add(stl.Method.PadRight(6, ' '));
-            stratumArray.Add(Utilities.FormatField(totalAcres, "{0,6:F2}").ToString().PadLeft(6, ' '));
-            stratumArray.Add(Utilities.FormatField(stl.BasalAreaFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-            stratumArray.Add(Utilities.FormatField(stl.FixedPlotSize, "{0,4:F0}").ToString().PadLeft(3, ' '));
-            stratumArray.Add(Utilities.FormatField(numPlots, "{0,3:F0}").ToString().PadLeft(3, ' '));
+            stratumArray.Add(Utilities.Format("{0,6:F2}", totalAcres).ToString().PadLeft(6, ' '));
+            stratumArray.Add(Utilities.Format("{0,7:F2}", stl.BasalAreaFactor).ToString().PadLeft(7, ' '));
+            stratumArray.Add(Utilities.Format("{0,4:F0}", stl.FixedPlotSize).ToString().PadLeft(3, ' '));
+            stratumArray.Add(Utilities.Format("{0,3:F0}", numPlots).ToString().PadLeft(3, ' '));
             stratumArray.Add(stl.Description ?? (" ").PadRight(25, ' '));
-            stratumArray.Add(Utilities.FormatField(stl.Month, "{0,2:F0}").ToString());
-            stratumArray.Add(Utilities.FormatField(stl.Year, "{0,4:F0}").ToString());
+            stratumArray.Add(Utilities.Format("{0,2:F0}", stl.Month).ToString());
+            stratumArray.Add(Utilities.Format("{0,4:F0}", stl.Year).ToString());
 
             return stratumArray;
         }   //  end buildPrintArray
@@ -105,35 +105,35 @@ namespace CruiseProcessing
             else prtArray.Add("    ");
             prtArray.Add(tcv.Tree.TreeNumber.ToString().PadLeft(4, ' '));
             prtArray.Add(tcv.Tree.Species.PadRight(6, ' '));
-            prtArray.Add(Utilities.FormatField(tcv.Tree.DBH,"{0,5:F1}").ToString().PadLeft(5, ' '));
+            prtArray.Add(Utilities.Format("{0,5:F1}", tcv.Tree.DBH).ToString().PadLeft(5, ' '));
             
             //  volumes used depend on current UOM
             double currVolume = 0;
             switch (currUOM)
             {
                 case "03":
-                    prtArray.Add(Utilities.FormatField(tcv.GrossCUFTPP, "{0,7:F1}"));
-                    prtArray.Add(Utilities.FormatField(tcv.NetCUFTPP, "{0,7:F1}"));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.GrossCUFTPP));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.NetCUFTPP));
                     currVolume = tcv.NetCUFTPP;
                     break;
                 case "01":
-                    prtArray.Add(Utilities.FormatField(tcv.GrossBDFTPP, "{0,7:F1}"));
-                    prtArray.Add(Utilities.FormatField(tcv.NetBDFTPP, "{0,7:F1}"));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.GrossBDFTPP));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.NetBDFTPP));
                     currVolume = tcv.NetBDFTPP;
                     break;
                 case "05":
-                    prtArray.Add(Utilities.FormatField(tcv.BiomassMainStemPrimary, "{0,7:F1}"));
-                    prtArray.Add(Utilities.FormatField(tcv.BiomassMainStemPrimary, "{0,7:F1}"));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.BiomassMainStemPrimary));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.BiomassMainStemPrimary));
                     currVolume = tcv.BiomassMainStemPrimary;
                     break;
                 case "02":
-                    prtArray.Add(Utilities.FormatField(tcv.CordsPP, "{0,7:F1}"));
-                    prtArray.Add(Utilities.FormatField(tcv.CordsPP, "{0,7:F1}"));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.CordsPP));
+                    prtArray.Add(Utilities.Format("{0,7:F1}", tcv.CordsPP));
                     currVolume = tcv.CordsPP;
                     break;
             }   //  end switch on UOM
 
-            prtArray.Add(Utilities.FormatField(tcv.Tree.ExpansionFactor, "{0,8:F2}"));
+            prtArray.Add(Utilities.Format("{0,8:F2}", tcv.Tree.ExpansionFactor));
             prtArray.Add(tcv.Tree.KPI.ToString().PadLeft(5, ' '));
             //  April 2017 --  separate KPI from count table since it includes measured KPI
             prtArray.Add("     ");
@@ -141,7 +141,7 @@ namespace CruiseProcessing
             
             //  calculate ratio
             if (tcv.Tree.KPI > 0)
-                prtArray.Add(Utilities.FormatField((currVolume / tcv.Tree.KPI), "{0,7:F3}"));
+                prtArray.Add(Utilities.Format("{0,7:F3}", (currVolume / tcv.Tree.KPI)));
             else prtArray.Add("       ");
             //  and finally marker's initials
             if (tcv.Tree != null && tcv.Tree.Initials != null)

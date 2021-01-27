@@ -331,7 +331,7 @@ namespace CruiseProcessing
                     if(currPP == 1)
                     {
                         summedValue = currData.Sum(ldo => ldo.MeasuredTrees);
-                        prtFields.Add(Utilities.FormatField(summedValue,fieldFormat1).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, summedValue).ToString());
                     }
                     else prtFields.Add("      ");
                     break;
@@ -342,9 +342,9 @@ namespace CruiseProcessing
                     if(currPP == 1)
                     {
                         summedValue = currData.Sum(ldo => ldo.MeasuredTrees);
-                        prtFields.Add(Utilities.FormatField(summedValue,fieldFormat1).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, summedValue).ToString());
                         summedValue = currData.Sum(ldo => ldo.TalliedTrees);
-                        prtFields.Add(Utilities.FormatField(summedValue,fieldFormat1).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, summedValue).ToString());
                     }
                     else
                     {
@@ -364,9 +364,9 @@ namespace CruiseProcessing
                 if(summedEF > 0)
                 {
                     summedValue = currData.Sum(ldo => ldo.SumDBHOBsqrd);
-                    prtFields.Add(Utilities.FormatField((Math.Sqrt(summedValue/summedEF)),fieldFormat2).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat2, (Math.Sqrt(summedValue / summedEF))).ToString());
                     summedValue = currData.Sum(ldo => ldo.SumDBHOB);
-                    prtFields.Add(Utilities.FormatField((summedValue/summedEF),fieldFormat3).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat3, (summedValue / summedEF)).ToString());
                 }
                 else
                 {
@@ -409,34 +409,34 @@ namespace CruiseProcessing
                 if(summedEF > 0)
                 {
                     if(numerAtor1 > 0)
-                        prtFields.Add(Utilities.FormatField((numerAtor1 / summedEF),fieldFormat2).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat2, (numerAtor1 / summedEF)).ToString());
                     else prtFields.Add("     ");
                     if(numerAtor2 > 0)
-                        prtFields.Add(Utilities.FormatField((numerAtor2 / summedEF),fieldFormat2).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat2, (numerAtor2 / summedEF)).ToString());
                     else prtFields.Add("     ");
                 }   //  endif
 
                 //  Average defect --  calculated only for primary product
                 summedValue = currData.Sum(ldo => ldo.SumGBDFT);
                 double sumValueToo = currData.Sum(ldo => ldo.SumNBDFT);
-                prtFields.Add(Utilities.FormatField((CommonEquations.AverageDefectPercent(summedValue, sumValueToo)),fieldFormat4).ToString());
+                prtFields.Add(Utilities.FormatField(fieldFormat4, (CommonEquations.AverageDefectPercent(summedValue, sumValueToo))).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumGCUFT);
                 sumValueToo = currData.Sum(ldo => ldo.SumNCUFT);
-                prtFields.Add(Utilities.FormatField((CommonEquations.AverageDefectPercent(summedValue, sumValueToo)),fieldFormat4).ToString());
+                prtFields.Add(Utilities.FormatField(fieldFormat4, (CommonEquations.AverageDefectPercent(summedValue, sumValueToo))).ToString());
 
                 //  Ratio is similar -- calculated for primary product only
                 summedValue = currData.Sum(ldo => ldo.SumGBDFT);
                 sumValueToo = currData.Sum(ldo => ldo.SumGCUFT);
-                prtFields.Add(Utilities.FormatField((CommonEquations.BoardCubicRatio(summedValue, sumValueToo)),fieldFormat5).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat5, (CommonEquations.BoardCubicRatio(summedValue, sumValueToo))).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumNBDFT);
                 sumValueToo = currData.Sum(ldo => ldo.SumNCUFT);
-                prtFields.Add(Utilities.FormatField((CommonEquations.BoardCubicRatio(summedValue, sumValueToo)),fieldFormat5).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat5, (CommonEquations.BoardCubicRatio(summedValue, sumValueToo))).ToString());
 
                 //  Expansion factor is only printed for primary product
                 //  and is different for S3P and 3P
                 if (currMeth == "S3P" || currMeth == "3P")
                     summedEF = CommonEquations.Calculate3PTrees(currData, currMeth);
-                prtFields.Add(Utilities.FormatField(summedEF * STacres, fieldFormat6).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat6, summedEF * STacres).ToString());
             }
             else
             {
@@ -469,62 +469,62 @@ namespace CruiseProcessing
             {
                 summedValue = currData.Sum(ldo => ldo.SumGBDFT);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = 0;
                 summedValue = currData.Sum(ldo => ldo.SumGCUFT);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = 0;
                 summedValue = currData.Sum(ldo => ldo.SumNBDFT);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = 0;
                 summedValue = currData.Sum(ldo => ldo.SumNCUFT);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = 0;
                 summedValue = currData.Sum(ldo => ldo.SumCords);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat9).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat9, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat11).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat11, summedValue / STacres).ToString());
                 return;
             }
             else if (currPP == 2)
             {
                 summedValue = currData.Sum(ldo => ldo.SumGBDFTtop); ;
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumGCUFTtop);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumNBDFTtop);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumNCUFTtop);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumCordsTop);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat9).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat9, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat11).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat11, summedValue / STacres).ToString());
                 return;
             }
             else if(currPP == 3)
@@ -533,19 +533,19 @@ namespace CruiseProcessing
                 prtFields.Add("       ");
                 summedValue = currData.Sum(ldo => ldo.SumBDFTrecv);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumCUFTrecv);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat10).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat10, summedValue / STacres).ToString());
                 summedValue = currData.Sum(ldo => ldo.SumCordsRecv);
                 if (perAcre == 0)
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat9).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat9, summedValue * STacres).ToString());
                 else if (perAcre == 1)
-                    prtFields.Add(Utilities.FormatField(summedValue / STacres, fieldFormat11).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat11, summedValue / STacres).ToString());
                 return;
             }   //  endif
 
@@ -564,29 +564,29 @@ namespace CruiseProcessing
             {
                 case 1:     //  primary
                     summedValue = currData.Sum(ldo => ldo.SumValue);
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat1).ToString());
-                    prtFields.Add(Utilities.FormatField(summedValue / Pacres, fieldFormat1).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue / Pacres).ToString());
                     valueTotal += summedValue * STacres;
 
                     summedValue = currData.Sum(ldo => ldo.SumWgtMSP);
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat1).ToString());
-                    prtFields.Add(Utilities.FormatField(summedValue / Pacres, fieldFormat1).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue / Pacres).ToString());
                     wgtTotal += summedValue * STacres;
 
                     summedValue = currData.Sum(ldo => ldo.SumTotCubic);
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat1).ToString());
-                    prtFields.Add(Utilities.FormatField(summedValue / Pacres, fieldFormat1).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue / Pacres).ToString());
                     totCubicTotal += summedValue * STacres;
                     break;
                 case 2:         // secondary
                     summedValue = currData.Sum(ldo => ldo.SumTopValue);
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat1).ToString());
-                    prtFields.Add(Utilities.FormatField(summedValue / Pacres, fieldFormat1).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue / Pacres).ToString());
                     valueTotal += summedValue * STacres;
 
                     summedValue = currData.Sum(ldo => ldo.SumWgtMSS);
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat1).ToString());
-                    prtFields.Add(Utilities.FormatField(summedValue / Pacres, fieldFormat1).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue / Pacres).ToString());
                     wgtTotal += summedValue * STacres;
 
                     //  no total cubic for secondary
@@ -595,8 +595,8 @@ namespace CruiseProcessing
                     break;
                 case 3:         //  recovered
                     summedValue = currData.Sum(ldo => ldo.SumValueRecv);
-                    prtFields.Add(Utilities.FormatField(summedValue * STacres, fieldFormat1).ToString());
-                    prtFields.Add(Utilities.FormatField(summedValue / Pacres, fieldFormat1).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat1, summedValue / Pacres).ToString());
                     valueTotal += summedValue * STacres;
 
                     //  no weight or total cubic for recovered
@@ -624,17 +624,17 @@ namespace CruiseProcessing
                     if (cd.SumWgtMSP > 0)
                         summedValue = cd.SumGCUFT / (cd.SumWgtMSP / 2000);
                     else summedValue = 0;
-                    prtFields.Add(Utilities.FormatField(summedValue, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue).ToString());
 
                     if (cd.SumWgtMSP > 0)
                         summedValue = cd.SumNCUFT / (cd.SumWgtMSP / 2000);
                     else summedValue = 0;
-                    prtFields.Add(Utilities.FormatField(summedValue, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue).ToString());
 
 
-                    prtFields.Add(Utilities.FormatField(cd.SumGCUFT * STacres, fieldFormat8).ToString());
-                    prtFields.Add(Utilities.FormatField(cd.SumNCUFT * STacres, fieldFormat8).ToString());
-                    prtFields.Add(Utilities.FormatField((cd.SumWgtMSP / 2000) * STacres, fieldFormat8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, cd.SumGCUFT * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, cd.SumNCUFT * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, (cd.SumWgtMSP / 2000) * STacres).ToString());
 
 
                 }
@@ -642,13 +642,13 @@ namespace CruiseProcessing
                 {
                     //  Calculate ratios
                     summedValue = 0;
-                    prtFields.Add(Utilities.FormatField(summedValue, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue).ToString());
                     summedValue = 0;
-                    prtFields.Add(Utilities.FormatField(summedValue, fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, summedValue).ToString());
 
-                    prtFields.Add(Utilities.FormatField(cd.SumGCUFTtop * STacres, fieldFormat8).ToString());
-                    prtFields.Add(Utilities.FormatField(cd.SumNCUFTtop * STacres, fieldFormat8).ToString());
-                    prtFields.Add(Utilities.FormatField((cd.SumWgtMSS / 2000) * STacres, fieldFormat8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, cd.SumGCUFTtop * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, cd.SumNCUFTtop * STacres).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat8, (cd.SumWgtMSS / 2000) * STacres).ToString());
 
                 }
             }

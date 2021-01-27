@@ -457,12 +457,12 @@ namespace CruiseProcessing
                     strWriteOut.Write("        SUBTOTAL    ");
                     strWriteOut.Write(unitSubtotal[0].Value1.PadLeft(3, ' '));
                     strWriteOut.Write("                                 ");
-                    strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value3, "{0,7:F1}"));
-                    strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value4, "{0,9:F1}"));
-                    strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value5, "{0,11:F2}"));
-                    strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value6, "{0,7:F0}"));
-                    strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value8, "{0,7:F0}"));
-                    strWriteOut.WriteLine(Utilities.FormatField(unitSubtotal[0].Value7, "{0,9:F0}"));
+                    strWriteOut.Write(Utilities.Format("{0,7:F1}", unitSubtotal[0].Value3));
+                    strWriteOut.Write(Utilities.Format("{0,9:F1}", unitSubtotal[0].Value4));
+                    strWriteOut.Write(Utilities.Format("{0,11:F2}", unitSubtotal[0].Value5));
+                    strWriteOut.Write(Utilities.Format("{0,7:F0}", unitSubtotal[0].Value6));
+                    strWriteOut.Write(Utilities.Format("{0,7:F0}", unitSubtotal[0].Value8));
+                    strWriteOut.WriteLine(Utilities.Format("{0,9:F0}", unitSubtotal[0].Value7));
                     strWriteOut.WriteLine(reportConstants.longLine);
                     strWriteOut.WriteLine("**NOTE:  Total KPI includes sum of measured tree KPI and count KPI.");
                     strWriteOut.WriteLine(reportConstants.longLine);
@@ -476,10 +476,10 @@ namespace CruiseProcessing
                         strWriteOut.Write(" SUBTOTAL    ");
                         strWriteOut.Write(unitSubtotal[0].Value1.PadLeft(3, ' '));
                         strWriteOut.Write("                     ");
-                        strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value3, "{0,11:F0}"));
-                        strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value4, "{0,11:F0}"));
-                        strWriteOut.Write(Utilities.FormatField(unitSubtotal[0].Value5, "{0,9:F0}"));
-                        strWriteOut.WriteLine(Utilities.FormatField(unitSubtotal[0].Value6, "{0,9:F0}"));
+                        strWriteOut.Write(Utilities.Format("{0,11:F0}", unitSubtotal[0].Value3));
+                        strWriteOut.Write(Utilities.Format("{0,11:F0}", unitSubtotal[0].Value4));
+                        strWriteOut.Write(Utilities.Format("{0,9:F0}", unitSubtotal[0].Value5));
+                        strWriteOut.WriteLine(Utilities.Format("{0,9:F0}", unitSubtotal[0].Value6));
                         strWriteOut.WriteLine(reportConstants.longLine);
                         unitSubtotal.Clear();
                         numOlines += 3;
@@ -628,10 +628,10 @@ namespace CruiseProcessing
 
             strWriteOut.WriteLine("");
             strWriteOut.Write(" TOTAL                              ");
-            strWriteOut.Write(Utilities.FormatField(grandTotal[0].Value3, "{0,12:F0}"));
-            strWriteOut.Write(Utilities.FormatField(grandTotal[0].Value4, "{0,11:F0}"));
-            strWriteOut.Write(Utilities.FormatField(grandTotal[0].Value5, "{0,9:F0}"));
-            strWriteOut.WriteLine(Utilities.FormatField(grandTotal[0].Value6, "{0,9:F0}"));
+            strWriteOut.Write(Utilities.Format("{0,12:F0}", grandTotal[0].Value3));
+            strWriteOut.Write(Utilities.Format("{0,11:F0}", grandTotal[0].Value4));
+            strWriteOut.Write(Utilities.Format("{0,9:F0}", grandTotal[0].Value5));
+            strWriteOut.WriteLine(Utilities.Format("{0,9:F0}", grandTotal[0].Value6));
             numOlines += 2;
             return;
         }   //  end OutputGrandTotal
@@ -1405,45 +1405,45 @@ namespace CruiseProcessing
             if (currentReport == "UC1" || currentReport == "UC2")
             {
                 //  load average defect
-                prtFields.Add(Utilities.FormatField(CommonEquations.AverageDefectPercent(currGBDFT, currNBDFT), fieldFormat1));
-                prtFields.Add(Utilities.FormatField(CommonEquations.AverageDefectPercent(currGCUFT, currNCUFT), fieldFormat1));
+                prtFields.Add(Utilities.FormatField(fieldFormat1, CommonEquations.AverageDefectPercent(currGBDFT, currNBDFT)));
+                prtFields.Add(Utilities.FormatField(fieldFormat1, CommonEquations.AverageDefectPercent(currGCUFT, currNCUFT)));
                 //  load ratio
-                prtFields.Add(Utilities.FormatField(CommonEquations.BoardCubicRatio(currGBDFT, currGCUFT), fieldFormat2));
-                prtFields.Add(Utilities.FormatField(CommonEquations.BoardCubicRatio(currNBDFT, currNCUFT), fieldFormat2));
-                prtFields.Add(Utilities.FormatField(numTrees,fieldFormat3));
+                prtFields.Add(Utilities.Format(fieldFormat2, CommonEquations.BoardCubicRatio(currGBDFT, currGCUFT)));
+                prtFields.Add(Utilities.Format(fieldFormat2, CommonEquations.BoardCubicRatio(currNBDFT, currNCUFT)));
+                prtFields.Add(Utilities.Format(fieldFormat3, numTrees));
             }
             else if(currentReport == "UC3" || currentReport == "UC4" || 
                     currentReport == "UC5" || currentReport == "UC6" ||
                     currentReport == "LV05")
             {
                 //  Expansion factor is first
-                prtFields.Add(Utilities.FormatField(numTrees, fieldFormat5));
+                prtFields.Add(Utilities.Format(fieldFormat5, numTrees));
                 //  This is estimated number of trees -- all methods except 3P
                 if (currGBDFT == 0.0 && currGCUFT == 0)
                     prtFields.Add("      0");
-                else prtFields.Add(Utilities.FormatField(estTrees, fieldFormat5));
+                else prtFields.Add(Utilities.Format(fieldFormat5, estTrees));
             }   // endif on report
             //  load volumes
-            prtFields.Add(Utilities.FormatField(currGBDFT, fieldFormat3));
-            prtFields.Add(Utilities.FormatField(currGCUFT, fieldFormat3));
-            prtFields.Add(Utilities.FormatField(currNBDFT, fieldFormat3));
-            prtFields.Add(Utilities.FormatField(currNCUFT, fieldFormat3));
+            prtFields.Add(Utilities.Format(fieldFormat3, currGBDFT));
+            prtFields.Add(Utilities.Format(fieldFormat3, currGCUFT));
+            prtFields.Add(Utilities.Format(fieldFormat3, currNBDFT));
+            prtFields.Add(Utilities.Format(fieldFormat3, currNCUFT));
             if (currentReport == "UC3" || currentReport == "UC4" || 
                 currentReport == "UC5" || currentReport == "UC6" ||
                 currentReport == "LV05")            {
-                prtFields.Add(Utilities.FormatField(currGBDFTnonsaw, fieldFormat3));
-                prtFields.Add(Utilities.FormatField(currGCUFTnonsaw, fieldFormat3));
-                prtFields.Add(Utilities.FormatField(currNBDFTnonsaw, fieldFormat3));
+                prtFields.Add(Utilities.Format(fieldFormat3, currGBDFTnonsaw));
+                prtFields.Add(Utilities.Format(fieldFormat3, currGCUFTnonsaw));
+                prtFields.Add(Utilities.Format(fieldFormat3, currNBDFTnonsaw));
                 if (recoveredFlag == " R" && currNCUFTnonsaw > 0)
                 {
-                    prtFields.Add(Utilities.FormatField(currNCUFTnonsaw, fieldFormat3) + recoveredFlag);
-                    prtFields.Add(Utilities.FormatField(currCords, "{0,9:F2}"));
+                    prtFields.Add(Utilities.Format(fieldFormat3, currNCUFTnonsaw) + recoveredFlag);
+                    prtFields.Add(Utilities.Format("{0,9:F2}", currCords));
                     recoveredFlag = "n";
                 }
                 else if(recoveredFlag == "n")
                 {
-                    prtFields.Add(Utilities.FormatField(currNCUFTnonsaw, fieldFormat3));
-                    prtFields.Add(Utilities.FormatField(currCords, fieldFormat4));
+                    prtFields.Add(Utilities.Format(fieldFormat3, currNCUFTnonsaw));
+                    prtFields.Add(Utilities.Format(fieldFormat4, currCords));
                 }   //   endif recovered flag
             }   //  endif on report
             printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -1460,29 +1460,29 @@ namespace CruiseProcessing
                                 rh.reportTitles[2], rh.VSM5columns, 12, ref pageNumb, "");
 
             //  load trees and volumes
-            prtFields.Add(Utilities.FormatField(numTrees, "{0,5:F0}"));
+            prtFields.Add(Utilities.Format("{0,5:F0}", numTrees));
             if (currPP == "01")
             {
-                prtFields.Add(Utilities.FormatField(currGCUFT, "{0,5:F0}"));
-                prtFields.Add(Utilities.FormatField(currNCUFT, "{0,5:F0}"));
-                prtFields.Add(Utilities.FormatField(currGCUFTtopwood, "{0,5:F0}"));
+                prtFields.Add(Utilities.Format("{0,5:F0}", currGCUFT));
+                prtFields.Add(Utilities.Format("{0,5:F0}", currNCUFT));
+                prtFields.Add(Utilities.Format("{0,5:F0}", currGCUFTtopwood));
             }
             else
             {
-                prtFields.Add(Utilities.FormatField(currGCUFTnonsaw, "{0,5:F0}"));
-                prtFields.Add(Utilities.FormatField(currNCUFTnonsaw, "{0,5:F0}"));
-                prtFields.Add(Utilities.FormatField(currGCUFTtopwood, "{0,5:F0}"));
+                prtFields.Add(Utilities.Format("{0,5:F0}", currGCUFTnonsaw));
+                prtFields.Add(Utilities.Format("{0,5:F0}", currNCUFTnonsaw));
+                prtFields.Add(Utilities.Format("{0,5:F0}", currGCUFTtopwood));
             }   //  endif
 
             //  print QMD here
             double calcValue = Math.Sqrt(sumDBHsquared / sumExpanFactor);
-            prtFields.Add(Utilities.FormatField(calcValue,"{0,5:F1}"));
+            prtFields.Add(Utilities.Format("{0,5:F1}", calcValue));
             //  print ratio here
             calcValue = 0.0;
             if (currNBDFT > 0)
             {
                 calcValue = CommonEquations.BoardCubicRatio(currNBDFT, currNCUFT);
-                prtFields.Add(Utilities.FormatField(calcValue, "{0,7:F4}"));
+                prtFields.Add(Utilities.Format("{0,7:F4}", calcValue));
             }
             else prtFields.Add("       ");
 

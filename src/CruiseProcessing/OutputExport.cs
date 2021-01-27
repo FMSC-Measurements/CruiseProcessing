@@ -167,8 +167,8 @@ namespace CruiseProcessing
                 prtFields.Add(l.Tree.Species.PadLeft(6, ' '));
                 prtFields.Add(l.ExportGrade);
                 prtFields.Add(l.Grade);
-                prtFields.Add(Utilities.FormatField(l.Length, "{0,4:F0}").ToString().PadLeft(4, ' '));
-                prtFields.Add(Utilities.FormatField(l.SeenDefect, "{0,3:F0}").ToString().PadLeft(3, ' '));
+                prtFields.Add(Utilities.Format("{0,4:F0}", l.Length).ToString().PadLeft(4, ' '));
+                prtFields.Add(Utilities.Format("{0,3:F0}", l.SeenDefect).ToString().PadLeft(3, ' '));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -287,10 +287,10 @@ namespace CruiseProcessing
                 prtFields.Add("");      //  export grade not printed in this section
                 prtFields.Add(el.exportCode);
                 prtFields.Add(el.exportName.PadRight(9, ' '));
-                prtFields.Add(Utilities.FormatField(el.minDiam, "{0,2:F0}").ToString().PadLeft(2, ' '));
-                prtFields.Add(Utilities.FormatField(el.minLength, "{0,2:F0}").ToString().PadLeft(2, ' '));
-                prtFields.Add(Utilities.FormatField(el.minBDFT, "{0,4:F0}").ToString().PadLeft(4, ' '));
-                prtFields.Add(Utilities.FormatField(el.maxDefect, "{0,3:F0}").ToString().PadLeft(3, ' '));
+                prtFields.Add(Utilities.Format("{0,2:F0}", el.minDiam).ToString().PadLeft(2, ' '));
+                prtFields.Add(Utilities.Format("{0,2:F0}", el.minLength).ToString().PadLeft(2, ' '));
+                prtFields.Add(Utilities.Format("{0,4:F0}", el.minBDFT).ToString().PadLeft(4, ' '));
+                prtFields.Add(Utilities.Format("{0,3:F0}", el.maxDefect).ToString().PadLeft(3, ' '));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -307,10 +307,10 @@ namespace CruiseProcessing
                 prtFields.Add(el.exportGrade);
                 prtFields.Add(el.exportCode);
                 prtFields.Add(el.exportName.PadRight(9, ' '));
-                prtFields.Add(Utilities.FormatField(el.minDiam, "{0,2:F0}").ToString().PadLeft(2, ' '));
-                prtFields.Add(Utilities.FormatField(el.minLength, "{0,2:F0}").ToString().PadLeft(2, ' '));
-                prtFields.Add(Utilities.FormatField(el.minBDFT, "{0,4:F0}").ToString().PadLeft(4, ' '));
-                prtFields.Add(Utilities.FormatField(el.maxDefect, "{0,3:F0}").ToString().PadLeft(3, ' '));
+                prtFields.Add(Utilities.Format("{0,2:F0}", el.minDiam).ToString().PadLeft(2, ' '));
+                prtFields.Add(Utilities.Format("{0,2:F0}", el.minLength).ToString().PadLeft(2, ' '));
+                prtFields.Add(Utilities.Format("{0,4:F0}", el.minBDFT).ToString().PadLeft(4, ' '));
+                prtFields.Add(Utilities.Format("{0,3:F0}", el.maxDefect).ToString().PadLeft(3, ' '));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -562,15 +562,15 @@ namespace CruiseProcessing
                     prtFields.Add(eto.export7);                         //  log sort
                     prtFields.Add(eto.export8);                         //  log grade
                     // log length and percent defect
-                    prtFields.Add(Utilities.FormatField(eto.export11, "{0,4:F0}").ToString().PadLeft(4, ' '));
-                    prtFields.Add(Utilities.FormatField(eto.export12, "{0,3:F0}").ToString().PadLeft(3, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", eto.export11).ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,3:F0}", eto.export12).ToString().PadLeft(3, ' '));
                     //  edit results
                     prtFields.Add(eto.export9.PadLeft(2, ' '));
                     prtFields.Add(eto.export10.PadLeft(2, ' '));
-                    prtFields.Add(Utilities.FormatField(eto.export13, "{0,4:F0}").ToString().PadLeft(4, ' '));
-                    prtFields.Add(Utilities.FormatField(eto.export14, "{0,4:F0}").ToString().PadLeft(4, ' '));
-                    prtFields.Add(Utilities.FormatField(eto.export15, "{0,4:F0}").ToString().PadLeft(4, ' '));
-                    prtFields.Add(Utilities.FormatField(eto.export16, "{0,3:F1}").ToString().PadLeft(3, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", eto.export13).ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", eto.export14).ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", eto.export15).ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,3:F1}", eto.export16).ToString().PadLeft(3, ' '));
 
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
                 }   //  endif error
@@ -601,92 +601,92 @@ namespace CruiseProcessing
                 switch(numColumns)
                 {
                     case 11:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value11, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value12, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value13, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value14, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value15, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value16, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value17, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value11).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value12).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value13).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value14).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value15).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value16).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value17).ToString().PadLeft(6, ' '));
                         break;
                     case 10:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value11, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value12, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value13, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value14, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value15, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value16, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value11).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value12).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value13).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value14).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value15).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value16).ToString().PadLeft(6, ' '));
                         break;
                     case 9:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value11, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value12, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value13, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value14, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value15, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value11).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value12).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value13).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value14).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value15).ToString().PadLeft(6, ' '));
                         break;
                     case 8:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value11, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value12, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value13, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value14, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value11).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value12).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value13).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value14).ToString().PadLeft(6, ' '));
                         break;
                     case 7:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value11, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value12, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value13, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value11).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value12).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value13).ToString().PadLeft(6, ' '));
                         break;
                     case 6:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value11, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value12, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value11).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value12).ToString().PadLeft(6, ' '));
                         break;
                     case 5:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value11, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value11).ToString().PadLeft(6, ' '));
                         break;
                     case 4:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value10).ToString().PadLeft(6, ' '));
                         break;
                     case 3:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value9).ToString().PadLeft(6, ' '));
                         break;
                     case 2:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value8).ToString().PadLeft(6, ' '));
                         break;
                     case 1:
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F2}", lto.value7).ToString().PadLeft(6, ' '));
                         break;
                 }
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -730,18 +730,18 @@ namespace CruiseProcessing
                     strWriteOut.Write(" TOTALS ---                       ");
                     break;
             }   //  end switch
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value8, "{0,4:F0}").ToString().PadLeft(4, ' '));
+            strWriteOut.Write(Utilities.Format("{0,4:F0}", totalToOutput[0].Value8).ToString().PadLeft(4, ' '));
             //  board foot volume
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value9, "{0,7:F0}").ToString().PadLeft(7, ' '));
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value10, "{0,7:F0}").ToString().PadLeft(7, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F0}", totalToOutput[0].Value9).ToString().PadLeft(7, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F0}", totalToOutput[0].Value10).ToString().PadLeft(7, ' '));
             //  cubic foot volume
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value11, "{0,6:F0}").ToString().PadLeft(6, ' '));
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value12, "{0,6:F0}").ToString().PadLeft(6, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].Value11).ToString().PadLeft(6, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].Value12).ToString().PadLeft(6, ' '));
             //  average defect and length
             if (totalToOutput[0].Value8 > 0)
             {
-                strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value13 / totalToOutput[0].Value8, "{0,3:F0}").ToString().PadLeft(3, ' '));
-                strWriteOut.WriteLine(Utilities.FormatField(totalToOutput[0].Value14 / totalToOutput[0].Value8, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                strWriteOut.Write(Utilities.Format("{0,3:F0}", totalToOutput[0].Value13 / totalToOutput[0].Value8).ToString().PadLeft(3, ' '));
+                strWriteOut.WriteLine(Utilities.Format("{0,4:F0}", totalToOutput[0].Value14 / totalToOutput[0].Value8).ToString().PadLeft(4, ' '));
             }   //  endif
             // blank lines
             if (whichSubtotal == "U")
@@ -765,19 +765,19 @@ namespace CruiseProcessing
                 prtFields.Add(eto.export4);
                 prtFields.Add(eto.export5);
                 //  number of logs
-                prtFields.Add(Utilities.FormatField(eto.export11, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                prtFields.Add(Utilities.Format("{0,4:F0}", eto.export11).ToString().PadLeft(4, ' '));
                 //  board foot volume
-                prtFields.Add(Utilities.FormatField(eto.export12, "{0,7:F0}").ToString().PadLeft(7, ' '));
-                prtFields.Add(Utilities.FormatField(eto.export13, "{0,7:F0}").ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F0}", eto.export12).ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F0}", eto.export13).ToString().PadLeft(7, ' '));
                 //  cubic foot volume
-                prtFields.Add(Utilities.FormatField(eto.export14, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(eto.export15, "{0,6:F0}").ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", eto.export14).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", eto.export15).ToString().PadLeft(6, ' '));
                 if(eto.export11 > 0)
                 {
                     //  average defect
-                    prtFields.Add(Utilities.FormatField(eto.export16 / eto.export11, "{0,3:F0}").ToString().PadLeft(3, ' '));
+                    prtFields.Add(Utilities.Format("{0,3:F0}", eto.export16 / eto.export11).ToString().PadLeft(3, ' '));
                     //  average length
-                    prtFields.Add(Utilities.FormatField(eto.export17 / eto.export11, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", eto.export17 / eto.export11).ToString().PadLeft(4, ' '));
                 }   //  endif
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop

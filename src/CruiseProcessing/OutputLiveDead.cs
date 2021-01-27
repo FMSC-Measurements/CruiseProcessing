@@ -617,30 +617,30 @@ namespace CruiseProcessing
                     prtFields.Add(ldr.value2);
                     //  finish loading record into print fields
                     //  live section
-                    prtFields.Add(Utilities.FormatField(ldr.value4, "{0,7:F0}").ToString().PadLeft(7, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value5, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value6, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,7:F0}", ldr.value4).ToString().PadLeft(7, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value5).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value6).ToString().PadLeft(8, ' '));
                     UpdateSubtotal(ldr.value4, ldr.value5, ldr.value6, currProd, "", "L", productSubtotal);
                     UpdateSubtotal(ldr.value4, ldr.value5, ldr.value6, currProd, currUnit, "L", unitMethodSubtotal);
                     UpdateSubtotal(ldr.value4, ldr.value5, ldr.value6, currProd, "", "L", grandTotal);
                     // dead section
-                    prtFields.Add(Utilities.FormatField(ldr.value7, "{0,7:F0}").ToString().PadLeft(7, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value8, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value9, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,7:F0}", ldr.value7).ToString().PadLeft(7, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value8).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value9).ToString().PadLeft(8, ' '));
                     UpdateSubtotal(ldr.value7, ldr.value8, ldr.value9, currProd, "", "D", productSubtotal);
                     UpdateSubtotal(ldr.value7, ldr.value8, ldr.value9, currProd, currUnit, "D", unitMethodSubtotal);
                     UpdateSubtotal(ldr.value7, ldr.value8, ldr.value9, currProd, "", "D", grandTotal);
                     //  other section
-                    prtFields.Add(Utilities.FormatField(ldr.value10, "{0,7:F0}").ToString().PadLeft(7, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value11, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value12, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,7:F0}", ldr.value10).ToString().PadLeft(7, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value11).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value12).ToString().PadLeft(8, ' '));
                     UpdateSubtotal(ldr.value10, ldr.value11, ldr.value12, currProd, "", "O", productSubtotal);
                     UpdateSubtotal(ldr.value10, ldr.value11, ldr.value12, currProd, currUnit, "O", unitMethodSubtotal);
                     UpdateSubtotal(ldr.value10, ldr.value11, ldr.value12, currProd, "", "O", grandTotal);
                     //  total section
-                    prtFields.Add(Utilities.FormatField(ldr.value13, "{0,7:F0}").ToString().PadLeft(7, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value14, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(ldr.value15, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,7:F0}", ldr.value13).ToString().PadLeft(7, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value14).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", ldr.value15).ToString().PadLeft(8, ' '));
                     UpdateSubtotal(ldr.value13, ldr.value14, ldr.value15, currProd, "", "T", productSubtotal);
                     UpdateSubtotal(ldr.value13, ldr.value14, ldr.value15, currProd, currUnit, "T", unitMethodSubtotal);
                     UpdateSubtotal(ldr.value13, ldr.value14, ldr.value15, currProd, "", "T", grandTotal);
@@ -752,21 +752,21 @@ namespace CruiseProcessing
             }   //  end switch
 
             //  Live section
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value3, "{0,7:F0}").ToString().PadLeft(7, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value4, "{0,8:F0}").ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value5, "{0,8:F0}").ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,7:F0}", subtotalToPrint[0].Value3).ToString().PadLeft(7, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value4).ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value5).ToString().PadLeft(8, ' '));
             //  dead section
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value6, "{0,7:F0}").ToString().PadLeft(7, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value7, "{0,8:F0}").ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value8, "{0,8:F0}").ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,7:F0}", subtotalToPrint[0].Value6).ToString().PadLeft(7, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value7).ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value8).ToString().PadLeft(8, ' '));
             //  other section
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value9, "{0,7:F0}").ToString().PadLeft(7, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value10, "{0,8:F0}").ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value11, "{0,8:F0}").ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,7:F0}", subtotalToPrint[0].Value9).ToString().PadLeft(7, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value10).ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value11).ToString().PadLeft(8, ' '));
             //  total section
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value12, "{0,7:F0}").ToString().PadLeft(7, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value13, "{0,8:F0}").ToString().PadLeft(8, ' '));
-            prtFields.Add(Utilities.FormatField(subtotalToPrint[0].Value14, "{0,8:F0}").ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,7:F0}", subtotalToPrint[0].Value12).ToString().PadLeft(7, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value13).ToString().PadLeft(8, ' '));
+            prtFields.Add(Utilities.Format("{0,8:F0}", subtotalToPrint[0].Value14).ToString().PadLeft(8, ' '));
 
             switch (whichTotal)
             {
