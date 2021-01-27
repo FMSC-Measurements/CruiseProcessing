@@ -144,7 +144,7 @@ namespace CruiseProcessing
 
 
             //  load sale err
-            sf.alpha5 = Utilities.FormatField(saleErr, "{0,5:F1}").ToString().PadLeft(5, ' ');
+            sf.alpha5 = Utilities.Format("{0,5:F1}", saleErr).ToString().PadLeft(5, ' ');
 
             //  version number is just MMDDYY
             sf.alpha6 = currentVersion.Substring(0, 2);
@@ -164,7 +164,7 @@ namespace CruiseProcessing
                 sf.recType = "2A";
                 sf.saleNum = cruiseNum;
                 sf.currCU = cu.Code;
-                sf.alpha1 = Utilities.FormatField(cu.Area,"{0,8:F2}").ToString();
+                sf.alpha1 = Utilities.Format("{0,8:F2}", cu.Area).ToString();
                 if (cu.Description == null)
                     sf.alpha2 = "";
                 else sf.alpha2 = cu.Description;
@@ -387,7 +387,7 @@ namespace CruiseProcessing
                                     if (js.SampleGroup == "" || js.SampleGroup == " " || js.SampleGroup == null)
                                         sf.currSG = "~ ";
                                     else sf.currSG = js.SampleGroup;
-                                    sf.alpha1 = Utilities.FormatField(PCPOPSTG, "{0,10:F6}").ToString();
+                                    sf.alpha1 = Utilities.Format("{0,10:F6}", PCPOPSTG).ToString();
                                     sumList.Add(sf);
                                     break;
                                 case "SP":
@@ -405,7 +405,7 @@ namespace CruiseProcessing
                                     if (js.SampleGroup == "" || js.SampleGroup == " " || js.SampleGroup == null)
                                         sf.currSG = "~ ";
                                     else sf.currSG = js.SampleGroup;
-                                    sf.alpha1 = Utilities.FormatField(PCPOPSTG, "{0,10:F6}").ToString();
+                                    sf.alpha1 = Utilities.Format("{0,10:F6}", PCPOPSTG).ToString();
                                     sumList.Add(sf);
                                     break;
                                 case "RP":
@@ -423,7 +423,7 @@ namespace CruiseProcessing
                                     if (js.SampleGroup == "" || js.SampleGroup == " " || js.SampleGroup == null)
                                         sf.currSG = "~ ";
                                     else sf.currSG = js.SampleGroup;
-                                    sf.alpha1 = Utilities.FormatField(PCPOPSTG, "{0,10:F6}").ToString();
+                                    sf.alpha1 = Utilities.Format("{0,10:F6}", PCPOPSTG).ToString();
                                     sumList.Add(sf);
                                     break;
                             }   //  end switch on product type
@@ -567,7 +567,7 @@ namespace CruiseProcessing
                             calcValue = justTrees.Sum(j => j.Tree.DBH * j.Tree.ExpansionFactor);
                             //  mean DBH
                             if (SumEF > 0)
-                                sf.alpha6 = Utilities.FormatField(calcValue / SumEF, "{0,5:F1}").ToString();
+                                sf.alpha6 = Utilities.Format("{0,5:F1}", calcValue / SumEF).ToString();
                             else sf.alpha6 = "  0.0";
 
 
@@ -578,18 +578,18 @@ namespace CruiseProcessing
                             if (regionNumber == "08" || regionNumber == "09")
                             {
                                 //  average heights are switched in position
-                                sf.alpha7 = Utilities.FormatField(hgtTwo, "{0,5:F1}").ToString();
-                                sf.alpha8 = Utilities.FormatField(hgtOne, "{0,5:F1}").ToString();
+                                sf.alpha7 = Utilities.Format("{0,5:F1}", hgtTwo).ToString();
+                                sf.alpha8 = Utilities.Format("{0,5:F1}", hgtOne).ToString();
                             }
                             else
                             {
-                                sf.alpha7 = Utilities.FormatField(hgtOne, "{0,5:F1}").ToString();
-                                sf.alpha8 = Utilities.FormatField(hgtTwo, "{0,5:F1}").ToString();
+                                sf.alpha7 = Utilities.Format("{0,5:F1}", hgtOne).ToString();
+                                sf.alpha8 = Utilities.Format("{0,5:F1}", hgtTwo).ToString();
                             }   //  endif
                             //  quad mean DBH
                             calcValue = justTrees.Sum(jt => Math.Pow(jt.Tree.DBH, 2));
-                            sf.alpha10 = Utilities.FormatField(Math.Sqrt(calcValue / SumEF), "{0,5:F1}").ToString();
-                            sf.alpha11 = Utilities.FormatField(calcValue, "{0,5:F1}").ToString();
+                            sf.alpha10 = Utilities.Format("{0,5:F1}", Math.Sqrt(calcValue / SumEF)).ToString();
+                            sf.alpha11 = Utilities.Format("{0,5:F1}", calcValue).ToString();
                             break;
                         case "SP":      case "RP":
                             sf.alpha6 = "0.0";
@@ -600,7 +600,7 @@ namespace CruiseProcessing
                             break;
                     }   //  end switch on product
 
-                    sf.alpha9 = Utilities.FormatField(SumEF, "{0,11:F2}").ToString();
+                    sf.alpha9 = Utilities.Format("{0,11:F2}", SumEF).ToString();
                 }   //  endif SumEF
 
                 //  sum up volumes
@@ -617,37 +617,37 @@ namespace CruiseProcessing
                         if(calcCUFT > 0 || calcBDFT > 0 || calcWGT > 0)
                         {
                             //  measured trees
-                            sf.alpha12 = Utilities.FormatField(justTrees.Count, "{0,5:F0}").ToString();
+                            sf.alpha12 = Utilities.FormatField("{0,5:F0}", justTrees.Count).ToString();
                             //  total CUFT
                             calcValue = justTrees.Sum(jt=>jt.TotalCubicVolume * jt.Tree.ExpansionFactor);
-                            sf.alpha13 = Utilities.FormatField(calcValue * currAC, "{0,8:F0}").ToString();
+                            sf.alpha13 = Utilities.Format("{0,8:F0}", calcValue * currAC).ToString();
                             //  gross cuft
                             calcValue = justTrees.Sum(jt => jt.GrossCUFTPP * jt.Tree.ExpansionFactor);
-                            sf.alpha14 = Utilities.FormatField(calcValue * currAC, "{0,8:F0}").ToString();
+                            sf.alpha14 = Utilities.Format("{0,8:F0}", calcValue * currAC).ToString();
                             //  gross CUFT removed
                             calcValue = justTrees.Sum(jt => jt.GrossCUFTRemvPP * jt.Tree.ExpansionFactor);
-                            sf.alpha15 = Utilities.FormatField(calcValue * currAC, "{0,8:F0}").ToString();
+                            sf.alpha15 = Utilities.Format("{0,8:F0}", calcValue * currAC).ToString();
                             //  net cuft
-                            sf.alpha16 = Utilities.FormatField(calcCUFT * currAC, "{0,8:F0}").ToString();
+                            sf.alpha16 = Utilities.Format("{0,8:F0}", calcCUFT * currAC).ToString();
                             //  gross bdft
                             calcValue = justTrees.Sum(jt => jt.GrossBDFTPP * jt.Tree.ExpansionFactor);
-                            sf.alpha17 = Utilities.FormatField(calcValue * currAC, "{0,9:F0}").ToString();
+                            sf.alpha17 = Utilities.Format("{0,9:F0}", calcValue * currAC).ToString();
                             //  gross BDFT removed
                             calcValue = justTrees.Sum(jt => jt.GrossBDFTRemvPP * jt.Tree.ExpansionFactor);
-                            sf.alpha18 = Utilities.FormatField(calcValue * currAC, "{0,9:F0}").ToString();
+                            sf.alpha18 = Utilities.Format("{0,9:F0}", calcValue * currAC).ToString();
                             //  net BDFT
-                            sf.alpha19 = Utilities.FormatField(calcBDFT * currAC, "{0,9:F0}").ToString();
+                            sf.alpha19 = Utilities.Format("{0,9:F0}", calcBDFT * currAC).ToString();
                             //  skip
                             sf.alpha20 = "     0.0";
                             //  other values
-                            sf.alpha21 = Utilities.FormatField((calcWGT * currAC) / 2000, "{0,8:F2}").ToString();
+                            sf.alpha21 = Utilities.Format("{0,8:F2}", (calcWGT * currAC) / 2000).ToString();
                             calcValue = justTrees.Sum(jt => jt.ValuePP * jt.Tree.ExpansionFactor);
-                            sf.alpha22 = Utilities.FormatField(calcValue * currAC, "{0,11:F2}").ToString();
+                            sf.alpha22 = Utilities.Format("{0,11:F2}", calcValue * currAC).ToString();
                             calcValue = justTrees.Sum(jt => jt.CordsPP * jt.Tree.ExpansionFactor);
-                            sf.alpha23 = Utilities.FormatField(calcValue * currAC, "{0,8:F2}").ToString();
-                            sf.alpha24 = Utilities.FormatField(SumEF * currAC, "{0,8:F0}").ToString();
+                            sf.alpha23 = Utilities.Format("{0,8:F2}", calcValue * currAC).ToString();
+                            sf.alpha24 = Utilities.Format("{0,8:F0}", SumEF * currAC).ToString();
                             calcValue = justTrees.Sum(jt=>jt.NumberlogsMS * jt.Tree.ExpansionFactor);
-                            sf.alpha25 = Utilities.FormatField(calcValue * currAC, "{0,8:F0}").ToString();
+                            sf.alpha25 = Utilities.Format("{0,8:F0}", calcValue * currAC).ToString();
                             sf.alpha26 = "     0.0";
                             sumList.Add(sf);
                         }   //  endif
@@ -659,7 +659,7 @@ namespace CruiseProcessing
                         if(calcCUFT > 0 || calcBDFT > 0 || calcWGT > 0)
                         {
                             //  measured trees
-                            sf.alpha12 = Utilities.FormatField(justTrees.Count, "{0,5:F0}").ToString();
+                            sf.alpha12 = Utilities.FormatField("{0,5:F0}", justTrees.Count).ToString();
                             //  total CUFT
                             sf.alpha13 = "     0.0";
                             //  gross cuft
@@ -667,39 +667,39 @@ namespace CruiseProcessing
                             if (currUOM == "03")
                             {
                                 calcValue = justTrees.Sum(jt => jt.GrossCUFTSP * jt.Tree.ExpansionFactor);
-                                sf.alpha14 = Utilities.FormatField(calcValue * currAC, "{0,8:F0}").ToString();
+                                sf.alpha14 = Utilities.Format("{0,8:F0}", calcValue * currAC).ToString();
                             }
                             else sf.alpha14 = "     0.0";
                             //  gross CUFT removed
                             sf.alpha15 = "     0.0";
                             //  net cuft
-                            sf.alpha16 = Utilities.FormatField(calcCUFT * currAC, "{0,8:F0}").ToString();
+                            sf.alpha16 = Utilities.Format("{0,8:F0}", calcCUFT * currAC).ToString();
                             //  gross bdft
                             //  see note above under CUFT
                             if (currUOM == "01")
                             {
                                 calcValue = justTrees.Sum(jt => jt.GrossBDFTSP * jt.Tree.ExpansionFactor);
-                                sf.alpha17 = Utilities.FormatField(calcValue * currAC, "{0,9:F0}").ToString();
+                                sf.alpha17 = Utilities.Format("{0,9:F0}", calcValue * currAC).ToString();
                             }
                             else sf.alpha17 = "      0.0";
                             //  gross BDFT removed
                             sf.alpha18 = "     0.0";
                             //  net BDFT
-                            sf.alpha19 = Utilities.FormatField(calcBDFT * currAC, "{0,9:F0}").ToString();
+                            sf.alpha19 = Utilities.Format("{0,9:F0}", calcBDFT * currAC).ToString();
                             //  skip
                             sf.alpha20 = "     0.0";
                             //  other values
                             //  same thing as with BDFT and CUFT --  match unit of measure
                             if (currUOM == "05")
-                                sf.alpha21 = Utilities.FormatField((calcWGT * currAC) / 2000, "{0,8:F2}").ToString();
+                                sf.alpha21 = Utilities.Format("{0,8:F2}", (calcWGT * currAC) / 2000).ToString();
                             else sf.alpha21 = "    0.00";
                             calcValue = justTrees.Sum(jt => jt.ValueSP * jt.Tree.ExpansionFactor);
-                            sf.alpha22 = Utilities.FormatField(calcValue * currAC, "{0,11:F2}").ToString();
+                            sf.alpha22 = Utilities.Format("{0,11:F2}", calcValue * currAC).ToString();
                             calcValue = justTrees.Sum(jt => jt.CordsSP * jt.Tree.ExpansionFactor);
-                            sf.alpha23 = Utilities.FormatField(calcValue * currAC, "{0,8:F2}").ToString();
-                            sf.alpha24 = Utilities.FormatField(SumEF * currAC, "{0,8:F0}").ToString();
+                            sf.alpha23 = Utilities.Format("{0,8:F2}", calcValue * currAC).ToString();
+                            sf.alpha24 = Utilities.Format("{0,8:F0}", SumEF * currAC).ToString();
                             calcValue = justTrees.Sum(jt=>jt.NumberlogsTPW * jt.Tree.ExpansionFactor);
-                            sf.alpha25 = Utilities.FormatField(calcValue * currAC, "{0,8:F0}").ToString();
+                            sf.alpha25 = Utilities.Format("{0,8:F0}", calcValue * currAC).ToString();
                             sf.alpha26 = "     0.0";
                             sumList.Add(sf);
                         }   //  endif
@@ -710,7 +710,7 @@ namespace CruiseProcessing
                         if (calcCUFT > 0 || calcBDFT > 0)
                         {
                             //  measured trees
-                            sf.alpha12 = Utilities.FormatField(justTrees.Count, "{0,5:F0}").ToString();
+                            sf.alpha12 = Utilities.FormatField("{0,5:F0}", justTrees.Count).ToString();
                             //  total CUFT
                             sf.alpha13 = "     0.0";
                             //  gross cuft
@@ -718,22 +718,22 @@ namespace CruiseProcessing
                             //  gross CUFT removed
                             sf.alpha15 = "     0.0";
                             //  net cuft
-                            sf.alpha16 = Utilities.FormatField(calcCUFT * currAC, "{0,8:F0}").ToString();
+                            sf.alpha16 = Utilities.Format("{0,8:F0}", calcCUFT * currAC).ToString();
                             //  gross bdft
                             sf.alpha17 = "     0.0";
                             //  gross BDFT removed
                             sf.alpha18 = "     0.0";
                             //  net BDFT
-                            sf.alpha19 = Utilities.FormatField(calcBDFT * currAC, "{0,9:F0}").ToString();
+                            sf.alpha19 = Utilities.Format("{0,9:F0}", calcBDFT * currAC).ToString();
                             //  skip
                             sf.alpha20 = "     0.0";
                             //  other values
                             sf.alpha21 = "     0.0";
                             calcValue = justTrees.Sum(jt => jt.ValueRP * jt.Tree.ExpansionFactor);
-                            sf.alpha22 = Utilities.FormatField(calcValue * currAC, "{0,11:F2}").ToString();
+                            sf.alpha22 = Utilities.Format("{0,11:F2}", calcValue * currAC).ToString();
                             calcValue = justTrees.Sum(jt => jt.CordsRP * jt.Tree.ExpansionFactor);
-                            sf.alpha23 = Utilities.FormatField(calcValue * currAC, "{0,8:F2}").ToString();
-                            sf.alpha24 = Utilities.FormatField(SumEF * currAC, "{0,8:F0}").ToString();
+                            sf.alpha23 = Utilities.Format("{0,8:F2}", calcValue * currAC).ToString();
+                            sf.alpha24 = Utilities.Format("{0,8:F0}", SumEF * currAC).ToString();
                             sf.alpha25 = "     0.0";
                             sf.alpha26 = "     0.0";
                             sumList.Add(sf);
@@ -803,31 +803,31 @@ namespace CruiseProcessing
                         {
                             case "PP":
                                 //  mean DBH
-                                sf.alpha6 = Utilities.FormatField((js.SumDBHOB / js.SumExpanFactor), "{0,5:F1}").ToString();
+                                sf.alpha6 = Utilities.Format("{0,5:F1}", (js.SumDBHOB / js.SumExpanFactor)).ToString();
                                 //  average heights
                                 CalculateAverageHeight(js, ref hgtOne, ref hgtTwo);
                                 if (regionNumber == "08" || regionNumber == "09")
                                 {
                                     // average heights are switched in position
-                                    sf.alpha7 = Utilities.FormatField(hgtTwo, "{0,5:F1}").ToString();
-                                    sf.alpha8 = Utilities.FormatField(hgtOne, "{0,5:F1}").ToString();
+                                    sf.alpha7 = Utilities.Format("{0,5:F1}", hgtTwo).ToString();
+                                    sf.alpha8 = Utilities.Format("{0,5:F1}", hgtOne).ToString();
                                 }
                                 else
                                 {
-                                    sf.alpha7 = Utilities.FormatField(hgtOne, "{0,5:F1}").ToString();
-                                    sf.alpha8 = Utilities.FormatField(hgtTwo, "{0,5:F1}").ToString();
+                                    sf.alpha7 = Utilities.Format("{0,5:F1}", hgtOne).ToString();
+                                    sf.alpha8 = Utilities.Format("{0,5:F1}", hgtTwo).ToString();
                                 }   //  endif
 
                                 //  quad mean DBH
                                 if (currMethod == "STR" || currMethod == "3P" || currMethod == "S3P")
                                 {
-                                    sf.alpha10 = Utilities.FormatField(Math.Sqrt(js.SumDBHOBsqrd / js.SumExpanFactor), "{0,5:F1}").ToString();
-                                    sf.alpha11 = Utilities.FormatField(js.SumDBHOBsqrd, "{0,11:F2}").ToString();
+                                    sf.alpha10 = Utilities.Format("{0,5:F1}", Math.Sqrt(js.SumDBHOBsqrd / js.SumExpanFactor)).ToString();
+                                    sf.alpha11 = Utilities.Format("{0,11:F2}", js.SumDBHOBsqrd).ToString();
                                 }
                                 else
                                 {
-                                    sf.alpha10 = Utilities.FormatField(Math.Sqrt(js.SumDBHOBsqrd / js.SumExpanFactor), "{0,5:F1}").ToString();
-                                    sf.alpha11 = Utilities.FormatField(js.SumDBHOBsqrd * STacres, "{0,11:F2}").ToString();
+                                    sf.alpha10 = Utilities.Format("{0,5:F1}", Math.Sqrt(js.SumDBHOBsqrd / js.SumExpanFactor)).ToString();
+                                    sf.alpha11 = Utilities.Format("{0,11:F2}", js.SumDBHOBsqrd * STacres).ToString();
                                 }   //  endif on method
                                 break;
                             case "SP":
@@ -844,68 +844,68 @@ namespace CruiseProcessing
                         if (currMethod == "S3P" || currMethod == "3P")
                         {
                             if (js.STM == "Y")
-                                sf.alpha9 = Utilities.FormatField(js.SumExpanFactor, "{0,11:F2}").ToString();
+                                sf.alpha9 = Utilities.Format("{0,11:F2}", js.SumExpanFactor).ToString();
                             else
-                                sf.alpha9 = Utilities.FormatField((js.SumExpanFactor * js.TalliedTrees / js.SumExpanFactor), "{0,11:F2}").ToString();
+                                sf.alpha9 = Utilities.Format("{0,11:F2}", (js.SumExpanFactor * js.TalliedTrees / js.SumExpanFactor)).ToString();
                         }
-                        else sf.alpha9 = Utilities.FormatField(js.SumExpanFactor * STacres, "{0,11:F2}").ToString(); ;
+                        else sf.alpha9 = Utilities.Format("{0,11:F2}", js.SumExpanFactor * STacres).ToString(); ;
                     }   //  endif expansion factor
 
                     //  fields not calculated
                     switch (productTypes[k])
                     {
                         case "PP":
-                            sf.alpha12 = Utilities.FormatField(js.MeasuredTrees, "{0,5:F0}").ToString();
-                            sf.alpha13 = Utilities.FormatField(js.SumTotCubic * STacres, "{0,8:F0}").ToString();
-                            sf.alpha14 = Utilities.FormatField(js.SumGCUFT * STacres, "{0,8:F0}").ToString();
-                            sf.alpha15 = Utilities.FormatField(js.SumGCUFTremv * STacres, "{0,8:F0}").ToString();
-                            sf.alpha16 = Utilities.FormatField(js.SumNCUFT * STacres, "{0,8:F0}").ToString();
-                            sf.alpha17 = Utilities.FormatField(js.SumGBDFT * STacres, "{0,9:F0}").ToString();
-                            sf.alpha18 = Utilities.FormatField(js.SumGBDFTremv * STacres, "{0,9:F0}").ToString();
-                            sf.alpha19 = Utilities.FormatField(js.SumNBDFT * STacres, "{0,9:F0}").ToString();
+                            sf.alpha12 = Utilities.Format("{0,5:F0}", js.MeasuredTrees).ToString();
+                            sf.alpha13 = Utilities.Format("{0,8:F0}", js.SumTotCubic * STacres).ToString();
+                            sf.alpha14 = Utilities.Format("{0,8:F0}", js.SumGCUFT * STacres).ToString();
+                            sf.alpha15 = Utilities.Format("{0,8:F0}", js.SumGCUFTremv * STacres).ToString();
+                            sf.alpha16 = Utilities.Format("{0,8:F0}", js.SumNCUFT * STacres).ToString();
+                            sf.alpha17 = Utilities.Format("{0,9:F0}", js.SumGBDFT * STacres).ToString();
+                            sf.alpha18 = Utilities.Format("{0,9:F0}", js.SumGBDFTremv * STacres).ToString();
+                            sf.alpha19 = Utilities.Format("{0,9:F0}", js.SumNBDFT * STacres).ToString();
                             sf.alpha20 = "     0.0";
-                            sf.alpha21 = Utilities.FormatField(js.SumWgtMSP * STacres / 2000, "{0,8:F2}").ToString();
-                            sf.alpha22 = Utilities.FormatField(js.SumValue * STacres, "{0,11:F2}").ToString();
-                            sf.alpha23 = Utilities.FormatField(js.SumCords * STacres, "{0,8:F2}").ToString();
-                            sf.alpha24 = Utilities.FormatField(js.SumExpanFactor * STacres, "{0,8:F0}").ToString();
-                            sf.alpha25 = Utilities.FormatField(js.SumLogsMS * STacres, "{0,8:F0}").ToString();
+                            sf.alpha21 = Utilities.Format("{0,8:F2}", js.SumWgtMSP * STacres / 2000).ToString();
+                            sf.alpha22 = Utilities.Format("{0,11:F2}", js.SumValue * STacres).ToString();
+                            sf.alpha23 = Utilities.Format("{0,8:F2}", js.SumCords * STacres).ToString();
+                            sf.alpha24 = Utilities.Format("{0,8:F0}", js.SumExpanFactor * STacres).ToString();
+                            sf.alpha25 = Utilities.Format("{0,8:F0}", js.SumLogsMS * STacres).ToString();
                             sf.alpha26 = "     0.0";
                             if (js.SumNCUFT > 0 || js.SumNBDFT > 0 || js.SumWgtMSP > 0)
                                 sumList.Add(sf);
                             break;
                         case "SP":
-                            sf.alpha12 = Utilities.FormatField(js.MeasuredTrees, "{0,5:F0}").ToString();
+                            sf.alpha12 = Utilities.Format("{0,5:F0}", js.MeasuredTrees).ToString();
                             sf.alpha13 = "     0.0";
-                            sf.alpha14 = Utilities.FormatField(js.SumGCUFTtop * STacres, "{0,8:F0}").ToString();
+                            sf.alpha14 = Utilities.Format("{0,8:F0}", js.SumGCUFTtop * STacres).ToString();
                             sf.alpha15 = "     0.0";
-                            sf.alpha16 = Utilities.FormatField(js.SumNCUFTtop * STacres, "{0,8:F0}").ToString();
-                            sf.alpha17 = Utilities.FormatField(js.SumGBDFTtop * STacres, "{0,9:F0}").ToString();
+                            sf.alpha16 = Utilities.Format("{0,8:F0}", js.SumNCUFTtop * STacres).ToString();
+                            sf.alpha17 = Utilities.Format("{0,9:F0}", js.SumGBDFTtop * STacres).ToString();
                             sf.alpha18 = "     0.0";
-                            sf.alpha19 = Utilities.FormatField(js.SumNBDFTtop * STacres, "{0,9:F0}").ToString();
+                            sf.alpha19 = Utilities.Format("{0,9:F0}", js.SumNBDFTtop * STacres).ToString();
                             sf.alpha20 = "     0.0";
-                            sf.alpha21 = Utilities.FormatField(js.SumWgtMSS * STacres / 2000, "{0,8:F2}").ToString();
-                            sf.alpha22 = Utilities.FormatField(js.SumTopValue * STacres, "{0,11:F2}").ToString();
-                            sf.alpha23 = Utilities.FormatField(js.SumCordsTop * STacres, "{0,8:F2}").ToString();
-                            sf.alpha24 = Utilities.FormatField(js.SumExpanFactor * STacres, "{0,8:F0}").ToString();
-                            sf.alpha25 = Utilities.FormatField(js.SumLogsTop * STacres, "{0,8:F0}").ToString();
+                            sf.alpha21 = Utilities.Format("{0,8:F2}", js.SumWgtMSS * STacres / 2000).ToString();
+                            sf.alpha22 = Utilities.Format("{0,11:F2}", js.SumTopValue * STacres).ToString();
+                            sf.alpha23 = Utilities.Format("{0,8:F2}", js.SumCordsTop * STacres).ToString();
+                            sf.alpha24 = Utilities.Format("{0,8:F0}", js.SumExpanFactor * STacres).ToString();
+                            sf.alpha25 = Utilities.Format("{0,8:F0}", js.SumLogsTop * STacres).ToString();
                             sf.alpha26 = "     0.0";
                             if (js.SumNCUFTtop > 0 || js.SumNBDFTtop > 0 || js.SumWgtMSS > 0)
                                 sumList.Add(sf);
                             break;
                         case "RP":
-                            sf.alpha12 = Utilities.FormatField(js.MeasuredTrees, "{0,5:F0}").ToString();
+                            sf.alpha12 = Utilities.Format("{0,5:F0}", js.MeasuredTrees).ToString();
                             sf.alpha13 = "     0.0";
                             sf.alpha14 = "     0.0";
                             sf.alpha15 = "     0.0";
-                            sf.alpha16 = Utilities.FormatField(js.SumCUFTrecv * STacres, "{0,8:F0}").ToString();
+                            sf.alpha16 = Utilities.Format("{0,8:F0}", js.SumCUFTrecv * STacres).ToString();
                             sf.alpha17 = "     0.0";
                             sf.alpha18 = "     0.0";
-                            sf.alpha19 = Utilities.FormatField(js.SumBDFTrecv, "{0,9:F0}").ToString();
+                            sf.alpha19 = Utilities.Format("{0,9:F0}", js.SumBDFTrecv).ToString();
                             sf.alpha20 = "     0.0";
                             sf.alpha21 = "     0.0";
-                            sf.alpha22 = Utilities.FormatField(js.SumValueRecv * STacres, "{0,11:F2}").ToString();
-                            sf.alpha23 = Utilities.FormatField(js.SumCordsRecv * STacres, "{0,8:F2}").ToString();
-                            sf.alpha24 = Utilities.FormatField(js.SumExpanFactor * STacres, "{0,8:F0}").ToString();
+                            sf.alpha22 = Utilities.Format("{0,11:F2}", js.SumValueRecv * STacres).ToString();
+                            sf.alpha23 = Utilities.Format("{0,8:F2}", js.SumCordsRecv * STacres).ToString();
+                            sf.alpha24 = Utilities.Format("{0,8:F0}", js.SumExpanFactor * STacres).ToString();
                             sf.alpha25 = "     0.0";
                             sf.alpha26 = "     0.0";
                             if (js.SumCUFTrecv > 0 || js.SumBDFTrecv > 0)

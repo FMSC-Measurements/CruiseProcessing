@@ -91,12 +91,12 @@ namespace CruiseProcessing
                                     completeHeader, 12, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
-                prtFields.Add(Utilities.FormatField(Convert.ToInt16(lto.value7), "{0,6:D0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value8, "{0,8:F1}").ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value9, "{0,11:F1}").ToString().PadLeft(11, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value10, "{0,11:F1}").ToString().PadLeft(11, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value11, "{0,11:F1}").ToString().PadLeft(11, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value12, "{0,11:F1}").ToString().PadLeft(11, ' '));
+                prtFields.Add(Utilities.FormatField("{0,6:D0}", Convert.ToInt16(lto.value7)).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F1}", lto.value8).ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,11:F1}", lto.value9).ToString().PadLeft(11, ' '));
+                prtFields.Add(Utilities.Format("{0,11:F1}", lto.value10).ToString().PadLeft(11, ' '));
+                prtFields.Add(Utilities.Format("{0,11:F1}", lto.value11).ToString().PadLeft(11, ' '));
+                prtFields.Add(Utilities.Format("{0,11:F1}", lto.value12).ToString().PadLeft(11, ' '));
 
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -105,11 +105,11 @@ namespace CruiseProcessing
             //  output total line
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write("  TOTALS      ");
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value8, "{0,8:F1}").ToString().PadLeft(8, ' '));
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value9, "{0,11:F1}").ToString().PadLeft(17, ' '));
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value10, "{0,11:F1}").ToString().PadLeft(16, ' '));
-            strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value11, "{0,11:F1}").ToString().PadLeft(16, ' '));
-            strWriteOut.WriteLine(Utilities.FormatField(totalToOutput[0].Value12, "{0,11:F1}").ToString().PadLeft(16, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F1}", totalToOutput[0].Value8).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(Utilities.Format("{0,11:F1}", totalToOutput[0].Value9).ToString().PadLeft(17, ' '));
+            strWriteOut.Write(Utilities.Format("{0,11:F1}", totalToOutput[0].Value10).ToString().PadLeft(16, ' '));
+            strWriteOut.Write(Utilities.Format("{0,11:F1}", totalToOutput[0].Value11).ToString().PadLeft(16, ' '));
+            strWriteOut.WriteLine(Utilities.Format("{0,11:F1}", totalToOutput[0].Value12).ToString().PadLeft(16, ' '));
 
             //  empty output list for next group
             listToOutput.Clear();

@@ -302,7 +302,7 @@ namespace CruiseProcessing
                         //  calculate percentage
                         percentOfTotal = l.SumExpanFactor / totalValue * 100;
                         combinedLabel.Append(" ");
-                        convertedNumber = Utilities.FormatField(percentOfTotal, "{0,4:F1}").ToString();
+                        convertedNumber = Utilities.Format("{0,4:F1}", percentOfTotal).ToString();
                         combinedLabel.Append(convertedNumber);
                         combinedLabel.Append("%");
                         labelsForSlices[listCnt] = combinedLabel.ToString();
@@ -311,7 +311,7 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                     valuesTotal = lcdList.Sum(l => l.SumExpanFactor);
                     totalLabel = "TOTAL NUMBER OF TREES\n";
-                    totalLabel += Utilities.FormatField(valuesTotal,"{0,10:F0}").ToString();
+                    totalLabel += Utilities.Format("{0,10:F0}", valuesTotal).ToString();
                     break;
                 case 3:
                     totalValue = lcdList.Sum(l => l.SumNCUFT);
@@ -323,7 +323,7 @@ namespace CruiseProcessing
                         //  calculate percentage
                         percentOfTotal = l.SumNCUFT / totalValue * 100;
                         combinedLabel.Append(" ");
-                        convertedNumber = Utilities.FormatField(percentOfTotal, "{0,4:F1}").ToString();
+                        convertedNumber = Utilities.Format("{0,4:F1}", percentOfTotal).ToString();
                         combinedLabel.Append(convertedNumber);
                         combinedLabel.Append("%");
                         labelsForSlices[listCnt] = combinedLabel.ToString();
@@ -332,7 +332,7 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                     valuesTotal = lcdList.Sum(l => l.SumNCUFT);
                     totalLabel = "TOTAL NET CUFT VOLUME\n";
-                    totalLabel += Utilities.FormatField(valuesTotal, "{0,10:F0}").ToString();
+                    totalLabel += Utilities.Format("{0,10:F0}", valuesTotal).ToString();
                     break;
                 case 4:
                     totalValue = lcdList.Sum(l => l.SumNCUFT);
@@ -346,7 +346,7 @@ namespace CruiseProcessing
                         //  calculate percentage
                         percentOfTotal = l.SumNCUFT / totalValue * 100;
                         combinedLabel.Append(" ");
-                        convertedNumber = Utilities.FormatField(percentOfTotal, "{0,4:F1}").ToString();
+                        convertedNumber = Utilities.Format("{0,4:F1}", percentOfTotal).ToString();
                         combinedLabel.Append(convertedNumber);
                         combinedLabel.Append("%");
                         labelsForSlices[listCnt] = combinedLabel.ToString();
@@ -355,7 +355,7 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                     valuesTotal = lcdList.Sum(l => l.SumNCUFT);
                     totalLabel = "TOTAL NET CUFT VOLUME\n";
-                    totalLabel += Utilities.FormatField(valuesTotal,"{0,10:F0}").ToString();
+                    totalLabel += Utilities.Format("{0,10:F0}", valuesTotal).ToString();
                     break;
                 case 10:
                     //  dump needed values into arrays
@@ -365,7 +365,7 @@ namespace CruiseProcessing
                         combinedLabel.Append(gd.Value1);
                         //  calculate percentage
                         combinedLabel.Append(" ");
-                        convertedNumber = Utilities.FormatField(gd.Value3, "{0,4:F1}").ToString();
+                        convertedNumber = Utilities.Format("{0,4:F1}", gd.Value3).ToString();
                         combinedLabel.Append(convertedNumber);
                         labelsForSlices[listCnt] = combinedLabel.ToString();
 
@@ -374,7 +374,7 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                     valuesTotal = totalValue;
                     totalLabel = "TOTAL BAF PER ACRE ";
-                    totalLabel += Utilities.FormatField(valuesTotal,"{0,10:F0}").ToString();
+                    totalLabel += Utilities.Format("{0,10:F0}", valuesTotal).ToString();
                     break;
             }   //  end switch
 

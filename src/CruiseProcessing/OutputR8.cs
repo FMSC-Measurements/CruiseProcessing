@@ -205,53 +205,53 @@ namespace CruiseProcessing
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(lto.value1.PadLeft(2, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value8 / mbfFactor, "{0,8:F3}").ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value9 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value10, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value11 / mbfFactor, "{0,8:F3}").ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value12 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value13, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value14 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value15, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value16 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value17, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value18 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value19, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                prtFields.Add(Utilities.FormatField(lto.value20 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value7).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F3}", lto.value8 / mbfFactor).ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F2}", lto.value9 / ccfFactor).ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value10).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F3}", lto.value11 / mbfFactor).ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F2}", lto.value12 / ccfFactor).ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value13).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F2}", lto.value14 / ccfFactor).ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value15).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F2}", lto.value16 / ccfFactor).ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value17).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F2}", lto.value18 / ccfFactor).ToString().PadLeft(7, ' '));
+                prtFields.Add(Utilities.Format("{0,6:F0}", lto.value19).ToString().PadLeft(6, ' '));
+                prtFields.Add(Utilities.Format("{0,7:F2}", lto.value20 / ccfFactor).ToString().PadLeft(7, ' '));
                 //  print record
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach on listToOutput
             //  print total line
             strWriteOut.Write("TOTAL: ");
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value7), "{0,6:F0}").ToString().PadLeft(6, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value8) / mbfFactor, "{0,8:F3}").ToString().PadLeft(10, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value9) / ccfFactor, "{0,7:F2}").ToString().PadLeft(8, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value10), "{0,6:F0}").ToString().PadLeft(8, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value11) / mbfFactor, "{0,8:F3}").ToString().PadLeft(9, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value12) / ccfFactor, "{0,7:F2}").ToString().PadLeft(8, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value13), "{0,6:F0}").ToString().PadLeft(9, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value14) / ccfFactor, "{0,7:F2}").ToString().PadLeft(9, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value15), "{0,6:F0}").ToString().PadLeft(8, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value16) / ccfFactor, "{0,7:F2}").ToString().PadLeft(9, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value17), "{0,6:F0}").ToString().PadLeft(12, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value18) / ccfFactor, "{0,7:F2}").ToString().PadLeft(8, ' '));
-            strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value19), "{0,6:F0}").ToString().PadLeft(10, ' '));
-            strWriteOut.WriteLine(Utilities.FormatField(listToOutput.Sum(l => l.value20) / ccfFactor, "{0,7:F2}").ToString().PadLeft(8, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value7)).ToString().PadLeft(6, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F3}", listToOutput.Sum(l => l.value8) / mbfFactor).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value9) / ccfFactor).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value10)).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F3}", listToOutput.Sum(l => l.value11) / mbfFactor).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value12) / ccfFactor).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value13)).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value14) / ccfFactor).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value15)).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value16) / ccfFactor).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value17)).ToString().PadLeft(12, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value18) / ccfFactor).ToString().PadLeft(8, ' '));
+            strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value19)).ToString().PadLeft(10, ' '));
+            strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value20) / ccfFactor).ToString().PadLeft(8, ' '));
 
             //  output subtotal lines
             strWriteOut.Write(rRH.R801subtotal[0]);
-            strWriteOut.Write(Utilities.FormatField(pineTop / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-            strWriteOut.WriteLine(Utilities.FormatField(hardwoodTop / ccfFactor, "{0,7:F2}").ToString().PadLeft(18, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F2}", pineTop / ccfFactor).ToString().PadLeft(7, ' '));
+            strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", hardwoodTop / ccfFactor).ToString().PadLeft(18, ' '));
 
             strWriteOut.Write(rRH.R801subtotal[1]);
             double calcValue = 0;
             calcValue = listToOutput.Sum(l => l.value18);
             calcValue += pineTop;
-            strWriteOut.Write(Utilities.FormatField(calcValue / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
+            strWriteOut.Write(Utilities.Format("{0,7:F2}", calcValue / ccfFactor).ToString().PadLeft(7, ' '));
             calcValue = listToOutput.Sum(l => l.value20);
             calcValue += hardwoodTop;
-            strWriteOut.WriteLine(Utilities.FormatField(calcValue / ccfFactor, "{0,7:F2}").ToString().PadLeft(18, ' '));
+            strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", calcValue / ccfFactor).ToString().PadLeft(18, ' '));
 
             //  output summary table
             WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
@@ -325,38 +325,38 @@ namespace CruiseProcessing
                         if (calcTrees > 0)
                             calcValue = boardFoot / calcTrees;
                         if (calcValue < 0) calcValue = 0.0;
-                        strWriteOut.Write(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
                         calcValue = 0.0;
                         if (calcTrees > 0)
                             calcValue = cubicFoot / calcTrees;
                         if (calcValue < 0) calcValue = 0.0;
-                        strWriteOut.Write(Utilities.FormatField(calcValue, "{0,7:F1}").ToString().PadLeft(10, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,7:F1}", calcValue).ToString().PadLeft(10, ' '));
                         calcValue = 0.0;
                         if (calcTrees > 0)
                         {
-                            strWriteOut.Write(Utilities.FormatField(rs.value9 / calcTrees, "{0,6:F1}").ToString().PadLeft(6, ' '));
-                            strWriteOut.Write(Utilities.FormatField(rs.value10 / calcTrees, "{0,5:F1}").ToString().PadLeft(8, ' '));
-                            strWriteOut.Write(Utilities.FormatField(rs.value11 / calcTrees, "{0,5:f1}").ToString().PadLeft(11, ' '));
+                            strWriteOut.Write(Utilities.Format("{0,6:F1}", rs.value9 / calcTrees).ToString().PadLeft(6, ' '));
+                            strWriteOut.Write(Utilities.Format("{0,5:F1}", rs.value10 / calcTrees).ToString().PadLeft(8, ' '));
+                            strWriteOut.Write(Utilities.Format("{0,5:f1}", rs.value11 / calcTrees).ToString().PadLeft(11, ' '));
                             totDBH += rs.value9;
                             totHt1 += rs.value10;
                             totHt2 += rs.value11;
                         }   //  endif calcTrees
                         //  per acre values
-                        strWriteOut.Write(Utilities.FormatField(calcTrees / totalAcres, "{0,6:F1}").ToString().PadLeft(16, ' '));
-                        strWriteOut.Write(Utilities.FormatField((boardFoot / mbfFactor) / totalAcres, "{0,6:F2}").ToString().PadLeft(8, ' '));
-                        strWriteOut.WriteLine(Utilities.FormatField((cubicFoot / ccfFactor) / totalAcres, "{0,6:F2}").ToString().PadLeft(9, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F1}", calcTrees / totalAcres).ToString().PadLeft(16, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F2}", (boardFoot / mbfFactor) / totalAcres).ToString().PadLeft(8, ' '));
+                        strWriteOut.WriteLine(Utilities.Format("{0,6:F2}", (cubicFoot / ccfFactor) / totalAcres).ToString().PadLeft(9, ' '));
                         break;
                     case 2:     case 3:     case 4:     case 5:
                         strWriteOut.Write("           ");
                         if (calcTrees > 0)
                             calcValue = cubicFoot / calcTrees;
                         if (calcValue < 0.0) calcValue = 0.0;
-                        strWriteOut.Write(Utilities.FormatField(calcValue, "{0,7:F1}").ToString().PadLeft(7, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,7:F1}", calcValue).ToString().PadLeft(7, ' '));
                         if (calcTrees > 0)
                         {
-                            strWriteOut.Write(Utilities.FormatField(rs.value9 / calcTrees, "{0,5:F1}").ToString().PadLeft(6, ' '));
+                            strWriteOut.Write(Utilities.Format("{0,5:F1}", rs.value9 / calcTrees).ToString().PadLeft(6, ' '));
                             strWriteOut.Write("              ");
-                            strWriteOut.Write(Utilities.FormatField(rs.value11 / calcTrees, "{0,5:f1}").ToString().PadLeft(5, ' '));
+                            strWriteOut.Write(Utilities.Format("{0,5:f1}", rs.value11 / calcTrees).ToString().PadLeft(5, ' '));
                             totDBH += rs.value9;
                             totHt1 += rs.value10;
                             totHt2 += rs.value11;
@@ -369,27 +369,27 @@ namespace CruiseProcessing
 
                         }   //  endif calcTrees
                         //  per acre values
-                        strWriteOut.Write(Utilities.FormatField(calcTrees / totalAcres, "{0,6:F1}").ToString().PadLeft(16, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F1}", calcTrees / totalAcres).ToString().PadLeft(16, ' '));
                         strWriteOut.Write("           ");
                         if (rowToPrint == 4 || rowToPrint == 5)
                         {
-                            strWriteOut.Write(Utilities.FormatField((cubicFoot / ccfFactor) / totalAcres, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                            strWriteOut.Write(Utilities.Format("{0,6:F2}", (cubicFoot / ccfFactor) / totalAcres).ToString().PadLeft(6, ' '));
                             strWriteOut.WriteLine(" (W/TOP)");
                         }
                         else
                         {
-                            strWriteOut.WriteLine(Utilities.FormatField((cubicFoot / ccfFactor) / totalAcres, "{0,6:F2}").ToString().PadLeft(6, ' '));
+                            strWriteOut.WriteLine(Utilities.Format("{0,6:F2}", (cubicFoot / ccfFactor) / totalAcres).ToString().PadLeft(6, ' '));
                         }   // endif
                         break;
                     case 6:             //  total line
-                        strWriteOut.Write(Utilities.FormatField(totBoardFoot / totCalcTrees, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                        strWriteOut.Write(Utilities.FormatField(totCubicFoot / totCalcTrees, "{0,7:F1}").ToString().PadLeft(10, ' '));
-                        strWriteOut.Write(Utilities.FormatField(totDBH / totCalcTrees, "{0,6:F1}").ToString().PadLeft(6, ' '));
-                        strWriteOut.Write(Utilities.FormatField(totHt1 / totCalcTrees, "{0,5:F1}").ToString().PadLeft(8, ' '));
-                        strWriteOut.Write(Utilities.FormatField(totHt2 / totCalcTrees, "{0,5:F1}").ToString().PadLeft(11, ' '));
-                        strWriteOut.Write(Utilities.FormatField(totCalcTrees / totalAcres, "{0,6:F1}").ToString().PadLeft(16, ' '));
-                        strWriteOut.Write(Utilities.FormatField((totBoardFoot / mbfFactor) / totalAcres, "{0,6:F2}").ToString().PadLeft(8, ' '));
-                        strWriteOut.WriteLine(Utilities.FormatField((totCubicFoot / ccfFactor) / totalAcres, "{0,6:F2}").ToString().PadLeft(9, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,8:F0}", totBoardFoot / totCalcTrees).ToString().PadLeft(8, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,7:F1}", totCubicFoot / totCalcTrees).ToString().PadLeft(10, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F1}", totDBH / totCalcTrees).ToString().PadLeft(6, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,5:F1}", totHt1 / totCalcTrees).ToString().PadLeft(8, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,5:F1}", totHt2 / totCalcTrees).ToString().PadLeft(11, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F1}", totCalcTrees / totalAcres).ToString().PadLeft(16, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F2}", (totBoardFoot / mbfFactor) / totalAcres).ToString().PadLeft(8, ' '));
+                        strWriteOut.WriteLine(Utilities.Format("{0,6:F2}", (totCubicFoot / ccfFactor) / totalAcres).ToString().PadLeft(9, ' '));
                         break;
                 }   //  end switch on rowToPrint
                 rowToPrint++;
@@ -476,10 +476,10 @@ namespace CruiseProcessing
                         prtFields.Clear();
                         prtFields.Add("");
                         prtFields.Add(lto.value1.PadRight(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value8 / mbfFactor, "{0,8:F3}").ToString().PadLeft(8, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value9 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-                        prtFields.Add(Utilities.FormatField(lto.value10 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
+                        prtFields.Add(Utilities.Format("{0,6:F0}", lto.value7).ToString().PadLeft(6, ' '));
+                        prtFields.Add(Utilities.Format("{0,8:F3}", lto.value8 / mbfFactor).ToString().PadLeft(8, ' '));
+                        prtFields.Add(Utilities.Format("{0,7:F2}", lto.value9 / ccfFactor).ToString().PadLeft(7, ' '));
+                        prtFields.Add(Utilities.Format("{0,7:F2}", lto.value10 / ccfFactor).ToString().PadLeft(7, ' '));
 
                         printOneRecord(fieldLengths, prtFields, strWriteOut);
                     }   // end foreach loop on listToOutput
@@ -487,10 +487,10 @@ namespace CruiseProcessing
                     strWriteOut.Write("                                    ");
                     strWriteOut.Write(jg.Code.PadLeft(2, ' '));
                     strWriteOut.Write(" TOTAL:      ");
-                    strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value7), "{0,6:F0}").ToString().PadLeft(6, ' '));
-                    strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value8) / mbfFactor, "{0,8:F3}").ToString().PadLeft(11, ' '));
-                    strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value9) / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
-                    strWriteOut.WriteLine(Utilities.FormatField(listToOutput.Sum(l => l.value10) / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value7)).ToString().PadLeft(6, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F3}", listToOutput.Sum(l => l.value8) / mbfFactor).ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value9) / ccfFactor).ToString().PadLeft(10, ' '));
+                    strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value10) / ccfFactor).ToString().PadLeft(10, ' '));
                     strWriteOut.WriteLine("");
                     //  update total list
                     totalToOutput[0].value7 += listToOutput.Sum(l => l.value7);
@@ -504,10 +504,10 @@ namespace CruiseProcessing
             {
                 //  output sawtimber total line
                 strWriteOut.Write(totalToOutput[0].value1);
-                strWriteOut.Write(Utilities.FormatField(totalToOutput[0].value7, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                strWriteOut.Write(Utilities.FormatField(totalToOutput[0].value8 / mbfFactor, "{0,8:F3}").ToString().PadLeft(11, ' '));
-                strWriteOut.Write(Utilities.FormatField(totalToOutput[0].value9 / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
-                strWriteOut.WriteLine(Utilities.FormatField(totalToOutput[0].value10 / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
+                strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].value7).ToString().PadLeft(6, ' '));
+                strWriteOut.Write(Utilities.Format("{0,8:F3}", totalToOutput[0].value8 / mbfFactor).ToString().PadLeft(11, ' '));
+                strWriteOut.Write(Utilities.Format("{0,7:F2}", totalToOutput[0].value9 / ccfFactor).ToString().PadLeft(10, ' '));
+                strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", totalToOutput[0].value10 / ccfFactor).ToString().PadLeft(10, ' '));
                 totalToOutput.Clear();
             }   //  endif
             return;
@@ -593,9 +593,9 @@ namespace CruiseProcessing
                             prtFields.Clear();
                             prtFields.Add("");
                             prtFields.Add(lto.value1.PadRight(6, ' '));
-                            prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                            prtFields.Add(Utilities.FormatField(lto.value9 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
-                            prtFields.Add(Utilities.FormatField(lto.value10 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
+                            prtFields.Add(Utilities.Format("{0,6:F0}", lto.value7).ToString().PadLeft(6, ' '));
+                            prtFields.Add(Utilities.Format("{0,7:F2}", lto.value9 / ccfFactor).ToString().PadLeft(7, ' '));
+                            prtFields.Add(Utilities.Format("{0,7:F2}", lto.value10 / ccfFactor).ToString().PadLeft(7, ' '));
 
                             printOneRecord(fieldLengths, prtFields, strWriteOut);
                         }   // end foreach loop on listToOutput
@@ -603,9 +603,9 @@ namespace CruiseProcessing
                         strWriteOut.Write("                                    ");
                         strWriteOut.Write(jg.Code.PadLeft(2, ' '));
                         strWriteOut.Write(" TOTAL:      ");
-                        strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value7), "{0,6:F0}").ToString().PadLeft(6, ' '));
-                        strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value9) / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
-                        strWriteOut.WriteLine(Utilities.FormatField(listToOutput.Sum(l => l.value10) / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value7)).ToString().PadLeft(6, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value9) / ccfFactor).ToString().PadLeft(10, ' '));
+                        strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value10) / ccfFactor).ToString().PadLeft(10, ' '));
                         strWriteOut.WriteLine("");
                         //  update total list
                         totalToOutput[0].value7 += listToOutput.Sum(l => l.value7);
@@ -618,9 +618,9 @@ namespace CruiseProcessing
                 if (totalToOutput.Sum(t => t.value7) > 0)
                 {
                     strWriteOut.Write(totalToOutput[0].value1);
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].value7, "{0,6:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].value9 / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
-                    strWriteOut.WriteLine(Utilities.FormatField(totalToOutput[0].value10 / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].value7).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,7:F2}", totalToOutput[0].value9 / ccfFactor).ToString().PadLeft(10, ' '));
+                    strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", totalToOutput[0].value10 / ccfFactor).ToString().PadLeft(10, ' '));
                 }
                 else
                 {
@@ -713,8 +713,8 @@ namespace CruiseProcessing
                             prtFields.Clear();
                             prtFields.Add("");
                             prtFields.Add(lto.value1.PadRight(6, ' '));
-                            prtFields.Add(Utilities.FormatField(lto.value7, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                            prtFields.Add(Utilities.FormatField(lto.value9 / ccfFactor, "{0,7:F2}").ToString().PadLeft(7, ' '));
+                            prtFields.Add(Utilities.Format("{0,6:F0}", lto.value7).ToString().PadLeft(6, ' '));
+                            prtFields.Add(Utilities.Format("{0,7:F2}", lto.value9 / ccfFactor).ToString().PadLeft(7, ' '));
 
                             printOneRecord(fieldLengths, prtFields, strWriteOut);
                         }   // end foreach loop on listToOutput
@@ -722,8 +722,8 @@ namespace CruiseProcessing
                         strWriteOut.Write("                                            ");
                         strWriteOut.Write(jg.Code.PadLeft(2, ' '));
                         strWriteOut.Write(" TOTAL:         ");
-                        strWriteOut.Write(Utilities.FormatField(listToOutput.Sum(l => l.value7), "{0,6:F0}").ToString().PadLeft(6, ' '));
-                        strWriteOut.WriteLine(Utilities.FormatField(listToOutput.Sum(l => l.value9) / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
+                        strWriteOut.Write(Utilities.Format("{0,6:F0}", listToOutput.Sum(l => l.value7)).ToString().PadLeft(6, ' '));
+                        strWriteOut.WriteLine(Utilities.Format("{0,7:F2}", listToOutput.Sum(l => l.value9) / ccfFactor).ToString().PadLeft(10, ' '));
                         strWriteOut.WriteLine(" ");
                         //  update total list
                         totalToOutput[0].value7 += listToOutput.Sum(l => l.value7);
@@ -735,8 +735,8 @@ namespace CruiseProcessing
                 {
                     //  output pulpwood total line
                     strWriteOut.Write(totalToOutput[0].value1);
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].value7, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].value9 / ccfFactor, "{0,7:F2}").ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].value7).ToString().PadLeft(6, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,7:F2}", totalToOutput[0].value9 / ccfFactor).ToString().PadLeft(10, ' '));
                 }
                 else
                 {
@@ -792,7 +792,7 @@ namespace CruiseProcessing
         private string[] createCompleteHeader(double saleAcres)
         {
             string[] finnishHeader = rRH.R801columns;
-            finnishHeader[0] = finnishHeader[0].Replace("XXXXX", Utilities.FormatField(saleAcres, "{0,6:F2}").ToString().PadLeft(6, ' '));
+            finnishHeader[0] = finnishHeader[0].Replace("XXXXX", Utilities.Format("{0,6:F2}", saleAcres).ToString().PadLeft(6, ' '));
             return finnishHeader;
         }   //  end createCompleteHeader
 

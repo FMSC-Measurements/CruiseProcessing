@@ -51,9 +51,9 @@ namespace CruiseProcessing
             sgArray.Add("");
             sgArray.Add(sg.Stratum.Code.PadLeft(2, ' '));
             sgArray.Add(sg.Code.PadLeft(2, ' '));
-            sgArray.Add(Utilities.FormatField(sg.SamplingFrequency, "{0,4:F0}").ToString().PadLeft(4, ' '));
-            sgArray.Add(Utilities.FormatField(sg.KZ, "{0,4:F0}").ToString().PadLeft(4, ' '));
-            sgArray.Add(Utilities.FormatField(sg.BigBAF, "{0,4:F0}").ToString().PadLeft(4, ' '));
+            sgArray.Add(Utilities.Format("{0,4:F0}", sg.SamplingFrequency).ToString().PadLeft(4, ' '));
+            sgArray.Add(Utilities.Format("{0,4:F0}", sg.KZ).ToString().PadLeft(4, ' '));
+            sgArray.Add(Utilities.Format("{0,4:F0}", sg.BigBAF).ToString().PadLeft(4, ' '));
             //sgArray.Add(Utilities.FormatField(sg.SmallFPS, "{0,4:F0}").ToString().PadLeft(4, ' '));
             sgArray.Add("    ");
             if (sg.Description == null)

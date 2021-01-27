@@ -72,13 +72,13 @@ namespace CruiseProcessing
                 plotArray.Add(pl.PlotNumber.ToString().PadLeft(4, ' '));
                 plotArray.Add(unitCode.PadLeft(3, ' '));
                 plotArray.Add(stratumCode.PadLeft(2, ' '));
-                plotArray.Add(Utilities.FormatField(pl.XCoordinate, fieldFormat1).ToString());
+                plotArray.Add(Utilities.Format(fieldFormat1, pl.XCoordinate).ToString());
                 if (pl.YCoordinate == 0.0)
                     plotArray.Add("---------");
-                else plotArray.Add(Utilities.FormatField(pl.YCoordinate, fieldFormat2).ToString());
+                else plotArray.Add(Utilities.Format(fieldFormat2, pl.YCoordinate).ToString());
                 if (pl.ZCoordinate == 0.0)
                     plotArray.Add("---------");
-                else plotArray.Add(Utilities.FormatField(pl.ZCoordinate, fieldFormat1).ToString());
+                else plotArray.Add(Utilities.Format(fieldFormat1, pl.ZCoordinate).ToString());
                 plotArray.Add(pl.MetaData??(" "));
             }   //  endif coordinates exist
             return plotArray;

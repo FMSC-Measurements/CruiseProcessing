@@ -119,7 +119,7 @@ namespace CruiseProcessing
         }   //  end CurrentDLLversion
 
 
-        public static StringBuilder FormatField(float fieldToFormat, string formatOfField)
+        public static StringBuilder Format(string formatOfField, float fieldToFormat)
         {
             StringBuilder SB = new StringBuilder();
             SB.Clear();
@@ -127,7 +127,7 @@ namespace CruiseProcessing
             return SB;
         }   //  end FormatField for floats
 
-        public static StringBuilder FormatField(double fieldToFormat, string formatOfField)
+        public static StringBuilder Format(string formatOfField, double fieldToFormat)
         {
             StringBuilder SB = new StringBuilder();
             SB.Clear();
@@ -135,7 +135,7 @@ namespace CruiseProcessing
             return SB;
         }   //  end FormatField for doubles
 
-        public static StringBuilder FormatField(long fieldToFormat, string formatOfField)
+        public static StringBuilder Format(string formatOfField, long fieldToFormat)
         {
             StringBuilder SB = new StringBuilder();
             SB.Clear();
@@ -143,7 +143,7 @@ namespace CruiseProcessing
             return SB;
         }   //  end FormatField for longs
 
-        public static StringBuilder FormatField(int fieldToFormat, string formatOfField)
+        public static StringBuilder FormatField(string formatOfField, int fieldToFormat)
         {
             StringBuilder SB = new StringBuilder();
             SB.Clear();

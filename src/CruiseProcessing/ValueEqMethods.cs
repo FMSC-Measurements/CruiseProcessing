@@ -124,12 +124,12 @@ namespace CruiseProcessing
             valArray.Add(val.ValueEquationNumber);
 
             //  coefficients
-            valArray.Add(Utilities.FormatField(val.Coefficient1, fieldFormat).ToString());
-            valArray.Add(Utilities.FormatField(val.Coefficient2,fieldFormat).ToString());
-            valArray.Add(Utilities.FormatField(val.Coefficient3,fieldFormat).ToString());
-            valArray.Add(Utilities.FormatField(val.Coefficient4,fieldFormat).ToString());
-            valArray.Add(Utilities.FormatField(val.Coefficient5,fieldFormat).ToString());
-            valArray.Add(Utilities.FormatField(val.Coefficient6,fieldFormat).ToString());
+            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient1).ToString());
+            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient2).ToString());
+            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient3).ToString());
+            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient4).ToString());
+            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient5).ToString());
+            valArray.Add(Utilities.Format(fieldFormat, val.Coefficient6).ToString());
             return valArray;
         }   //  end buildPrintArray
     }

@@ -332,13 +332,13 @@ namespace CruiseProcessing
                             {
                                 if (currData.Sum(ld => ld.TalliedTrees) / STacres < 1)
                                     prtFields.Add("       <1");
-                                else prtFields.Add(Utilities.FormatField(currData.Sum(ld => ld.TalliedTrees) / STacres, "{0,9:F0}"));
+                                else prtFields.Add(Utilities.Format("{0,9:F0}", currData.Sum(ld => ld.TalliedTrees) / STacres));
                             }
                             else
                             {
                                 if (currData.Sum(ld => ld.SumExpanFactor) / STacres < 1)
                                     prtFields.Add("       <1");
-                                else prtFields.Add(Utilities.FormatField(currData.Sum(ld => ld.SumExpanFactor) / STacres, "{0,9:F0}"));
+                                else prtFields.Add(Utilities.Format("{0,9:F0}", currData.Sum(ld => ld.SumExpanFactor) / STacres));
                             }   //  endif specific method
                         }
                         else prtFields.Add("         ");
@@ -629,11 +629,11 @@ namespace CruiseProcessing
                 strWriteOut.Write("        ");
                 strWriteOut.Write(rptSubtotal[k].Value2);
                 strWriteOut.Write("                         				");
-                strWriteOut.Write(Utilities.FormatField(rptSubtotal[k].Value3,fieldFormat3).ToString());
+                strWriteOut.Write(Utilities.Format(fieldFormat3, rptSubtotal[k].Value3).ToString());
                 strWriteOut.Write("        ");
-                strWriteOut.Write(Utilities.FormatField(rptSubtotal[k].Value4,fieldFormat3).ToString().PadLeft(2,' '))
+                strWriteOut.Write(Utilities.Format(fieldFormat3, rptSubtotal[k].Value4).ToString().PadLeft(2,' '))
 ;                strWriteOut.Write("   ");
-                strWriteOut.WriteLine(Utilities.FormatField(rptSubtotal[k].Value5/2000,fieldFormat3).ToString());
+                strWriteOut.WriteLine(Utilities.Format(fieldFormat3, rptSubtotal[k].Value5 / 2000).ToString());
             }   //  end for k loop
             return;
         }   //  end PrintTotals
@@ -848,11 +848,11 @@ namespace CruiseProcessing
                         //  According to K.Cormier, 3P and S3P talllied trees are NOT used to calculate means
                         //  june 2015 so this change was made for all mean calculations
                         if (rs.Value16 > 0)      //  means it's a 3P or S3P and use this value to calculate means
-                            prtFields.Add(Utilities.FormatField(Math.Sqrt(rs.Value4 / rs.Value16), fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, Math.Sqrt(rs.Value4 / rs.Value16)).ToString());
                         //else prtFields.Add(Utilities.FormatField(Math.Sqrt(rs.Value4 / rs.Value5), fieldFormat3).ToString());
                         grand7 += rs.Value4;
                         if(rs.Value16 > 0)      //  same as above
-                            prtFields.Add(Utilities.FormatField(rs.Value3/rs.Value16,fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, rs.Value3 / rs.Value16).ToString());
                         //else prtFields.Add(Utilities.FormatField(rs.Value3 / rs.Value5, fieldFormat3).ToString());
                         grand8 += rs.Value3;
                         //  heights
@@ -860,25 +860,25 @@ namespace CruiseProcessing
                         {
                             case 1:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value11/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value11 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value11 / rs.Value5, fieldFormat3).ToString());
                                 grand9 += rs.Value11;
                                 break;
                             case 2:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value12/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value12 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value12 / rs.Value5, fieldFormat3).ToString());
                                 grand9 += rs.Value12;
                                 break;
                             case 3:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value13/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value13 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value13 / rs.Value5, fieldFormat3).ToString());
                                 grand9 += rs.Value13;
                                 break;
                             case 4:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value14/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value14 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value14 / rs.Value5, fieldFormat3).ToString());
                                 grand9 += rs.Value14;
                                 break;
@@ -891,25 +891,25 @@ namespace CruiseProcessing
                         {
                             case 1:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value11/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value11 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value11 / rs.Value5, fieldFormat3).ToString());
                                 grand10 += rs.Value11;
                                 break;
                             case 2:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value12/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value12 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value12 / rs.Value5, fieldFormat3).ToString());
                                 grand10 += rs.Value12;
                                 break;
                             case 3:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value13/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value13 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value13 / rs.Value5, fieldFormat3).ToString());
                                 grand10 += rs.Value13;
                                 break;
                             case 4:
                                 if(rs.Value16 > 0)
-                                    prtFields.Add(Utilities.FormatField(rs.Value14/rs.Value16,fieldFormat3).ToString());
+                                    prtFields.Add(Utilities.Format(fieldFormat3, rs.Value14 / rs.Value16).ToString());
                                 //else prtFields.Add(Utilities.FormatField(rs.Value14 / rs.Value5, fieldFormat3).ToString());
                                 grand10 += rs.Value14;
                                 break;
@@ -931,12 +931,12 @@ namespace CruiseProcessing
                 {
                     //  add ratios to the line
                     if (rs.Value7 > 0 && rs.Value2 == "P")
-                        prtFields.Add(Utilities.FormatField(rs.Value6 / rs.Value7, fieldFormat4).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat4, rs.Value6 / rs.Value7).ToString());
                     else if (rs.Value2 == "P")
                         prtFields.Add(" 0.0000");
                     else prtFields.Add("       ");
                     if (rs.Value9 > 0 && rs.Value2 == "P")
-                        prtFields.Add(Utilities.FormatField(rs.Value8 / rs.Value9, fieldFormat4).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat4, rs.Value8 / rs.Value9).ToString());
                     else if (rs.Value2 == "P")
                         prtFields.Add(" 0.0000");
                     else prtFields.Add("       ");
@@ -947,15 +947,15 @@ namespace CruiseProcessing
                 {
                     if(currRPT == "VSM1")
                     {
-                        prtFields.Add(Utilities.FormatField(rs.Value5, fieldFormat1).ToString());
-                        prtFields.Add(Utilities.FormatField(rs.Value6, fieldFormat1).ToString());
-                        prtFields.Add(Utilities.FormatField(rs.Value7, fieldFormat1).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, rs.Value5).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, rs.Value6).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, rs.Value7).ToString());
                     }
                     else
                     {
-                        prtFields.Add(Utilities.FormatField(rs.Value5,fieldFormat5).ToString());
-                        prtFields.Add(Utilities.FormatField(rs.Value6,fieldFormat6).ToString());
-                        prtFields.Add(Utilities.FormatField(rs.Value7,fieldFormat7).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat5, rs.Value5).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat6, rs.Value6).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat7, rs.Value7).ToString());
                     }
                 }
                 else if (rs.Value2 == "S")
@@ -963,13 +963,13 @@ namespace CruiseProcessing
                     prtFields.Add("      ");
                     if(currRPT == "VSM1")
                     {
-                        prtFields.Add(Utilities.FormatField(rs.Value6, fieldFormat1).ToString());
-                        prtFields.Add(Utilities.FormatField(rs.Value7, fieldFormat1).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, rs.Value6).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat1, rs.Value7).ToString());
                     }
                     else
                     {
-                        prtFields.Add(Utilities.FormatField(rs.Value6,fieldFormat6).ToString());
-                        prtFields.Add(Utilities.FormatField(rs.Value7,fieldFormat7).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat6, rs.Value6).ToString());
+                        prtFields.Add(Utilities.Format(fieldFormat7, rs.Value7).ToString());
                     }   //  endif
                 }
                 else if (rs.Value2 == "R")
@@ -981,17 +981,17 @@ namespace CruiseProcessing
 
                 if(currRPT == "VSM1")
                 {
-                   prtFields.Add(Utilities.FormatField(rs.Value8, fieldFormat1).ToString());
-                   prtFields.Add(Utilities.FormatField(rs.Value9, fieldFormat1).ToString());
+                   prtFields.Add(Utilities.Format(fieldFormat1, rs.Value8).ToString());
+                   prtFields.Add(Utilities.Format(fieldFormat1, rs.Value9).ToString());
                 }
                 else
                 {
-                    prtFields.Add(Utilities.FormatField(rs.Value8,fieldFormat6).ToString());
-                    prtFields.Add(Utilities.FormatField(rs.Value9,fieldFormat7).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat6, rs.Value8).ToString());
+                    prtFields.Add(Utilities.Format(fieldFormat7, rs.Value9).ToString());
                 }   //  endif
 
                 //   Cords
-                prtFields.Add(Utilities.FormatField(rs.Value10, fieldFormat2).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat2, rs.Value10).ToString());
 
                 //  print subtotal line
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -1021,27 +1021,27 @@ namespace CruiseProcessing
                         fieldLengths = new int[] { 23, 10, 10, 10, 15, 10, 11, 11, 12, 8, 9 };
                         prtFields.Add("");
                         if(grand11 > 0)
-                            prtFields.Add(Utilities.FormatField(Math.Sqrt(grand7 / grand11), fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, Math.Sqrt(grand7 / grand11)).ToString());
                         else 
-                            prtFields.Add(Utilities.FormatField(Math.Sqrt(grand7 / grand1), fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, Math.Sqrt(grand7 / grand1)).ToString());
                         if(grand11 > 0)
-                            prtFields.Add(Utilities.FormatField(grand8 / grand11, fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, grand8 / grand11).ToString());
                         else 
-                            prtFields.Add(Utilities.FormatField(grand8 / grand1, fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, grand8 / grand1).ToString());
                         if (grand9 > 0)
                         {
                             if(grand11 > 0)
-                                prtFields.Add(Utilities.FormatField(grand9 / grand11, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand9 / grand11).ToString());
                             else 
-                                prtFields.Add(Utilities.FormatField(grand9 / grand1, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand9 / grand1).ToString());
                         }
                         else prtFields.Add("     ");
                         if (grand10 > 0)
                         {
                             if(grand11 > 0)
-                                prtFields.Add(Utilities.FormatField(grand10 / grand11, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand10 / grand11).ToString());
                             else 
-                                prtFields.Add(Utilities.FormatField(grand10 / grand1, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand10 / grand1).ToString());
                         }
                         else prtFields.Add("     ");
                         break;
@@ -1049,44 +1049,44 @@ namespace CruiseProcessing
                         fieldLengths = new int[] { 18, 6, 8, 8, 11, 10, 10, 8, 13, 10, 11, 8, 10 };
                         prtFields.Add("");
                         if(grand11 > 0)     //  3P or S3P methods
-                            prtFields.Add(Utilities.FormatField(Math.Sqrt(grand7/grand11),fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, Math.Sqrt(grand7 / grand11)).ToString());
                         else 
-                            prtFields.Add(Utilities.FormatField(Math.Sqrt(grand7 / grand1), fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, Math.Sqrt(grand7 / grand1)).ToString());
                         if(grand11 > 0)
-                            prtFields.Add(Utilities.FormatField(grand8 / grand11, fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, grand8 / grand11).ToString());
                         else 
-                            prtFields.Add(Utilities.FormatField(grand8 / grand1, fieldFormat3).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat3, grand8 / grand1).ToString());
                         if (grand9 > 0)
                         {
                             if (grand11 > 0)
-                                prtFields.Add(Utilities.FormatField(grand9 / grand11, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand9 / grand11).ToString());
                             else
-                                prtFields.Add(Utilities.FormatField(grand9 / grand1, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand9 / grand1).ToString());
                         }
                         else prtFields.Add("     ");
                         if (grand10 > 0)
                         {
                             if (grand11 > 0)
-                                prtFields.Add(Utilities.FormatField(grand10 / grand11, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand10 / grand11).ToString());
                             else
-                                prtFields.Add(Utilities.FormatField(grand10 / grand1, fieldFormat3).ToString());
+                                prtFields.Add(Utilities.Format(fieldFormat3, grand10 / grand1).ToString());
                         }
                         else prtFields.Add("     ");
                         if (grand3 > 0)
-                            prtFields.Add(Utilities.FormatField(grand2 / grand3, fieldFormat4).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat4, grand2 / grand3).ToString());
                         else prtFields.Add(" 0.0000");
                         if (grand5 > 0)
-                            prtFields.Add(Utilities.FormatField(grand4 / grand5, fieldFormat4).ToString());
+                            prtFields.Add(Utilities.Format(fieldFormat4, grand4 / grand5).ToString());
                         else prtFields.Add(" 0.0000");
                         break;
                 }   //  end switch on report
 
-                prtFields.Add(Utilities.FormatField(grand1, fieldFormat5).ToString());
-                prtFields.Add(Utilities.FormatField(grand2, fieldFormat6).ToString());
-                prtFields.Add(Utilities.FormatField(grand3, fieldFormat7).ToString());
-                prtFields.Add(Utilities.FormatField(grand4, fieldFormat6).ToString());
-                prtFields.Add(Utilities.FormatField(grand5, fieldFormat7).ToString());
-                prtFields.Add(Utilities.FormatField(grand6, fieldFormat2).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat5, grand1).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat6, grand2).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat7, grand3).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat6, grand4).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat7, grand5).ToString());
+                prtFields.Add(Utilities.Format(fieldFormat2, grand6).ToString());
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
                 strWriteOut.WriteLine("____________________________________________________________________________________________________________________________________");
                 numOlines++;
@@ -1099,11 +1099,11 @@ namespace CruiseProcessing
             //  overloaded to print totals for value, weight and total cubic reports
             strWriteOut.WriteLine("                                        _________                  _________                  _________");
             strWriteOut.Write("                        TOTALS ------  ");
-            strWriteOut.Write(Utilities.FormatField(valueGrandTotal,"{0,10:F0}"));
+            strWriteOut.Write(Utilities.Format("{0,10:F0}", valueGrandTotal));
             strWriteOut.Write("                 ");
-            strWriteOut.Write(Utilities.FormatField(wgtGrandTotal,"{0,10:F0}"));
+            strWriteOut.Write(Utilities.Format("{0,10:F0}", wgtGrandTotal));
             strWriteOut.Write("                 ");
-            strWriteOut.WriteLine(Utilities.FormatField(totCubGrandTotal, "{0,10:F0}"));
+            strWriteOut.WriteLine(Utilities.Format("{0,10:F0}", totCubGrandTotal));
             strWriteOut.WriteLine("                                        _________                  _________                  _________");
             numOlines += 3;
             return;

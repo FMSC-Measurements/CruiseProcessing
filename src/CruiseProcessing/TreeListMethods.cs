@@ -656,11 +656,11 @@ namespace CruiseProcessing
                         fieldLengths.SetValue(3, k);
                         break;
                     case 30:        //  DBH
-                        prtFields.Add(Utilities.FormatField(tdo.DBH,"{0,5:F1}").ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format("{0,5:F1}", tdo.DBH).ToString().PadLeft(5, ' '));
                         fieldLengths.SetValue(6, k);
                         break;
                     case 31:        //  DRCOB
-                        prtFields.Add(Utilities.FormatField(tdo.DRC,"{0,5:F1}").ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format("{0,5:F1}", tdo.DRC).ToString().PadLeft(5, ' '));
                         fieldLengths.SetValue(6, k);
                         break;
                     case 32:        //  total height
@@ -694,11 +694,11 @@ namespace CruiseProcessing
                         fieldLengths.SetValue(3, k);
                         break;
                     case 39:        //  average Z form
-                        prtFields.Add(Utilities.FormatField(tdo.TreeDefaultValue.AverageZ,"{0,7:F3}").ToString().PadLeft(7, ' '));
+                        prtFields.Add(Utilities.Format("{0,7:F3}", tdo.TreeDefaultValue.AverageZ).ToString().PadLeft(7, ' '));
                         fieldLengths.SetValue(8, k);
                         break;
                     case 40:        //  upper stem diameter
-                        prtFields.Add(Utilities.FormatField(tdo.UpperStemDiameter,"{0,4:F1}").ToString().PadLeft(4, ' '));
+                        prtFields.Add(Utilities.Format("{0,4:F1}", tdo.UpperStemDiameter).ToString().PadLeft(4, ' '));
                         //prtFields.Add(Utilities.FormatField(tdo.UpperStemDOB,"{0,4:F1}").ToString().PadLeft(4, ' '));
                         fieldLengths.SetValue(5, k);
                         break;
@@ -707,19 +707,19 @@ namespace CruiseProcessing
                         fieldLengths.SetValue(4, k);
                         break;
                     case 42:        //  DBH bark thickness ratio
-                        prtFields.Add(Utilities.FormatField(tdo.TreeDefaultValue.BarkThicknessRatio,"{0,5:F2}").ToString().PadLeft(5, ' '));
+                        prtFields.Add(Utilities.Format("{0,5:F2}", tdo.TreeDefaultValue.BarkThicknessRatio).ToString().PadLeft(5, ' '));
                         fieldLengths.SetValue(6, k);
                         break;
                     case 43:        //  DBH double bark thickness
-                        prtFields.Add(Utilities.FormatField(tdo.DBHDoubleBarkThickness,"{0,4:F1}").ToString().PadLeft(4, ' '));
+                        prtFields.Add(Utilities.Format("{0,4:F1}", tdo.DBHDoubleBarkThickness).ToString().PadLeft(4, ' '));
                         fieldLengths.SetValue(5, k);
                         break;
                     case 44:        //  top DIB primary product
-                        prtFields.Add(Utilities.FormatField(tdo.TopDIBPrimary,"{0,4:F1}").ToString().PadLeft(4, ' '));
+                        prtFields.Add(Utilities.Format("{0,4:F1}", tdo.TopDIBPrimary).ToString().PadLeft(4, ' '));
                         fieldLengths.SetValue(5, k);
                         break;
                     case 45:        //  top DIB secondary product
-                        prtFields.Add(Utilities.FormatField(tdo.TopDIBSecondary,"{0,4:F1}").ToString().PadLeft(4, ' '));
+                        prtFields.Add(Utilities.Format("{0,4:F1}", tdo.TopDIBSecondary).ToString().PadLeft(4, ' '));
                         fieldLengths.SetValue(5, k);
                         break;
                     case 46:        //  defect code
@@ -727,7 +727,7 @@ namespace CruiseProcessing
                         fieldLengths.SetValue(4, ' ');
                         break;
                     case 47:        //  diameter at defect
-                        prtFields.Add(Utilities.FormatField(tdo.DiameterAtDefect,"{0,4:F1}").ToString().PadLeft(4, ' '));
+                        prtFields.Add(Utilities.Format("{0,4:F1}", tdo.DiameterAtDefect).ToString().PadLeft(4, ' '));
                         fieldLengths.SetValue(5, k);
                         break;
                     case 48:        //  void percent
@@ -784,22 +784,22 @@ namespace CruiseProcessing
             else treeArray.Add("    ");
             treeArray.Add(tl.TreeNumber.ToString().PadLeft(4,' '));
             treeArray.Add(tl.Species??(" ").PadRight(6,' '));
-            treeArray.Add(Utilities.FormatField(tl.DBH,fieldFormat1).ToString().PadLeft(5, ' '));
+            treeArray.Add(Utilities.Format(fieldFormat1, tl.DBH).ToString().PadLeft(5, ' '));
           
             //  Add heights
             switch (hgtOne)
             {
                 case 1:
-                    treeArray.Add(Utilities.FormatField(tl.TotalHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.TotalHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 2:
-                    treeArray.Add(Utilities.FormatField(tl.MerchHeightPrimary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.MerchHeightPrimary).ToString().PadLeft(3, ' '));
                     break;
                 case 3:
-                    treeArray.Add(Utilities.FormatField(tl.MerchHeightSecondary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.MerchHeightSecondary).ToString().PadLeft(3, ' '));
                     break;
                 case 4:
-                    treeArray.Add(Utilities.FormatField(tl.UpperStemHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.UpperStemHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 0:
                     treeArray.Add("   ");
@@ -809,16 +809,16 @@ namespace CruiseProcessing
             switch (hgtTwo)
             {
                 case 1:
-                    treeArray.Add(Utilities.FormatField(tl.TotalHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.TotalHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 2:
-                    treeArray.Add(Utilities.FormatField(tl.MerchHeightPrimary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.MerchHeightPrimary).ToString().PadLeft(3, ' '));
                     break;
                 case 3:
-                    treeArray.Add(Utilities.FormatField(tl.MerchHeightSecondary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.MerchHeightSecondary).ToString().PadLeft(3, ' '));
                     break;
                 case 4:
-                    treeArray.Add(Utilities.FormatField(tl.UpperStemHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tl.UpperStemHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 0:
                     treeArray.Add("   ");
@@ -827,48 +827,48 @@ namespace CruiseProcessing
 
             if(volType == "BDFT")   //  load BDFT volumes
             {
-                treeArray.Add(Utilities.FormatField(oneTree.GrossBDFTPP,fieldFormat3).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.NetBDFTPP,fieldFormat3).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.GrossBDFTSP,fieldFormat3).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.NetBDFTSP,fieldFormat3).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.GrossBDFTPP).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.NetBDFTPP).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.GrossBDFTSP).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.NetBDFTSP).ToString().PadLeft(7, ' '));
             }
             else if(volType == "CUFT")      //  load CUFT volumes
             {
-                treeArray.Add(Utilities.FormatField(oneTree.GrossCUFTPP,fieldFormat3).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.NetCUFTPP,fieldFormat3).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.GrossCUFTSP,fieldFormat3).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.NetCUFTSP,fieldFormat3).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.GrossCUFTPP).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.NetCUFTPP).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.GrossCUFTSP).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.NetCUFTSP).ToString().PadLeft(7, ' '));
             }   //  end if volType
 
             //  expansion factors
-            treeArray.Add(Utilities.FormatField(tl.TreeFactor,fieldFormat5).ToString().PadLeft(7, ' '));
-            treeArray.Add(Utilities.FormatField(tl.PointFactor,fieldFormat5).ToString().PadLeft(7, ' '));
-            treeArray.Add(Utilities.FormatField(tl.ExpansionFactor,fieldFormat6).ToString().PadLeft(8, ' '));
+            treeArray.Add(Utilities.Format(fieldFormat5, tl.TreeFactor).ToString().PadLeft(7, ' '));
+            treeArray.Add(Utilities.Format(fieldFormat5, tl.PointFactor).ToString().PadLeft(7, ' '));
+            treeArray.Add(Utilities.Format(fieldFormat6, tl.ExpansionFactor).ToString().PadLeft(8, ' '));
 
             //  expanded volumes
             double calcValue = 0;
             if (volType == "BDFT")
             {
                 calcValue = tl.ExpansionFactor * oneTree.GrossBDFTPP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
                 calcValue = tl.ExpansionFactor * oneTree.NetBDFTPP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
                 calcValue = tl.ExpansionFactor * oneTree.GrossBDFTSP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
                 calcValue = tl.ExpansionFactor * oneTree.NetBDFTSP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
               
             }
             else if(volType == "CUFT")
             {
                 calcValue = tl.ExpansionFactor * oneTree.GrossCUFTPP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
                 calcValue = tl.ExpansionFactor * oneTree.NetCUFTPP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
                 calcValue = tl.ExpansionFactor * oneTree.GrossCUFTSP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
                 calcValue = tl.ExpansionFactor * oneTree.NetCUFTSP;
-                treeArray.Add(Utilities.FormatField(calcValue, "{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
             }   //  endif volType
 
             
@@ -908,22 +908,22 @@ namespace CruiseProcessing
             }   //  endif plot is null
             treeArray.Add(tdo.TreeNumber.ToString().PadLeft(4, ' '));
             treeArray.Add(tdo.Species??(" ").PadRight(6, ' '));
-            treeArray.Add(Utilities.FormatField(tdo.DBH,fieldFormat1).ToString().PadLeft(5, ' '));
+            treeArray.Add(Utilities.Format(fieldFormat1, tdo.DBH).ToString().PadLeft(5, ' '));
 
             //  Add heights
             switch (hgtOne)
             {
                 case 1:
-                    treeArray.Add(Utilities.FormatField(tdo.TotalHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.TotalHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 2:
-                    treeArray.Add(Utilities.FormatField(tdo.MerchHeightPrimary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.MerchHeightPrimary).ToString().PadLeft(3, ' '));
                     break;
                 case 3:
-                    treeArray.Add(Utilities.FormatField(tdo.MerchHeightSecondary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.MerchHeightSecondary).ToString().PadLeft(3, ' '));
                     break;
                 case 4:
-                    treeArray.Add(Utilities.FormatField(tdo.UpperStemHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.UpperStemHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 0:
                     treeArray.Add("   ");
@@ -933,16 +933,16 @@ namespace CruiseProcessing
             switch (hgtTwo)
             {
                 case 1:
-                    treeArray.Add(Utilities.FormatField(tdo.TotalHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.TotalHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 2:
-                    treeArray.Add(Utilities.FormatField(tdo.MerchHeightPrimary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.MerchHeightPrimary).ToString().PadLeft(3, ' '));
                     break;
                 case 3:
-                    treeArray.Add(Utilities.FormatField(tdo.MerchHeightSecondary,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.MerchHeightSecondary).ToString().PadLeft(3, ' '));
                     break;
                 case 4:
-                    treeArray.Add(Utilities.FormatField(tdo.UpperStemHeight,fieldFormat2).ToString().PadLeft(3, ' '));
+                    treeArray.Add(Utilities.Format(fieldFormat2, tdo.UpperStemHeight).ToString().PadLeft(3, ' '));
                     break;
                 case 0:
                     treeArray.Add("   ");
@@ -953,32 +953,32 @@ namespace CruiseProcessing
             if (contentType == "biomass")
             {
                 //  add component values
-                treeArray.Add(Utilities.FormatField(oneTree.BiomassMainStemPrimary, fieldFormat6).ToString().PadLeft(6, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.BiomassMainStemSecondary, fieldFormat6).ToString().PadLeft(6, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.Biomassfoliage, fieldFormat6).ToString().PadLeft(6, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.Biomasslivebranches, fieldFormat6).ToString().PadLeft(6, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.Biomassdeadbranches, fieldFormat6).ToString().PadLeft(6, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.BiomassTip, fieldFormat6).ToString().PadLeft(6, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.Biomasstotalstem, fieldFormat6).ToString().PadLeft(6, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat6, oneTree.BiomassMainStemPrimary).ToString().PadLeft(6, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat6, oneTree.BiomassMainStemSecondary).ToString().PadLeft(6, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat6, oneTree.Biomassfoliage).ToString().PadLeft(6, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat6, oneTree.Biomasslivebranches).ToString().PadLeft(6, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat6, oneTree.Biomassdeadbranches).ToString().PadLeft(6, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat6, oneTree.BiomassTip).ToString().PadLeft(6, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat6, oneTree.Biomasstotalstem).ToString().PadLeft(6, ' '));
 
                 //  add expansion factors
-                treeArray.Add(Utilities.FormatField(tdo.TreeFactor, fieldFormat5).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(tdo.PointFactor, fieldFormat5).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(tdo.ExpansionFactor, fieldFormat5).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat5, tdo.TreeFactor).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat5, tdo.PointFactor).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat5, tdo.ExpansionFactor).ToString().PadLeft(7, ' '));
             }
             else if (contentType == "value")
             {
-                treeArray.Add(Utilities.FormatField(oneTree.ValuePP, fieldFormat3).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(oneTree.ValueSP, fieldFormat3).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.ValuePP).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat3, oneTree.ValueSP).ToString().PadLeft(7, ' '));
                 calcValue = tdo.ExpansionFactor * oneTree.ValuePP;
-                treeArray.Add(Utilities.FormatField(calcValue,"{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
                 calcValue = tdo.ExpansionFactor * oneTree.ValueSP;
-                treeArray.Add(Utilities.FormatField(calcValue,"{0,8:F1}").ToString().PadLeft(8, ' '));
+                treeArray.Add(Utilities.Format("{0,8:F1}", calcValue).ToString().PadLeft(8, ' '));
 
                 //  expansion factors
-                treeArray.Add(Utilities.FormatField(tdo.TreeFactor, fieldFormat5).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(tdo.PointFactor, fieldFormat5).ToString().PadLeft(7, ' '));
-                treeArray.Add(Utilities.FormatField(tdo.ExpansionFactor, fieldFormat5).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat5, tdo.TreeFactor).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat5, tdo.PointFactor).ToString().PadLeft(7, ' '));
+                treeArray.Add(Utilities.Format(fieldFormat5, tdo.ExpansionFactor).ToString().PadLeft(7, ' '));
             }   //  endif contentType
 
             return treeArray;

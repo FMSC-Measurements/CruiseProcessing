@@ -362,12 +362,12 @@ namespace CruiseProcessing
             merchArray.Add(" ");
             merchArray.Add(vel.VolumeEquationNumber.PadRight(10,' '));
             merchArray.Add(vel.PrimaryProduct.PadLeft(2, ' '));
-            merchArray.Add(Utilities.FormatField(vel.Trim,"{0,2:F1}").ToString());
-            merchArray.Add(Utilities.FormatField(vel.MinLogLengthPrimary,"{0,2:F0}").ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.FormatField(vel.MaxLogLengthPrimary,"{0,2:F0}").ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.FormatField(vel.SegmentationLogic,"{0,2:F0}").ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.FormatField(vel.MinMerchLength,"{0,2:F0}").ToString().PadLeft(2,' '));
-            merchArray.Add(Utilities.FormatField(vel.EvenOddSegment,"{0,1:F0}").ToString());
+            merchArray.Add(Utilities.Format("{0,2:F1}", vel.Trim).ToString());
+            merchArray.Add(Utilities.Format("{0,2:F0}", vel.MinLogLengthPrimary).ToString().PadLeft(2,' '));
+            merchArray.Add(Utilities.Format("{0,2:F0}", vel.MaxLogLengthPrimary).ToString().PadLeft(2,' '));
+            merchArray.Add(Utilities.Format("{0,2:F0}", vel.SegmentationLogic).ToString().PadLeft(2,' '));
+            merchArray.Add(Utilities.Format("{0,2:F0}", vel.MinMerchLength).ToString().PadLeft(2,' '));
+            merchArray.Add(Utilities.Format("{0,1:F0}", vel.EvenOddSegment).ToString());
             if (vel.PrimaryProduct == "01")
                 merchArray.Add("N/A");
             else
@@ -394,12 +394,12 @@ namespace CruiseProcessing
             volArray.Add(vel.Species.PadRight(6, ' '));
             volArray.Add(vel.PrimaryProduct.PadLeft(2, '0'));
             volArray.Add(vel.VolumeEquationNumber);
-            volArray.Add(Utilities.FormatField(vel.StumpHeight, fieldFormat).ToString());
+            volArray.Add(Utilities.Format(fieldFormat, vel.StumpHeight).ToString());
             if (vel.CalcTotal == 0)
                 volArray.Add("NO ");
             else if (vel.CalcTotal == 1)
                 volArray.Add("YES");
-            volArray.Add(Utilities.FormatField(vel.TopDIBPrimary, fieldFormat).ToString());
+            volArray.Add(Utilities.Format(fieldFormat, vel.TopDIBPrimary).ToString());
             if (vel.CalcBoard == 0)
                 volArray.Add("NO ");
             else if (vel.CalcBoard == 1)
@@ -412,7 +412,7 @@ namespace CruiseProcessing
                 volArray.Add("NO ");
             else if (vel.CalcCord == 1)
                 volArray.Add("YES");
-            volArray.Add(Utilities.FormatField(vel.TopDIBSecondary, fieldFormat).ToString());
+            volArray.Add(Utilities.Format(fieldFormat, vel.TopDIBSecondary).ToString());
             if (vel.CalcTopwood == 0)
             {
                 volArray.Add("NO ");

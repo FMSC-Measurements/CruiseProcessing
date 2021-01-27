@@ -75,12 +75,12 @@ namespace CruiseProcessing
             if (bioDO.Equation == null || bioDO.Equation == "" || bioDO.Equation.Substring(0,3) == "   ")
                 bioArray.Add("   ");
             else bioArray.Add(bioDO.Equation.PadLeft(3, '0'));
-            bioArray.Add(Utilities.FormatField(bioDO.PercentMoisture,fieldFormat).ToString());
-            bioArray.Add(Utilities.FormatField(bioDO.PercentRemoved,fieldFormat).ToString());
+            bioArray.Add(String.Format(fieldFormat,  bioDO.PercentMoisture));
+            bioArray.Add(String.Format(fieldFormat,  bioDO.PercentRemoved));
             bioArray.Add(bioDO.LiveDead);
             bioArray.Add(bioDO.FIAcode.ToString());
-            bioArray.Add(Utilities.FormatField(bioDO.WeightFactorPrimary, fieldFormat).ToString());
-            bioArray.Add(Utilities.FormatField(bioDO.WeightFactorSecondary, fieldFormat).ToString());
+            bioArray.Add(String.Format(fieldFormat,  bioDO.WeightFactorPrimary));
+            bioArray.Add(String.Format(fieldFormat,  bioDO.WeightFactorSecondary));
             if (bioDO.MetaData == null)
                 bioArray.Add("  ");
             else bioArray.Add(bioDO.MetaData.PadRight(49,' ').Substring(0, 49));

@@ -925,30 +925,30 @@ namespace CruiseProcessing
                     //  rest of line
                     //  Quad mean dbh
                     calcValue = CalculateQuadMean(lto.Value15, lto.Value16);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,5:F1}").ToString().PadLeft(5, ' '));
+                    prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
                     //  Avg GM log volume
                     calcValue = CalculateAvgGrossMerch(lto.Value5, lto.Value6, lto.Value8);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
                     //  Volumes
-                    prtFields.Add(Utilities.FormatField(lto.Value4, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value5, "{0,10:F0}").ToString().PadLeft(10, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value3, "{0,10:F0}").ToString().PadLeft(10, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value4).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,10:F0}", lto.Value5).ToString().PadLeft(10, ' '));
+                    prtFields.Add(Utilities.Format("{0,10:F0}", lto.Value3).ToString().PadLeft(10, ' '));
                     //  Recovery percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(lto.Value4, lto.Value3);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(4, ' '));
                     //  Salvage percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(lto.Value7, lto.Value4);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(4, ' '));
                     //  grade volumes
-                    prtFields.Add(Utilities.FormatField(lto.Value12, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value13, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value6, "{0,9:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value10, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value14, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value11, "{0,6:F0}").ToString().PadLeft(6, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value12).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value13).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,9:F0}", lto.Value6).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value10).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value14).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,6:F0}", lto.Value11).ToString().PadLeft(6, ' '));
                     //  Average volume per acre
                     calcValue = CalculateAvgVolPerAcre(lto.Value4, lto.Value11);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
 
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
                 }   //  endif no value
@@ -974,26 +974,26 @@ namespace CruiseProcessing
                 prtFields.Add(lto.Value1.PadLeft(6, ' '));
                 //  rest of line
                 calcValue = CalculateQuadMean(lto.Value15, lto.Value16);
-                prtFields.Add(Utilities.FormatField(calcValue, "{0,5:F1}").ToString().PadLeft(5, ' '));
+                prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
                 //  Avg GM log volume
                 calcValue = CalculateAvgGrossMerch(lto.Value5, lto.Value6, lto.Value8);
-                prtFields.Add(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
                 //  Volumes
-                prtFields.Add(Utilities.FormatField(lto.Value4, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.FormatField(lto.Value5, "{0,10:F0}").ToString().PadLeft(10, ' '));
-                prtFields.Add(Utilities.FormatField(lto.Value3, "{0,10:F0}").ToString().PadLeft(10, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value4).ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,10:F0}", lto.Value5).ToString().PadLeft(10, ' '));
+                prtFields.Add(Utilities.Format("{0,10:F0}", lto.Value3).ToString().PadLeft(10, ' '));
                 //  Recovery percent
                 calcValue = CommonEquations.CalculateRecoverySalvage(lto.Value4, lto.Value3);
-                prtFields.Add(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                prtFields.Add(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(4, ' '));
                 //  Salvage percent
                 calcValue = CommonEquations.CalculateRecoverySalvage(lto.Value7, lto.Value4);
-                prtFields.Add(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                prtFields.Add(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(4, ' '));
                 //  grade volumes
-                prtFields.Add(Utilities.FormatField(lto.Value12, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.FormatField(lto.Value13, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.FormatField(lto.Value6, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                prtFields.Add(Utilities.FormatField(lto.Value10, "{0,8:F0}").ToString().PadLeft(8,' '));
-                prtFields.Add(Utilities.FormatField(lto.Value14, "{0,8:F0}").ToString().PadLeft(8,' '));
+                prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value12).ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value13).ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value6).ToString().PadLeft(8, ' '));
+                prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value10).ToString().PadLeft(8,' '));
+                prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value14).ToString().PadLeft(8,' '));
                 //  percent list
                 //  find all of current species in the percent list
                 List<ReportSubtotal> currSpecies = PerCentList.FindAll(
@@ -1008,7 +1008,7 @@ namespace CruiseProcessing
 
                         calcValue = (cs.Value3 / totalPercent) * 100;
                     else calcValue = 0.0;
-                    prtFields.Add(Utilities.FormatField(Math.Round(calcValue,0,MidpointRounding.AwayFromZero), "{0,3:F0}").ToString().PadLeft(3, ' '));
+                    prtFields.Add(Utilities.Format("{0,3:F0}", Math.Round(calcValue, 0, MidpointRounding.AwayFromZero)).ToString().PadLeft(3, ' '));
                 }   //  end foreach loop
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -1036,26 +1036,26 @@ namespace CruiseProcessing
                     //  rest of line
                     //  Quad mean dbh
                     calcValue = CalculateQuadMean(lto.Value15, lto.Value16);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,5:F1}").ToString().PadLeft(5, ' '));
+                    prtFields.Add(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
                     //  Avg GM log volume
                     calcValue = CalculateAvgGrossMerch(lto.Value5, lto.Value6, lto.Value8);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(8, ' '));
                     //  Volumes
-                    prtFields.Add(Utilities.FormatField(lto.Value4, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value5, "{0,10:F0}").ToString().PadLeft(10, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value3, "{0,10:F0}").ToString().PadLeft(10, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value4).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,10:F0}", lto.Value5).ToString().PadLeft(10, ' '));
+                    prtFields.Add(Utilities.Format("{0,10:F0}", lto.Value3).ToString().PadLeft(10, ' '));
                     //  Recovery percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(lto.Value4, lto.Value3);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(4, ' '));
                     //  Salvage percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(lto.Value7, lto.Value4);
-                    prtFields.Add(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(4, ' '));
+                    prtFields.Add(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(4, ' '));
                     //  grade volumes
-                    prtFields.Add(Utilities.FormatField(lto.Value12, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value13, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value6, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value10, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value14, "{0,8:F0}").ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value12).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value13).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value6).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value10).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value14).ToString().PadLeft(8, ' '));
 
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
                 }   //  endif gross volume is zero -- do not print
@@ -1082,20 +1082,20 @@ namespace CruiseProcessing
                 if (Convert.ToDouble(lto.Value1) > 0)
                 {
                     prtFields.Add(lto.Value1.PadLeft(2, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value3, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value4, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value5, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value6, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value7, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value8, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value9, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value10, "{0,7:F0}").ToString().PadLeft(7, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value11, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value12, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value13, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value14, "{0,9:F0}").ToString().PadLeft(9, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value15, "{0,6:F0}").ToString().PadLeft(6, ' '));
-                    prtFields.Add(Utilities.FormatField(lto.Value16, "{0,9:F0}").ToString().PadLeft(9, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value3).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value4).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value5).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value6).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value7).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value8).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value9).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,7:F0}", lto.Value10).ToString().PadLeft(7, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value11).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,8:F0}", lto.Value12).ToString().PadLeft(8, ' '));
+                    prtFields.Add(Utilities.Format("{0,6:F0}", lto.Value13).ToString().PadLeft(6, ' '));
+                    prtFields.Add(Utilities.Format("{0,9:F0}", lto.Value14).ToString().PadLeft(9, ' '));
+                    prtFields.Add(Utilities.Format("{0,6:F0}", lto.Value15).ToString().PadLeft(6, ' '));
+                    prtFields.Add(Utilities.Format("{0,9:F0}", lto.Value16).ToString().PadLeft(9, ' '));
 
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
                 }   //  endif DIB class is greater than zero
@@ -1116,26 +1116,26 @@ namespace CruiseProcessing
             strWriteOut.Write(" TOTALS  ");
             //  Quad mean dbh
             calcValue = CalculateQuadMean(unitTotal[0].Value15, unitTotal[0].Value16);
-            strWriteOut.Write(Utilities.FormatField(calcValue, "{0,5:F1}").ToString().PadLeft(5, ' '));
+            strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
             //  Avg GM log volume
             calcValue = CalculateAvgGrossMerch(unitTotal[0].Value5, unitTotal[0].Value6, unitTotal[0].Value8);
-            strWriteOut.Write(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(9, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(9, ' '));
             //  Volumes
-            strWriteOut.Write(Utilities.FormatField(unitTotal[0].Value4, "{0,8:F0}").ToString().PadLeft(10, ' '));
-            strWriteOut.Write(Utilities.FormatField(unitTotal[0].Value5, "{0,10:F0}").ToString().PadLeft(11, ' '));
-            strWriteOut.Write(Utilities.FormatField(unitTotal[0].Value3, "{0,10:F0}").ToString().PadLeft(11, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F0}", unitTotal[0].Value4).ToString().PadLeft(10, ' '));
+            strWriteOut.Write(Utilities.Format("{0,10:F0}", unitTotal[0].Value5).ToString().PadLeft(11, ' '));
+            strWriteOut.Write(Utilities.Format("{0,10:F0}", unitTotal[0].Value3).ToString().PadLeft(11, ' '));
             //  Recovery percent
             calcValue = CommonEquations.CalculateRecoverySalvage(unitTotal[0].Value4, unitTotal[0].Value3);
-            strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(5, ' '));
+            strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(5, ' '));
             //  Salvage percent
             calcValue = CommonEquations.CalculateRecoverySalvage(unitTotal[0].Value7, unitTotal[0].Value4);
-            strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(5, ' '));
+            strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(5, ' '));
             //  grade volumes
-            strWriteOut.Write(Utilities.FormatField(unitTotal[0].Value12, "{0,8:F0}").ToString().PadLeft(11, ' '));
-            strWriteOut.Write(Utilities.FormatField(unitTotal[0].Value13, "{0,8:F0}").ToString().PadLeft(11, ' '));
-            strWriteOut.Write(Utilities.FormatField(unitTotal[0].Value6, "{0,8:F0}").ToString().PadLeft(9, ' '));
-            strWriteOut.Write(Utilities.FormatField(unitTotal[0].Value10, "{0,8:F0}").ToString().PadLeft(9, ' '));
-            strWriteOut.WriteLine(Utilities.FormatField(unitTotal[0].Value14, "{0,8:F0}").ToString().PadLeft(9, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F0}", unitTotal[0].Value12).ToString().PadLeft(11, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F0}", unitTotal[0].Value13).ToString().PadLeft(11, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F0}", unitTotal[0].Value6).ToString().PadLeft(9, ' '));
+            strWriteOut.Write(Utilities.Format("{0,8:F0}", unitTotal[0].Value10).ToString().PadLeft(9, ' '));
+            strWriteOut.WriteLine(Utilities.Format("{0,8:F0}", unitTotal[0].Value14).ToString().PadLeft(9, ' '));
             numOlines++;
             strWriteOut.WriteLine();
             numOlines++;
@@ -1231,100 +1231,100 @@ namespace CruiseProcessing
                 case "BLM03":       case "BLM04":
                     //  Quad Mean DBH
                     calcValue = CalculateQuadMean(totalToOutput[0].Value15, totalToOutput[0].Value16);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,5:F1}").ToString().PadLeft(5, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
                     //  Avg GM log volume
                     calcValue = CalculateAvgGrossMerch(totalToOutput[0].Value5,
                                                         totalToOutput[0].Value6,
                                                         totalToOutput[0].Value8);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(10, ' '));
                     //  Volumes
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value4, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value5, "{0,10:F0}").ToString().PadLeft(11, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value3, "{0,10:F0}").ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value4).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value5).ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value3).ToString().PadLeft(11, ' '));
                     //  Recovery percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(totalToOutput[0].Value4, totalToOutput[0].Value3);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(6, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(6, ' '));
                     //  Salvage percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(totalToOutput[0].Value7, totalToOutput[0].Value4);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(7, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(7, ' '));
                     //  grade volumes
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value12, "{0,8:F0}").ToString().PadLeft(10, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value13, "{0,8:F0}").ToString().PadLeft(11, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value6, "{0,8:F0}").ToString().PadLeft(10, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value10, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value14, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value11, "{0,6:F0}").ToString().PadLeft(7, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value12).ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value13).ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value6).ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value10).ToString().PadLeft(8, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value14).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].Value11).ToString().PadLeft(7, ' '));
                     //  Average volume per acre
                     calcValue = CalculateAvgVolPerAcre(totalToOutput[0].Value4, totalToOutput[0].Value11);
-                    strWriteOut.WriteLine(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(9, ' '));
+                    strWriteOut.WriteLine(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(9, ' '));
                     break;
                 case "BLM05":                case "BLM06":
                     //  Quad Mean DBH
                     calcValue = CalculateQuadMean(totalToOutput[0].Value15, totalToOutput[0].Value16);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,5:F1}").ToString().PadLeft(5, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(5, ' '));
                     //  Avg GM log volume
                     calcValue = CalculateAvgGrossMerch(totalToOutput[0].Value5,
                                                         totalToOutput[0].Value6,
                                                         totalToOutput[0].Value8);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(9, ' '));
                     //  Volumes
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value4, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value5, "{0,10:F0}").ToString().PadLeft(11, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value3, "{0,10:F0}").ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value4).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value5).ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value3).ToString().PadLeft(11, ' '));
                     //  Recovery percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(totalToOutput[0].Value4, totalToOutput[0].Value3);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(5, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(5, ' '));
                     //  Salvage percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(totalToOutput[0].Value7, totalToOutput[0].Value4);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(5, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(5, ' '));
                     //  grade volumes
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value12, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value13, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value6, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value10, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value14, "{0,8:F0}").ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value12).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value13).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value6).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value10).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value14).ToString().PadLeft(9, ' '));
                     break;
                 case "BLM07":                case "BLM08":
                 //  Quad Mean DBH
                     calcValue = CalculateQuadMean(totalToOutput[0].Value15, totalToOutput[0].Value16);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,5:F1}").ToString().PadLeft(8, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,5:F1}", calcValue).ToString().PadLeft(8, ' '));
                     //  Avg GM log volume
                     calcValue = CalculateAvgGrossMerch(totalToOutput[0].Value5,
                                                         totalToOutput[0].Value6,
                                                         totalToOutput[0].Value8);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,8:F0}").ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", calcValue).ToString().PadLeft(9, ' '));
                     //  Volumes
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value4, "{0,8:F0}").ToString().PadLeft(10, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value5, "{0,10:F0}").ToString().PadLeft(11, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value3, "{0,10:F0}").ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value4).ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value5).ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,10:F0}", totalToOutput[0].Value3).ToString().PadLeft(11, ' '));
                     //  Recovery percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(totalToOutput[0].Value4, totalToOutput[0].Value3);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(5, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(5, ' '));
                     //  Salvage percent
                     calcValue = CommonEquations.CalculateRecoverySalvage(totalToOutput[0].Value7, totalToOutput[0].Value4);
-                    strWriteOut.Write(Utilities.FormatField(calcValue, "{0,4:F0}").ToString().PadLeft(5, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,4:F0}", calcValue).ToString().PadLeft(5, ' '));
                     //  grade volumes
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value12, "{0,8:F0}").ToString().PadLeft(11, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value13, "{0,8:F0}").ToString().PadLeft(11, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value6, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value10, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value14, "{0,8:F0}").ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value12).ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value13).ToString().PadLeft(11, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value6).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value10).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value14).ToString().PadLeft(9, ' '));
                     break;
                 case "BLM09":               case "BLM10":
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value3, "{0,8:F0}").ToString().PadLeft(8, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value4, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value5, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value6, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value7, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value8, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value9, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value10, "{0,7:F0}").ToString().PadLeft(10, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value11, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value12, "{0,8:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value13, "{0,6:F0}").ToString().PadLeft(9, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value14, "{0,9:F0}").ToString().PadLeft(10, ' '));
-                    strWriteOut.Write(Utilities.FormatField(totalToOutput[0].Value15, "{0,6:F0}").ToString().PadLeft(8, ' '));
-                    strWriteOut.WriteLine(Utilities.FormatField(totalToOutput[0].Value16, "{0,9:F0}").ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value3).ToString().PadLeft(8, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value4).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value5).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value6).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value7).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value8).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value9).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,7:F0}", totalToOutput[0].Value10).ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value11).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,8:F0}", totalToOutput[0].Value12).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].Value13).ToString().PadLeft(9, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,9:F0}", totalToOutput[0].Value14).ToString().PadLeft(10, ' '));
+                    strWriteOut.Write(Utilities.Format("{0,6:F0}", totalToOutput[0].Value15).ToString().PadLeft(8, ' '));
+                    strWriteOut.WriteLine(Utilities.Format("{0,9:F0}", totalToOutput[0].Value16).ToString().PadLeft(10, ' '));
                     break;
             }   //  end switch
             return;
