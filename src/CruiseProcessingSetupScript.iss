@@ -4,7 +4,7 @@
 
 [Setup]
 AppName=Cruise Processing Program
-AppVerName=Cruise Processing 03.18.2010
+AppVerName=Cruise Processing 03.30.2010
 AppPublisher=Forest Management Service Center
 AppPublisherURL=http://www.fs.fed.us/fmsc/measure/cruising/cruiseprocessing/index.php
 AppSupportURL=http://www.fs.fed.us/fmsc/measure/support.shtml
@@ -18,7 +18,7 @@ AllowNoIcons=yes
 LicenseFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\FMSC EULA.txt
 InfoBeforeFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\CruiseProcessingIntro.txt
 OutputDir=C:\WorkSpace\CruiseProcessingReleases\InstallScript
-OutputBaseFilename=CruiseProcessing20100318_Setup
+OutputBaseFilename=CruiseProcessingV2_20210330_Setup
 OutputManifestFile=Setup-Manifest.txt
 SetupIconFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\Setup.ico
 Compression=lzma
@@ -32,11 +32,10 @@ Name: english; MessagesFile: compiler:Default.isl
 Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked
 
 [Files]
-Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\CruiseProcessing.exe; DestDir: {app}; Flags: ignoreversion
-Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*.dll; DestDir: {app}; Flags: ignoreversion
-Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*.db; DestDir: {app}; Flags: ignoreversion
-Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\runtimes\*; DestDir: {app}; Flags: ignoreversion
+Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*; DestDir: {app}; Flags: ignoreversion recursesubdirs
+;Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*.db; DestDir: {app}; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
 
 [Icons]
 Name: {group}\Cruise Processing Program; Filename: {app}\CruiseProcessing.exe
