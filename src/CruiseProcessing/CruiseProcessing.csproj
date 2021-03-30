@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Build Config">
-    <TargetFrameworks>net472</TargetFrameworks>
+    <TargetFramework>net472</TargetFramework>
     <PlatformTarget>x86</PlatformTarget>
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
