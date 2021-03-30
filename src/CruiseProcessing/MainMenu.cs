@@ -710,7 +710,7 @@ namespace CruiseProcessing
         private void onAboutClick(object sender, EventArgs e)
         {
             //  Show version number etc here
-            MessageBox.Show("CruiseProcessing Version 2019.10.01\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("CruiseProcessing Version 2021.03.30\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }   //  end onAboutClick
 
