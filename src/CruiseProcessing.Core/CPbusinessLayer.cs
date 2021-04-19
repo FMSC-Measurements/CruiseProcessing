@@ -1608,7 +1608,7 @@ namespace CruiseProcessing
 
             foreach (ReportsDO rdo in reportList)
             {
-                DAL.Execute("UPDATE Report SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
+                DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
             }   //  end foreach loop     
             return;
         }   //  end updateReports
