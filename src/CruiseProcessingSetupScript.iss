@@ -4,7 +4,7 @@
 
 [Setup]
 AppName=Cruise Processing Program
-AppVerName=Cruise Processing 03.30.2010
+AppVerName=Cruise Processing 03.30.2021
 AppPublisher=Forest Management Service Center
 AppPublisherURL=http://www.fs.fed.us/fmsc/measure/cruising/cruiseprocessing/index.php
 AppSupportURL=http://www.fs.fed.us/fmsc/measure/support.shtml
