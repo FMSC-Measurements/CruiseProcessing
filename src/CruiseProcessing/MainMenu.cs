@@ -57,6 +57,7 @@ namespace CruiseProcessing
             menuButton3.Enabled = false;
             menuButton4.Enabled = false;
             menuButton5.Enabled = false;
+
         }
 
         private void onExit(object sender, EventArgs e)
@@ -282,7 +283,7 @@ namespace CruiseProcessing
             OpenFileDialog browseDialog = new OpenFileDialog();
 
             //  Set filter options and filter index
-            browseDialog.Filter = "Cruise files (.cruise)|*.cruise|(.CRUIISE)|*.CRUISE|All Files (*.*)|*.*";
+            browseDialog.Filter = "Cruise files (.cruise)|*.cruise|(.CRUIISE)|*.CRUISE|(.crz3)|*.crz3|(.CRZ3)|*.CRZ3|All Files (*.*)|*.*";
             browseDialog.FilterIndex = 1;
 
             browseDialog.Multiselect = false;
@@ -350,9 +351,49 @@ namespace CruiseProcessing
                     }
                     else if (!fileName.EndsWith(".cruise") && !fileName.EndsWith(".CRUISE"))
                     {
-                        //  is it a cruise file?
-                        MessageBox.Show("File selected is not a cruise file.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
+                        if (!fileName.EndsWith(".crz3") && !fileName.EndsWith(".CRZ3"))
+                        {
+                            //  is it a cruise file?
+                            MessageBox.Show("File selected is not a cruise file.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        else
+                        {
+                            var v3Database = new CruiseDatastore_V3(fileName);
+
+                            string V2FileName = fileName.Replace(".crz3", "").Replace(".CRZ3", "");
+
+                            //V2FileName = V2FileName + "WBTest.cruise";
+                            V2FileName = V2FileName + ".process";
+
+                            var cruiseIDs = v3Database.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
+                            if (cruiseIDs.Length > 1)
+                            {
+                                MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            var cruiseID = cruiseIDs.First();
+
+                            string cruiseV2Path = V2FileName;
+
+
+                            CruiseDatastoreBuilder_V2 V2Builder = new CruiseDatastoreBuilder_V2();
+                            Updater_V2 v2Updater = new Updater_V2();
+
+                            CruiseDatastore myV2DAL = new DAL(cruiseV2Path, true);
+                            //CruiseDatastore v2DB = new CruiseDatastore(cruiseV2Path, true, V2Builder, v2Updater);
+
+                            DownMigrator myMyigrator = new DownMigrator();
+
+
+                            //CONVERT LOGIC NEEDED HERE.                                                
+                            myMyigrator.MigrateFromV3ToV2(cruiseID, v3Database, myV2DAL);
+                            
+                            
+                            fileName = V2FileName;
+                        }
+                      
                     }   //  endif            
                 }
             };  //  end while
@@ -381,7 +422,7 @@ namespace CruiseProcessing
                 }   //  end check for fatal errors
 
                 // if filename is not blank, enable remaining menu buttons
-                if (fileName.Contains(".cruise") || fileName.Contains(".CRUISE"))
+                if (fileName.Contains(".cruise") || fileName.Contains(".CRUISE") || fileName.Contains(".process") || fileName.Contains(".PROCESS"))
                 {
                     menuButton2.BackgroundImage = Properties.Resources.button_image;
                     menuButton3.BackgroundImage = Properties.Resources.button_image;
@@ -736,6 +777,5 @@ namespace CruiseProcessing
             return;
         }
 
-        
     }
 }
