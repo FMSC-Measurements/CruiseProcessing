@@ -5,7 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.1.73" />
+    <PackageReference Include="CruiseDAL.Core" Version="3.0.0.83" />
+    <PackageReference Include="CruiseDAL.V2" Version="2.7.2.83" />
+    <PackageReference Include="CruiseDAL.V3" Version="3.2.2.83" />
+    <PackageReference Include="FMSC.ORM" Version="2.6.11" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" />
   </ItemGroup>
 

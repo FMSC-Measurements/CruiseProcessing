@@ -218,7 +218,7 @@
             this.menuButton1.Font = new System.Drawing.Font("Arial", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))));
             this.menuButton1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.menuButton1.Location = new System.Drawing.Point(114, 81);
-            this.menuButton1.Margin = new System.Windows.Forms.Padding(20, 20, 20, 20);
+            this.menuButton1.Margin = new System.Windows.Forms.Padding(20);
             this.menuButton1.Name = "menuButton1";
             this.menuButton1.Size = new System.Drawing.Size(100, 30);
             this.menuButton1.TabIndex = 27;
@@ -425,9 +425,6 @@
         private System.Windows.Forms.Button about_Button;
         private System.Windows.Forms.Button modifyWeightFacts;
         private System.Windows.Forms.Button modifyMerchRules;
-
-
-
     }
 }
 
