@@ -312,38 +312,71 @@ namespace CruiseProcessing
         private void UpdateSTRtally(string fileName, string currST, List<LCDDO> justCurrentLCD,
                                     List<CountTreeDO> ctList, List<LCDDO> lcdList)
         {
+            //Possibly update this from Sample group instead of strata.  See templeton.
             //  pull count records for STR stratum
             List<CountTreeDO> currentGroups = ctList.FindAll(
                 delegate(CountTreeDO cg)
                 {
                     return cg.SampleGroup.Stratum.Code == currST;
                 });
+
+
+            string sampleGroupCN = "";
             //  see if TreeDefaultValue_CN is zero indicating BySampleGroup
             int totalTDV = 0;
             foreach(CountTreeDO cg in currentGroups)
             {
-                if(cg.TreeDefaultValue_CN != null)
-                    totalTDV++;
-                else totalTDV += 0;
-            }   //  end foreach loop
-
-            //  what was sampling method
-            if (totalTDV == 0.0)
-            {
-                //  replace tally with sum of expansion factor
-                foreach (LCDDO jg in justCurrentLCD)
+                if (cg.TreeDefaultValue_CN != null)
                 {
-                    //  find in original to update
-                    int nthRow = lcdList.FindIndex(
-                        delegate(LCDDO ll)
+                    //Don't apply if count tree has a CN (meaning its selected coby species)
+                    //totalTDV++;
+                }//end if
+                else
+                {
+                    string strataCode = "";
+                    
+                    string sampleGroupCode = "";
+
+                    if (cg.SampleGroup != null)
+                    {
+                        sampleGroupCode = cg.SampleGroup.Code;
+                        if (cg.SampleGroup.Stratum != null)
                         {
-                            return ll.LCD_CN == jg.LCD_CN;
-                        });
-                        if (nthRow >= 0)
-                           lcdList[nthRow].TalliedTrees = lcdList[nthRow].SumExpanFactor;
-                            
-                }   //  end foreach loop
-            }   //  endif
+                            strataCode = cg.SampleGroup.Stratum.Code;
+                        }//end if
+                    }//end if
+
+
+                        //  replace tally with sum of expansion factor
+                    foreach (LCDDO jg in justCurrentLCD)
+                    {
+                        if (jg.SampleGroup == sampleGroupCode && jg.Stratum == strataCode)
+                        {
+                            //  find in original to update
+                            int nthRow = lcdList.FindIndex(
+                            delegate (LCDDO ll)
+                            {
+                                return ll.LCD_CN == jg.LCD_CN;
+                            });
+
+                            if (nthRow >= 0)
+                            {
+                                lcdList[nthRow].TalliedTrees = lcdList[nthRow].SumExpanFactor;
+                            }//end if
+                        }//end if
+                    }   //  end foreach loop
+
+                    totalTDV += 0;
+                }//end else
+
+            }//  end foreach loop
+
+            ////  what was sampling method
+            //if (totalTDV == 0.0)
+            //{
+              
+            //}   //  endif
+
             return;
         }  //  end UpdateSTRtally
 
