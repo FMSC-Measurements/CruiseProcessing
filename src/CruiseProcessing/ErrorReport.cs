@@ -74,7 +74,7 @@ namespace CruiseProcessing
 
                 //  Set version numbers
                 //currentVersion = "DRAFT.2018";
-                currentVersion = "10.01.2019";
+                currentVersion = "06.01.2021";
                 DLLversion = Utilities.CurrentDLLversion();
 
                 //  Output banner page except for BLM
@@ -163,7 +163,7 @@ namespace CruiseProcessing
 
                 //  and version numbers
                 //currentVersion = "DRAFT.2018";
-                currentVersion = "10.01.2019";
+                currentVersion = "06.01.2021";
                 DLLversion = Utilities.CurrentDLLversion();
 
                 //  Output banner page except for BLM

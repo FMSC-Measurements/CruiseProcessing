@@ -366,32 +366,40 @@ namespace CruiseProcessing
                             //V2FileName = V2FileName + "WBTest.cruise";
                             V2FileName = V2FileName + ".process";
 
-                            var cruiseIDs = v3Database.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
-                            if (cruiseIDs.Length > 1)
+                            try
                             {
-                                MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                var cruiseIDs = v3Database.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
+                                if (cruiseIDs.Length > 1)
+                                {
+                                    MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
+
+                                var cruiseID = cruiseIDs.First();
+
+                                string cruiseV2Path = V2FileName;
+
+
+                                CruiseDatastoreBuilder_V2 V2Builder = new CruiseDatastoreBuilder_V2();
+                                Updater_V2 v2Updater = new Updater_V2();
+
+                                CruiseDatastore myV2DAL = new DAL(cruiseV2Path, true);
+                                //CruiseDatastore v2DB = new CruiseDatastore(cruiseV2Path, true, V2Builder, v2Updater);
+
+                                DownMigrator myMyigrator = new DownMigrator();
+
+
+                                //CONVERT LOGIC NEEDED HERE.                                                
+                                myMyigrator.MigrateFromV3ToV2(cruiseID, v3Database, myV2DAL);
+
+
+                                fileName = V2FileName;
+                            }
+                            catch(Exception ex)
+                            {
+                                MessageBox.Show("This version 3 file has issues. \r\n", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
-
-                            var cruiseID = cruiseIDs.First();
-
-                            string cruiseV2Path = V2FileName;
-
-
-                            CruiseDatastoreBuilder_V2 V2Builder = new CruiseDatastoreBuilder_V2();
-                            Updater_V2 v2Updater = new Updater_V2();
-
-                            CruiseDatastore myV2DAL = new DAL(cruiseV2Path, true);
-                            //CruiseDatastore v2DB = new CruiseDatastore(cruiseV2Path, true, V2Builder, v2Updater);
-
-                            DownMigrator myMyigrator = new DownMigrator();
-
-
-                            //CONVERT LOGIC NEEDED HERE.                                                
-                            myMyigrator.MigrateFromV3ToV2(cruiseID, v3Database, myV2DAL);
-                            
-                            
-                            fileName = V2FileName;
                         }
                       
                     }   //  endif            
@@ -403,6 +411,10 @@ namespace CruiseProcessing
                 //  check for fatal errors before doing anything else --  October 2014
                 //fileName = fileName;
                 DAL = new DAL(fileName);
+                
+                //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
+                DAL.OpenConnection();
+
                 string[] errors;
  //               bool ithResult = bslyr.DAL.HasCruiseErrors(out errors);
                 bool ithResult = false;
@@ -418,7 +430,7 @@ namespace CruiseProcessing
                     menuButton3.Enabled = false;
                     menuButton4.Enabled = false;
                     menuButton5.Enabled = false;
-                    return;
+                    return; 
                 }   //  end check for fatal errors
 
                 // if filename is not blank, enable remaining menu buttons
@@ -751,7 +763,7 @@ namespace CruiseProcessing
         private void onAboutClick(object sender, EventArgs e)
         {
             //  Show version number etc here
-            MessageBox.Show("CruiseProcessing Version 2021.03.30\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("CruiseProcessing Version 2021.06.01\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }   //  end onAboutClick
 
