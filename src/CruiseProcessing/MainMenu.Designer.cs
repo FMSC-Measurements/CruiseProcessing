@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainMenu));
             this.menuButton2 = new System.Windows.Forms.Button();
             this.menuButton3 = new System.Windows.Forms.Button();
-            this.menuButton4 = new System.Windows.Forms.Button();
+            this.processBtn = new System.Windows.Forms.Button();
             this.menuButton5 = new System.Windows.Forms.Button();
             this.menuButton6 = new System.Windows.Forms.Button();
             this.processLabel1 = new System.Windows.Forms.Label();
@@ -93,21 +93,21 @@
             // 
             // menuButton4
             // 
-            this.menuButton4.BackColor = System.Drawing.Color.Transparent;
-            this.menuButton4.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("menuButton4.BackgroundImage")));
-            this.menuButton4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.menuButton4.FlatAppearance.BorderSize = 3;
-            this.menuButton4.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Black;
-            this.menuButton4.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.menuButton4.Font = new System.Drawing.Font("Arial", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.menuButton4.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.menuButton4.Location = new System.Drawing.Point(114, 187);
-            this.menuButton4.Name = "menuButton4";
-            this.menuButton4.Size = new System.Drawing.Size(100, 30);
-            this.menuButton4.TabIndex = 2;
-            this.menuButton4.Text = "PROCESS";
-            this.menuButton4.UseVisualStyleBackColor = false;
-            this.menuButton4.Click += new System.EventHandler(this.onProcess);
+            this.processBtn.BackColor = System.Drawing.Color.Transparent;
+            this.processBtn.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("menuButton4.BackgroundImage")));
+            this.processBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.processBtn.FlatAppearance.BorderSize = 3;
+            this.processBtn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Black;
+            this.processBtn.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.processBtn.Font = new System.Drawing.Font("Arial", 9.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.processBtn.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.processBtn.Location = new System.Drawing.Point(114, 187);
+            this.processBtn.Name = "menuButton4";
+            this.processBtn.Size = new System.Drawing.Size(100, 30);
+            this.processBtn.TabIndex = 2;
+            this.processBtn.Text = "PROCESS";
+            this.processBtn.UseVisualStyleBackColor = false;
+            this.processBtn.Click += new System.EventHandler(this.onProcess);
             // 
             // menuButton5
             // 
@@ -385,7 +385,7 @@
             this.Controls.Add(this.processLabel1);
             this.Controls.Add(this.menuButton6);
             this.Controls.Add(this.menuButton5);
-            this.Controls.Add(this.menuButton4);
+            this.Controls.Add(this.processBtn);
             this.Controls.Add(this.menuButton3);
             this.Controls.Add(this.menuButton2);
             this.ForeColor = System.Drawing.SystemColors.WindowText;
@@ -404,7 +404,7 @@
 
         private System.Windows.Forms.Button menuButton2;
         private System.Windows.Forms.Button menuButton3;
-        private System.Windows.Forms.Button menuButton4;
+        private System.Windows.Forms.Button processBtn;
         private System.Windows.Forms.Button menuButton5;
         private System.Windows.Forms.Button menuButton6;
         private System.Windows.Forms.Label processLabel1;

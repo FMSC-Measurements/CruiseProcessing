@@ -16,6 +16,7 @@ namespace CruiseProcessing
         // string[] selectValues = new string[11];
         //  string[] selectParameters = new string[11];
         public CruiseDAL.DAL DAL;
+        public CruiseDAL.CruiseDatastore_V3 DAL_V3;
         // List<SaleDO> saleList = new List<SaleDO>();
         // List<StratumDO> stList = new List<StratumDO>();
         //List<CuttingUnitDO> cutList = new List<CuttingUnitDO>();
@@ -305,7 +306,7 @@ namespace CruiseProcessing
             // rewritten Dec 2020 - Ben
             return DAL.From<TreeCalculatedValuesDO>()
                 .Join("Tree AS t", "USING (Tree_CN)")
-                .Join("Stratum AS st", "USING (Stratum_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
                 .Join("SampleGroup AS sg", "USING (SampleGroup_CN)") 
                 .Where("sg.CutLeave = @p1")
                 .OrderBy(orderBy)
@@ -1090,6 +1091,31 @@ namespace CruiseProcessing
             //  not sure why this has to happen but the way the DAL save works
             //  is if the user deleted an equation, the Save does not consider that
             //  when the equation list is updated ???????
+
+            //if version 3
+            //Save to V3 DB
+
+            //delete all records
+            //loop through all records and insert into v3 db.
+            //DAL_V3.Execute2()
+            //DAL_V3.BeginTransaction();
+            //try
+            //{
+            //    DAL_V3.Execute("DELETE FROM Tree WHERE TreeID IN (SELECT TreeID FROM TallyLedger WHERE TallyLedgerID = @p1);", tallyLedgerID);
+
+
+            //    DAL_V3.CommitTransaction();
+            //}//end try
+            //catch
+            //{
+            //    DAL_V3.RollbackTransaction();
+            //    throw;
+            //}//end catch
+
+
+                       
+
+
             List<VolumeEquationDO> volList = getVolumeEquations();
             foreach (VolumeEquationDO vdo in volList)
             {
@@ -1100,7 +1126,9 @@ namespace CruiseProcessing
                                 ve.PrimaryProduct == vdo.PrimaryProduct;
                     });
                 if (nthRow < 0)
+                {
                     vdo.Delete();
+                }//end if
             }   //  end foreach loop
 
             foreach (VolumeEquationDO veq in volumeEquationList)
@@ -1112,10 +1140,84 @@ namespace CruiseProcessing
                 veq.Save();
             }   //  end foreach loop
 
+            //sync back to V3 all the changes to the volume equations.
+            //if (DAL_V3 != null)
+            //{
+            //    List<VolumeEquationDO> v3volList = getVolumeEquations();
+            //    foreach (VolumeEquationDO veq in volumeEquationList)
+            //    {
+
+            //        string species = veq.Species;
+            //        string primaryProduct = veq.PrimaryProduct;
+            //        string volumeEquationNumber = veq.VolumeEquationNumber;
+            //        float stumpHeight = veq.StumpHeight;
+            //        float topDIBPrimary = veq.TopDIBPrimary;
+            //        float topDIBSecondary = veq.TopDIBSecondary;
+            //        long calcTotal = veq.CalcTotal;
+            //        long calcBoard = veq.CalcBoard;
+            //        long calcCubic = veq.CalcCubic; 
+            //        long calcCord = veq.CalcCord;
+            //        long calcTopwood = veq.CalcTopwood;
+            //        long calcBiomass = veq.CalcBiomass;
+            //        float trim = veq.Trim;
+            //        long segmentationLogic = veq.SegmentationLogic;
+            //        float minLogLengthPrimary = veq.MinLogLengthPrimary;
+            //        float maxLogLengthPrimary = veq.MaxLogLengthPrimary;
+            //        float minMerchLength = veq.MinMerchLength;
+            //        string model = veq.Model;
+            //        string commonSpeciesName = veq.CommonSpeciesName;
+            //        long merchModFlag = veq.MerchModFlag;
+            //        long evenOddSegment = veq.EvenOddSegment;
+            //        string createdBy = "none";
+            //        string modifiedBy = "none";
+
+            //        string sqlInsert = "insert into VolumeEquation";
+            //        /*
+            //         * 	VolumeEquation_CN INTEGER PRIMARY KEY AUTOINCREMENT,
+	           //         CruiseID TEXT NOT NULL COLLATE NOCASE,
+	           //         Species TEXT NOT NULL,
+	           //         PrimaryProduct TEXT NOT NULL,
+	           //         VolumeEquationNumber TEXT NOT NULL,
+	           //         StumpHeight REAL Default 0.0,
+	           //         TopDIBPrimary REAL Default 0.0,
+	           //         TopDIBSecondary REAL Default 0.0,
+	           //         CalcTotal INTEGER Default 0,
+	           //         CalcBoard INTEGER Default 0,
+	           //         CalcCubic INTEGER Default 0,
+	           //         CalcCord INTEGER Default 0,
+	           //         CalcTopwood INTEGER Default 0,
+	           //         CalcBiomass INTEGER Default 0,
+	           //         Trim REAL Default 0.0,
+	           //         SegmentationLogic INTEGER Default 0,
+	           //         MinLogLengthPrimary REAL Default 0.0,
+	           //         MaxLogLengthPrimary REAL Default 0.0,
+	           //         MinLogLengthSecondary REAL Default 0.0,  //not in the data object so they have been removed.
+	           //         MaxLogLengthSecondary REAL Default 0.0,  //not in the data object so they have been removed.
+	           //         MinMerchLength REAL Default 0.0,
+	           //         Model TEXT,
+	           //         CommonSpeciesName TEXT,
+	           //         MerchModFlag INTEGER Default 0,
+	           //         EvenOddSegment INTEGER Default 0,
+
+            //            CreatedBy TEXT DEFAULT 'none',
+            //            Created_TS DATETIME DEFAULT (CURRENT_TIMESTAMP),
+            //            ModifiedBy TEXT,
+            //            Modified_TS DATETIME,
+
+            //         */
+                    
+            //    }
+            //        //
+            //        //DAL_V3.Execute2()   
+
+            //    }//end if
+
+
             return;
         }   //  end SaveVolumeEquations
 
 
+       
         public void SaveValueEquations(List<ValueEquationDO> valList)
         {
             //  need to delete equations in order to update the database
@@ -1606,10 +1708,20 @@ namespace CruiseProcessing
             // rewritten Dec 2020 - Ben
             //  this updates the reports list after user has selected reports
 
-            foreach (ReportsDO rdo in reportList)
+            if (DAL_V3 != null)
             {
-                DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
-            }   //  end foreach loop     
+                foreach (ReportsDO rdo in reportList)
+                {
+                    DAL_V3.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
+                }   //  end foreach loop     
+            }//end if
+            else
+            {
+                foreach (ReportsDO rdo in reportList)
+                {
+                    DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
+                }   //  end foreach loop     
+            }
             return;
         }   //  end updateReports
 

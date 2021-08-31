@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL;
 
+
 namespace CruiseProcessing
 {
     public partial class MainMenu : Form
@@ -18,6 +19,8 @@ namespace CruiseProcessing
         public int whichProcess;
         string currentRegion;
         public DAL DAL { get; set; }
+        public CruiseDatastore_V3 DAL_V3 { get; set; }
+
         //CPbusinessLayer bslyr = new CPbusinessLayer();
         //public string[,] addedReports = new string[,] { {"A14", "Summary of Species Based on Unit Level Data" },
           //                                              {"R208", "Stewardship Average Product Cost"},
@@ -50,12 +53,12 @@ namespace CruiseProcessing
             //  also disable everything but the file button so a filename has to be selected
             menuButton2.BackgroundImage = Properties.Resources.disabled_button;
             menuButton3.BackgroundImage = Properties.Resources.disabled_button;
-            menuButton4.BackgroundImage = Properties.Resources.disabled_button;
+            processBtn.BackgroundImage = Properties.Resources.disabled_button;
             menuButton5.BackgroundImage = Properties.Resources.disabled_button;
             
             menuButton2.Enabled = false;
             menuButton3.Enabled = false;
-            menuButton4.Enabled = false;
+            processBtn.Enabled = false;
             menuButton5.Enabled = false;
 
         }
@@ -141,6 +144,8 @@ namespace CruiseProcessing
             //  replace this with the processing status window
             ProcessStatus statusDlg = new ProcessStatus();
             //statusDlg.bslyr = bslyr;
+
+
             statusDlg.DAL = DAL;
             statusDlg.fileName = fileName;
             statusDlg.ShowDialog();   
@@ -311,11 +316,11 @@ namespace CruiseProcessing
                         //  disable all buttons except equations and reports
                         menuButton2.BackgroundImage = Properties.Resources.button_image;
                         menuButton3.BackgroundImage = Properties.Resources.button_image;
-                        menuButton4.BackgroundImage = Properties.Resources.disabled_button;
+                        processBtn.BackgroundImage = Properties.Resources.disabled_button;
                         menuButton5.BackgroundImage = Properties.Resources.disabled_button;
                         menuButton2.Enabled = true;
                         menuButton3.Enabled = true;
-                        menuButton4.Enabled = false;
+                        processBtn.Enabled = false;
                         menuButton5.Enabled = false;
 
                         //  Have user enter a different file to preserve the regional tempalte file
@@ -359,7 +364,7 @@ namespace CruiseProcessing
                         }
                         else
                         {
-                            var v3Database = new CruiseDatastore_V3(fileName);
+                            DAL_V3 = new CruiseDatastore_V3(fileName);
 
                             string V2FileName = fileName.Replace(".crz3", "").Replace(".CRZ3", "");
 
@@ -368,7 +373,7 @@ namespace CruiseProcessing
 
                             try
                             {
-                                var cruiseIDs = v3Database.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
+                                var cruiseIDs = DAL_V3.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
                                 if (cruiseIDs.Length > 1)
                                 {
                                     MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -386,11 +391,12 @@ namespace CruiseProcessing
                                 CruiseDatastore myV2DAL = new DAL(cruiseV2Path, true);
                                 //CruiseDatastore v2DB = new CruiseDatastore(cruiseV2Path, true, V2Builder, v2Updater);
 
+                                
                                 DownMigrator myMyigrator = new DownMigrator();
 
 
                                 //CONVERT LOGIC NEEDED HERE.                                                
-                                myMyigrator.MigrateFromV3ToV2(cruiseID, v3Database, myV2DAL);
+                                myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
 
 
                                 fileName = V2FileName;
@@ -408,7 +414,7 @@ namespace CruiseProcessing
 
             if (templateFlag == 0)
             {
-                //  check for fatal errors before doing anything else --  October 2014
+                //  check for fatal errors before doing anything else --  October 20145
                 //fileName = fileName;
                 DAL = new DAL(fileName);
                 
@@ -424,11 +430,11 @@ namespace CruiseProcessing
 
                     menuButton2.BackgroundImage = Properties.Resources.disabled_button;
                     menuButton3.BackgroundImage = Properties.Resources.disabled_button;
-                    menuButton4.BackgroundImage = Properties.Resources.disabled_button;
+                    processBtn.BackgroundImage = Properties.Resources.disabled_button;
                     menuButton5.BackgroundImage = Properties.Resources.disabled_button;
                     menuButton2.Enabled = false;
                     menuButton3.Enabled = false;
-                    menuButton4.Enabled = false;
+                    processBtn.Enabled = false;
                     menuButton5.Enabled = false;
                     return; 
                 }   //  end check for fatal errors
@@ -438,12 +444,12 @@ namespace CruiseProcessing
                 {
                     menuButton2.BackgroundImage = Properties.Resources.button_image;
                     menuButton3.BackgroundImage = Properties.Resources.button_image;
-                    menuButton4.BackgroundImage = Properties.Resources.button_image;
+                    processBtn.BackgroundImage = Properties.Resources.button_image;
                     menuButton5.BackgroundImage = Properties.Resources.button_image;
 
                     menuButton2.Enabled = true;
                     menuButton3.Enabled = true;
-                    menuButton4.Enabled = true;
+                    processBtn.Enabled = true;
                     menuButton5.Enabled = true;
 
                     //  need region number in order to hide volume button as well as region 9 button
@@ -466,6 +472,12 @@ namespace CruiseProcessing
         {
             CPbusinessLayer bslyr = new CPbusinessLayer();
             bslyr.DAL = DAL;
+
+            if(this.DAL_V3 != null)
+            {
+                bslyr.DAL_V3 = this.DAL_V3;
+            }//end if
+
 
             if (whichProcess == 1)       //  equations
             {
@@ -531,6 +543,10 @@ namespace CruiseProcessing
                 rd.fileName = fileName;
                 rd.bslyr.fileName = bslyr.fileName;
                 rd.bslyr.DAL = bslyr.DAL;
+                //add version 3 ref for saving back.
+                rd.bslyr.DAL_V3 = bslyr.DAL_V3;
+                
+
                 rd.reportList = currentReports;
                 rd.templateFlag = templateFlag;
                 rd.setupDialog();
