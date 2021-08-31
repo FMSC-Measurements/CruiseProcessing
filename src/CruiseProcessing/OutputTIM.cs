@@ -167,13 +167,19 @@ namespace CruiseProcessing
                 sf.alpha1 = String.Format("{0,8:F2}", cu.Area);
                 if (cu.Description == null)
                     sf.alpha2 = "";
-                else sf.alpha2 = cu.Description;
+                else 
+                    sf.alpha2 = cu.Description;
+
                 if (cu.LoggingMethod == "" || cu.LoggingMethod == " " || cu.LoggingMethod == null)
                     sf.alpha3 = "~  ";
-                else sf.alpha3 = cu.LoggingMethod.TrimEnd();
+                else 
+                    sf.alpha3 = cu.LoggingMethod.TrimEnd();
+
                 if(cu.PaymentUnit == "" || cu.PaymentUnit == " "|| cu.PaymentUnit == null)
                     sf.alpha4 = "~  ";
-                else sf.alpha4 = cu.PaymentUnit;
+                else 
+                    sf.alpha4 = cu.PaymentUnit;
+
                 sf.currRG = regionNumber;
                 sumList.Add(sf);
             }   //  end foreach loop
@@ -961,7 +967,9 @@ namespace CruiseProcessing
                         prtLine.Append(sf.alpha1.PadLeft(8,' '));       //  acres
                         if (sf.alpha2 == null)                          //  description
                             prtLine.Append(" ".PadRight(25, ' '));
-                        else prtLine.Append(sf.alpha2.PadRight(25,' '));     
+                        else 
+                            prtLine.Append(sf.alpha2.PadRight(25,' ').Substring(0, 25));  
+                        
                         prtLine.Append(sf.alpha3.PadRight(3,' '));      //  logging method
                         prtLine.Append(sf.alpha4.PadRight(3,' '));      //  payment unit
                         prtLine.Append("      ");
