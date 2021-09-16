@@ -215,6 +215,12 @@ namespace CruiseProcessing
                 bslyr.SaveValueEquations(valList);
                 Cursor.Current = this.Cursor;
             }   //  endif
+
+            if (bslyr.DAL_V3 != null)
+            {
+                bslyr.syncValueEquationToV3();
+            }//end if
+
             Close();
             return;
         }   //  end onFinished

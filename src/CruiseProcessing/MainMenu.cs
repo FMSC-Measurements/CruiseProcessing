@@ -484,6 +484,11 @@ namespace CruiseProcessing
                 VolumeEquations volEqObj = new VolumeEquations();
                 volEqObj.bslyr.fileName = fileName;
                 volEqObj.bslyr.DAL = DAL;
+                if (this.DAL_V3 != null)
+                {
+                    volEqObj.bslyr.DAL_V3 = DAL_V3;
+                }//end if
+
                 if (templateFlag == 0)
                 {
                     int nResult = volEqObj.setupDialog();
@@ -518,7 +523,9 @@ namespace CruiseProcessing
                 {
                     currentReports = ReportMethods.fillReportsList();
                     bslyr.SaveReports(currentReports);
-                }
+                    bslyr.insertReportsV3();
+
+                }//end if
                 else if (currentReports.Count < ara.reportsArray.GetLength(0))
                 {
                     //  old or new list?  Check title
@@ -534,8 +541,14 @@ namespace CruiseProcessing
                         currentReports = ReportMethods.addReports(currentReports, ara);
                         bslyr.SaveReports(currentReports);
                     }   //  endif
+
+                    //if the reports are out of sync delete and refresh V3.
+                    bslyr.insertReportsV3();
+
                 }   //  endif
                 //  now get reports selected
+
+
                 currentReports = ReportMethods.deleteReports(currentReports, bslyr);
                 currentReports = bslyr.GetSelectedReports();
                 //  Get selected reports 
@@ -545,7 +558,7 @@ namespace CruiseProcessing
                 rd.bslyr.DAL = bslyr.DAL;
                 //add version 3 ref for saving back.
                 rd.bslyr.DAL_V3 = bslyr.DAL_V3;
-                
+
 
                 rd.reportList = currentReports;
                 rd.templateFlag = templateFlag;
@@ -624,6 +637,12 @@ namespace CruiseProcessing
                 ValueEquations valEqObj = new ValueEquations();
                 valEqObj.bslyr.fileName = fileName;
                 valEqObj.bslyr.DAL = DAL;
+
+                if (this.DAL_V3 != null)
+                {
+                    valEqObj.bslyr.DAL_V3 = this.DAL_V3;
+                }//end if
+
                 int nResult = valEqObj.setupDialog();
                 if(nResult == 1)
                     valEqObj.ShowDialog();
