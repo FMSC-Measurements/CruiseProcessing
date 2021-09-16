@@ -440,6 +440,16 @@ namespace CruiseProcessing
                 //  remove all biomass equations
                 bslyr.ClearBiomassEquations();
             }     //  endif
+
+
+            if (bslyr.DAL_V3 != null)
+            {
+                //on finish sync biomass and volume eq.
+                bslyr.syncVolumeEquationToV3();
+
+                bslyr.syncBiomassEquationToV3();
+            }//end if
+
             Close();
             return;
         }   //  end onFinished
