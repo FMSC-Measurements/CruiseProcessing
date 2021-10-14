@@ -5,11 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CruiseDAL.Core" Version="3.0.0.94" />
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.3.94" />
-    <PackageReference Include="CruiseDAL.V3" Version="3.3.2.94" />
-    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.3.2.9400" />
-    <PackageReference Include="FMSC.ORM" Version="2.6.11.1" />
+    <PackageReference Include="CruiseDAL.V2" Version="2.7.3.97" />
+    <PackageReference Include="CruiseDAL.V3" Version="3.4.0.97" />
+    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.4.0.9700" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" />
   </ItemGroup>
 
