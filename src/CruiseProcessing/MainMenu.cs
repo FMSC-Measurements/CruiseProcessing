@@ -6,7 +6,7 @@ using System.IO;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL;
-
+using System.Reflection;
 
 namespace CruiseProcessing
 {
@@ -30,6 +30,8 @@ namespace CruiseProcessing
                   //                                      {"LV04","Gross Volume Statistics for Sample Group"},
                     //                                    {"LV05","Volume by Species within Cutting Unit Across All Stratum"}};
         #endregion
+
+        protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public MainMenu()
         {
@@ -304,12 +306,11 @@ namespace CruiseProcessing
 
                 if (dResult == DialogResult.Cancel)
                 {
-                    DialogResult dnr = MessageBox.Show("No filename selected.  Do you really want to cancel?", "WARNING", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                    if (dnr == DialogResult.Yes)
-                        return;
+                    return;
                 }
                 if (dResult == DialogResult.OK)
                 {
+
                     fileName = browseDialog.FileName;
                     if (fileName.EndsWith(".cut") || fileName.EndsWith(".CUT"))
                     {
@@ -798,7 +799,7 @@ namespace CruiseProcessing
         private void onAboutClick(object sender, EventArgs e)
         {
             //  Show version number etc here
-            MessageBox.Show("CruiseProcessing Version 2021.06.01\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"CruiseProcessing Version {AppVerson}\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }   //  end onAboutClick
 
