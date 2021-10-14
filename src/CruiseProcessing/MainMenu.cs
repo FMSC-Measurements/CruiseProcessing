@@ -288,7 +288,7 @@ namespace CruiseProcessing
             OpenFileDialog browseDialog = new OpenFileDialog();
 
             //  Set filter options and filter index
-            browseDialog.Filter = "Cruise files (.cruise)|*.cruise|(.CRUIISE)|*.CRUISE|(.crz3)|*.crz3|(.CRZ3)|*.CRZ3|All Files (*.*)|*.*";
+            browseDialog.Filter = "Cruise Files - V2 |*.cruise|Cruise Files - V3|*.crz3|All Files|*.*";
             browseDialog.FilterIndex = 1;
 
             browseDialog.Multiselect = false;
