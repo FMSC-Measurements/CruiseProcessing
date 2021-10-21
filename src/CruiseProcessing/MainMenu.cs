@@ -375,7 +375,7 @@ namespace CruiseProcessing
                             {
                                 var cruiseIDs = DAL_V3.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
                                 if (cruiseIDs.Length > 1)
-                                {
+                                {   
                                     MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }
@@ -394,12 +394,20 @@ namespace CruiseProcessing
                                 
                                 DownMigrator myMyigrator = new DownMigrator();
 
+                                string error_message = "";
+                                if (myMyigrator.EnsureCanMigrate(cruiseID, DAL_V3, out error_message))
+                                {
+                                    //CONVERT LOGIC NEEDED HERE.                                                
+                                    myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
+                                    fileName = V2FileName;
+                                }//end if
+                                else
+                                {
+                                    MessageBox.Show("This version 3 file has issues. \r\nError: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }//end else
 
-                                //CONVERT LOGIC NEEDED HERE.                                                
-                                myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
-
-
-                                fileName = V2FileName;
+                                
                             }
                             catch(Exception ex)
                             {
