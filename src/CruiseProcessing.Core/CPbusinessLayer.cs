@@ -1617,16 +1617,18 @@ namespace CruiseProcessing
             {
                 foreach (ReportsDO rdo in reportList)
                 {
+                    //update both V3 and V2 databases.
                     DAL_V3.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
+                    //DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
                 }   //  end foreach loop     
             }//end if
-            else
+
+
+            foreach (ReportsDO rdo in reportList)
             {
-                foreach (ReportsDO rdo in reportList)
-                {
-                    DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
-                }   //  end foreach loop     
-            }
+                DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
+            }   //  end foreach loop     
+
             return;
         }   //  end updateReports
 
