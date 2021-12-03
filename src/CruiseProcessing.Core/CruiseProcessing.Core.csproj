@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.3.97" />
-    <PackageReference Include="CruiseDAL.V3" Version="3.4.0.97" />
-    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.4.0.9700" />
-    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" />
+    <PackageReference Include="CruiseDAL.V2" Version="2.7.3.98" />
+    <PackageReference Include="CruiseDAL.V3" Version="3.4.0.98" />
+    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.4.0.9800" />
+    <!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" /> -->
   </ItemGroup>
 
 </Project>

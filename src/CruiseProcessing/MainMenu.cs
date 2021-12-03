@@ -532,7 +532,10 @@ namespace CruiseProcessing
                 {
                     currentReports = ReportMethods.fillReportsList();
                     bslyr.SaveReports(currentReports);
-                    bslyr.insertReportsV3();
+                    if (DAL_V3 != null)
+                    {
+                        bslyr.insertReportsV3();
+                    }
 
                 }//end if
                 else if (currentReports.Count < ara.reportsArray.GetLength(0))
@@ -552,8 +555,10 @@ namespace CruiseProcessing
                     }   //  endif
 
                     //if the reports are out of sync delete and refresh V3.
-                    bslyr.insertReportsV3();
-
+                    if (DAL_V3 != null)
+                    {
+                        bslyr.insertReportsV3();
+                    }
                 }   //  endif
                 //  now get reports selected
 
