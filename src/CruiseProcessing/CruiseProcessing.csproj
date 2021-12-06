@@ -4,9 +4,7 @@
     <Company>USDA Forest Service</Company>
     <Product>CruiseProcessing</Product>
     <Copyright>Copyright © USDA Forest Service 2011</Copyright>
-    <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
-    <Version>2021.12.02</Version>
-    
+    <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>    
   </PropertyGroup>
 
   <PropertyGroup Label="Build Config">
