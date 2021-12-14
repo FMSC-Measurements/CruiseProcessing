@@ -367,7 +367,7 @@ namespace CruiseProcessing
                 .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
                 .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
                 .Where("sg.CutLeave = 'C'")
-                .OrderBy("st.Code", "CAST(CuttingUnit.Code AS NUMERIC)", "p.PlotNumber")
+                .OrderBy("st.Code", "CAST(cu.Code AS NUMERIC)", "p.PlotNumber")
                 .Read().ToList();
         }   //  end getLogStockSorted
 
