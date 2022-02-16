@@ -380,6 +380,7 @@ namespace CruiseProcessing
                                     MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }
+                                
 
                                 var cruiseID = cruiseIDs.First();
 
@@ -401,13 +402,13 @@ namespace CruiseProcessing
                                     //CONVERT LOGIC NEEDED HERE.                                                
                                     myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
                                     fileName = V2FileName;
+
                                 }//end if
                                 else
                                 {
                                     MessageBox.Show("This version 3 file has issues. \r\nError: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }//end else
-
                                 
                             }
                             catch(Exception ex)
@@ -464,7 +465,25 @@ namespace CruiseProcessing
                     //  need region number in order to hide volume button as well as region 9 button
                     List<SaleDO> saleList = new List<SaleDO>();
                     saleList = DAL.From<SaleDO>().Read().ToList();
-                    currentRegion = saleList[0].Region; 
+                    currentRegion = saleList[0].Region;
+
+                    CPbusinessLayer bslyr = new CPbusinessLayer();
+                    bslyr.DAL = DAL;
+
+                    if (this.DAL_V3 != null)
+                    {
+                        bslyr.DAL_V3 = this.DAL_V3;
+
+                    }//end if
+
+                    if (bslyr.saleWithNullSpecies())
+                    {
+                        //One or more records contain incomplete data which affect processing.\n
+                        MessageBox.Show("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }   //  endif fileName
+
+
                 }   //  endif
             }   //  endif tempalteFlag
             //  add file name to title line at top
@@ -645,6 +664,7 @@ namespace CruiseProcessing
                 MessageBox.Show("No filename selected.  Cannot continue.\nPlease select a filename.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }   //  endif fileName
+           
 
             if(whichProcess == 1)   //  equations
             {
@@ -656,6 +676,12 @@ namespace CruiseProcessing
                 {
                     valEqObj.bslyr.DAL_V3 = this.DAL_V3;
                 }//end if
+
+                if (valEqObj.bslyr.saleWithNullSpecies())
+                {
+                    MessageBox.Show("This file has errors which affect processing.\nThis file has an invalid species, please correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }   //  endif fileName
 
                 int nResult = valEqObj.setupDialog();
                 if(nResult == 1)

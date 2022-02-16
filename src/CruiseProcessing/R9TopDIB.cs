@@ -41,7 +41,19 @@ namespace CruiseProcessing
                 for (int k = 0; k < uniqueSpecies.Count; k++)
                 {
                     JustDIBs jd = new JustDIBs();
-                    jd.speciesDIB = uniqueSpecies[k].ToString();
+
+                    string species = "";
+
+                    if (uniqueSpecies[k] != null)
+                    {
+                        species = uniqueSpecies[k].ToString();
+                    }//end if
+                    else
+                    { 
+                        species = "";
+                    }//end else
+
+                    jd.speciesDIB = species;
                     jd.productDIB = "01";
                     jd.primaryDIB = 0.0F;
                     jd.secondaryDIB = 0.0F;
@@ -55,7 +67,20 @@ namespace CruiseProcessing
                 for (int k = 0; k < uniqueSpecies.Count; k++)
                 {
                     JustDIBs jd = new JustDIBs();
-                    string currentSpecies = uniqueSpecies[k].ToString();
+
+                    string species = "";
+
+                    if (uniqueSpecies[k] != null)
+                    {
+                        species = uniqueSpecies[k].ToString();
+                    }//end if
+                    else
+                    {
+                        species = "";
+                    }//end else
+
+                    string currentSpecies = species;
+
                     int nthRow = volList.FindIndex(
                         delegate(VolumeEquationDO v)
                         {

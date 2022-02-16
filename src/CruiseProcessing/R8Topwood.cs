@@ -144,7 +144,18 @@ namespace CruiseProcessing
             
             for (int k = 0; k < justSpecies.Count; k++)
             {
-                loadCheckBox(k + 1, justSpecies[k].ToString());
+                string species = "";
+                if(justSpecies[k] != null)
+                {
+                    species = justSpecies[k].ToString();
+                }//end if
+                else
+                {
+                    species = "";//null
+                }
+
+                loadCheckBox(k + 1, species);
+
             }   //  end for k loop
         }   //  end setupDialog
 
