@@ -31,7 +31,7 @@ namespace CruiseProcessing
                     //                                    {"LV05","Volume by Species within Cutting Unit Across All Stratum"}};
         #endregion
 
-        protected string AppVerson = "2021.12.02";
+        protected string AppVerson = "2022.02.22";
 
         public MainMenu()
         {
@@ -380,7 +380,12 @@ namespace CruiseProcessing
                                     MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }
-                                
+                                else if (cruiseIDs.Length == 0)
+                                {
+                                    MessageBox.Show("File contains no cruises. \r\nOpening a file with no cruises is not supported.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
+
 
                                 var cruiseID = cruiseIDs.First();
 
