@@ -31,7 +31,7 @@ namespace CruiseProcessing
                     //                                    {"LV05","Volume by Species within Cutting Unit Across All Stratum"}};
         #endregion
 
-        protected string AppVerson = "2022.02.22";
+        protected string AppVerson = "2022.03.23";
 
         public MainMenu()
         {
@@ -404,21 +404,38 @@ namespace CruiseProcessing
                                 string error_message = "";
                                 if (myMyigrator.EnsureCanMigrate(cruiseID, DAL_V3, out error_message))
                                 {
-                                    //CONVERT LOGIC NEEDED HERE.                                                
-                                    myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
-                                    fileName = V2FileName;
+                                    //CONVERT LOGIC NEEDED HERE.
+
+                                    try
+                                    {
+                                        myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
+                                        fileName = V2FileName;
+                                    }//end try
+                                    catch(Exception ex)
+                                    {
+                                        MessageBox.Show("This version 3 file can not be migrated. \r\nError: " + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        //delete *.process.
+                                        if(File.Exists(V2FileName))
+                                        {
+                                            File.Delete(V2FileName);
+                                        }//end if
+                                        fileName = "";
+                                        return;
+                                    }//end catch
+                                    
+
 
                                 }//end if
                                 else
                                 {
-                                    MessageBox.Show("This version 3 file has issues. \r\nError: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show("This version 3 file can not migrate to V2. \r\nError: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }//end else
                                 
                             }
                             catch(Exception ex)
                             {
-                                MessageBox.Show("This version 3 file has issues. \r\n", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("An excpetion occured.  This version 3 file can not be migrated. \r\n" + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
                         }
