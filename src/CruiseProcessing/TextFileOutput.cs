@@ -63,6 +63,7 @@ namespace CruiseProcessing
             finished_Button.Refresh();
             fileStatus.Enabled = true;
             fileStatus.Refresh();
+
             //  calls routine to create text output file
             CreateTextFile ctf = new CreateTextFile();
             ctf.bslyr.fileName = bslyr.fileName;
@@ -70,13 +71,25 @@ namespace CruiseProcessing
             ctf.fileName = fileName;
             ctf.currentRegion = currRegion;
             ctf.selectedReports = selectedReports;
-            ctf.createTextFile();
+
+            try
+            {
+                ctf.createTextFile();
+            }
+            catch(InvalidOperationException ex)
+            {
+                MessageBox.Show("There was an issue with creating the output file, please seek assistance from FMSC staff.\n\nError:" + ex.Message);
+            }//end catch
+
+
             outFile = ctf.textFile;
             //  reset cursor
             Cursor.Current = Cursors.Default;
             finished_Button.Enabled = true;
             fileStatus.Enabled = false;
             go_Button.Enabled = false;
+
+
             return;
         }
 
