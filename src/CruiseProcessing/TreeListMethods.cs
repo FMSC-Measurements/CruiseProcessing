@@ -773,6 +773,13 @@ namespace CruiseProcessing
                 {
                     return cv.Tree_CN == tl.Tree_CN;
                 });
+
+
+            if(oneTree == null)
+            {
+                throw new InvalidOperationException("Missing a tree in Tree Calculated Values.");
+            }//end if
+
             //  Load array
             treeArray.Add(" ");
             treeArray.Add(tl.Stratum.Code.PadLeft(2, ' '));
