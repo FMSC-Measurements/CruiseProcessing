@@ -31,7 +31,9 @@ namespace CruiseProcessing
                     //                                    {"LV05","Volume by Species within Cutting Unit Across All Stratum"}};
         #endregion
 
-        protected string AppVerson = "2022.03.23";
+        //protected string AppVerson = "2022.03.23";
+
+        protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
 
         public MainMenu()
         {
@@ -860,7 +862,7 @@ namespace CruiseProcessing
         private void onAboutClick(object sender, EventArgs e)
         {
             //  Show version number etc here
-            MessageBox.Show("CruiseProcessing Version " + AppVerson + "\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("CruiseProcessing Version " + DateTime.Parse(AppVerson.ToString()).ToString("MM.dd.yyyy") + "\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }   //  end onAboutClick
 

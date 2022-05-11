@@ -4,7 +4,9 @@
     <Company>USDA Forest Service</Company>
     <Product>CruiseProcessing</Product>
     <Copyright>Copyright © USDA Forest Service 2011</Copyright>
-    <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>    
+    <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
+    <Version>03.22.2022</Version>
+
   </PropertyGroup>
 
   <PropertyGroup Label="Build Config">
@@ -13,8 +15,6 @@
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <StartupObject>$(RootNamespace).Program</StartupObject>
-    <AssemblyVersion>2.1.1.1</AssemblyVersion>
-    <FileVersion>2.1.1.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
