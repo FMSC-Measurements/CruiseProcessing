@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.3.103" />
-    <PackageReference Include="CruiseDAL.V3" Version="3.5.1.103" />
-    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.5.1.10300" />
+    <PackageReference Include="CruiseDAL.V2" Version="2.7.3.104" />
+    <PackageReference Include="CruiseDAL.V3" Version="3.5.2.104" />
+    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.5.2.10400" />
     <!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" /> -->
   </ItemGroup>
 
