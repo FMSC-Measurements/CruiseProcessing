@@ -197,7 +197,7 @@ namespace CruiseProcessing
                     }   //  end for k loop
                     break;
                 case "06":
-                    for (int k = 0; k < 88; k++)
+                    for (int k = 0; k < 89; k++)
                     {
                         VolEqList vl = new VolEqList();
                         vl.vForest = vList.volumeArray06[k, 0].ToString();

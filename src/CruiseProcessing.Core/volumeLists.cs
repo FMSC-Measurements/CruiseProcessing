@@ -219,7 +219,7 @@ namespace CruiseProcessing
 
  */
         //  Region 6 equations
-        public string[,] volumeArray06 = new string[88,4] {{"ALL","All coniferous",                      "616BEHW000","Behr's Hyperbola"},
+        public string[,] volumeArray06 = new string[89,4] {{"ALL","All coniferous",                      "616BEHW000","Behr's Hyperbola"},
                                                            {"1",  "Douglas fir",                         "I11FW2W202","INGY 2 Point"},
                                                            {"1",  "White fir/Shasta fir",                "I00FW2W017","INGY 2 Point"},
                                                            {"1",  "Lodgepole pine",                      "I11FW2W108","INGY 2 Point"},
@@ -291,6 +291,7 @@ namespace CruiseProcessing
                                                            {"16", "Engelmann's spruce",                  "I11FW2W093","INGY 2 Point"},
                                                            {"17", "Ponderosa pine/Western larch",        "I11FW2W122","INGY 2 Point"},
                                                            {"17", "Douglas fir",                         "I12FW2W202","INGY 2 Point"},
+                                                           {"17", "Douglas fir",                         "I00FW2W202","INGY 2 Point"},
                                                            {"17", "Ponderosa pine",                      "I12FW2W122","INGY 2 Point"},
                                                            {"17", "Lodgepole pine",                      "I12FW2W108","INGY 2 Point"},
                                                            {"17", "Engelmann's spruce",                  "I11FW2W093","INGY 2 Point"},
