@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using System.Reflection;
 
 namespace CruiseProcessing
 {
@@ -28,6 +29,7 @@ namespace CruiseProcessing
             public string textFile;
             private ArrayList graphReports = new ArrayList();
             public CPbusinessLayer bslyr = new CPbusinessLayer();
+            protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
         #endregion
 
         public void createTextFile()
@@ -37,10 +39,12 @@ namespace CruiseProcessing
 
             //  Get current date and time for run time
             currentDate = DateTime.Now.ToString();
-            
+
             //  Set version numbers
             //currentVersion = "DRAFT.2018";
-            currentVersion = "06.01.2021";
+            currentVersion = DateTime.Parse(AppVerson.ToString()).ToString("MM.dd.yyyy");//"12.02.2021";
+
+
             DLLversion = Utilities.CurrentDLLversion();
  
             

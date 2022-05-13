@@ -769,15 +769,25 @@ namespace CruiseProcessing
             //  R801
             int DIBtoFind = -1;
             if (currDBH > 0 && currDBH < 5)
+            {
                 DIBtoFind = 4;
+            }//end if
             else if (currDBH > 60)
+            {
                 DIBtoFind = 60;
-            else DIBtoFind = (int)Math.Floor(currDBH);
+            }//end else if
+            else
+            {
+                DIBtoFind = (int)Math.Floor(currDBH);
+            }//end else
 
             //if((currDBH % 2) > 0) DIBtoFind++;
             int remainder;
             Math.DivRem((int)currDBH, 2, out remainder);
-            if (remainder > 0) DIBtoFind++;
+            if (remainder > 0)
+            {
+                DIBtoFind++;
+            }//end if
 
             int nthRow = listToOutput.FindIndex(
                 delegate(RegionalReports r)
@@ -785,8 +795,13 @@ namespace CruiseProcessing
                     return r.value1 == DIBtoFind.ToString();
                 });
             if (nthRow >= 0)
+            {
                 return nthRow;
-            else return 0;
+            }//ned if
+            else
+            {
+                return 0;
+            }
         }   //  end findDBHindex
 
         private string[] createCompleteHeader(double saleAcres)

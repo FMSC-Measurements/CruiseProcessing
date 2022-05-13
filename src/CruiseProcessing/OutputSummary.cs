@@ -628,7 +628,7 @@ namespace CruiseProcessing
                 strWriteOut.Write(rptSubtotal[k].Value1);
                 strWriteOut.Write("        ");
                 strWriteOut.Write(rptSubtotal[k].Value2);
-                strWriteOut.Write("                         				");
+                strWriteOut.Write("                         	   ");
                 strWriteOut.Write(String.Format(fieldFormat3, rptSubtotal[k].Value3));
                 strWriteOut.Write("        ");
                 strWriteOut.Write(String.Format(fieldFormat3, rptSubtotal[k].Value4).PadLeft(2,' '))

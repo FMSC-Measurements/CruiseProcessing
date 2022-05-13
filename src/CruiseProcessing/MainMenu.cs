@@ -31,7 +31,9 @@ namespace CruiseProcessing
                     //                                    {"LV05","Volume by Species within Cutting Unit Across All Stratum"}};
         #endregion
 
-        protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        //protected string AppVerson = "2022.03.23";
+
+        protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
 
         public MainMenu()
         {
@@ -380,6 +382,12 @@ namespace CruiseProcessing
                                     MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }
+                                else if (cruiseIDs.Length == 0)
+                                {
+                                    MessageBox.Show("File contains no cruises. \r\nOpening a file with no cruises is not supported.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
+
 
                                 var cruiseID = cruiseIDs.First();
 
@@ -398,21 +406,38 @@ namespace CruiseProcessing
                                 string error_message = "";
                                 if (myMyigrator.EnsureCanMigrate(cruiseID, DAL_V3, out error_message))
                                 {
-                                    //CONVERT LOGIC NEEDED HERE.                                                
-                                    myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
-                                    fileName = V2FileName;
+                                    //CONVERT LOGIC NEEDED HERE.
+
+                                    try
+                                    {
+                                        myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
+                                        fileName = V2FileName;
+                                    }//end try
+                                    catch(Exception ex)
+                                    {
+                                        MessageBox.Show("This version 3 file can not be migrated. \r\nError: " + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        //delete *.process.
+                                        if(File.Exists(V2FileName))
+                                        {
+                                            File.Delete(V2FileName);
+                                        }//end if
+                                        fileName = "";
+                                        return;
+                                    }//end catch
+                                    
+
+
                                 }//end if
                                 else
                                 {
-                                    MessageBox.Show("This version 3 file has issues. \r\nError: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show("This version 3 file can not migrate to V2. \r\nError: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }//end else
-
                                 
                             }
                             catch(Exception ex)
                             {
-                                MessageBox.Show("This version 3 file has issues. \r\n", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("An excpetion occured.  This version 3 file can not be migrated. \r\n" + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
                         }
@@ -464,7 +489,25 @@ namespace CruiseProcessing
                     //  need region number in order to hide volume button as well as region 9 button
                     List<SaleDO> saleList = new List<SaleDO>();
                     saleList = DAL.From<SaleDO>().Read().ToList();
-                    currentRegion = saleList[0].Region; 
+                    currentRegion = saleList[0].Region;
+
+                    CPbusinessLayer bslyr = new CPbusinessLayer();
+                    bslyr.DAL = DAL;
+
+                    if (this.DAL_V3 != null)
+                    {
+                        bslyr.DAL_V3 = this.DAL_V3;
+
+                    }//end if
+
+                    if (bslyr.saleWithNullSpecies())
+                    {
+                        //One or more records contain incomplete data which affect processing.\n
+                        MessageBox.Show("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }   //  endif fileName
+
+
                 }   //  endif
             }   //  endif tempalteFlag
             //  add file name to title line at top
@@ -645,6 +688,7 @@ namespace CruiseProcessing
                 MessageBox.Show("No filename selected.  Cannot continue.\nPlease select a filename.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }   //  endif fileName
+           
 
             if(whichProcess == 1)   //  equations
             {
@@ -656,6 +700,12 @@ namespace CruiseProcessing
                 {
                     valEqObj.bslyr.DAL_V3 = this.DAL_V3;
                 }//end if
+
+                if (valEqObj.bslyr.saleWithNullSpecies())
+                {
+                    MessageBox.Show("This file has errors which affect processing.\nThis file has an invalid species, please correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }   //  endif fileName
 
                 int nResult = valEqObj.setupDialog();
                 if(nResult == 1)
@@ -812,7 +862,7 @@ namespace CruiseProcessing
         private void onAboutClick(object sender, EventArgs e)
         {
             //  Show version number etc here
-            MessageBox.Show($"CruiseProcessing Version {AppVerson}\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("CruiseProcessing Version " + DateTime.Parse(AppVerson.ToString()).ToString("MM.dd.yyyy") + "\nForest Management Service Center\nFort Collins, Colorado", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }   //  end onAboutClick
 

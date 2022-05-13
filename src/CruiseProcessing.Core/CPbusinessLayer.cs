@@ -367,7 +367,7 @@ namespace CruiseProcessing
                 .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
                 .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
                 .Where("sg.CutLeave = 'C'")
-                .OrderBy("st.Code", "CAST(CuttingUnit.Code AS NUMERIC)", "p.PlotNumber")
+                .OrderBy("st.Code", "CAST(cu.Code AS NUMERIC)", "p.PlotNumber")
                 .Read().ToList();
         }   //  end getLogStockSorted
 
@@ -1302,6 +1302,7 @@ namespace CruiseProcessing
             else sb.Append(whichTable);
 
             var result = DAL.QueryScalar<string>(sb.ToString()).ToList();
+
             return new ArrayList(result);
         }   //  end GetJustSpecies
 
@@ -2418,6 +2419,22 @@ namespace CruiseProcessing
             }//end for each
 
             DAL_V3.CommitTransaction();
+
+        }
+
+        public bool saleWithNullSpecies()
+        {
+            bool nullSpecies = false;
+
+            //DAL.Read<TreeDO>("SELECT * FROM Tree Where Species is null;", ).ToList();
+            List<TreeDO> myList = DAL.From<TreeDO>().Where("Species is null").Read().ToList();
+
+            if(myList.Count() > 0)
+            {
+                nullSpecies = true;
+            }
+
+            return nullSpecies;
 
         }
 
