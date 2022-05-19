@@ -386,7 +386,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="cruisetree_trees.ico" />
+    <Content Include="../FMSC EULA.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../CruiseProcessingIntro.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="../libs/NBEL.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../libs/LocalVolume.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="../libs/vollib.dll">
