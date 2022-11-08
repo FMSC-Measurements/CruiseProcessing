@@ -1,0 +1,13 @@
+Cruise Processing Program - 2022-06-21
+
+Updating cruise processing to work with Version 3 files.
+Adding a single version tracking location.
+Syncing changes back to the version 3 file.
+Updating to the latest version of the Volume Library.
+  Fixed green biomass calculation for branches and foliage
+  Set the merch volume (VOL(4)) to total stem cubic volume when MTOPP = 0.1. This allow CruiseProcessing to report total stem volume.
+
+Updating to the latest version of the Data Access Layer.
+Addressing issues with data conversion.
+
+See bulletin for more detail. 
