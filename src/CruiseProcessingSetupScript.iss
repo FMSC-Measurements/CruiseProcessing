@@ -4,56 +4,43 @@
 
 [Setup]
 AppName=Cruise Processing Program
-AppVerName=Cruise Processing 03.30.2021
+AppVerName=Cruise Processing 06.01.2022
 AppPublisher=Forest Management Service Center
 AppPublisherURL=http://www.fs.fed.us/fmsc/measure/cruising/cruiseprocessing/index.php
 AppSupportURL=http://www.fs.fed.us/fmsc/measure/support.shtml
 AppUpdatesURL=http://www.fs.fed.us/fmsc/measure/cruising/cruiseprocessing/index.php
 AppMutex=CruiseProcessing
 ; CurPageChanged in the [Code] section checks if C:\fsapps exists. If it does, it uses it as the default install directory.
-DefaultDirName={pf}\FMSC Software\CruiseProcessing
+DefaultDirName={autopf}\FMSC\CruiseProcessing
 
-DefaultGroupName=FMSC Software\Cruise Processing Program
+DefaultGroupName=FMSC\Cruise Processing Program
 AllowNoIcons=yes
 LicenseFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\FMSC EULA.txt
 InfoBeforeFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\CruiseProcessingIntro.txt
-OutputDir=C:\WorkSpace\CruiseProcessingReleases\InstallScript
-OutputBaseFilename=CruiseProcessingV2_20210330_Setup
+OutputDir=C:\WorkSpace\CruiseProcessingReleases\ReleaseInstallers
+OutputBaseFilename=CruiseProcessing20220601_Setup
 OutputManifestFile=Setup-Manifest.txt
-SetupIconFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\Setup.ico
 Compression=lzma
 SolidCompression=yes
-PrivilegesRequired=none
+PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 
 [Languages]
 Name: english; MessagesFile: compiler:Default.isl
 
 [Tasks]
-Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:AdditionalIcons}; Flags: unchecked
+Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:AdditionalIcons}; 
 
 [Files]
 Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*; DestDir: {app}; Flags: ignoreversion recursesubdirs
-;Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*.db; DestDir: {app}; Flags: ignoreversion
+;Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*.dll; DestDir: {app}; Flags: ignoreversion
+;Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\runtimes\*; DestDir: {app}; Flags: ignoreversion recursesubdirs
+; Source: C:\WorkSpace\CruiseProcessingReleases\InstallScript\*.db; DestDir: {app}; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-
 
 [Icons]
 Name: {group}\Cruise Processing Program; Filename: {app}\CruiseProcessing.exe
-Name: {userdesktop}\Cruise Processing Program; Filename: {app}\CruiseProcessing.exe; Tasks: desktopicon
+Name: {autodesktop}\Cruise Processing Program; Filename: {app}\CruiseProcessing.exe; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\CruiseProcessing.exe"; Description: "{cm:LaunchProgram,Cruise Processing Program}"; Flags: nowait postinstall skipifsilent
-
-[Code]
-//////////// CurPageChanged //////////
-procedure CurPageChanged(CurPage: integer);
-begin
-  if CurPage = wpSelectDir then
-  begin
-    if(DirExists('C:\fsapps')) then
-    begin
-        // Must be a FS computer. Change the default install directory.
-        WizardForm.DirEdit.Text := 'C:\fsapps\FMSC Software\CruiseProcessing';
-    end;
-  end;
-end;

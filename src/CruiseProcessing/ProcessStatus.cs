@@ -326,15 +326,12 @@ namespace CruiseProcessing
             int totalTDV = 0;
             foreach(CountTreeDO cg in currentGroups)
             {
+                //if treeDefaultValue_cn is not null tally by species
+                //else tally by sample group.
                 if (cg.TreeDefaultValue_CN != null)
                 {
-                    //Don't apply if count tree has a CN (meaning its selected coby species)
-                    //totalTDV++;
-                }//end if
-                else
-                {
                     string strataCode = "";
-                    
+
                     string sampleGroupCode = "";
 
                     if (cg.SampleGroup != null)
@@ -347,7 +344,7 @@ namespace CruiseProcessing
                     }//end if
 
 
-                        //  replace tally with sum of expansion factor
+                    //  replace tally with sum of expansion factor
                     foreach (LCDDO jg in justCurrentLCD)
                     {
                         if (jg.SampleGroup == sampleGroupCode && jg.Stratum == strataCode)
@@ -367,6 +364,13 @@ namespace CruiseProcessing
                     }   //  end foreach loop
 
                     totalTDV += 0;
+
+                    
+                }//end if
+                else
+                {
+                    //Don't apply if count tree has a CN (meaning its selected coby species)
+                    //totalTDV++;
                 }//end else
 
             }//  end foreach loop
