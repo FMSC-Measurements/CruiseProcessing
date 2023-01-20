@@ -72,7 +72,13 @@ namespace CruiseProcessing
                 Cursor.Current = Cursors.WaitCursor;
                 //  
                 bslyr.SaveBiomassEquations(bioList);
-                Cursor.Current = this.Cursor;
+
+                if (bslyr.DAL_V3 != null)
+                {
+                    bslyr.syncBiomassEquationToV3();
+                }//end if
+
+                    Cursor.Current = this.Cursor;
             }   //  endif nResult
             Close();
             return;

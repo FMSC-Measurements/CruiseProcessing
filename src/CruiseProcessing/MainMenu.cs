@@ -217,6 +217,7 @@ namespace CruiseProcessing
             {
                 //  hide first and region 9 buttons
                 processLabel1.Visible = false;
+
                 processLabel2.Visible = true;
                 //processLabel3.Visible = true;
                 processLabel4.Visible = true;
@@ -234,13 +235,25 @@ namespace CruiseProcessing
             else if (currentRegion == "9" || currentRegion == "09")
             {
                 //  hide first and region 8 buttons
-                processLabel1.Visible = false;
+                if (doesCruiseHaveVolumeEquations())
+                {
+                    processLabel1.Visible = true;
+                    processLabel1.Text = "Edit Volume Equations";
+                    processButton1.Visible = true;
+                    
+                }//end if
+                else
+                {
+                    processLabel1.Visible = false;
+                    processButton1.Visible = false;
+                }//end else
+
+
                 processLabel2.Visible = true;
                 //processLabel3.Visible = true;
                 processLabel4.Visible = false;
                 processLabel5.Visible = true;
                 processLabel6.Visible = false;
-                processButton1.Visible = false;
                 processButton2.Visible = true;
                 //processButton3.Visible = true;
                 processButton4.Visible = false;
@@ -887,6 +900,23 @@ namespace CruiseProcessing
             mmr.ShowDialog();
             //MessageBox.Show("Under construction", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
+        }
+
+        private bool doesCruiseHaveVolumeEquations()
+        {
+            bool hasVolEquations = false;
+
+            CPbusinessLayer bslyr = new CPbusinessLayer();
+            bslyr.DAL = DAL;
+
+            List<VolumeEquationDO> myVEQList = bslyr.getVolumeEquations();
+
+            if(myVEQList.Count > 0)
+            {
+                hasVolEquations = true;
+            }//end if
+
+            return hasVolEquations;
         }
 
     }

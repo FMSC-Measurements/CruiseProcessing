@@ -327,9 +327,10 @@ namespace CruiseProcessing
             foreach(CountTreeDO cg in currentGroups)
             {
                 //if treeDefaultValue_cn is not null tally by species
-                //else tally by sample group.
-                if (cg.TreeDefaultValue_CN != null)
-                {
+                //else tally by sample group.   
+                //if (cg.TreeDefaultValue_CN != null)
+                //{
+                //regardless of sample group tally or species tally correct the tally.
                     string strataCode = "";
 
                     string sampleGroupCode = "";
@@ -366,12 +367,12 @@ namespace CruiseProcessing
                     totalTDV += 0;
 
                     
-                }//end if
-                else
-                {
-                    //Don't apply if count tree has a CN (meaning its selected coby species)
-                    //totalTDV++;
-                }//end else
+                //}//end if
+                //else
+                //{
+                //    //Don't apply if count tree has a CN (meaning its selected coby species)
+                //    //totalTDV++;
+                //}//end else
 
             }//  end foreach loop
 
