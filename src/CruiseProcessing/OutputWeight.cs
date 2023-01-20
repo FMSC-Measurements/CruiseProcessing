@@ -277,7 +277,7 @@ namespace CruiseProcessing
                     unitNonsawSP = 0;
                     prtFields.Clear();
                 }   //  end foreach loop
-                if (totalUnitSaw > 0)
+                if (totalUnitSaw > 0 || totalUnitNonsawPP > 0 || totalUnitNonsawSP > 0)
                 {
                     //  Output subtotal line
                     OutputTotalLine(strWriteOut, rh, ref pageNumb, totalUnitSaw, totalUnitNonsawPP, totalUnitNonsawSP, 1);
