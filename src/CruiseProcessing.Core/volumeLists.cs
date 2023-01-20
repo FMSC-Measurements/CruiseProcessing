@@ -26,7 +26,7 @@ namespace CruiseProcessing
                                                            {"ALL","Western white pine",       "I00FW2W119","Flewelling Profile Model"},
                                                            {"8",  "Ponderosa pine",           "203FW2W122","Flewelling Profile Model"}};
         //  Region 2 equations
-        public string[,] volumeArray02 = new string[19,4] {{"ALL","Bur oak",               "200DVEW823","Chojnacky Equation"},
+        public string[,] volumeArray02 = new string[20,4] {{"ALL","Bur oak",               "200DVEW823","Chojnacky Equation"},
                                                            {"ALL","Douglas fir",           "200FW2W202","Flewelling Profile Model"},
                                                            {"ALL","Engelmann's spruce",    "407FW2W093","Flewelling Profile Model"},
                                                            {"ALL","Gambel oak",            "200DVEW814","Chojnacky Equation"},
@@ -43,6 +43,7 @@ namespace CruiseProcessing
                                                            {"ALL","Utah juniper",          "200DVEW065","Chojnacky Equation"},
                                                            {"2",  "Lodgepole pine",        "202FW2W108","Flewelling Profile Model"},
                                                            {"3",  "Ponderosa pine",        "203FW2W122","Flewelling Profile Model"},
+                                                           {"3",  "Ponderosa pine",        "223DVEW122","BlackHills PP Non-sawtimber"},
                                                            {"13", "Ponderosa pine",        "213FW2W122","Flewelling Profile Model"},
                                                            {"14", "Lodgepole pine",        "202FW2W108","Flewelling Profile Model"}};
         //  Region 3 equations

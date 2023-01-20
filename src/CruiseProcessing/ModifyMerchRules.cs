@@ -227,6 +227,12 @@ namespace CruiseProcessing
             updateVolumeList();
             //  save volume equation list
             bslyr.SaveVolumeEquations(vList);
+
+            if (bslyr.DAL_V3 != null)
+            {
+                bslyr.syncVolumeEquationToV3();
+            }//end if
+
             Close();
             return;
         }
