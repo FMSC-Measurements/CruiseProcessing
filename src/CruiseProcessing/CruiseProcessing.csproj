@@ -5,7 +5,7 @@
     <Product>CruiseProcessing</Product>
     <Copyright>Copyright © USDA Forest Service 2011</Copyright>
     <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
-    <Version>01.15.2023</Version>
+    <Version>02.01.2023</Version>
 
   </PropertyGroup>
 
@@ -429,7 +429,7 @@
   <ItemGroup>
     <PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
     <PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
-    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.1.11600" />
+    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.1.11601" />
     <PackageReference Include="ZedGraph" Version="5.1.7" />
     <PackageReference Include="ZedGraph.Web" Version="5.1.5" />
   </ItemGroup>
