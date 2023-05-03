@@ -4,11 +4,11 @@
 
 [Setup]
 AppName=Cruise Processing Program
-AppVerName=Cruise Processing 06.01.2022
+AppVerName=Cruise Processing 04.15.2023
 AppPublisher=Forest Management Service Center
-AppPublisherURL=http://www.fs.fed.us/fmsc/measure/cruising/cruiseprocessing/index.php
-AppSupportURL=http://www.fs.fed.us/fmsc/measure/support.shtml
-AppUpdatesURL=http://www.fs.fed.us/fmsc/measure/cruising/cruiseprocessing/index.php
+AppPublisherURL=https://www.fs.usda.gov/forestmanagement/products/measurement/cruising/cruiseprocessing/index.php
+AppSupportURL=https://www.fs.usda.gov/forestmanagement/products/measurement/support.shtml
+AppUpdatesURL=https://www.fs.usda.gov/forestmanagement/products/measurement/cruising/cruiseprocessing/index.php
 AppMutex=CruiseProcessing
 ; CurPageChanged in the [Code] section checks if C:\fsapps exists. If it does, it uses it as the default install directory.
 DefaultDirName={autopf}\FMSC\CruiseProcessing
@@ -18,7 +18,7 @@ AllowNoIcons=yes
 LicenseFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\FMSC EULA.txt
 InfoBeforeFile=C:\WorkSpace\CruiseProcessingReleases\InstallScript\CruiseProcessingIntro.txt
 OutputDir=C:\WorkSpace\CruiseProcessingReleases\ReleaseInstallers
-OutputBaseFilename=CruiseProcessing20220601_Setup
+OutputBaseFilename=CruiseProcessing20230415_Setup
 OutputManifestFile=Setup-Manifest.txt
 Compression=lzma
 SolidCompression=yes
