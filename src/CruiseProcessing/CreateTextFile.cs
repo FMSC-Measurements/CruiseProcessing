@@ -14,28 +14,31 @@ namespace CruiseProcessing
 {
     public class CreateTextFile
     {
-        #region
-            public string fileName;
-            public string currentDate;
-            public string currentVersion;
-            public string DLLversion;
-            public string cruiseName;
-            public string saleName;
-            public string currentRegion;
-            public List<ReportsDO> selectedReports;
-            reportHeaders rh = new reportHeaders();
-            public ArrayList mainHeaderFields = new ArrayList();
-            public int numOlines = 0;
-            public string textFile;
-            private ArrayList graphReports = new ArrayList();
-            public CPbusinessLayer bslyr = new CPbusinessLayer();
-            protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
-        #endregion
+        public string cruiseName;
+        public string saleName;
+        public string currentRegion;
+        public List<ReportsDO> selectedReports;
+        reportHeaders rh = new reportHeaders();
+        public ArrayList mainHeaderFields = new ArrayList();
+        public int numOlines = 0;
+        private ArrayList graphReports = new ArrayList();
 
-        public void createTextFile()
+
+        protected CPbusinessLayer DataLayer { get; }
+        protected string FilePath => DataLayer.FilePath;
+        protected string AppVerson { get; }
+        protected string currentDate { get; }
+        protected string currentVersion { get; }
+        protected string DLLversion { get; }
+        public string textFile { get; }
+
+        public CreateTextFile(CPbusinessLayer dataLayer)
         {
-            //  Create output filename
-            textFile = System.IO.Path.ChangeExtension(fileName,"out");
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DLLversion = Utilities.CurrentDLLversion();
+            AppVerson = Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
+
+            textFile = System.IO.Path.ChangeExtension(FilePath, "out");
 
             //  Get current date and time for run time
             currentDate = DateTime.Now.ToString();
@@ -43,17 +46,16 @@ namespace CruiseProcessing
             //  Set version numbers
             //currentVersion = "DRAFT.2018";
             currentVersion = DateTime.Parse(AppVerson.ToString()).ToString("MM.dd.yyyy");//"12.02.2021";
+        }
 
-
-            DLLversion = Utilities.CurrentDLLversion();
- 
-            
+        public void createTextFile()
+        {
             //  open up file and start writing
-            using(StreamWriter strWriteOut = new StreamWriter(textFile))
+            using (StreamWriter strWriteOut = new StreamWriter(textFile))
             {
                 //  Output banner page
                 BannerPage bp = new BannerPage();
-                bp.outputBannerPage(fileName, strWriteOut, currentDate, currentVersion, DLLversion, bslyr);
+                bp.outputBannerPage(FilePath, strWriteOut, currentDate, currentVersion, DLLversion, DataLayer);
                 int pageNumber = 2;
                 cruiseName = bp.cruiseName;
                 saleName = bp.saleName;
@@ -66,310 +68,340 @@ namespace CruiseProcessing
                 mainHeaderFields.Add(saleName);
 
                 //  Output equation tables as needed
-                OutputEquationTables oet = new OutputEquationTables();
-                oet.bslyr.fileName = fileName;
-                oet.bslyr.DAL = bslyr.DAL;
+                OutputEquationTables oet = new OutputEquationTables(DataLayer);
                 oet.mainHeaderFields = mainHeaderFields;
                 oet.outputEquationTable(strWriteOut, rh, ref pageNumber);
 
                 //  Output selected reports
                 //  create objects for each report category and assign header fields as needed
-                OutputUnits ou = new OutputUnits();
-                OutputLiveDead old = new OutputLiveDead();
-                OutputLogStock ols = new OutputLogStock();
+                OutputUnits ou = new OutputUnits(DataLayer);
+                OutputLiveDead old = new OutputLiveDead(DataLayer);
+                OutputLogStock ols = new OutputLogStock(DataLayer);
                 foreach (ReportsDO rdo in selectedReports)
                 {
-                    
+
                     switch (rdo.ReportID)
                     {
-                        case "A01":     case "A02":     case "A03":     case "A04":
-                        case "A05":     case "A06":     case "A07":     case "A08":
-                        case "A09":     case "A10":     case "A13":     case "L1": 
+                        case "A01":
+                        case "A02":
+                        case "A03":
+                        case "A04":
+                        case "A05":
+                        case "A06":
+                        case "A07":
+                        case "A08":
+                        case "A09":
+                        case "A10":
+                        case "A13":
+                        case "L1":
                         case "A15":
-                            OutputList ol = new OutputList();
-                            ol.bslyr.fileName = fileName;
-                            ol.bslyr.DAL = bslyr.DAL;
+                            OutputList ol = new OutputList(DataLayer);
                             ol.mainHeaderFields = mainHeaderFields;
                             ol.currentReport = rdo.ReportID.ToString();
                             if (currentRegion == "10" && rdo.ReportID == "L1")
-                                MessageBox.Show("L1 report for Region 10 does not appear in text output file.\nInstead, create CSV5 to create file for cut and/or leave trees.","INFORMATION",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                                MessageBox.Show("L1 report for Region 10 does not appear in text output file.\nInstead, create CSV5 to create file for cut and/or leave trees.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             else ol.OutputListReports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "A11":     case "A12":
-                            OutputTreeGrade otg = new OutputTreeGrade();
+                        case "A11":
+                        case "A12":
+                            OutputTreeGrade otg = new OutputTreeGrade(DataLayer);
                             otg.currRept = rdo.ReportID;
                             otg.mainHeaderFields = mainHeaderFields;
-                            otg.fileName = fileName;
-                            otg.bslyr.fileName = fileName;
-                            otg.bslyr.DAL = bslyr.DAL;
                             otg.CreateTreeGradeReports(strWriteOut, rh, ref pageNumber);
                             break;
                         case "A14":
-                            OutputUnitSummary ous = new OutputUnitSummary();
+                            OutputUnitSummary ous = new OutputUnitSummary(DataLayer);
                             ous.currentReport = rdo.ReportID;
                             ous.mainHeaderFields = mainHeaderFields;
-                            ous.fileName = fileName;
-                            ous.bslyr.fileName = fileName;
-                            ous.bslyr.DAL = bslyr.DAL;
                             ous.createUnitSummary(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "ST1":     case "ST2":
-                            OutputStats ost = new OutputStats();
+                        case "ST1":
+                        case "ST2":
+                            OutputStats ost = new OutputStats(DataLayer);
                             ost.currCL = "C";
-                            ost.fileName = fileName;
-                            ost.bslyr.fileName = fileName;
-                            ost.bslyr.DAL = bslyr.DAL;
                             ost.mainHeaderFields = mainHeaderFields;
                             ost.currentReport = rdo.ReportID;
                             ost.CreateStatReports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "ST3":     case "ST4":
-                            OutputStatsToo otoo = new OutputStatsToo();
-                            otoo.fileName = fileName;
-                            otoo.bslyr.fileName = fileName;
-                            otoo.bslyr.DAL = bslyr.DAL;
+                        case "ST3":
+                        case "ST4":
+                            OutputStatsToo otoo = new OutputStatsToo(DataLayer);
                             otoo.mainHeaderFields = mainHeaderFields;
                             otoo.currentReport = rdo.ReportID;
                             otoo.OutputStatReports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "VSM1":    case "VSM2":    case "VSM3":
-                        case "VPA1":    case "VPA2":    case "VPA3":
-                        case "VAL1":    case "VAL2":    case "VAL3":
+                        case "VSM1":
+                        case "VSM2":
+                        case "VSM3":
+                        case "VPA1":
+                        case "VPA2":
+                        case "VPA3":
+                        case "VAL1":
+                        case "VAL2":
+                        case "VAL3":
                         case "VSM6":
-                            OutputSummary os = new OutputSummary();
+                            OutputSummary os = new OutputSummary(DataLayer);
                             os.currCL = "C";
                             os.currentReport = rdo.ReportID;
-                            os.fileName = fileName;
-                            os.bslyr.fileName = fileName;
-                            os.bslyr.DAL = bslyr.DAL;
                             os.mainHeaderFields = mainHeaderFields;
                             os.OutputSummaryReports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "VSM4":        case "VSM5":   
-                            ou.fileName = fileName;
-                            ou.bslyr.fileName = fileName;
-                            ou.bslyr.DAL = bslyr.DAL;
+                        case "VSM4":
+                        case "VSM5":
                             ou.mainHeaderFields = mainHeaderFields;
                             ou.currentReport = rdo.ReportID;
                             ou.OutputUnitReports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "UC1":     case "UC2":     case "UC3":
-                        case "UC4":     case "UC5":     case "UC6":
-                            ou.fileName = fileName;
-                            ou.bslyr.fileName = fileName;
-                            ou.bslyr.DAL = bslyr.DAL;
+                        case "UC1":
+                        case "UC2":
+                        case "UC3":
+                        case "UC4":
+                        case "UC5":
+                        case "UC6":
                             ou.currCL = "C";
                             ou.mainHeaderFields = mainHeaderFields;
                             ou.currentReport = rdo.ReportID;
                             ou.OutputUnitReports(strWriteOut, rh, ref pageNumber);
                             break;
                         case "TIM":
-                            OutputTIM ot = new OutputTIM();
-                            ot.fileName = fileName;
-                            ot.bslyr.fileName = fileName;
-                            ot.bslyr.DAL = bslyr.DAL;
+                            OutputTIM ot = new OutputTIM(DataLayer);
                             ot.cruiseNum = cruiseName;
-                            ot.currentVersion = currentVersion;
                             ot.CreateSUMfile();
                             break;
-                        case "TC1":     case "TC2":     case "TC3":     case "TC4":
-                        case "TC6":     case "TC8":     case "TC10":    case "TC12":
-                        case "TC19":    case "TC20":    case "TC21":    case "TC22":
-                        case "TC24":    case "TL1":     case "TL6":     case "TL7":
-                        case "TL8":     case "TL9":     case "TL10":    case "TL12":
+                        case "TC1":
+                        case "TC2":
+                        case "TC3":
+                        case "TC4":
+                        case "TC6":
+                        case "TC8":
+                        case "TC10":
+                        case "TC12":
+                        case "TC19":
+                        case "TC20":
+                        case "TC21":
+                        case "TC22":
+                        case "TC24":
+                        case "TL1":
+                        case "TL6":
+                        case "TL7":
+                        case "TL8":
+                        case "TL9":
+                        case "TL10":
+                        case "TL12":
                             //  2-inch diameter class
-                            OutputStandTables oStand2 = new OutputStandTables();
-                            oStand2.fileName = fileName;
-                            oStand2.bslyr.fileName = fileName;
-                            oStand2.bslyr.DAL = bslyr.DAL;
+                            OutputStandTables oStand2 = new OutputStandTables(DataLayer);
                             oStand2.mainHeaderFields = mainHeaderFields;
                             oStand2.currentReport = rdo.ReportID;
                             oStand2.CreateStandTables(strWriteOut, rh, ref pageNumber, 2);
                             break;
-                        case "TC51":    case "TC52":    case "TC53":    case "TC54":
-                        case "TC56":    case "TC57":    case "TC58":    case "TC59":
-                        case "TC60":    case "TC62":    case "TC65":    case "TC71":
-                        case "TC72":    case "TC74":    case "TL52":    case "TL54":
-                        case "TL56":    case "TL58":    case "TL59":    case "TL60":
+                        case "TC51":
+                        case "TC52":
+                        case "TC53":
+                        case "TC54":
+                        case "TC56":
+                        case "TC57":
+                        case "TC58":
+                        case "TC59":
+                        case "TC60":
+                        case "TC62":
+                        case "TC65":
+                        case "TC71":
+                        case "TC72":
+                        case "TC74":
+                        case "TL52":
+                        case "TL54":
+                        case "TL56":
+                        case "TL58":
+                        case "TL59":
+                        case "TL60":
                         case "TL62":
                             //  1-inch diameter class
-                            OutputStandTables oStand1 = new OutputStandTables();
-                            oStand1.fileName = fileName;
-                            oStand1.bslyr.fileName = fileName;
-                            oStand1.bslyr.DAL = bslyr.DAL;
+                            OutputStandTables oStand1 = new OutputStandTables(DataLayer);
                             oStand1.mainHeaderFields = mainHeaderFields;
                             oStand1.currentReport = rdo.ReportID;
                             oStand1.CreateStandTables(strWriteOut, rh, ref pageNumber, 1);
                             break;
-                        case "UC7":     case "UC8":     case "UC9":     case "UC10":
-                        case "UC11":    case "UC12":    case "UC13":    case "UC14":
-                        case "UC15":    case "UC16":    case "UC17":    case "UC18":
-                        case "UC19":    case "UC20":    case "UC21":    case "UC22":
-                        case "UC23":    case "UC24":    case "UC25":    case "UC26":
+                        case "UC7":
+                        case "UC8":
+                        case "UC9":
+                        case "UC10":
+                        case "UC11":
+                        case "UC12":
+                        case "UC13":
+                        case "UC14":
+                        case "UC15":
+                        case "UC16":
+                        case "UC17":
+                        case "UC18":
+                        case "UC19":
+                        case "UC20":
+                        case "UC21":
+                        case "UC22":
+                        case "UC23":
+                        case "UC24":
+                        case "UC25":
+                        case "UC26":
                             //  UC stand tables
-                            OutputUnitStandTables oUnits = new OutputUnitStandTables();
-                            oUnits.fileName = fileName;
-                            oUnits.bslyr.fileName = fileName;
-                            oUnits.bslyr.DAL = bslyr.DAL;
+                            OutputUnitStandTables oUnits = new OutputUnitStandTables(DataLayer);
                             oUnits.mainHeaderFields = mainHeaderFields;
                             oUnits.currentReport = rdo.ReportID;
                             oUnits.CreateUnitStandTables(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "WT1":     case "WT2":     case "WT3":     case "WT4":
+                        case "WT1":
+                        case "WT2":
+                        case "WT3":
+                        case "WT4":
                         case "WT5":
-                            OutputWeight ow = new OutputWeight();
-                            ow.fileName = fileName;
-                            ow.bslyr.fileName = fileName;
-                            ow.bslyr.DAL = bslyr.DAL;
+                            OutputWeight ow = new OutputWeight(DataLayer);
                             ow.mainHeaderFields = mainHeaderFields;
                             ow.currentReport = rdo.ReportID;
                             ow.OutputWeightReports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "LD1":     case "LD2":
-                        case "LD3":     case "LD4":
-                        case "LD5":     case "LD6":
-                        case "LD7":     case "LD8":
+                        case "LD1":
+                        case "LD2":
+                        case "LD3":
+                        case "LD4":
+                        case "LD5":
+                        case "LD6":
+                        case "LD7":
+                        case "LD8":
                             old.currentReport = rdo.ReportID;
-                            old.fileName = fileName;
-                            old.bslyr.fileName = fileName;
-                            old.bslyr.DAL = bslyr.DAL;
                             old.mainHeaderFields = mainHeaderFields;
                             old.CreateLiveDead(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "L2":     case "L8":   case "L10":
+                        case "L2":
+                        case "L8":
+                        case "L10":
                             ols.currentReport = rdo.ReportID;
-                            ols.fileName = fileName;
-                            ols.bslyr.fileName = fileName;
-                            ols.bslyr.DAL = bslyr.DAL;
                             ols.mainHeaderFields = mainHeaderFields;
                             ols.CreateLogReports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "BLM01":   case "BLM02":   case "BLM03":   case "BLM04":
-                        case "BLM05":   case "BLM06":   case "BLM07":   case "BLM08":
-                        case "BLM09":   case "BLM10":
-                            OutputBLM ob = new OutputBLM();
+                        case "BLM01":
+                        case "BLM02":
+                        case "BLM03":
+                        case "BLM04":
+                        case "BLM05":
+                        case "BLM06":
+                        case "BLM07":
+                        case "BLM08":
+                        case "BLM09":
+                        case "BLM10":
+                            OutputBLM ob = new OutputBLM(DataLayer);
                             ob.currentReport = rdo.ReportID;
-                            ob.fileName = fileName;
-                            ob.bslyr.fileName = fileName;
-                            ob.bslyr.DAL = bslyr.DAL;
                             ob.mainHeaderFields = mainHeaderFields;
                             ob.CreateBLMreports(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "R101":        case "R102":        
-                        case "R103":        case "R104":
+                        case "R101":
+                        case "R102":
+                        case "R103":
+                        case "R104":
                         case "R105":
-                            OutputR1 r1 = new OutputR1();
+                            OutputR1 r1 = new OutputR1(DataLayer);
                             r1.currentReport = rdo.ReportID;
-                            r1.fileName = fileName;
-                            r1.bslyr.fileName = fileName;
-                            r1.bslyr.DAL = bslyr.DAL;
                             r1.mainHeaderFields = mainHeaderFields;
                             r1.CreateR1reports(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "R201":        case "R202":        case "R203":
-                        case "R204":        case "R205":        case "R206": 
-                        case "R207":        case "R208":    
-                            OutputR2 r2 = new OutputR2();
+                        case "R201":
+                        case "R202":
+                        case "R203":
+                        case "R204":
+                        case "R205":
+                        case "R206":
+                        case "R207":
+                        case "R208":
+                            OutputR2 r2 = new OutputR2(DataLayer);
                             r2.currentReport = rdo.ReportID;
-                            r2.fileName = fileName;
-                            r2.bslyr.fileName = fileName;
-                            r2.bslyr.DAL = bslyr.DAL;
                             r2.mainHeaderFields = mainHeaderFields;
                             r2.CreateR2Reports(strWriteOut, ref pageNumber, rh);
-                            break;  
+                            break;
                         case "R301":
-                            OutputR3 r3 = new OutputR3();
+                            OutputR3 r3 = new OutputR3(DataLayer);
                             r3.currentReport = rdo.ReportID;
-                            r3.fileName = fileName;
-                            r3.bslyr.fileName = fileName;
-                            r3.bslyr.DAL = bslyr.DAL;
                             r3.mainHeaderFields = mainHeaderFields;
                             r3.CreateR3Reports(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "R401":    case "R402":        case "R403":        case "R404":
-                            OutputR4 r4 = new OutputR4();
+                        case "R401":
+                        case "R402":
+                        case "R403":
+                        case "R404":
+                            OutputR4 r4 = new OutputR4(DataLayer);
                             r4.currentReport = rdo.ReportID;
-                            r4.fileName = fileName;
-                            r4.bslyr.fileName = fileName;
-                            r4.bslyr.DAL = bslyr.DAL;
                             r4.mainHeaderFields = mainHeaderFields;
                             r4.CreateR4Reports(strWriteOut, ref pageNumber, rh);
                             break;
                         case "R501":
-                            OutputR5 r5 = new OutputR5();
+                            OutputR5 r5 = new OutputR5(DataLayer);
                             r5.currentReport = rdo.ReportID;
-                            r5.fileName = fileName;
-                            r5.bslyr.fileName = fileName;
-                            r5.bslyr.DAL = bslyr.DAL;
                             r5.mainHeaderFields = mainHeaderFields;
                             r5.CreateR5report(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "R604":    case "R605":    case "R602":
-                            OutputR6 r6 = new OutputR6();
+                        case "R604":
+                        case "R605":
+                        case "R602":
+                            OutputR6 r6 = new OutputR6(DataLayer);
                             r6.currentReport = rdo.ReportID;
-                            r6.fileName = fileName;
-                            r6.bslyr.fileName = fileName;
-                            r6.bslyr.DAL = bslyr.DAL;
                             r6.mainHeaderFields = mainHeaderFields;
                             r6.CreateR6reports(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "R801":        case "R802":
-                            OutputR8 r8 = new OutputR8();
+                        case "R801":
+                        case "R802":
+                            OutputR8 r8 = new OutputR8(DataLayer);
                             r8.currentReport = rdo.ReportID;
-                            r8.fileName = fileName;
-                            r8.bslyr.fileName = fileName;
-                            r8.bslyr.DAL = bslyr.DAL;
                             r8.mainHeaderFields = mainHeaderFields;
                             r8.CreateR8Reports(strWriteOut, ref pageNumber, rh);
                             break;
                         case "R902":
-                            OutputR9 r9 = new OutputR9();
+                            OutputR9 r9 = new OutputR9(DataLayer);
                             r9.currentReport = rdo.ReportID;
-                            r9.fileName = fileName;
-                            r9.bslyr.fileName = fileName;
-                            r9.bslyr.DAL = bslyr.DAL;
                             r9.mainHeaderFields = mainHeaderFields;
                             //r9.CreateR9Reports(strWriteOut, ref pageNumber, rh);
                             r9.OutputTipwoodReport(strWriteOut, rh, ref pageNumber);
                             break;
-                        case "R001":    case "R002":    case "R003":    case "R004":
-                        case "R005":    case "R006":    case "R007":    case "R008":
+                        case "R001":
+                        case "R002":
+                        case "R003":
+                        case "R004":
+                        case "R005":
+                        case "R006":
+                        case "R007":
+                        case "R008":
                         case "R009":
-                            OutputR10 r10 = new OutputR10();
+                            OutputR10 r10 = new OutputR10(DataLayer);
                             r10.currentReport = rdo.ReportID;
-                            r10.fileName = fileName;
-                            r10.bslyr.fileName = fileName;
-                            r10.bslyr.DAL = bslyr.DAL;
                             r10.mainHeaderFields = mainHeaderFields;
                             r10.CreateR10reports(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "SC1":         case "SC2":         case "SC3":
-                            OutputStemCounts osc = new OutputStemCounts();
+                        case "SC1":
+                        case "SC2":
+                        case "SC3":
+                            OutputStemCounts osc = new OutputStemCounts(DataLayer);
                             osc.currentReport = rdo.ReportID;
-                            osc.fileName = fileName;
-                            osc.bslyr.fileName = fileName;
-                            osc.bslyr.DAL = bslyr.DAL;
                             osc.mainHeaderFields = mainHeaderFields;
                             osc.createStemCountReports(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "LV01":         case "LV02":
-                        case "LV03":         case "LV04":
+                        case "LV01":
+                        case "LV02":
+                        case "LV03":
+                        case "LV04":
                         case "LV05":
-                            OutputLeave olt = new OutputLeave();
+                            OutputLeave olt = new OutputLeave(DataLayer);
                             olt.currentReport = rdo.ReportID;
-                            olt.bslyr.fileName = bslyr.fileName;
-                            olt.bslyr.DAL = bslyr.DAL;
                             olt.mainHeaderFields = mainHeaderFields;
                             olt.createLeaveTreeReports(strWriteOut, ref pageNumber, rh);
                             break;
-                        case "GR01":        case "GR02":
-                        case "GR03":        case "GR04":
-                        case "GR05":        case "GR06":
-                        case "GR07":        case "GR08":
-                        case "GR09":        case "GR10":
+                        case "GR01":
+                        case "GR02":
+                        case "GR03":
+                        case "GR04":
+                        case "GR05":
+                        case "GR06":
+                        case "GR07":
+                        case "GR08":
+                        case "GR09":
+                        case "GR10":
                         case "GR11":
                             graphReports.Add(rdo.ReportID);
-                            string graphFile = System.IO.Path.GetDirectoryName(fileName);
+                            string graphFile = System.IO.Path.GetDirectoryName(FilePath);
                             graphFile += "\\Graphs\\";
                             graphFile += rdo.ReportID;
                             strWriteOut.WriteLine("\f");
@@ -382,20 +414,20 @@ namespace CruiseProcessing
                 }   //  end foreach loop
 
                 //  Any warning messages to print?
-                List<ErrorLogDO> errList = bslyr.getErrorMessages("W", "CruiseProcessing");
-                List<ErrorLogDO> errListToo = bslyr.getErrorMessages("W", "FScruiser");
+                List<ErrorLogDO> errList = DataLayer.getErrorMessages("W", "CruiseProcessing");
+                List<ErrorLogDO> errListToo = DataLayer.getErrorMessages("W", "FScruiser");
                 int warnFlag = 0;
                 if (errList.Count > 0)
                 {
                     WriteWarnings(strWriteOut, errList, ref pageNumber);
                     warnFlag = 1;
                 }
-                if(errListToo.Count > 0)
+                if (errListToo.Count > 0)
                 {
                     WriteOtherWarnings(strWriteOut, errListToo, ref pageNumber);
                     warnFlag = 1;
                 }
-                if(warnFlag > 0)
+                if (warnFlag > 0)
                     MessageBox.Show("Warning messages detected.\nCheck end of output file for the list.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 strWriteOut.Close();
@@ -403,10 +435,7 @@ namespace CruiseProcessing
                 //  create graphs if reports requested
                 if (graphReports.Count > 0)
                 {
-                    graphOutputDialog dog = new graphOutputDialog();
-                    dog.fileName = fileName;
-                    dog.bslyr.fileName = fileName;
-                    dog.bslyr.DAL = bslyr.DAL;
+                    graphOutputDialog dog = new graphOutputDialog(DataLayer);
                     dog.graphReports = graphReports;
                     dog.ShowDialog();
                 }   //  endif graphs selected
@@ -421,7 +450,7 @@ namespace CruiseProcessing
         {
             StringBuilder printLine = new StringBuilder();
             int k = 0;
-            foreach(var str in oneLine)
+            foreach (var str in oneLine)
             {
                 printLine.Append(str.PadRight(fieldLengths[k]));
                 k++;
@@ -523,7 +552,7 @@ namespace CruiseProcessing
                     break;
             }   //  end switch on hgtOne
 
-           
+
             //  apply change to header
             for (int k = 0; k < headerToUpdate.Count(); k++)
                 updatedHeader[k] = headerToUpdate[k].Replace("K", sb[k].ToString());
@@ -555,7 +584,7 @@ namespace CruiseProcessing
                 }   //  end switch on hgtTwo
 
             }
-            else if(hgtTwo == 0)
+            else if (hgtTwo == 0)
             {
                 //  make sb blank
                 sb.Clear();
@@ -577,12 +606,12 @@ namespace CruiseProcessing
             string currTitle = ara.findReportTitle(currReport);
             //  Add report number to title
             currTitle = currTitle.Insert(0, ": ");
-            currTitle = currTitle.Insert(0,currReport);
-            return currTitle;            
+            currTitle = currTitle.Insert(0, currReport);
+            return currTitle;
         }   //  end fillReportTitle
 
 
-        public void WriteReportHeading(StreamWriter strWriteOut, string TitleOne, string TitleTwo, 
+        public void WriteReportHeading(StreamWriter strWriteOut, string TitleOne, string TitleTwo,
                                         string TitleThree, string[] headerToPrint, int lineIncrement,
                                         ref int pageNumber, string extraHeader)
         {
@@ -618,16 +647,16 @@ namespace CruiseProcessing
         }   //  end WriteReportHeading
 
 
-        public void captureSTMtrees(long currSTcn, long currCUcn, string currSG, string currSTM, ref double GBDFTsum, 
-                                    ref double NBDFTsum, ref double GCUFTsum, ref double NCUFTsum, ref double GBDFTnonsaw, 
-                                    ref double NBDFTnonsaw, ref double GCUFTnonsaw, ref double NCUFTnonsaw, 
+        public void captureSTMtrees(long currSTcn, long currCUcn, string currSG, string currSTM, ref double GBDFTsum,
+                                    ref double NBDFTsum, ref double GCUFTsum, ref double NCUFTsum, ref double GBDFTnonsaw,
+                                    ref double NBDFTnonsaw, ref double GCUFTnonsaw, ref double NCUFTnonsaw,
                                     ref double CordSum, double currProFac)
         {
             //  retrieve calc values for current stratum
-            List<TreeCalculatedValuesDO> tList = bslyr.getTreeCalculatedValues((int)currSTcn, (int)currCUcn);
+            List<TreeCalculatedValuesDO> tList = DataLayer.getTreeCalculatedValues((int)currSTcn, (int)currCUcn);
             //  Find all STM trees in the current cutting unit
             List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
-                delegate(TreeCalculatedValuesDO tcv)
+                delegate (TreeCalculatedValuesDO tcv)
                 {
                     return tcv.Tree.SampleGroup.Code == currSG && tcv.Tree.STM == currSTM;
                 });
@@ -669,12 +698,12 @@ namespace CruiseProcessing
 
             return;
         }   //  end captureSTMtrees
-        
+
 
         public void printOneRecord(StreamWriter strWriteOut, IEnumerable<string> prtFields)
         {
             StringBuilder oneRecord = new StringBuilder();
-            foreach(var str in prtFields)
+            foreach (var str in prtFields)
             {
                 oneRecord.Append(str);
             }
@@ -717,27 +746,27 @@ namespace CruiseProcessing
                                                     "MORE THAN TWO UOMs DETECTED--THIS FILE WILL NOT LOAD IN TIM",
                                                     "BIOMASS FLAG NOT CHECKED -- NO WEIGHT CALCULATED"};
             numOlines = 0;
-            string[] warningHeader = new string[] {"   IDENTIFIER                        WARNING MESSAGE"};
+            string[] warningHeader = new string[] { "   IDENTIFIER                        WARNING MESSAGE" };
             StringBuilder sb = new StringBuilder();
             foreach (ErrorLogDO eld in errList)
             {
                 WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "");
                 //  build identifier
-                if(eld.TableName == "SUM file")
+                if (eld.TableName == "SUM file")
                 {
                     sb.Append(eld.TableName);
                     sb.Append("  ---------    ");
                     sb.Append(WarnMessages[Convert.ToInt16(eld.Message)]);
                 }
-                else if(eld.TableName == "Stratum" || eld.TableName == "VolumeEquation")
+                else if (eld.TableName == "Stratum" || eld.TableName == "VolumeEquation")
                 {
-                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr));
+                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, DataLayer));
                     sb.Append("   ");
                     sb.Append(eld.Message);
                 }
                 else
                 {
-                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, bslyr));
+                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, DataLayer));
                     sb.Append("   ");
                     if (eld.Message == "30")
                     {
@@ -783,7 +812,7 @@ namespace CruiseProcessing
             {
                 WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "");
                 //  build identifier
-                sb.Append(Utilities.GetIdentifier(elt.TableName, elt.CN_Number, bslyr));
+                sb.Append(Utilities.GetIdentifier(elt.TableName, elt.CN_Number, DataLayer));
                 sb.Append("   ");
                 sb.Append(elt.Message);
                 strWriteOut.WriteLine(sb.ToString());
@@ -833,7 +862,7 @@ namespace CruiseProcessing
             return;
         }   //  end LoadLogDIBclasses
 
-        
+
         public void LoadTreeDIBclasses(float MaxDBH, List<StandTables> ListToLoad, int classInterval)
         {
             //  loads DIB classes for stand table reports
@@ -865,7 +894,7 @@ namespace CruiseProcessing
                     startNum = 6;
                     //  if max DBH is odd, add one to get proper size class
                     if ((int)MaxDBH % 2 != 0) MaxDBH++;
-                    for (int k = startNum; k <= MaxDBH; k+=2)
+                    for (int k = startNum; k <= MaxDBH; k += 2)
                     {
                         StandTables s = new StandTables();
                         s.dibClass = startNum.ToString();
@@ -889,14 +918,14 @@ namespace CruiseProcessing
 
 
         public int FindDIBindex(List<ReportSubtotal> ListToOutput, float SmEndDiam)
-        {   
+        {
             string DIBtoFind = (Math.Floor(SmEndDiam + 0.5)).ToString();
             int rowToLoad = ListToOutput.FindIndex(
-                delegate(ReportSubtotal r)
+                delegate (ReportSubtotal r)
                 {
                     return r.Value1 == DIBtoFind;
                 });
-            if(rowToLoad < 0)
+            if (rowToLoad < 0)
                 rowToLoad = 0;
             return rowToLoad;
         }   //  end FindDIBindex
@@ -906,7 +935,7 @@ namespace CruiseProcessing
         {
             string DIBtoFind = (Math.Floor(SmEndDiam + 0.5)).ToString();
             int rowToLoad = listToOutput.FindIndex(
-                delegate(RegionalReports rr)
+                delegate (RegionalReports rr)
                 {
                     return rr.value1 == DIBtoFind;
                 });
@@ -915,11 +944,11 @@ namespace CruiseProcessing
             return rowToLoad;
         }   //  end FindDIBindex
 
-        
+
         public int FindTreeDIBindex(List<StandTables> ListToSearch, double currDBH, int classInterval)
         {
             string DIBtoFind = "";
-            switch(classInterval)
+            switch (classInterval)
             {
                 case 1:
                     if (currDBH < 3.6)
@@ -942,11 +971,11 @@ namespace CruiseProcessing
                     break;
             }   //  end switch
             int rowToLoad = ListToSearch.FindIndex(
-                delegate(StandTables s)
+                delegate (StandTables s)
                 {
                     return s.dibClass == DIBtoFind;
                 });
-            if(rowToLoad < 0)
+            if (rowToLoad < 0)
                 rowToLoad = 0;
 
             return rowToLoad;
@@ -957,7 +986,7 @@ namespace CruiseProcessing
         {
             if (numErator > 0)
                 return Math.Sqrt(deNominator / numErator);
-            else return 0;            
+            else return 0;
         }   //  end CalculateQuadMean
 
 

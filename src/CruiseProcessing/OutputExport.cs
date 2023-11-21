@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Linq;
-using System.Text;
 using System.IO;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-
+using System.Linq;
+using System.Windows.Forms;
 
 namespace CruiseProcessing
 {
     public class OutputExport : CreateTextFile
     {
-        #region
         public string currentReport;
         private List<exportToOutput> exToOutput = new List<exportToOutput>();
         private int[] fieldLengths;
@@ -25,20 +20,23 @@ namespace CruiseProcessing
         private List<ReportSubtotal> overallTotal = new List<ReportSubtotal>();
         private string[] completeHeader;
         private int numColumns = 0;
-        #endregion
+
+        public OutputExport(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void CreateExportReports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  is this a variable log length cruise?  And are there log records?
-            List<SaleDO> sList = bslyr.getSale();
+            List<SaleDO> sList = DataLayer.getSale();
             //  not sure where cruise type has disappeared to
             if (sList[0].Purpose != "V")
             {
                 MessageBox.Show("This is not a Variable Log Length cruise.\nCannot produce Export Reports.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }   //  endif
-            logList = bslyr.getLogs();
-            logStockList = bslyr.getLogStock();
+            logList = DataLayer.getLogs();
+            logStockList = DataLayer.getLogStock();
             if (logList.Count == 0 && logStockList.Count == 0)
             {
                 noDataForReport(strWriteOut, currentReport, " No log data for report ");
@@ -55,17 +53,18 @@ namespace CruiseProcessing
                     rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
                     fieldLengths = new int[] { 2, 7, 6, 7, 5, 6, 9, 7, 7, 11, 3 };
                     //  need a joined log table to get tree information
-                    logList = bslyr.getTreeLogs();
+                    logList = DataLayer.getTreeLogs();
                     CreateEX1(strWriteOut, ref pageNumb, rh);
                     logList.Clear();
                     break;
+
                 case "EX2":
                     numOlines = 0;
                     rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
                     completeHeader = createCompleteHeader(rh);
                     fieldLengths = new int[] { 2, 7, 6, 7, 5, 6, 9, 7, 7, 11, 3, 6, 6, 6, 6, 7, 4 };
                     //  need joined log stock table to get tree information
-                    logStockList = bslyr.getLogStockSorted();
+                    logStockList = DataLayer.getLogStockSorted();
                     int nResult = CreateEX2(strWriteOut, ref pageNumb, rh);
                     if (nResult == -1)
                     {
@@ -77,6 +76,7 @@ namespace CruiseProcessing
                     }   //  endif
                     logStockList.Clear();
                     break;
+
                 case "EX3":
                     //  listing of export defaults
                     numOlines = 0;
@@ -84,11 +84,13 @@ namespace CruiseProcessing
                     fieldLengths = new int[] { 10, 10, 5, 6, 21, 9, 8, 9, 3 };
                     CreateEX3(strWriteOut, ref pageNumb, rh);
                     break;
-                case "EX4":         case "EX5":
+
+                case "EX4":
+                case "EX5":
                     numOlines = 0;
                     fieldLengths = new int[] { 5, 18, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6 };
                     //  pull just unique species from LCD table
-                    List<LCDDO> justSpecies = bslyr.GetLCDgroup("", 5, "C");
+                    List<LCDDO> justSpecies = DataLayer.GetLCDgroup("", 5, "C");
                     //  each species is at least one page
                     string firstHeader = " ***** NET ";
                     string secondHeader = "  SPECIES:  ";
@@ -97,18 +99,20 @@ namespace CruiseProcessing
                         secondHeader += js.Species;
                         if (currentReport == "EX4")
                             firstHeader += "MBF *****";
-                        else if(currentReport == "EX5")
+                        else if (currentReport == "EX5")
                             firstHeader += "CCF *****";
-                        rh.createReportTitle(currentTitle, 6, 0, 0, firstHeader,secondHeader);
+                        rh.createReportTitle(currentTitle, 6, 0, 0, firstHeader, secondHeader);
                         CreateEX4and5(strWriteOut, ref pageNumb, rh, js.Species);
                     }   //  end foreach loop
                     break;
-                case "EX6":         case "EX7":
+
+                case "EX6":
+                case "EX7":
                     numOlines = 0;
                     rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
                     completeHeader = createCompleteHeader(rh);
                     fieldLengths = new int[] { 2, 6, 6, 10, 6, 6, 10, 9, 9, 8, 8, 11, 4 };
-                    List<StratumDO> stList = bslyr.getStratum();
+                    List<StratumDO> stList = DataLayer.getStratum();
                     foreach (StratumDO s in stList)
                     {
                         s.CuttingUnits.Populate();
@@ -118,9 +122,9 @@ namespace CruiseProcessing
                             //  output unit data
                             WriteUnitGroup(strWriteOut, ref pageNumb, rh);
                             //  update all subtotals
-                            updateSubtotal(unitSubtotal,cu.Code);
-                            updateSubtotal(strataSubtotal,s.Code);
-                            updateSubtotal(overallTotal,"OVERALL");
+                            updateSubtotal(unitSubtotal, cu.Code);
+                            updateSubtotal(strataSubtotal, s.Code);
+                            updateSubtotal(overallTotal, "OVERALL");
 
                             if (currentReport == "EX6")
                             {
@@ -139,7 +143,7 @@ namespace CruiseProcessing
                         //  output overall total
                         outputSubtotals(strWriteOut, ref pageNumb, rh, overallTotal, "T");
                     }
-                    else if(currentReport == "EX7")
+                    else if (currentReport == "EX7")
                     {
                         //  output summary section
                     }   //  endif
@@ -148,14 +152,13 @@ namespace CruiseProcessing
             return;
         }   //  end CreateExportReports
 
-
-        private void CreateEX1(StreamWriter strWriteOut,ref int pageNumb,reportHeaders rh)
+        private void CreateEX1(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  this is just a straight list
             //  everything needed to print is in logList
             foreach (LogDO l in logList)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                         rh.EX1EX2left, 10, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
@@ -175,7 +178,6 @@ namespace CruiseProcessing
             return;
         }   //  end CreateEX1
 
-
         private int CreateEX2(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  need export data for comparison and flags for the footer and errors
@@ -187,22 +189,22 @@ namespace CruiseProcessing
             double maxDefect = 0;
             string currExSort = "";
             string currExGrade = "";
-            List<exportGrades> exList = bslyr.GetExportGrade();
+            List<exportGrades> exList = DataLayer.GetExportGrade();
             //  loop through log stock and compare values to defaults to find errors
             foreach (LogStockDO lsl in logStockList)
             {
                 //   find export grade in the export defaults
                 int nthRow = exList.FindIndex(
-                    delegate(exportGrades ex)
+                    delegate (exportGrades ex)
                     {
                         return ex.exportSort == lsl.ExportGrade;
                     });
                 if (nthRow >= 0)
-                { 
+                {
                     currExSort = exList[nthRow].exportSort;
                     //  find log grade in export defaults for comparison
                     int mthRow = exList.FindIndex(
-                        delegate(exportGrades ex)
+                        delegate (exportGrades ex)
                         {
                             return ex.exportGrade == lsl.Grade;
                         });
@@ -270,16 +272,15 @@ namespace CruiseProcessing
             else return 1;
         }   //  end CreateEX2
 
-
         private void CreateEX3(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  just a listing of the export grade default table
-            List<exportGrades> exportList = bslyr.GetExportGrade();
+            List<exportGrades> exportList = DataLayer.GetExportGrade();
             //  because of the way this list is put together, need to loop through once to print export sort information
             //  then loop through again to print the export grade information
             foreach (exportGrades el in exportList)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                         rh.EX3columns, 8, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
@@ -299,7 +300,7 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(reportConstants.longLine);
             foreach (exportGrades el in exportList)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                             rh.EX3columns, 8, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
@@ -317,24 +318,23 @@ namespace CruiseProcessing
             return;
         }   //  end CreateEX3
 
-
         private void CreateEX4and5(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, string currSP)
         {
             //  will use RegionalReports list for the list to output
             List<RegionalReports> listToOutput = new List<RegionalReports>();
             //  first need DIB classes
-            List<LogStockDO> justDIBs = bslyr.getLogDIBs();
+            List<LogStockDO> justDIBs = DataLayer.getLogDIBs();
             LoadLogDIBclasses(listToOutput, justDIBs);
             //  pull just sort and grade from logstock to finish column headers
-            List<LogStockDO> justSorts = bslyr.getLogSorts(currSP);
+            List<LogStockDO> justSorts = DataLayer.getLogSorts(currSP);
             //  finish column header with sort combinations
             completeHeader = createCompleteHeader(justSorts, rh);
             numColumns = justSorts.Count;
             int nthColumn = 7;     // starts with seven because the listToOutput value starts with value7
-            foreach(LogStockDO js in justSorts)
+            foreach (LogStockDO js in justSorts)
             {
                 //  pull log records for loading
-                List<LogStockDO> justLogs = bslyr.getCutLogs(currSP, js.ExportGrade, js.Grade);
+                List<LogStockDO> justLogs = DataLayer.getCutLogs(currSP, js.ExportGrade, js.Grade);
                 LoadSortGradeData(justLogs, nthColumn, listToOutput);
                 nthColumn++;
             }   //  end foreach loop
@@ -346,17 +346,16 @@ namespace CruiseProcessing
             return;
         }   //  end CreateEX4and5
 
-
         private void CreateEX6orEX7(StratumDO currST, string currCU)
         {
             //  EX6 and EX7
             string currSpecies = "";
-            List<PRODO> proList = bslyr.getPRO();
+            List<PRODO> proList = DataLayer.getPRO();
             //  get correct acres
-            double strAcres = Utilities.ReturnCorrectAcres(currST.Code, bslyr, (long)currST.Stratum_CN);
+            double strAcres = Utilities.ReturnCorrectAcres(currST.Code, DataLayer, (long)currST.Stratum_CN);
             //  first pull unique sort and grade codes
-            List<LogStockDO> justSorts = bslyr.getLogSorts("");
-            logStockList = bslyr.getCutLogs();
+            List<LogStockDO> justSorts = DataLayer.getLogSorts("");
+            logStockList = DataLayer.getCutLogs();
             //  then loop through sort codes to get logs
             List<LogStockDO> justLogs = new List<LogStockDO>();
             foreach (LogStockDO js in justSorts)
@@ -365,16 +364,16 @@ namespace CruiseProcessing
                 if (currentReport == "EX6")
                 {
                     justLogs = logStockList.FindAll(
-                        delegate(LogStockDO l)
+                        delegate (LogStockDO l)
                         {
                             return l.Tree.Stratum.Code == currST.Code && l.Tree.CuttingUnit.Code == currCU &&
                                         l.ExportGrade == js.ExportGrade && l.Grade == js.Grade;
                         });
                 }
-                else if(currentReport == "EX7")
+                else if (currentReport == "EX7")
                 {
                     justLogs = logStockList.FindAll(
-                        delegate(LogStockDO l)
+                        delegate (LogStockDO l)
                         {
                             return l.Tree.Stratum.Code == currST.Code &&
                                 l.ExportGrade == js.ExportGrade && l.Grade == js.Grade;
@@ -393,9 +392,9 @@ namespace CruiseProcessing
                 {
                     //  find proration factor for the group
                     int nthRow = proList.FindIndex(
-                        delegate(PRODO p)
+                        delegate (PRODO p)
                         {
-                            return p.Stratum == jl.Tree.Stratum.Code && p.CuttingUnit == jl.Tree.CuttingUnit.Code && 
+                            return p.Stratum == jl.Tree.Stratum.Code && p.CuttingUnit == jl.Tree.CuttingUnit.Code &&
                                                 p.SampleGroup == jl.Tree.SampleGroup.Code;
                         });
                     if (nthRow >= 0)
@@ -425,9 +424,9 @@ namespace CruiseProcessing
                 }   //  end foreach loop
                 //  load group into output list
                 exportToOutput eto = new exportToOutput();
-                eto.export1 = currST.Code.PadLeft(2,' ');
-                eto.export2 = currCU.PadLeft(3,' ');
-                eto.export3 = currSpecies.PadRight(6,' ');
+                eto.export1 = currST.Code.PadLeft(2, ' ');
+                eto.export2 = currCU.PadLeft(3, ' ');
+                eto.export3 = currSpecies.PadRight(6, ' ');
                 eto.export4 = js.ExportGrade;
                 eto.export5 = js.Grade;
                 eto.export11 = sumExpFac;
@@ -437,13 +436,11 @@ namespace CruiseProcessing
                 eto.export15 = sumNetCUFT;
                 eto.export16 = sumDefect;
                 eto.export17 = sumLength;
-                
-                exToOutput.Add(eto);
 
+                exToOutput.Add(eto);
             }   //  end foreach loop
             return;
         }   //  end CreateEX6
-
 
         private void updateSubtotal(List<ReportSubtotal> totalToUpdate, string currCode)
         {
@@ -468,11 +465,10 @@ namespace CruiseProcessing
                 totalToUpdate[0].Value6 += exToOutput.Sum(ex => ex.export14);
                 totalToUpdate[0].Value7 += exToOutput.Sum(ex => ex.export15);
                 totalToUpdate[0].Value8 += exToOutput.Sum(ex => ex.export16);
-                totalToUpdate[0].Value9 += exToOutput.Sum(ex => ex.export17);    
+                totalToUpdate[0].Value9 += exToOutput.Sum(ex => ex.export17);
             }   //  endif
             return;
         }   //  end updateSubtotal
-
 
         private void LoadSortGradeData(List<LogStockDO> justLogs, int nthColumn, List<RegionalReports> listToOutput)
         {
@@ -489,7 +485,7 @@ namespace CruiseProcessing
             {
                 if (currST != jl.Tree.Stratum.Code)
                 {
-                    strAcres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, bslyr, (long)jl.Tree.Stratum_CN);
+                    strAcres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, DataLayer, (long)jl.Tree.Stratum_CN);
                     currST = jl.Tree.Stratum.Code;
                 }   //  endif different stratum
 
@@ -506,33 +502,43 @@ namespace CruiseProcessing
                     case 7:
                         listToOutput[nthRow].value7 += currNET / volFactor;
                         break;
+
                     case 8:
                         listToOutput[nthRow].value8 += currNET / volFactor;
                         break;
+
                     case 9:
                         listToOutput[nthRow].value9 += currNET / volFactor;
                         break;
+
                     case 10:
                         listToOutput[nthRow].value10 += currNET / volFactor;
                         break;
+
                     case 11:
                         listToOutput[nthRow].value11 += currNET / volFactor;
                         break;
+
                     case 12:
                         listToOutput[nthRow].value12 += currNET / volFactor;
                         break;
+
                     case 13:
                         listToOutput[nthRow].value13 += currNET / volFactor;
                         break;
+
                     case 14:
                         listToOutput[nthRow].value14 += currNET / volFactor;
                         break;
+
                     case 15:
                         listToOutput[nthRow].value15 += currNET / volFactor;
                         break;
+
                     case 16:
                         listToOutput[nthRow].value16 += currNET / volFactor;
                         break;
+
                     case 17:
                         listToOutput[nthRow].value17 += currNET / volFactor;
                         break;
@@ -540,7 +546,6 @@ namespace CruiseProcessing
             }   //  end foreach loop
             return;
         }   //  end LoadSortGradeData
-
 
         private void writeExportList(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, int footerFlag)
         {
@@ -585,20 +590,19 @@ namespace CruiseProcessing
             return;
         }   //  end writeExportList
 
-
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
                                             List<RegionalReports> listToOutput)
         {
             //  EX4 and EX5
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                     completeHeader, 12, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(lto.value1.PadLeft(2, ' '));
                 //  will need something in here to suppress column combination not used
-                switch(numColumns)
+                switch (numColumns)
                 {
                     case 11:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
@@ -613,6 +617,7 @@ namespace CruiseProcessing
                         prtFields.Add(String.Format("{0,6:F2}", lto.value16).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value17).PadLeft(6, ' '));
                         break;
+
                     case 10:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
@@ -625,6 +630,7 @@ namespace CruiseProcessing
                         prtFields.Add(String.Format("{0,6:F2}", lto.value15).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value16).PadLeft(6, ' '));
                         break;
+
                     case 9:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
@@ -636,6 +642,7 @@ namespace CruiseProcessing
                         prtFields.Add(String.Format("{0,6:F2}", lto.value14).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value15).PadLeft(6, ' '));
                         break;
+
                     case 8:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
@@ -646,6 +653,7 @@ namespace CruiseProcessing
                         prtFields.Add(String.Format("{0,6:F2}", lto.value13).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value14).PadLeft(6, ' '));
                         break;
+
                     case 7:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
@@ -655,6 +663,7 @@ namespace CruiseProcessing
                         prtFields.Add(String.Format("{0,6:F2}", lto.value12).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value13).PadLeft(6, ' '));
                         break;
+
                     case 6:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
@@ -663,6 +672,7 @@ namespace CruiseProcessing
                         prtFields.Add(String.Format("{0,6:F2}", lto.value11).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value12).PadLeft(6, ' '));
                         break;
+
                     case 5:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
@@ -670,21 +680,25 @@ namespace CruiseProcessing
                         prtFields.Add(String.Format("{0,6:F2}", lto.value10).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value11).PadLeft(6, ' '));
                         break;
+
                     case 4:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value9).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value10).PadLeft(6, ' '));
                         break;
+
                     case 3:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value9).PadLeft(6, ' '));
                         break;
+
                     case 2:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         prtFields.Add(String.Format("{0,6:F2}", lto.value8).PadLeft(6, ' '));
                         break;
+
                     case 1:
                         prtFields.Add(String.Format("{0,6:F2}", lto.value7).PadLeft(6, ' '));
                         break;
@@ -694,16 +708,14 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-
-        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
+        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
                                         List<RegionalReports> listToOutput)
         {
             //  not sure what this is supposed to look like until I get some test data -- February 2014
             return;
         }   //  end outputTotalLine
 
-
-        private void outputSubtotals(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
+        private void outputSubtotals(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
                                     List<ReportSubtotal> totalToOutput, string whichSubtotal)
         {
             //  EX6 and EX7
@@ -717,12 +729,14 @@ namespace CruiseProcessing
                     strWriteOut.Write(totalToOutput[0].Value1.PadLeft(3, ' '));
                     strWriteOut.Write(" TOTALS                            ");
                     break;
+
                 case "S":           //  strata subtotal
                     strWriteOut.WriteLine("                                  ____________________________________________________________");
                     strWriteOut.Write(" STRATUM ");
                     strWriteOut.Write(totalToOutput[0].Value1.PadLeft(2, ' '));
                     strWriteOut.Write(" TOTALS                           ");
                     break;
+
                 case "T":           //  overall total
                     strWriteOut.WriteLine(reportConstants.longLine);
                     strWriteOut.WriteLine(reportConstants.longLine);
@@ -749,18 +763,17 @@ namespace CruiseProcessing
             return;
         }   //  end outputSubtotals
 
-
         private void WriteUnitGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  EX6 or EX7
             foreach (exportToOutput eto in exToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                         completeHeader, 10, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(eto.export1);
-                if(currentReport == "EX6") prtFields.Add(eto.export2);
+                if (currentReport == "EX6") prtFields.Add(eto.export2);
                 prtFields.Add(eto.export3);
                 prtFields.Add(eto.export4);
                 prtFields.Add(eto.export5);
@@ -772,7 +785,7 @@ namespace CruiseProcessing
                 //  cubic foot volume
                 prtFields.Add(String.Format("{0,6:F0}", eto.export14).PadLeft(6, ' '));
                 prtFields.Add(String.Format("{0,6:F0}", eto.export15).PadLeft(6, ' '));
-                if(eto.export11 > 0)
+                if (eto.export11 > 0)
                 {
                     //  average defect
                     prtFields.Add(String.Format("{0,3:F0}", eto.export16 / eto.export11).PadLeft(3, ' '));
@@ -783,7 +796,6 @@ namespace CruiseProcessing
             }   //  end foreach loop
             return;
         }   //  end WriteUnitGroup
-
 
         private void loadExportOutputList(LogStockDO justLog, string currSort, string currGrade, bool errFound)
         {
@@ -810,7 +822,6 @@ namespace CruiseProcessing
             return;
         }   //  end loadExportOutputList
 
-
         private string[] createCompleteHeader(reportHeaders rh)
         {
             //  currently used for EX2, EX6 and EX7
@@ -824,12 +835,14 @@ namespace CruiseProcessing
                     headerEX2[1] = rh.EX1EX2left[1];
                     headerEX2[1] += rh.EX2right[1];
                     return headerEX2;
+
                 case "EX6":
                     headerEX6or7[0] = rh.EX6EX7right[0];
                     headerEX6or7[1] = rh.EX6EX7right[1];
                     headerEX6or7[2] = "  STRATA  UNIT  ";
                     headerEX6or7[2] += rh.EX6EX7right[2];
                     return headerEX6or7;
+
                 case "EX7":
                     headerEX6or7[0] = rh.EX6EX7right[0];
                     headerEX6or7[1] = rh.EX6EX7right[1];
@@ -839,7 +852,6 @@ namespace CruiseProcessing
             }   //  end switch on report
             return headerEX2;
         }   //  end createCompleteHeader
-
 
         private string[] createCompleteHeader(List<LogStockDO> justSorts, reportHeaders rh)
         {
@@ -858,7 +870,6 @@ namespace CruiseProcessing
             }   //  end foreach loop
             return finnishHeader;
         }   //  end createCompleteHeader
-
 
         public class exportToOutput
         {
@@ -880,7 +891,6 @@ namespace CruiseProcessing
             public double export15 { get; set; }
             public double export16 { get; set; }
             public double export17 { get; set; }
-
         }   //  end exportToOutput
     }
 }

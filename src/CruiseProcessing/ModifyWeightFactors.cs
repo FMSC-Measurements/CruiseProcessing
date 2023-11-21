@@ -13,14 +13,18 @@ namespace CruiseProcessing
 {
     public partial class ModifyWeightFactors : Form
     {
-        #region
         public List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
 
-        public ModifyWeightFactors()
+        protected ModifyWeightFactors()
         {
             InitializeComponent();
+        }
+
+        public ModifyWeightFactors(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
 
@@ -40,7 +44,7 @@ namespace CruiseProcessing
 
             //  if there are biomass equations, bind to grid
             //  else show message and return
-            bioList = bslyr.getBiomassEquations();
+            bioList = DataLayer.getBiomassEquations();
             if (bioList.Count == 0)
             {
                 MessageBox.Show("There are no biomass equations available for updating.\n Cannot continue.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -71,11 +75,11 @@ namespace CruiseProcessing
             {
                 Cursor.Current = Cursors.WaitCursor;
                 //  
-                bslyr.SaveBiomassEquations(bioList);
+                DataLayer.SaveBiomassEquations(bioList);
 
-                if (bslyr.DAL_V3 != null)
+                if (DataLayer.DAL_V3 != null)
                 {
-                    bslyr.syncBiomassEquationToV3();
+                    DataLayer.syncBiomassEquationToV3();
                 }//end if
 
                     Cursor.Current = this.Cursor;

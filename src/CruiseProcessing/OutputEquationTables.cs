@@ -1,17 +1,16 @@
-﻿using System;
+﻿using CruiseDAL.DataObjects;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Data;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
+using System.Text;
 
 namespace CruiseProcessing
 {
     public class OutputEquationTables : CreateTextFile
     {
+        public OutputEquationTables(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
+
         public void outputEquationTable(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  Define table lists
@@ -19,12 +18,11 @@ namespace CruiseProcessing
             List<ValueEquationDO> valList = new List<ValueEquationDO>();
             List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
             List<QualityAdjEquationDO> qualList = new List<QualityAdjEquationDO>();
-            VolumeEqMethods Vem = new VolumeEqMethods();
-            string currRegion = bslyr.getRegion();
+            string currRegion = DataLayer.getRegion();
             if (currRegion != "7" && currRegion != "07")
             {
                 //  Volume equation table
-                veqList = bslyr.getVolumeEquations();
+                veqList = DataLayer.getVolumeEquations();
                 if (veqList.Count > 0)
                 {
                     WriteReportHeading(strWriteOut, "VOLUME EQUATION TABLE", "", "", rh.VolEqHeaders, 12, ref pageNumb, "");
@@ -34,7 +32,7 @@ namespace CruiseProcessing
                     foreach (VolumeEquationDO vel in veqList)
                     {
                         //  build an array of fields to pass into creating a data table for printing
-                        prtFields = Vem.buildPrintArray(vel);
+                        prtFields = VolumeEqMethods.buildPrintArray(vel);
                         StringBuilder oneRecord = buildPrintLine(fieldLengths, prtFields);
                         strWriteOut.WriteLine(oneRecord.ToString());
                         numOlines++;
@@ -42,7 +40,7 @@ namespace CruiseProcessing
                 }   //  endif volume equations exist
 
                 //  Value equations
-                valList = bslyr.getValueEquations();
+                valList = DataLayer.getValueEquations();
                 if (valList.Count > 0)
                 {
                     numOlines = 0;
@@ -61,7 +59,7 @@ namespace CruiseProcessing
                 }   //  endif value equations exist
 
                 //  Biomass equations
-                bioList = bslyr.getBiomassEquations();
+                bioList = DataLayer.getBiomassEquations();
                 if (bioList.Count > 0)
                 {
                     numOlines = 0;
@@ -95,12 +93,10 @@ namespace CruiseProcessing
                         strWriteOut.WriteLine(oneRecord.ToString());
                         numOlines++;
                     }   //  end foreach loop
-
                 }   //  endif biomass equations exist
 
                 //  Quality adjustment equations
-                QualityAdjMethods Qam = new QualityAdjMethods();
-                qualList = bslyr.getQualAdjEquations();
+                qualList = DataLayer.getQualAdjEquations();
                 if (qualList.Count > 0)
                 {
                     numOlines = 0;
@@ -111,7 +107,7 @@ namespace CruiseProcessing
                     foreach (QualityAdjEquationDO qal in qualList)
                     {
                         //  build array of fields for creating data table
-                        prtFields = Qam.buildPrintArray(qal);
+                        prtFields = QualityAdjMethods.buildPrintArray(qal);
                         StringBuilder oneRecord = buildPrintLine(fieldLengths, prtFields);
                         strWriteOut.WriteLine(oneRecord.ToString());
                         numOlines++;

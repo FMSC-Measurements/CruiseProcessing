@@ -11,7 +11,13 @@ namespace CruiseProcessing
 {
     public class LogMethods
     {
-        ErrorLogMethods elm = new ErrorLogMethods();
+        public LogMethods(ErrorLogMethods errorLogMethods)
+        {
+            elm = errorLogMethods;
+        }
+
+        ErrorLogMethods elm { get; }
+
         //  edit checks on log table
         public int CheckNumberLogs(List<LogDO> logList)
         {
@@ -126,7 +132,7 @@ namespace CruiseProcessing
 
 
         //  methods pertaining to the log table or the logstock table
-        public List<LogDO> GetLogRecords(List<LogDO> logList, long currTree_CN)
+        public static List<LogDO> GetLogRecords(List<LogDO> logList, long currTree_CN)
         {
             //  returns logs for specific tree
             List<LogDO> rtrnList = logList.FindAll(
@@ -151,7 +157,7 @@ namespace CruiseProcessing
 
 
         //  build functions for printing
-        public List<string> buildPrintArray(List<LogDO> currLogs, int begLog, int endLog)
+        public static List<string> buildPrintArray(List<LogDO> currLogs, int begLog, int endLog)
         {
             var logArray = new List<string>();
 
@@ -229,7 +235,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public List<string> buildPrintArray(LogStockDO lsdo)
+        public static List<string> buildPrintArray(LogStockDO lsdo)
         {
             //  builds line for fall, buck and scale report (A09)
             string fieldFormat2 = "{0,5:F0}";
@@ -265,7 +271,7 @@ namespace CruiseProcessing
         }   //  end buildPrintArray
 
 
-        public List<string> buildPrintArray(LogStockDO lsdo, double totalEF)
+        public static List<string> buildPrintArray(LogStockDO lsdo, double totalEF)
         {
             //  builds line for log file report (L1)
             string fieldFormat1 = "{0,5:F1}";

@@ -11,7 +11,6 @@ namespace CruiseProcessing
 {
     class OutputStats : CreateTextFile
     {
-        #region
         public string currentReport;
         public string currCL;
         private int[] fieldLengths;
@@ -21,13 +20,16 @@ namespace CruiseProcessing
         private int[] pagesToPrint = new int[3];
         private List<StatList> stage1Stats = new List<StatList>();
         private List<StatList> stage2Stats = new List<StatList>();
-        #endregion
+
+        public OutputStats(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void CreateStatReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  For ST1/ST2 (DP1,DP2) LV03/LV04
             string currentTitle = fillReportTitle(currentReport);
-            List<POPDO> allPOP = bslyr.getPOP();
+            List<POPDO> allPOP = DataLayer.getPOP();
             //  pull cur or leave as needed
             popList = allPOP.FindAll(
                 delegate(POPDO p)
@@ -106,7 +108,7 @@ namespace CruiseProcessing
         private void ProcessPrimary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
 
             foreach (StratumDO s in sList)
             {
@@ -118,7 +120,7 @@ namespace CruiseProcessing
                     StatList slOne = new StatList();
                     StatList slTwo = new StatList();
                     //  need method for strata
-                    string currMethod = Utilities.MethodLookup(p.Stratum, bslyr);
+                    string currMethod = Utilities.MethodLookup(p.Stratum, DataLayer);
                    
                     switch (volType)
                     {
@@ -179,7 +181,7 @@ namespace CruiseProcessing
         private void ProcessSecondary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
 
             foreach (StratumDO s in sList)
             {
@@ -190,7 +192,7 @@ namespace CruiseProcessing
                     StatList slOne = new StatList();
                     StatList slTwo = new StatList();
                     //  need method for stratum
-                    string currMethod = Utilities.MethodLookup(p.Stratum, bslyr);
+                    string currMethod = Utilities.MethodLookup(p.Stratum, DataLayer);
 
                     switch (volType)
                     {
@@ -255,7 +257,7 @@ namespace CruiseProcessing
         private void ProcessRecovered(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
 
             foreach (StratumDO s in sList)
             {
@@ -266,7 +268,7 @@ namespace CruiseProcessing
                     StatList slOne = new StatList();
                     StatList slTwo = new StatList();
                     //  need method for stratum
-                    string currMethod = Utilities.MethodLookup(p.Stratum, bslyr);
+                    string currMethod = Utilities.MethodLookup(p.Stratum, DataLayer);
                     switch (volType)
                     {
                         case "NET":

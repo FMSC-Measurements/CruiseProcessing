@@ -1,21 +1,22 @@
-﻿using System;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
 using System.Windows.Forms;
-
 
 namespace CruiseProcessing
 {
     public class ErrorLogMethods
     {
-        public string fileName;
-        public List<ErrorLogDO> errList = new List<ErrorLogDO>();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        public List<ErrorLogDO> errList { get; } = new List<ErrorLogDO>();
+        protected CPbusinessLayer DataLayer { get; }
 
-        public void LoadError(string nameOfTable, string errorLevel, 
+        public ErrorLogMethods(CPbusinessLayer dataLayer)
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
+
+        public void LoadError(string nameOfTable, string errorLevel,
                                     string errorNumber, long CN_identifier, string colName)
         {
             //  need a business layer function here to load error messages
@@ -30,16 +31,14 @@ namespace CruiseProcessing
             return;
         }   //  end LoadError
 
-
         //  Method checks here since not specific to one particular table
         public int CheckCruiseMethods(List<StratumDO> strList, List<TreeDO> tList)
         {
-            TreeListMethods Tlm = new TreeListMethods();
             int errsFound = 0;
             //  pull trees by stratum for cruise method checks
             foreach (StratumDO str in strList)
             {
-                List<TreeDO> treeList = Tlm.GetCurrentStratum(tList, str.Code);
+                List<TreeDO> treeList = TreeListMethods.GetCurrentStratum(tList, str.Code);
 
                 //  warn user if the stratum has no trees at all
                 if (treeList.Count == 0)
@@ -51,7 +50,6 @@ namespace CruiseProcessing
                     DialogResult dr = MessageBox.Show(warnMsg, "WARNING", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                     if (dr == DialogResult.No)
                         return -1;
-
                 }   //  endif no trees
 
                 //  What needs to be checked?  By method
@@ -70,23 +68,26 @@ namespace CruiseProcessing
                             }   //  endif tree count greater than 1
                         }   //  end foreach loop
                         break;
+
                     case "FIX":
                     case "PNT":
                         //  Check for all measured trees in stratum
                         errsFound += CheckAllMeasured(treeList);
                         //  Check for no measured trees per sample group
-                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method, bslyr);
+                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method);
                         break;
+
                     case "3P":
                     case "STR":
                     case "S3P":
                         //  Check for measured trees with no DBH or height
                         errsFound += CheckForNoDBH(treeList);
                         //  Check 3P only for measured trees with no KPI
-                        if(str.Method == "3P")  errsFound += CheckForNoKPI(treeList);
+                        if (str.Method == "3P") errsFound += CheckForNoKPI(treeList);
                         //  Check for sample group in CountTree with no measured tree
-                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method, bslyr);
+                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method);
                         break;
+
                     case "F3P":
                     case "P3P":
                         //  Check for measured tree with no KPI
@@ -94,8 +95,9 @@ namespace CruiseProcessing
                         //  Check for measured trees with no DBH or height
                         errsFound += CheckForNoDBH(treeList);
                         //  Check for no measured trees when total tree count > 0
-                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method, bslyr);
+                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method);
                         break;
+
                     case "3PPNT":
                         foreach (TreeDO tdo in treeList)
                         {
@@ -117,7 +119,7 @@ namespace CruiseProcessing
                             //  Check for count tree in a measured plot
                             //  Pull plot records first
                             List<TreeDO> justPlots = treeList.FindAll(
-                                delegate(TreeDO jp)
+                                delegate (TreeDO jp)
                                 {
                                     return jp.CountOrMeasure == "M" && jp.Plot.PlotNumber == 0;
                                 });
@@ -131,7 +133,7 @@ namespace CruiseProcessing
                             }   //  end foreach loop on justPlots
                             //  Check for more than one sample group in the stratum
                             int nthRow = treeList.FindIndex(
-                                delegate(TreeDO td)
+                                delegate (TreeDO td)
                                 {
                                     return tdo.SampleGroup.Code != treeList[0].SampleGroup.Code;
                                 });
@@ -140,14 +142,15 @@ namespace CruiseProcessing
                                 LoadError("Tree", "E", "17", (long)str.Stratum_CN, "NoName");
                                 errsFound++;
                             }   //  endif nthRow
-                        }   //  end foreach loop        
+                        }   //  end foreach loop
                         //  Check for no measured tree when total tree count > 0
-                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method,bslyr);
+                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method);
                         break;
+
                     case "FIXCNT":
                         //  no measured trees allowed
                         int mthRow = treeList.FindIndex(
-                            delegate(TreeDO tdo)
+                            delegate (TreeDO tdo)
                             {
                                 return tdo.CountOrMeasure == "M";
                             });
@@ -158,7 +161,7 @@ namespace CruiseProcessing
                         }   //  endif nthRow
                         //  UOM must be 04
                         List<TreeDO> justUOM = treeList.FindAll(
-                            delegate(TreeDO ju)
+                            delegate (TreeDO ju)
                             {
                                 return ju.SampleGroup.UOM != "04";
                             });
@@ -168,23 +171,22 @@ namespace CruiseProcessing
                             errsFound++;
                         }   //  endif
                         break;
+
                     case "PCM":
                     case "FCM":
                         //  Check for no measured tree when total tree count > 0
-                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method, bslyr);
+                        errsFound += CheckForMeasuredTrees(treeList, (int)str.Stratum_CN, str.Method);
                         break;
                 }   //  end switch on method
-
             }   //  end foreach loop on stratum
             return errsFound;
         }   //  end CheckCruiseMethods
-
 
         private int CheckAllMeasured(List<TreeDO> treeList)
         {
             int totalErrs = 0;
             List<TreeDO> allMeasured = treeList.FindAll(
-                delegate(TreeDO tdo)
+                delegate (TreeDO tdo)
                 {
                     return tdo.CountOrMeasure == "C";
                 });
@@ -203,7 +205,7 @@ namespace CruiseProcessing
         {
             int totalErrs = 0;
             List<TreeDO> noKPI = treeList.FindAll(
-                delegate(TreeDO nk)
+                delegate (TreeDO nk)
                 {
                     return nk.CountOrMeasure == "M" && nk.KPI == 0.0 && nk.STM == "N";
                 });
@@ -222,7 +224,7 @@ namespace CruiseProcessing
         {
             int totalErrs = 0;
             List<TreeDO> noDBH = treeList.FindAll(
-                delegate(TreeDO nd)
+                delegate (TreeDO nd)
                 {
                     return nd.CountOrMeasure == "M" && nd.DBH == 0.0 && nd.DRC == 0.0;
                 });
@@ -238,10 +240,11 @@ namespace CruiseProcessing
             return totalErrs;
         }   //  end CheckForNoDBH
 
-        private int CheckForMeasuredTrees(List<TreeDO> treeList, int currST_CN, string currMeth, CPbusinessLayer bslyr)
+        private int CheckForMeasuredTrees(List<TreeDO> treeList, int currST_CN, string currMeth)
         {
+            var dataLayer = DataLayer;
             int numErrs = 0;
-            ErrorLogMethods elm = new ErrorLogMethods();
+            ErrorLogMethods elm = new ErrorLogMethods(dataLayer);
             //  if the tree list is empty, could be the strata just doesn't have any trees.
             //  this is probably a cruise in process so return no errors on this stratum.
             //  October 2014
@@ -249,56 +252,59 @@ namespace CruiseProcessing
                 return numErrs;
 
             //  need sample group(s) for current stratum
-            List<SampleGroupDO> sgList = bslyr.getSampleGroups(currST_CN);
+            List<SampleGroupDO> sgList = dataLayer.getSampleGroups(currST_CN);
             //  check is method based
             switch (currMeth)
             {
-                case "3P":      case "STR":     case "S3P":
+                case "3P":
+                case "STR":
+                case "S3P":
                     foreach (SampleGroupDO sg in sgList)
                     {
                         //  find count records for the sample group
-                        List<CountTreeDO> justGroups = bslyr.getCountTrees((long)sg.SampleGroup_CN);
+                        List<CountTreeDO> justGroups = dataLayer.getCountTrees((long)sg.SampleGroup_CN);
                         //  sum up tree count
                         float totalCount = justGroups.Sum(jg => jg.TreeCount);
                         if (totalCount > 0)
                         {
                             //  Any measured trees?  look for just one measured tree in the stratum
                             List<TreeDO> justMeasured = treeList.FindAll(
-                                delegate(TreeDO t)
+                                delegate (TreeDO t)
                                 {
                                     return t.CountOrMeasure == "M" && t.SampleGroup_CN == sg.SampleGroup_CN && t.Stratum_CN == currST_CN;
                                 });
                             if (justMeasured.Count == 0)
                             {
                                 //  this is the error
-                                 elm.LoadError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN, "NoName");
+                                elm.LoadError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN, "NoName");
                                 numErrs++;
                             }   //  endif
                         }   //  endif totalCount
                     }   //  end foreach loop
                     break;
+
                 default:        //  all area based
-                    foreach(SampleGroupDO sg in sgList)
+                    foreach (SampleGroupDO sg in sgList)
                     {
                         List<TreeDO> justGroups = treeList.FindAll(
-                            delegate(TreeDO t)
+                            delegate (TreeDO t)
                             {
                                 return t.SampleGroup_CN == sg.SampleGroup_CN;
                             });
 
                         float totalCount = justGroups.Sum(jg => jg.TreeCount);
-                        if(totalCount > 0)
+                        if (totalCount > 0)
                         {
                             //  any measured trees?
                             List<TreeDO> justMeasured = justGroups.FindAll(
-                                delegate(TreeDO td)
+                                delegate (TreeDO td)
                                 {
                                     return td.CountOrMeasure == "M";
                                 });
-                            if(justMeasured.Count == 0)
+                            if (justMeasured.Count == 0)
                             {
                                 // here's the error
-                                elm.LoadError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN,"NoName");
+                                elm.LoadError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN, "NoName");
                                 numErrs++;
                             }   //  endif
                         }   //  endif totalCount
@@ -307,6 +313,5 @@ namespace CruiseProcessing
             }   //  end switch
             return numErrs;
         }   //  end CheckForMeasuredTrees
-
     }   //  end ErrorLogMethods
 }

@@ -1,37 +1,36 @@
-﻿using System;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
     public class OutputCSV : CreateTextFile
     {
-        #region
         public string currentReport;
-        private string[] headerA05 = new string[19] {"STRATA","UNIT","PLOT","TREE","SPEC","DBH","HGT1","HGT2","GCUFTPP","NCUFTPP","GCUFTSP","NCUFTSP","TREEFAC","CHARFAC","EXPFAC","PAGCUFTPP","PANCUFTPP","PAGCUFTSP","PANCUFTSP"};
-        private string[] headerA06 = new string[15] {"STRATA","UNIT","PLOT","TREE","SPEC","DBH","HGT1","HGT2","VALUEPP","VALUESP","TREEFAC","CHARFAC","EXPFAC","PAVALUEPP","PAVALUESP"};
-        private string[] headerA07 = new string[19] {"STRATA","UNIT","PLOT","TREE","SPEC","DBH","HGT1","HGT2","GBDFTPP","NBDFTPP","GBDFTSP","NBDFTSP","TREEFAC","CHARFAC","EXPFAC","PAGBDFTPP","PANBDFTPP","PAGBDFTSP","PANBDFTSP"};
-        private string[] headerA10 = new string[18] {"STRATA","UNIT","PLOT","TREE","SPEC","DBH","HGT1","HGT2","PRIMARYWGT","SECONDWGT","FOLIAGE","LIVEBR","DEADBR","STEMTIP","TOTALTREE","TREEFAC","CHARFAC","EXPFAC"};
-        private string[] headerL1 = new string[22]  {"STRATA","UNIT","PLOT","TREE","SPEC","PROD","UOM","LOGNUM","SMDIAM","LGDIAM","LENGTH","GRADE","DEFECT","RECV","GBDFT","GREMV","NBDFT","GCUFT","GREMV","NCUFT","DIBCLS","TOTEXP"};
-        private string[] headerL2 = new string[13]  {"DIBCLS", "GRD 0", "GRD 1", "GRD 2", "GRD 3", "GRD 4", "GRD 5", "GRD 6", "GRD 7", "TOTNET", "CULL", "DEFECT", "TOTAL" };
-        private string[] headerST1 = new string[18] {"STRATA", "PROD", "UOM", "SAMPGRP", "STM", "STGSAMP", "SAMPTREES", "BIG N", "SMALL N", "t VALUE", "MEAN X", "SUM OF X", "SUM X SQRD","SD", "CV", "STD ERR", "SAM ERR", "COMB SAM ERR" };
-        private string[] headerUC5 = new string[13] {"UNIT", "SPEC", "TOT EST TREES", "SAW EST TREES", "SAW GBDFT", "SAW GCUFT", "SAW NBDFT", "SAW NCUFT", "NS GBDFT", "NS GCUFT", "NS NBDFT", "NS NCUFT", "CORDS" };
-        private string[] headerKPI = new string[4] {"STRATUM", "UNIT", "SPECIES", "ESTIMATE" };
+        private string[] headerA05 = new string[19] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "GCUFTPP", "NCUFTPP", "GCUFTSP", "NCUFTSP", "TREEFAC", "CHARFAC", "EXPFAC", "PAGCUFTPP", "PANCUFTPP", "PAGCUFTSP", "PANCUFTSP" };
+        private string[] headerA06 = new string[15] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "VALUEPP", "VALUESP", "TREEFAC", "CHARFAC", "EXPFAC", "PAVALUEPP", "PAVALUESP" };
+        private string[] headerA07 = new string[19] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "GBDFTPP", "NBDFTPP", "GBDFTSP", "NBDFTSP", "TREEFAC", "CHARFAC", "EXPFAC", "PAGBDFTPP", "PANBDFTPP", "PAGBDFTSP", "PANBDFTSP" };
+        private string[] headerA10 = new string[18] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "PRIMARYWGT", "SECONDWGT", "FOLIAGE", "LIVEBR", "DEADBR", "STEMTIP", "TOTALTREE", "TREEFAC", "CHARFAC", "EXPFAC" };
+        private string[] headerL1 = new string[22] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "PROD", "UOM", "LOGNUM", "SMDIAM", "LGDIAM", "LENGTH", "GRADE", "DEFECT", "RECV", "GBDFT", "GREMV", "NBDFT", "GCUFT", "GREMV", "NCUFT", "DIBCLS", "TOTEXP" };
+        private string[] headerL2 = new string[13] { "DIBCLS", "GRD 0", "GRD 1", "GRD 2", "GRD 3", "GRD 4", "GRD 5", "GRD 6", "GRD 7", "TOTNET", "CULL", "DEFECT", "TOTAL" };
+        private string[] headerST1 = new string[18] { "STRATA", "PROD", "UOM", "SAMPGRP", "STM", "STGSAMP", "SAMPTREES", "BIG N", "SMALL N", "t VALUE", "MEAN X", "SUM OF X", "SUM X SQRD", "SD", "CV", "STD ERR", "SAM ERR", "COMB SAM ERR" };
+        private string[] headerUC5 = new string[13] { "UNIT", "SPEC", "TOT EST TREES", "SAW EST TREES", "SAW GBDFT", "SAW GCUFT", "SAW NBDFT", "SAW NCUFT", "NS GBDFT", "NS GCUFT", "NS NBDFT", "NS NCUFT", "CORDS" };
+        private string[] headerKPI = new string[4] { "STRATUM", "UNIT", "SPECIES", "ESTIMATE" };
         private string[] headerTheft = new string[18] { "TREE NUM", "SPECIES", "PRODUCT", "DRC", "DBH", "TOTAL HT", "MERCH HT PRIM", "TOTAL CUFT", "GROSS CUFT", "NET CUFT", "GROSS BDFT", "NET BDFT", "NET CUFT SECONDARY", "NET BDFT SECONDARY", "CORDS", "CORDS SECONDARY", "# LOGS PRIMARY", "# LOGS SECONDARY" };
         private string[] headerVSM4 = new string[14] { "STRATA", "SAMGRP", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "GROSS", "NET", "EXPFAC", "KPI", "TREECNT", "RATIO", "INIT" };
-        private string[] headerL1R10 = new string[46]  {"CRUISE","STRATA","UNIT","PLOT","TREE","C/L","SG","STM","SPEC","PROD","UOM","L/D","YIELD","CSPEC","TGRADE","LOGNUM","SMDIAM","LGDIAM","LENGTH","VALUE","GRADE","DEFECT","RECV","GBDFT","GREMV","NBDFT","GCUFT","GREMV","NCUFT","DIBCLS","TOTEXP","ACRES","EXGRD","NCFTUTIL","NBFTUTIL","DBHOB","TOTHGT","UNITAC","XCOORD","YCOORD","ZCOORD","FOREST","DISTRICT","SALENAME","LOGMETH","SEENDEF"};
-        #endregion
+        private string[] headerL1R10 = new string[46] { "CRUISE", "STRATA", "UNIT", "PLOT", "TREE", "C/L", "SG", "STM", "SPEC", "PROD", "UOM", "L/D", "YIELD", "CSPEC", "TGRADE", "LOGNUM", "SMDIAM", "LGDIAM", "LENGTH", "VALUE", "GRADE", "DEFECT", "RECV", "GBDFT", "GREMV", "NBDFT", "GCUFT", "GREMV", "NCUFT", "DIBCLS", "TOTEXP", "ACRES", "EXGRD", "NCFTUTIL", "NBFTUTIL", "DBHOB", "TOTHGT", "UNITAC", "XCOORD", "YCOORD", "ZCOORD", "FOREST", "DISTRICT", "SALENAME", "LOGMETH", "SEENDEF" };
+
+        public OutputCSV(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void OutputCSVfiles(string CSVoutFile, string reportToUse, string textOutFile)
         {
             //  check for Region 10 and L1 file first -- they have a different format for the ListToOutput
-            currentRegion = bslyr.getRegion();
+            currentRegion = DataLayer.getRegion();
             if ((currentReport == "CSV5" || currentReport == "L1") && currentRegion == "10")
             {
                 MessageBox.Show("This could take awhile.\nPlease wait", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -45,18 +44,19 @@ namespace CruiseProcessing
                         case 0:             //  cut trees
                             ListToOutput.Clear();
                             ListToOutput = LoadLogStockR10("C");
-                            string cutOutFile = System.IO.Path.ChangeExtension(fileName, "L1cut.csv");
+                            string cutOutFile = System.IO.Path.ChangeExtension(FilePath, "L1cut.csv");
                             if (File.Exists(cutOutFile))
                                 File.Delete(cutOutFile);
                             writeCSV(cutOutFile, ListToOutput);
                             break;
+
                         case 1:             //  leave trees
                             ListToOutput.Clear();
                             ListToOutput = LoadLogStockR10("L");
-                            string leaveOutFile = System.IO.Path.ChangeExtension(fileName, "L1leave.csv");
+                            string leaveOutFile = System.IO.Path.ChangeExtension(FilePath, "L1leave.csv");
                             if (File.Exists(leaveOutFile))
                                 File.Delete(leaveOutFile);
-                            if(ListToOutput.Count > 0) writeCSV(leaveOutFile, ListToOutput);
+                            if (ListToOutput.Count > 0) writeCSV(leaveOutFile, ListToOutput);
                             break;
                     }   //  end switch
                 }   //  end for k loop
@@ -72,54 +72,61 @@ namespace CruiseProcessing
                 {
                     if (cLine != "" && cLine != " " && cLine != null && cLine != "\f")
                     {
-                        if(cLine.Substring(0,3) == reportToUse)
+                        if (cLine.Substring(0, 3) == reportToUse)
                         {
-                            switch(cLine.Substring(0,3))
+                            switch (cLine.Substring(0, 3))
                             {
-                            case "A05":         case "A06":           case "A07":
-                                reportFound = 1;
-                                //  read header lines
-                                for (int k = 0; k < 18; k++)
-                                    cLine = strRead.ReadLine();
-                                //  finish reading and writing lines
-                                writeCSV(reportToUse, strRead, CSVoutFile);
-                                break;
-                            case "A10":
-                                reportFound = 1;
-                                //  read header lines
-                                for (int k = 0; k < 16; k++)
-                                    cLine = strRead.ReadLine();
-                                //  finish reading and writing lines
-                                writeCSV(reportToUse, strRead, CSVoutFile);
-                                break;
-                            case "L1:":
-                                reportFound = 1;
-                                //  read header lines
-                                for (int k = 0; k < 15; k++)
-                                    cLine = strRead.ReadLine();
-                                //  finish reading and writing lines
-                                writeCSV(reportToUse, strRead, CSVoutFile);
-                                break;
-                            case "L2:":
-                                reportFound = 1;
-                                writeCSV6(CSVoutFile,strRead);
-                                break;
-                            case "ST1":
-                                reportFound = 1;
-                                writeCSV7(CSVoutFile, strRead);
-                                break;
-                            case "UC5":
-                                reportFound = 1;
-                                int nResult = writeCSV8(strRead, CSVoutFile);
-                                if (nResult == 1)
-                                {
-                                    strRead.Close();
-                                    return;
-                                }
-                                break;
+                                case "A05":
+                                case "A06":
+                                case "A07":
+                                    reportFound = 1;
+                                    //  read header lines
+                                    for (int k = 0; k < 18; k++)
+                                        cLine = strRead.ReadLine();
+                                    //  finish reading and writing lines
+                                    writeCSV(reportToUse, strRead, CSVoutFile);
+                                    break;
+
+                                case "A10":
+                                    reportFound = 1;
+                                    //  read header lines
+                                    for (int k = 0; k < 16; k++)
+                                        cLine = strRead.ReadLine();
+                                    //  finish reading and writing lines
+                                    writeCSV(reportToUse, strRead, CSVoutFile);
+                                    break;
+
+                                case "L1:":
+                                    reportFound = 1;
+                                    //  read header lines
+                                    for (int k = 0; k < 15; k++)
+                                        cLine = strRead.ReadLine();
+                                    //  finish reading and writing lines
+                                    writeCSV(reportToUse, strRead, CSVoutFile);
+                                    break;
+
+                                case "L2:":
+                                    reportFound = 1;
+                                    writeCSV6(CSVoutFile, strRead);
+                                    break;
+
+                                case "ST1":
+                                    reportFound = 1;
+                                    writeCSV7(CSVoutFile, strRead);
+                                    break;
+
+                                case "UC5":
+                                    reportFound = 1;
+                                    int nResult = writeCSV8(strRead, CSVoutFile);
+                                    if (nResult == 1)
+                                    {
+                                        strRead.Close();
+                                        return;
+                                    }
+                                    break;
                             }   //  end switch
                         }
-                        else if(cLine.Substring(0,4) == reportToUse)
+                        else if (cLine.Substring(0, 4) == reportToUse)
                         {
                             //  works just for VSM4 (CSV11)
                             reportFound = 1;
@@ -141,14 +148,13 @@ namespace CruiseProcessing
             return;
         }   //  end OutputCSVfile
 
-
         //  Request from Region 5 to produce CSV file for KPI esitmates from TreeEstimate table
         public void OutputEstimateFile(string CSVoutFile)
         {
             //  This produces a CSV file from the TreeEstimate table
             //  if the table is empty it is either because there are no 3P strata or
             //  the file was created prior to March 2015 when the table was implemented.
-            List<TreeEstimateDO> estimatesData = bslyr.getTreeEstimates();
+            List<TreeEstimateDO> estimatesData = DataLayer.getTreeEstimates();
             if (estimatesData.Count == 0)
             {
                 MessageBox.Show("No estimate data for the CSV9 report.\nCannot produce the report.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -164,21 +170,20 @@ namespace CruiseProcessing
                 c.field3 = ed.CountTree.TreeDefaultValue.Species;
                 c.field4 = ed.KPI.ToString();
                 outputList.Add(c);
-            }   //  
+            }   //
             writeCSV9(outputList, CSVoutFile);
             return;
         }   //  end OutputEstimateFile
 
-
         public void OutputTimberTheft(string CSVoutFile)
         {
-            List<TreeDO> tList = bslyr.getTrees();
-            List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
+            List<TreeDO> tList = DataLayer.getTrees();
+            List<TreeCalculatedValuesDO> tcvList = DataLayer.getTreeCalculatedValues();
             List<CSVlist> outputList = new List<CSVlist>();
 
-            foreach(TreeDO td in tList)
+            foreach (TreeDO td in tList)
             {
-                if(td.CountOrMeasure == "M")
+                if (td.CountOrMeasure == "M")
                 {
                     CSVlist c = new CSVlist();
                     c.field1 = td.TreeNumber.ToString();
@@ -195,7 +200,7 @@ namespace CruiseProcessing
                         return td.Tree_CN == tcv.Tree_CN;
                     });
 
-                    if(nthRow >= 0)
+                    if (nthRow >= 0)
                     {
                         c.field8 = tcvList[nthRow].TotalCubicVolume.ToString();
                         c.field9 = tcvList[nthRow].GrossCUFTPP.ToString();
@@ -211,9 +216,8 @@ namespace CruiseProcessing
                     }   //  endif
                     outputList.Add(c);
                 }   //  endif measured tree
-
             }   //  end foreach loop on trees
-            writeCSV10(outputList,CSVoutFile);
+            writeCSV10(outputList, CSVoutFile);
 
             return;
         }   //  end OutputTimberTheft
@@ -242,26 +246,32 @@ namespace CruiseProcessing
                         writeHeaderLine(headerA05, strCSVout, 19);
                         numHeaderLines = 18;
                         break;
+
                     case "A06":
                         writeHeaderLine(headerA06, strCSVout, 15);
                         numHeaderLines = 15;
                         break;
+
                     case "A07":
                         writeHeaderLine(headerA07, strCSVout, 19);
                         numHeaderLines = 19;
                         break;
+
                     case "A10":
                         writeHeaderLine(headerA10, strCSVout, 18);
                         numHeaderLines = 16;
                         break;
+
                     case "L1:":
                         writeHeaderLine(headerL1, strCSVout, 22);
                         numHeaderLines = 16;
                         break;
+
                     case "UC5":
                         writeHeaderLine(headerUC5, strCSVout, 13);
                         numHeaderLines = 13;
                         break;
+
                     case "VSM4":
                         writeHeaderLine(headerVSM4, strCSVout, 14);
                         numHeaderLines = 12;
@@ -283,7 +293,7 @@ namespace CruiseProcessing
                         {
                             //  read pass headers
                             for (int k = 0; k < numHeaderLines; k++)
-                                cLine = strRead.ReadLine();                            
+                                cLine = strRead.ReadLine();
                         }   //  endif
                     }   //  endif page break
                     if (cLine != "" && cLine != " " && cLine != null)
@@ -301,7 +311,6 @@ namespace CruiseProcessing
             }   //  end using
             return;
         }   //  end writeCSV
-
 
         private void writeCSV7(string CSVoutFile, StreamReader strRead)
         {
@@ -327,47 +336,46 @@ namespace CruiseProcessing
                 strCSVout.WriteLine(headerST1[17]);
 
                 //  skip header lines in report
-                for(int k = 0; k < 16; k++)
+                for (int k = 0; k < 16; k++)
                     cLine = strRead.ReadLine();
 
                 //  write line
-                while((cLine = strRead.ReadLine()) != null)
+                while ((cLine = strRead.ReadLine()) != null)
                 {
-                    if(cLine == "\f")
+                    if (cLine == "\f")
                     {
                         //  make sure still in ST1
                         cLine = strRead.ReadLine();
-                        if(cLine.Substring(0,3) != "ST1")
+                        if (cLine.Substring(0, 3) != "ST1")
                         {
                             strCSVout.Close();
                             return;
                         }
-                        else if(cLine.Substring(0,3) == "ST1")
+                        else if (cLine.Substring(0, 3) == "ST1")
                         {
                             //  skip header but look for product
                             for (int k = 0; k < 16; k++)
                             {
                                 if (cLine.Contains("SECONDARY"))
                                     strCSVout.WriteLine("SECONDARY");
-                                else if(cLine.Contains("PRIMARY"))
+                                else if (cLine.Contains("PRIMARY"))
                                     strCSVout.WriteLine("PRIMARY");
-                                else if(cLine.Contains("RECOVERED"))
+                                else if (cLine.Contains("RECOVERED"))
                                     strCSVout.WriteLine("RECOVERED");
                                 cLine = strRead.ReadLine();
                             }   //  end for k loop
                             //  output header to CSV file
-                            for(int k=0;k<17;k++)
+                            for (int k = 0; k < 17; k++)
                             {
                                 strCSVout.Write(headerST1[k]);
                                 strCSVout.Write(",");
                             }
                             strCSVout.WriteLine(headerST1[17]);
                         }
-                        
                     }
-                    else if(cLine != "" && cLine != " " && cLine != null)
+                    else if (cLine != "" && cLine != " " && cLine != null)
                     {
-                        if (cLine.Substring(0, 3) != "ST1" && cLine.Substring(0,3) != "  *")
+                        if (cLine.Substring(0, 3) != "ST1" && cLine.Substring(0, 3) != "  *")
                             writeLine(strCSVout, cLine);
                     }   //  endif
                 }   //  end while read
@@ -375,7 +383,6 @@ namespace CruiseProcessing
             }   //  end using
             return;
         }   //  end writeCSV7
-
 
         private int writeCSV8(StreamReader strRead, string CSVoutFile)
         {
@@ -401,10 +408,10 @@ namespace CruiseProcessing
 
                 //  skip header lines in report
                 for (int k = 0; k < 14; k++)
-                    cLine = strRead.ReadLine();          
+                    cLine = strRead.ReadLine();
 
                 //  write lines as needed skipping unit subtotals and quitting at subtotal summary
-                while((cLine = strRead.ReadLine()) != null)
+                while ((cLine = strRead.ReadLine()) != null)
                 {
                     if (cLine == "\f")
                     {
@@ -445,7 +452,6 @@ namespace CruiseProcessing
             return 1;
         }   //  end writeCSV8
 
-
         private int writeCSV11(StreamReader strRead, string CSVoutFile)
         {
             string currST = "";
@@ -485,19 +491,19 @@ namespace CruiseProcessing
                         cLine = strRead.ReadLine();
                         if (cLine.Substring(0, 4) != "VSM4")
                         {
-                            strCSVout.Close(); 
+                            strCSVout.Close();
                             return 1;
-                        }    
-                        else if (cLine.Substring(0,4) == "VSM4")
+                        }
+                        else if (cLine.Substring(0, 4) == "VSM4")
                         {
                             //  skip header
-                            for(int j = 0; j < 10; j++)
-                                cLine = strRead.ReadLine(); 
+                            for (int j = 0; j < 10; j++)
+                                cLine = strRead.ReadLine();
                         }   //  endif
                     }
-                    else if(cLine != "" && cLine != " " && cLine != null)
+                    else if (cLine != "" && cLine != " " && cLine != null)
                     {
-                        if(cLine.Contains("_____"))
+                        if (cLine.Contains("_____"))
                         {
                             //  Read through subtotal lines
                             cLine = strRead.ReadLine();
@@ -541,9 +547,7 @@ namespace CruiseProcessing
                             strCSVout.Write(cLine.Substring(109, 6));    //  ratio
                             strCSVout.Write(",");
                             strCSVout.WriteLine(cLine.Substring(121, 3));
-
                         }   //  endif
-
                     }   //  endif
                 }   //  end whiole
 
@@ -553,8 +557,6 @@ namespace CruiseProcessing
             return 1;
         }   //  end writeCSV11
 
-
-    
         private void writeHeaderLine(string[] currHeader, StreamWriter strCSVout, int numFields)
         {
             for (int k = 0; k < numFields - 1; k++)
@@ -563,10 +565,9 @@ namespace CruiseProcessing
                 strCSVout.Write(",");
             }   //  end for k loop
             //  last field
-            strCSVout.WriteLine(currHeader[numFields-1]);
+            strCSVout.WriteLine(currHeader[numFields - 1]);
             return;
         }   //  end writeHeaderLine
-
 
         private void writeLine(StreamWriter strCSVout, string currLine)
         {
@@ -580,10 +581,10 @@ namespace CruiseProcessing
                     currField.Append(" ");
                 else if (currentReport == "CSV5" && j == 17 && currLine[j] == ' ')
                     currField.Append(" ");
-                else if ((currentReport == "CSV1" || currentReport == "CSV3" || currentReport == "CSV4")  
+                else if ((currentReport == "CSV1" || currentReport == "CSV3" || currentReport == "CSV4")
                             && currLine[j] == ' ' && j == 11)
                     currField.Append(" ");
-                else if ((currentReport == "CSV1" || currentReport == "CSV3" || currentReport == "CSV4") 
+                else if ((currentReport == "CSV1" || currentReport == "CSV3" || currentReport == "CSV4")
                             && currLine[j] == ' ' && j == 16)
                     currField.Append(" ");
                 else if (currentReport != "CSV5" && currField.Length == 0 && j == 38)
@@ -611,7 +612,6 @@ namespace CruiseProcessing
             return;
         }   //  end writeLine
 
-
         private void writeCSV6(string CSVoutFile, StreamReader strRead)
         {
             //  reads L2 report and creates CSV file
@@ -621,9 +621,9 @@ namespace CruiseProcessing
             List<CSVlist> fileToOutput = new List<CSVlist>();
             //  start header line with forest, district and cruise number
             CSVlist fto = new CSVlist();
-            headerLine = bslyr.getForest().PadLeft(2, ' ');
-            headerLine += bslyr.getDistrict();
-            headerLine += bslyr.getCruiseNumber().PadRight(5, ' ');
+            headerLine = DataLayer.getForest().PadLeft(2, ' ');
+            headerLine += DataLayer.getDistrict();
+            headerLine += DataLayer.getCruiseNumber().PadRight(5, ' ');
 
             //  need to get pass first header group
             for (int k = 0; k < 6; k++)
@@ -666,7 +666,7 @@ namespace CruiseProcessing
                             cLine = strRead.ReadLine();
                     }   //  endif
                 }
-                else if(cLine.Substring(0,3) != "___" && cLine.Substring(0,4) != " TOT")
+                else if (cLine.Substring(0, 3) != "___" && cLine.Substring(0, 4) != " TOT")
                 {
                     //  load line in list
                     CSVlist c = new CSVlist();
@@ -692,7 +692,6 @@ namespace CruiseProcessing
             return;
         }   //  end writeCSV6
 
-
         private void writeCSV8(StreamWriter strCSVout, string currLine)
         {
             //  writes each field on the current line to the CSV* file with a comma
@@ -716,7 +715,6 @@ namespace CruiseProcessing
 
             return;
         }   //  end writeCSV8
-
 
         private void writeCSV9(List<CSVlist> outputList, string CSVoutFile)
         {
@@ -754,30 +752,28 @@ namespace CruiseProcessing
             return;
         }   //  end writeCSV9
 
-
         private void writeCSV10(List<CSVlist> outputList, string CSVoutFile)
         {
             //  make sure file is not already open
-            if(IsFileOpen(CSVoutFile) == 1)            
+            if (IsFileOpen(CSVoutFile) == 1)
             {
                 string errMsg = CSVoutFile;
                 errMsg += " file is open.\nCannot create the file.";
-                MessageBox.Show(errMsg, "ERROR",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(errMsg, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }   //  endif
-
 
             using (StreamWriter strCSVout = new StreamWriter(CSVoutFile))
             {
                 //  output header line
-                for(int k = 0;k<17;k++)
+                for (int k = 0; k < 17; k++)
                 {
                     strCSVout.Write(headerTheft[k]);
                     strCSVout.Write(",");
                 }   //  end for k loop
                 strCSVout.WriteLine(headerTheft[17]);
                 // write data
-                foreach(CSVlist ol in outputList)
+                foreach (CSVlist ol in outputList)
                 {
                     strCSVout.Write(ol.field1);
                     strCSVout.Write(",");
@@ -821,7 +817,6 @@ namespace CruiseProcessing
             return;
         }   //  end writeCSV10
 
-
         private void outputCSV6list(List<CSVlist> listToOutput, string CSVoutFile, string headLine)
         {
             //  make sure CSV file is not already open
@@ -859,19 +854,18 @@ namespace CruiseProcessing
                     strWriteCSV.Write(",");
                     strWriteCSV.Write(lto.field9);
                     strWriteCSV.Write(",");
-                    strWriteCSV.WriteLine(lto.field10);                    
+                    strWriteCSV.WriteLine(lto.field10);
                 }       //  end foreach loop
                 strWriteCSV.Close();
             }   //  end using
         }   //  end outputCSV6list
-
 
         private void writeCSV(string outputFileName, List<CSVlist> ListToOutput)
         {
             //  overloaded to write CSV files for Region 10
             StringBuilder sb = new StringBuilder();
             string deLimiter = ",";
-            using(StreamWriter strCSVout = new StreamWriter(outputFileName))
+            using (StreamWriter strCSVout = new StreamWriter(outputFileName))
             {
                 //  write header line
                 writeHeaderLine(headerL1R10, strCSVout, 46);
@@ -885,138 +879,183 @@ namespace CruiseProcessing
                             case 0:
                                 sb.Append(lto.field1);
                                 break;
+
                             case 1:
                                 sb.Append(lto.field2);
                                 break;
+
                             case 2:
                                 sb.Append(lto.field3);
                                 break;
+
                             case 3:
                                 sb.Append(lto.field4);
                                 break;
+
                             case 4:
                                 sb.Append(lto.field5);
                                 break;
+
                             case 5:
                                 sb.Append(lto.field6);
                                 break;
+
                             case 6:
                                 sb.Append(lto.field7);
                                 break;
+
                             case 7:
                                 sb.Append(lto.field8);
                                 break;
+
                             case 8:
                                 sb.Append(lto.field9);
                                 break;
+
                             case 9:
                                 sb.Append(lto.field10);
                                 break;
+
                             case 10:
                                 sb.Append(lto.field11);
                                 break;
+
                             case 11:
                                 sb.Append(lto.field12);
                                 break;
+
                             case 12:
                                 sb.Append(lto.field13);
                                 break;
+
                             case 13:
                                 sb.Append(lto.field14);
                                 break;
+
                             case 14:
                                 sb.Append(lto.field15);
                                 break;
+
                             case 15:
                                 sb.Append(lto.field16);
                                 break;
+
                             case 16:
                                 sb.Append(lto.field17);
                                 break;
+
                             case 17:
                                 sb.Append(lto.field18);
                                 break;
+
                             case 18:
                                 sb.Append(lto.field19);
                                 break;
+
                             case 19:
                                 sb.Append(lto.field20);
                                 break;
+
                             case 20:
                                 sb.Append(lto.field21);
                                 break;
+
                             case 21:
                                 sb.Append(lto.field22);
                                 break;
+
                             case 22:
                                 sb.Append(lto.field23);
                                 break;
+
                             case 23:
                                 sb.Append(lto.field24);
                                 break;
+
                             case 24:
                                 sb.Append(lto.field25);
                                 break;
+
                             case 25:
                                 sb.Append(lto.field26);
                                 break;
+
                             case 26:
                                 sb.Append(lto.field27);
                                 break;
+
                             case 27:
                                 sb.Append(lto.field28);
                                 break;
+
                             case 28:
                                 sb.Append(lto.field29);
                                 break;
+
                             case 29:
                                 sb.Append(lto.field30);
                                 break;
+
                             case 30:
                                 sb.Append(lto.field31);
                                 break;
+
                             case 31:
                                 sb.Append(lto.field32);
                                 break;
+
                             case 32:
                                 sb.Append(lto.field33);
                                 break;
+
                             case 33:
                                 sb.Append(lto.field34);
                                 break;
+
                             case 34:
                                 sb.Append(lto.field35);
                                 break;
+
                             case 35:
                                 sb.Append(lto.field36);
                                 break;
+
                             case 36:
                                 sb.Append(lto.field37);
                                 break;
+
                             case 37:
                                 sb.Append(lto.field38);
                                 break;
+
                             case 38:
                                 sb.Append(lto.field39);
                                 break;
+
                             case 39:
                                 sb.Append(lto.field40);
                                 break;
+
                             case 40:
                                 sb.Append(lto.field41);
                                 break;
+
                             case 41:
                                 sb.Append(lto.field42);
                                 break;
+
                             case 42:
                                 sb.Append(lto.field43);
                                 break;
+
                             case 43:
                                 sb.Append(lto.field44);
                                 break;
+
                             case 44:
                                 sb.Append(lto.field45);
                                 break;
+
                             case 45:
                                 sb.Append(lto.field46);
                                 break;
@@ -1042,10 +1081,9 @@ namespace CruiseProcessing
             {
                 return 1;
             }   //  end try catch
-            
+
             return 0;
         }   //  end IsFileOpen
-
 
         private List<CSVlist> LoadLogStockR10(string currCL)
         {
@@ -1054,10 +1092,10 @@ namespace CruiseProcessing
             //  otherwise, it would be cut trees only.
             //  So this needs to loop through both and create separate lists to output
             //  open tables needed
-            List<SaleDO> sList = bslyr.getSale();
-            List<LogStockDO> logList = bslyr.getCutOrLeaveLogs(currCL);
+            List<SaleDO> sList = DataLayer.getSale();
+            List<LogStockDO> logList = DataLayer.getCutOrLeaveLogs(currCL);
             List<CSVlist> lsList = new List<CSVlist>();
-            List<LogDO> origLogs = bslyr.getLogs();
+            List<LogDO> origLogs = DataLayer.getLogs();
 
             //  Load list to return
             string currentCruise = sList[0].SaleNumber;
@@ -1071,7 +1109,7 @@ namespace CruiseProcessing
                 if (ll.Tree.CountOrMeasure == "M")
                 {
                     //  what is stratum acres?
-                    strAcres = Utilities.ReturnCorrectAcres(ll.Tree.Stratum.Code, bslyr, (long)ll.Tree.Stratum_CN);
+                    strAcres = Utilities.ReturnCorrectAcres(ll.Tree.Stratum.Code, DataLayer, (long)ll.Tree.Stratum_CN);
 
                     //  Find all logs for this tree
                     CSVlist c = new CSVlist();
@@ -1150,7 +1188,7 @@ namespace CruiseProcessing
                     else c.field45 = ll.Tree.CuttingUnit.LoggingMethod;
                     //  have to look up seen defect from original logs
                     int nthRow = origLogs.FindIndex(
-                        delegate(LogDO ld)
+                        delegate (LogDO ld)
                         {
                             return ld.Tree_CN == ll.Tree.Tree_CN && ld.LogNumber == ll.LogNumber;
                         });
@@ -1160,9 +1198,8 @@ namespace CruiseProcessing
                     lsList.Add(c);
                 }   //  endif measured tree
             }   //  end foreach loop
-            
+
             return lsList;
         }   //  end LoadLogStockR10
-  
     }
 }

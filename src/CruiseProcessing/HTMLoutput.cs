@@ -12,8 +12,6 @@ namespace CruiseProcessing
 {
     class HTMLoutput
     {
-        #region
-        public string fileName;
         private string[] HTMLcommands = new string[7] {"<H2><A name=Index>Index</A></H2>",
 	                                                   "<H2><A href=\"#XXXX\">XXX Report</A></H2>",
 	                                                   "<p style = \"page-break-before: always\">",
@@ -21,8 +19,12 @@ namespace CruiseProcessing
 	                                                   "<H2><A name=XXXX>XX</A></H2>",
 	                                                   "<H2><A href=\"#Index\">Back to Index</A></H2>",
 	                                                   "</pre>"};
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
+
+        public HTMLoutput(CPbusinessLayer dataLayer)
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
 
         public void CreateHTMLfile()
         {
@@ -31,13 +33,13 @@ namespace CruiseProcessing
             string HTMLoutFile;
 
             //  need list of reports selected to build index
-            List<ReportsDO> reportsSelected = bslyr.GetSelectedReports();
+            List<ReportsDO> reportsSelected = DataLayer.GetSelectedReports();
 
             //  check for equation tables with records to output
-            List<VolumeEquationDO> veList = bslyr.getVolumeEquations();
-            List<ValueEquationDO> vaList = bslyr.getValueEquations();
-            List<QualityAdjEquationDO> qaList = bslyr.getQualAdjEquations();
-            List<BiomassEquationDO> bsList = bslyr.getBiomassEquations();
+            List<VolumeEquationDO> veList = DataLayer.getVolumeEquations();
+            List<ValueEquationDO> vaList = DataLayer.getValueEquations();
+            List<QualityAdjEquationDO> qaList = DataLayer.getQualAdjEquations();
+            List<BiomassEquationDO> bsList = DataLayer.getBiomassEquations();
 
             if (veList.Count > 0) eqTables[0] = 1;
             if (vaList.Count > 0) eqTables[1] = 1;
@@ -45,7 +47,7 @@ namespace CruiseProcessing
             if (bsList.Count > 0) eqTables[3] = 1;
 
             //  fix the output filename
-            outputFileName = System.IO.Path.ChangeExtension(fileName, "out");
+            outputFileName = System.IO.Path.ChangeExtension(DataLayer.FilePath, "out");
             //  does it exist?
             if (!File.Exists(outputFileName))
             {
@@ -54,7 +56,7 @@ namespace CruiseProcessing
             }   //  endif if does not exist
 
             //  create HTML filename
-            HTMLoutFile = System.IO.Path.ChangeExtension(fileName, "html");
+            HTMLoutFile = System.IO.Path.ChangeExtension(DataLayer.FilePath, "html");
 
             //  need the index
             ArrayList HTMLindex = BuildTheIndex(eqTables, reportsSelected);

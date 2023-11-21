@@ -11,7 +11,6 @@ namespace CruiseProcessing
 {
     public class OutputUnitStandTables : CreateTextFile
     {
-        #region
         public string currentReport;
         private List<string> prtFields = new List<string>();
         private double unitPF = 0;
@@ -31,7 +30,10 @@ namespace CruiseProcessing
         private double grSawTotal = 0;
         private double grNonSawTotal = 0;
         private List<PRODO> proList = new List<PRODO>();
-        #endregion
+
+        public OutputUnitStandTables(CPbusinessLayer businessLayer) : base(businessLayer)
+        {
+        }
 
         public void CreateUnitStandTables(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
@@ -124,11 +126,11 @@ namespace CruiseProcessing
             rh.createReportTitle(currentTitle, 6, 0, 0, secondLine, reportConstants.FCTO);
 
             //  need cutting unit numbers
-            List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
+            List<CuttingUnitDO> cList = DataLayer.getCuttingUnits();
             //  get all LCD data
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             //  get all PRO data
-            proList = bslyr.getPRO();
+            proList = DataLayer.getPRO();
 
             //  load into report data
             foreach (CuttingUnitDO c in cList)
@@ -144,20 +146,20 @@ namespace CruiseProcessing
             {
                 case "Species":
                     if (whatProduct == "SAW")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND PrimaryProduct = @p2 ",
+                        speciesGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND PrimaryProduct = @p2 ",
                                                             "GROUP BY Species", "C", "01");
                     else if (whatProduct == "NSAW" || whatProduct == "BOTH")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
+                        speciesGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
                     break;
                 case "SampleGroup":
                     if (whatProduct == "SAW")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND PrimaryProduct = @p2 ", 
+                        speciesGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND PrimaryProduct = @p2 ", 
                                                             "GROUP BY SampleGroup", "C", "01");
                     else if (whatProduct == "NSAW" || whatProduct == "BOTH")
-                        speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY SampleGroup", "C", "");
+                        speciesGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY SampleGroup", "C", "");
                     break;
                 case "ContractSpecies":
-                    speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY ContractSpecies", "C", "");
+                    speciesGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY ContractSpecies", "C", "");
                     break;
             }   //  end switch
 
@@ -213,7 +215,7 @@ namespace CruiseProcessing
                             //  pull data for groups by stratum
                             foreach (StratumDO stratum in cu.Strata)
                             {
-                                List<TreeCalculatedValuesDO> unitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cu.CuttingUnit_CN);
+                                List<TreeCalculatedValuesDO> unitTrees = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cu.CuttingUnit_CN);
                                 List<TreeCalculatedValuesDO> currentTrees = new List<TreeCalculatedValuesDO>();
                                 if (stratum.Method == "100")
                                 {
@@ -506,7 +508,7 @@ namespace CruiseProcessing
             //  which row?
             int nthRow = FindUnitIndex(currentUnit.Code);
             //  what method for number of trees
-            string currMeth = Utilities.MethodLookup(currST, bslyr);
+            string currMeth = Utilities.MethodLookup(currST, DataLayer);
 
             //  sum up group
             foreach (LCDDO cg in currentGroup)
@@ -990,10 +992,10 @@ namespace CruiseProcessing
             if (currentReport == "UC25")
             {
                 //  need payment unit groups from the cutting unit table
-                paymentGroups = bslyr.getPaymentUnits();
+                paymentGroups = DataLayer.getPaymentUnits();
             }
             else if (currentReport == "UC26")
-                paymentGroups = bslyr.getCuttingUnits();
+                paymentGroups = DataLayer.getCuttingUnits();
 
             //  load species groups into subtotal summary
             foreach (LCDDO s in speciesGroups)
@@ -1039,7 +1041,7 @@ namespace CruiseProcessing
                                 {
                                     if (stratum.Method != "100")
                                     {
-                                        List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN);
+                                        List<TreeCalculatedValuesDO> justUnitTrees = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN);
                                         List<TreeCalculatedValuesDO> stmTrees = justUnitTrees.FindAll(
                                             delegate(TreeCalculatedValuesDO ut)
                                             {
@@ -1066,7 +1068,7 @@ namespace CruiseProcessing
                             {
                                 if (stratum.Method == "100")
                                 {
-                                    List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN);
+                                    List<TreeCalculatedValuesDO> justUnitTrees = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)jg.CuttingUnit_CN);
                                     SumVolume(justUnitTrees);
                                 }
                                 else
@@ -1129,7 +1131,7 @@ namespace CruiseProcessing
                             {
                                 if(stratum.Method != "100")
                                 {
-                                   List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN);
+                                   List<TreeCalculatedValuesDO> justUnitTrees = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN);
                                    List<TreeCalculatedValuesDO> stmTrees = justUnitTrees.FindAll(
                                        delegate(TreeCalculatedValuesDO ut)
                                        {
@@ -1154,7 +1156,7 @@ namespace CruiseProcessing
                         {
                             if (stratum.Method == "100")
                             {
-                                List<TreeCalculatedValuesDO> justUnitTrees = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN);
+                                List<TreeCalculatedValuesDO> justUnitTrees = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)pg.CuttingUnit_CN);
                                 SumVolume(justUnitTrees);
                             }
                             else

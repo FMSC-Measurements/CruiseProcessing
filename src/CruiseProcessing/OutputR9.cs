@@ -1,21 +1,18 @@
-﻿using System;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-
 
 namespace CruiseProcessing
 {
-    class OutputR9 : CreateTextFile
+    internal class OutputR9 : CreateTextFile
     {
-        #region
         public string currentReport;
         private int[] fieldLengths;
-  
+
         private regionalReportHeaders rRH = new regionalReportHeaders();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private double sumEstTrees, sumTipwood;
@@ -41,19 +38,20 @@ namespace CruiseProcessing
         private long currSTcn;
         private long currCUcn;
 
-        #endregion
+        public OutputR9(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
-
-         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         public void OutputTipwoodReport(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
-            sList = bslyr.getStratum();
-            cList = bslyr.getCuttingUnits();
-            proList = bslyr.getPRO();
+            sList = DataLayer.getStratum();
+            cList = DataLayer.getCuttingUnits();
+            proList = DataLayer.getPRO();
             // string orderBy = "";
             // reset summation variables
-           
+
             fieldLengths = new[] { 6, 8, 10, 12, 13 };
             numTrees = 0.0;
             estTrees = 0.0;
@@ -62,29 +60,28 @@ namespace CruiseProcessing
             strataSubtotal.Clear();
 
             numOlines = 0;
- 
+
             summaryList.Clear();
-                    // needs to run by cutting unit
+            // needs to run by cutting unit
             foreach (CuttingUnitDO c in cList)
             {
                 c.Strata.Populate();
                 currCUcn = (long)c.CuttingUnit_CN;
-                        //  Create report title
+                //  Create report title
                 rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-  
+
                 //  Load and print data for current cutting unit
                 LoadAndPrintProrated(strWriteOut, c, rh, ref pageNumb, summaryList);
                 if (unitSubtotal.Count > 0)
-                     OutputUnitSubtotal(strWriteOut, ref pageNumb, rh, currentReport);
+                    OutputUnitSubtotal(strWriteOut, ref pageNumb, rh, currentReport);
                 unitSubtotal.Clear();
             }   //  end foreach loop
-                    //  output Subtotal Summary and grand total for the report
+                //  output Subtotal Summary and grand total for the report
             OutputSubtotalSummary(strWriteOut, rh, ref pageNumb, summaryList);
             OutputGrandTotal(strWriteOut, rh, currentReport, ref pageNumb);
 
             return;
         }   //  end OutputUnitReports
-
 
         private int findMethods()
         {
@@ -98,28 +95,27 @@ namespace CruiseProcessing
             return nthRow;
         }   //  end findMethods
 
-
-           private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb,
-                                        reportHeaders rh, string currRPT)
+        private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb,
+                                     reportHeaders rh, string currRPT)
         {
-               //  WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-               //                     completeHeader, 13, ref pageNumb, "");
-                 WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rRH.R902columns, 10, ref pageNumb, "");
-                    strWriteOut.Write("                  ");
-                    strWriteOut.WriteLine(reportConstants.subtotalLine1);
-                    strWriteOut.Write("  UNIT ");
-                    strWriteOut.Write(unitSubtotal[0].Value1.PadLeft(3, ' '));
-                    strWriteOut.Write(" TOTAL       ");
-                    strWriteOut.Write(" {0,7:F0}", unitSubtotal[0].Value3);
-                   // strWriteOut.Write("  {0,7:F0}", unitSubtotal[0].Value13);
-                    strWriteOut.WriteLine("  {0,12:F0}", unitSubtotal[0].Value4);
-                  strWriteOut.WriteLine(" ");
-                    numOlines += 3;
-             return;
+            //  WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            //                     completeHeader, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                               rRH.R902columns, 10, ref pageNumb, "");
+            strWriteOut.Write("                  ");
+            strWriteOut.WriteLine(reportConstants.subtotalLine1);
+            strWriteOut.Write("  UNIT ");
+            strWriteOut.Write(unitSubtotal[0].Value1.PadLeft(3, ' '));
+            strWriteOut.Write(" TOTAL       ");
+            strWriteOut.Write(" {0,7:F0}", unitSubtotal[0].Value3);
+            // strWriteOut.Write("  {0,7:F0}", unitSubtotal[0].Value13);
+            strWriteOut.WriteLine("  {0,12:F0}", unitSubtotal[0].Value4);
+            strWriteOut.WriteLine(" ");
+            numOlines += 3;
+            return;
         }   //  end OutputUnitSubtotal
 
-         private void OutputGrandTotal(StreamWriter strWriteOut, reportHeaders rh, string currRPT, ref int pageNumb)
+        private void OutputGrandTotal(StreamWriter strWriteOut, reportHeaders rh, string currRPT, ref int pageNumb)
         {
             //WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
             //                        completeHeader, 13, ref pageNumb, "");
@@ -127,14 +123,14 @@ namespace CruiseProcessing
                                 rRH.R902columns, 10, ref pageNumb, "");
             //  works for UC reports
             strWriteOut.WriteLine("");
-                    strWriteOut.WriteLine("");
-                    strWriteOut.Write(" OVERALL TOTALS-- ");
-                    if (grandTotal.Count > 0)
-                    {
-                        strWriteOut.Write("{0,7:F0}", grandTotal[0].Value3);
-                        strWriteOut.WriteLine("  {0,9:F0}", grandTotal[0].Value4);
-                        numOlines += 3;
-                    }   //  endif
+            strWriteOut.WriteLine("");
+            strWriteOut.Write(" OVERALL TOTALS-- ");
+            if (grandTotal.Count > 0)
+            {
+                strWriteOut.Write("{0,7:F0}", grandTotal[0].Value3);
+                strWriteOut.WriteLine("  {0,9:F0}", grandTotal[0].Value4);
+                numOlines += 3;
+            }   //  endif
             strWriteOut.WriteLine("");
             strWriteOut.WriteLine("");
 
@@ -144,18 +140,17 @@ namespace CruiseProcessing
             //WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
             //                        completeHeader, 13, ref pageNumb, "");
             //  also output the footer
-           // for (int k = 0; k < 5; k++)
-           //     strWriteOut.WriteLine(rh.UCfooter[k]);
+            // for (int k = 0; k < 5; k++)
+            //     strWriteOut.WriteLine(rh.UCfooter[k]);
             return;
         }   //  end OutputGrandTotal
-
 
         private void OutputSubtotalSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
                                             List<ReportSubtotal> summaryList)
         {
             //  output summary headers
-          //  WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-          //                      completeHeader, 13, ref pageNumb, "");
+            //  WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            //                      completeHeader, 13, ref pageNumb, "");
             WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                 rRH.R902columns, 10, ref pageNumb, "");
             strWriteOut.WriteLine("                  _________________________________________________________________________________________________________________");
@@ -182,8 +177,6 @@ namespace CruiseProcessing
             return;
         }   //  end OutputSubtotalSummary
 
-
-
         private void finishColumnHeaders(string[] leftHandSide, string[] rightHandSide)
         {
             //  clean up completeHeader before loading again
@@ -201,8 +194,7 @@ namespace CruiseProcessing
             return;
         }   //  end finishColumnHeaders
 
-
-//////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////
         private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, reportHeaders rh, ref int pageNumb,
                                             List<ReportSubtotal> summaryList)
         {
@@ -210,7 +202,7 @@ namespace CruiseProcessing
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
             //  or sample groups for UC6
             ArrayList groupsToProcess = new ArrayList();
-            groupsToProcess = bslyr.GetJustSpecies("Tree");
+            groupsToProcess = DataLayer.GetJustSpecies("Tree");
             foreach (string gtp in groupsToProcess)
             {
                 //  pull data based on strata method and species
@@ -221,7 +213,7 @@ namespace CruiseProcessing
                     {
                         case "100":
                             //  data comes from trees and must be expanded
-                            tcvList = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cdo.CuttingUnit_CN);
+                            tcvList = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cdo.CuttingUnit_CN);
                             List<TreeCalculatedValuesDO> currentGroup = new List<TreeCalculatedValuesDO>();
                             //  find cut trees and species to process
                             currentGroup = tcvList.FindAll(
@@ -231,9 +223,10 @@ namespace CruiseProcessing
                             });
                             if (currentGroup.Count > 0) SumUpGroups(currentGroup);
                             break;
+
                         default:
                             //  otherwise data comes from LCD and is NOT expanded
-                            lcdList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species", currCL, stratum.Code);
+                            lcdList = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species", currCL, stratum.Code);
                             List<LCDDO> currGroup = new List<LCDDO>();
                             //  find species to process
                             currGroup = lcdList.FindAll(delegate (LCDDO l) { return l.Species == gtp; });
@@ -263,7 +256,6 @@ namespace CruiseProcessing
             return;
         }   //  end LoadAndPrintProrated
 
-
         private void UpdateUnitTotal(string currRPT)
         {
             //  Works for UC reports
@@ -272,14 +264,14 @@ namespace CruiseProcessing
             {
                 unitSubtotal[0].Value3 += numTrees;
                 unitSubtotal[0].Value4 += currTipwood;
-               // unitSubtotal[0].Value13 += estTrees;
+                // unitSubtotal[0].Value13 += estTrees;
             }
             else
             {
                 ReportSubtotal rs = new ReportSubtotal();
                 rs.Value3 += numTrees;
                 rs.Value4 += currTipwood;
-               // rs.Value13 += estTrees;
+                // rs.Value13 += estTrees;
                 unitSubtotal.Add(rs);
             }   //  endif
             return;
@@ -320,7 +312,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateStrataTotal
 
-//      /////////////////////////////////////////////////////////////////////////////////
+        //      /////////////////////////////////////////////////////////////////////////////////
         private void UpdateSubtotalSummary(string currSP, List<ReportSubtotal> summaryList)
         {
             //  used by UC5-UC6 only for summary at end of report
@@ -344,9 +336,7 @@ namespace CruiseProcessing
                 rs.Value4 += currTipwood;
                 //rs.Value13 += estTrees;
                 summaryList.Add(rs);
-
             }   //  endif
-
 
             //  updates grand total as well
             if (grandTotal.Count > 0)
@@ -366,7 +356,6 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotalSummary
 
-
         private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  overloaded for UC reports
@@ -376,12 +365,11 @@ namespace CruiseProcessing
             WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                 rRH.R902columns, 10, ref pageNumb, "");
 
-
             //  Expansion factor is first
             prtFields.Add(String.Format(fieldFormat5, numTrees));
-             //  This is estimated number of trees -- all methods except 3P
-             //if (currTipwood == 0.0)
-             //       prtFields.Add("      0");
+            //  This is estimated number of trees -- all methods except 3P
+            //if (currTipwood == 0.0)
+            //       prtFields.Add("      0");
             // else prtFields.Add(Utilities.FormatField(estTrees, fieldFormat5));
             //  load volumes
 
@@ -390,7 +378,6 @@ namespace CruiseProcessing
             printOneRecord(fieldLengths, prtFields, strWriteOut);
             return;
         }   //  end WriteCurrentGroup
-
 
         private void SumUpGroups(List<TreeCalculatedValuesDO> tList)
         {
@@ -402,8 +389,8 @@ namespace CruiseProcessing
                 {
                     numTrees += t.Tree.ExpansionFactor;
                     currTipwood += t.TipwoodVolume * t.Tree.ExpansionFactor;
- 
-                 //  lookup proration factor for this group
+
+                    //  lookup proration factor for this group
                     int nthRow = proList.FindIndex(
                         delegate (PRODO p)
                         {
@@ -419,7 +406,6 @@ namespace CruiseProcessing
 
             return;
         }   //  end SumUpGroups for 100% method
-
 
         private void SumUpGroups(List<LCDDO> lcdList, string currCU)
         {
@@ -443,15 +429,15 @@ namespace CruiseProcessing
                 if (l.UOM != "05")
                 {
                     //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                    if (Utilities.MethodLookup(l.Stratum, bslyr) == "3P" ||
-                        Utilities.MethodLookup(l.Stratum, bslyr) == "S3P")
+                    if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3P" ||
+                        Utilities.MethodLookup(l.Stratum, DataLayer) == "S3P")
                     {
                         numTrees += pull3PtallyTrees(proList, lcdList, l.SampleGroup,
                                                 l.Species, l.Stratum, l.PrimaryProduct,
                                                 l.LiveDead, l.STM, currCU);
                         estTrees = 0.0;
                     }
-                    else if (Utilities.MethodLookup(l.Stratum, bslyr) == "3PPNT")
+                    else if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3PPNT")
                     {
                         numTrees += l.SumExpanFactor * proratFac;
                         estTrees = 0.0;
@@ -469,14 +455,11 @@ namespace CruiseProcessing
                     else
                     {
                         currTipwood += l.SumTipwood * proratFac;
-
                     }   //  endif sure to measure
                 }   //  endif on unit of measure
             }   //  end foreach loop on LCD
             return;
         }   //  end SumUpGroups
-
-
 
         private double pull3PtallyTrees(List<PRODO> proList, List<LCDDO> lcdList, string currSG,
                                         string currSP, string currST, string currPP, string currLD,
@@ -486,7 +469,7 @@ namespace CruiseProcessing
             //  Are there multiple species in the current sample group
             //  for just non-STM first
             //  need entire LCD list for UC5-6
-           lcdList = bslyr.getLCD();
+            lcdList = DataLayer.getLCD();
 
             List<LCDDO> justGroups = lcdList.FindAll(
                 delegate (LCDDO l)
@@ -528,7 +511,7 @@ namespace CruiseProcessing
                                      double currProFac)
         {
             //  retrieve calc values for current stratum
-            List<TreeCalculatedValuesDO> tList = bslyr.getTreeCalculatedValues((int)currSTcn, (int)currCUcn);
+            List<TreeCalculatedValuesDO> tList = DataLayer.getTreeCalculatedValues((int)currSTcn, (int)currCUcn);
             //  Find all STM trees in the current cutting unit
             List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
                 delegate (TreeCalculatedValuesDO tcv)
@@ -543,8 +526,7 @@ namespace CruiseProcessing
 
             return;
         }   //  end getSTMtrees
-            
-        
+
         /*      public void OutputTipwoodReport(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
            {
                string currentTitle = fillReportTitle(currentReport);
@@ -573,7 +555,6 @@ namespace CruiseProcessing
                        {
                            if (prevSP != ju.Species)
                            {
-
                                List<TreeDO> currentTrees = tList.FindAll(
                                    delegate (TreeDO t)
                                        {
@@ -586,7 +567,6 @@ namespace CruiseProcessing
                                        delegate (TreeCalculatedValuesDO tcv)
                                        {
                                            return tcv.Tree_CN == ct.Tree_CN;
-
                                        });
                                    //
                                    tipWoodVol += tcvList[nthRow].TipwoodVolume * ct.ExpansionFactor * STacres;
@@ -614,7 +594,6 @@ namespace CruiseProcessing
 
                return;
                //  end OutputTipwoodReport
-
            }   //  end OutputR9
 
            private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNum, reportHeaders rh)
@@ -651,11 +630,7 @@ namespace CruiseProcessing
                prtFields.Add(Utilities.FormatField(sumEstTrees, "{0,10:F0}").ToString().PadLeft(34, ' '));
                prtFields.Add(Utilities.FormatField(sumTipwood, "{0,10:F0}").ToString().PadLeft(12, ' '));
                printOneRecord(fieldLengths, prtFields, strWriteOut);
-
            }
            */
-
     }
-
-
 }

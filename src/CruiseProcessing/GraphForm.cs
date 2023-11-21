@@ -14,12 +14,10 @@ namespace CruiseProcessing
 {
     public partial class GraphForm : Form
     {
-        #region
         public string chartType;
         public string currTitle;
         public string currXtitle;
         public string currYtitle;
-        public string fileName;
         public string currSP;
         public int graphNum;
         public string cruiseNum;
@@ -28,11 +26,18 @@ namespace CruiseProcessing
         public List<CreateTextFile.ReportSubtotal> graphData = new List<CreateTextFile.ReportSubtotal>();
         public List<LogStockDO> logStockList = new List<LogStockDO>();
         public List<LCDDO> lcdList = new List<LCDDO>();
-        #endregion
+
+        protected CPbusinessLayer DataLayer { get; }
 
         public GraphForm()
         {
             InitializeComponent();
+        }
+
+        public GraphForm(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void GraphForm_Load(object sender, EventArgs e)
@@ -105,7 +110,7 @@ namespace CruiseProcessing
             //  save graph
             Size newSize = new Size(337,320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(fileName);
+            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             outputFile += "\\Graphs\\";
             outputFile += currSaleName;
             System.IO.Directory.CreateDirectory(outputFile);
@@ -208,7 +213,7 @@ namespace CruiseProcessing
             //  save graphs
             Size newSize = new Size(337, 320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(fileName);
+            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             outputFile += "\\Graphs\\";
             outputFile += currSaleName;
             System.IO.Directory.CreateDirectory(outputFile);
@@ -406,7 +411,7 @@ namespace CruiseProcessing
             //  save graphs
             Size newSize = new Size(337, 320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(fileName);
+            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             outputFile += "\\Graphs\\";
             outputFile += currSaleName;
             System.IO.Directory.CreateDirectory(outputFile);

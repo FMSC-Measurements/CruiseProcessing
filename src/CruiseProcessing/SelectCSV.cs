@@ -12,9 +12,9 @@ namespace CruiseProcessing
 {
     public partial class SelectCSV : Form
     {
-        #region
-        public string fileName;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        
+        
+        
         private string textFileName;
         private string CSVoutFile;
         private int[] filesToOutput = new int[11];
@@ -29,17 +29,24 @@ namespace CruiseProcessing
                                                         "ReportKPIestimates.csv",
                                                         "TimberTheft.csv",
                                                         "ReportVSM4.csv"};
-        #endregion
+        
+        protected CPbusinessLayer DataLayer { get; }
 
-        public SelectCSV()
+        protected SelectCSV()
         {
             InitializeComponent();
+        }
+
+        public SelectCSV(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()
         {
             //  make sure text output file exists as these are generated from the reports in that file
-            textFileName = System.IO.Path.ChangeExtension(fileName, "out");
+            textFileName = System.IO.Path.ChangeExtension(DataLayer.FilePath, "out");
             if (!File.Exists(textFileName))
             {
                 MessageBox.Show("TEXT OUTPUT FILE COULD NOT BE FOUND.\nPlease create the text output file to continue.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -84,11 +91,8 @@ namespace CruiseProcessing
 
         private void onCreateFiles(object sender, EventArgs e)
         {
-            OutputCSV ocsv = new OutputCSV();
-            ocsv.fileName = fileName;
-            ocsv.bslyr.fileName = bslyr.fileName;
-            ocsv.bslyr.DAL = bslyr.DAL;
-            string currPath = System.IO.Path.GetDirectoryName(fileName);
+            OutputCSV ocsv = new OutputCSV(DataLayer);
+            string currPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             currPath += "\\";
             for (int j = 0; j < 11; j++)
             {
@@ -121,17 +125,14 @@ namespace CruiseProcessing
                         case 5:     //  L3
                             //  this needs to be built from scratch -- noope, fixed it to work with L2 report
                             ocsv.currentReport = "CSV6";
-                            ocsv.fileName = fileName;
                             ocsv.OutputCSVfiles(CSVoutFile, "L2:", textFileName);
                             break;
                         case 6:     //  ST1
                             ocsv.currentReport = "CSV7";
-                            ocsv.fileName = fileName;
                             ocsv.OutputCSVfiles(CSVoutFile, "ST1", textFileName);
                             break;
                         case 7:     //  UC5
                             ocsv.currentReport = "CSV8";
-                            ocsv.fileName = fileName;
                             ocsv.OutputCSVfiles(CSVoutFile, "UC5", textFileName);
                             break;
                         case 8:     //  KPI estimates

@@ -11,7 +11,7 @@ namespace CruiseProcessing
     public class CalculateTreeValues
     {
         #region
-        public string fileName;
+        
         private string currRegion;
         private  string currForest;
         private  string currDist;
@@ -28,7 +28,12 @@ namespace CruiseProcessing
         private  StringBuilder LIVE = new StringBuilder(256);
         private  StringBuilder CONSPEC = new StringBuilder(256);
         private  MRules mRules;
-        public  CPbusinessLayer bslyr = new CPbusinessLayer();
+        protected  CPbusinessLayer DataLayer { get; }
+
+        public CalculateTreeValues(CPbusinessLayer dataLayer)
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
 
         //  declarations for external methods from vollib.dll
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//EntryPoint = "VERNUM2",
@@ -53,24 +58,24 @@ namespace CruiseProcessing
         public  void ProcessTrees(string currST, string currMethod, long currST_CN)
         {
             //  Retrieve region, forest and district
-            currRegion = bslyr.getRegion();
-            currForest = bslyr.getForest();
-            currDist = bslyr.getDistrict();
-            currCruise = bslyr.getCruiseNumber();
+            currRegion = DataLayer.getRegion();
+            currForest = DataLayer.getForest();
+            currDist = DataLayer.getDistrict();
+            currCruise = DataLayer.getCruiseNumber();
 
             //  convert district  to integer for library call
             IDIST = Convert.ToInt16(currDist);
 
             //  Calculate volumes by stratum
-            List<BiomassEquationDO> bioList = bslyr.getBiomassEquations();
-            List<TreeDO> justStratum = bslyr.JustMeasuredTrees(currST_CN);
+            List<BiomassEquationDO> bioList = DataLayer.getBiomassEquations();
+            List<TreeDO> justStratum = DataLayer.JustMeasuredTrees(currST_CN);
             CalculateVolumes(justStratum, currST, currMethod, bioList,currST_CN);
 
             //  Check for value equations
-            List<ValueEquationDO> valList = bslyr.getValueEquations();
+            List<ValueEquationDO> valList = DataLayer.getValueEquations();
             if (valList.Count > 0)
             {
-                List<TreeCalculatedValuesDO> tcList = bslyr.getTreeCalculatedValues();
+                List<TreeCalculatedValuesDO> tcList = DataLayer.getTreeCalculatedValues();
                 CalculateValue(justStratum, currST, currMethod, currRegion, valList, tcList);
             }   //  endif valList
 
@@ -84,7 +89,6 @@ namespace CruiseProcessing
             //  Also need tree calculated values by stratum
             List<TreeCalculatedValuesDO> tcList = new List<TreeCalculatedValuesDO>();
             CalculateNetVolume CalcNet = new CalculateNetVolume();
-            VolumeEqMethods Veq = new VolumeEqMethods();
             //  Definitions for the Fortran DLL call
             int I3 = 3;
             int I7 = 7;
@@ -106,7 +110,7 @@ namespace CruiseProcessing
 
             //strings for passing to/from Fortran.  pass fixed length strings
             StringBuilder CTYPE = new StringBuilder(256);
-            string vllType = bslyr.getVLL();
+            string vllType = DataLayer.getVLL();
             if (vllType == "false")
                 CTYPE.Append("C");
             else CTYPE.Append(vllType);
@@ -118,7 +122,7 @@ namespace CruiseProcessing
             if (currMethod == "FIXCNT")
             {
                 //  pull all trees
-                List<TreeDO> treeList = bslyr.JustFIXCNTtrees(currST_CN);
+                List<TreeDO> treeList = DataLayer.JustFIXCNTtrees(currST_CN);
                 
                 foreach (TreeDO td in treeList)
                 {
@@ -164,7 +168,7 @@ namespace CruiseProcessing
                 if (justRecover > 0) RecvFlag = 1;
 
                 //  pull all volume equations
-                List<VolumeEquationDO> vqList = bslyr.getVolumeEquations();
+                List<VolumeEquationDO> vqList = DataLayer.getVolumeEquations();
                 //  loop through individual trees and calculate volume for all equations requested by species/product
                 foreach (TreeDO td in strataTrees)
                 {
@@ -183,7 +187,7 @@ namespace CruiseProcessing
                     Array.Clear(LOGVOL, 0, LOGVOL.Length);
 
                     //  find logs for this tree
-                    List<LogDO> justTreeLogs = bslyr.getTreeLogs((long)td.Tree_CN);
+                    List<LogDO> justTreeLogs = DataLayer.getTreeLogs((long)td.Tree_CN);
                     List<LogStockDO> logStockList = new List<LogStockDO>();
                     if (CTYPE.ToString() == "V" && justTreeLogs.Count() > 0)
                     {
@@ -203,14 +207,14 @@ namespace CruiseProcessing
                     {
                         CalcFallBuckScale((int)td.Tree_CN, justTreeLogs, logStockList, tcList);
                         if (logStockList.Count != 0)
-                            bslyr.SaveLogStock(logStockList, logStockList.Count);
+                            DataLayer.SaveLogStock(logStockList, logStockList.Count);
                     }
                     else if ((td.DBH > 0 || td.DRC > 0) &&
                             (td.TotalHeight > 0 || td.MerchHeightPrimary > 0 ||
                              td.MerchHeightSecondary > 0 || td.UpperStemHeight > 0))
                     {
                         //  Get volume equations
-                        List<VolumeEquationDO> currEquations = Veq.GetAllEquationsToCalc(vqList, td.Species, td.SampleGroup.PrimaryProduct);
+                        List<VolumeEquationDO> currEquations = VolumeEqMethods.GetAllEquationsToCalc(vqList, td.Species, td.SampleGroup.PrimaryProduct);
                         foreach (VolumeEquationDO ved in currEquations)
                         {
                             //  get values for library call
@@ -228,7 +232,7 @@ namespace CruiseProcessing
                                      ref INDEB, ref PMTFLG, ref mRules, ref IDIST, strlen, strlen, strlen, strlen,
                                      strlen, strlen, strlen, charLen);
                             if (ERRFLAG > 0)
-                                Utilities.LogError("Tree", (int)td.Tree_CN, "W", ERRFLAG.ToString(), fileName);
+                                DataLayer.LogError("Tree", (int)td.Tree_CN, "W", ERRFLAG.ToString());
 
                             //  Update log stock table with calculated values
                             UpdateLogStock(justTreeLogs, logStockList, (int)td.Tree_CN, LOGVOL, LOGDIA, LOGLEN, TLOGS);
@@ -281,14 +285,14 @@ namespace CruiseProcessing
 
                     //  and make sure modified log stock list is saved
                     if(TLOGS != 0 && logStockList.Count != 0)
-                        bslyr.SaveLogStock(logStockList, TLOGS);
+                        DataLayer.SaveLogStock(logStockList, TLOGS);
 
                 }   //  end foreach loop
             }   //  endif on method
 
             //  Save calculated values
             //bslyr.fileName = fileName;
-            bslyr.SaveTreeCalculatedValues(tcList);
+            DataLayer.SaveTreeCalculatedValues(tcList);
         }   //  end CalculateVolumes
 
 
@@ -758,7 +762,7 @@ namespace CruiseProcessing
             if (recvDef > (cullDef + hidDef + seenDef) && currRegion != "10")
             {
                 checkRecv = cullDef + hidDef + seenDef;
-                Utilities.LogError("TREE", (int)tcvdo.Tree_CN, "W", "18", fileName);
+                DataLayer.LogError("TREE", (int)tcvdo.Tree_CN, "W", "18");
             }   //  endif
 
             //  calculate recovered volume based on region
@@ -864,7 +868,7 @@ namespace CruiseProcessing
                             ls.BoardFootRemoved = jtl.GrossBoardFoot;
                             ls.CubicFootRemoved = jtl.GrossCubicFoot;
                             // need a warning message about  blank log grade
-                            Utilities.LogError("TreeCalculatedValues", (int) currTree_CN, "W", "This tree has a blank log grade or no product assigned.", fileName);
+                            DataLayer.LogError("TreeCalculatedValues", (int)currTree_CN, "W", "This tree has a blank log grade or no product assigned.");
                             break;
                         default:
                             ls.BoardFootRemoved = jtl.GrossBoardFoot;
@@ -1024,7 +1028,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //bslyr.fileName = fileName;
-            bslyr.SaveTreeCalculatedValues(tcvList);
+            DataLayer.SaveTreeCalculatedValues(tcvList);
             return;
         }   //  end CalculateValue
 

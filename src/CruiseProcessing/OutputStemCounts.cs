@@ -11,7 +11,6 @@ namespace CruiseProcessing
 {
     public class OutputStemCounts : CreateTextFile
     {
-        #region
         public string currentReport;
         private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[3];
@@ -20,7 +19,10 @@ namespace CruiseProcessing
         private string[] twoHeader = new string[] { "CUTTING UNIT:  ", "STRATUM:  ", "NUMBER OF PLOTS --" };
         private string threeHeader = "STRATUM:  ";
         private int footFlag = 0;
-        #endregion
+
+        public OutputStemCounts(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void createStemCountReports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
@@ -28,7 +30,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             //  pull just fixcnt methods from stratum table
-            List<StratumDO> justFIXCNT = bslyr.justFIXCNTstrata();
+            List<StratumDO> justFIXCNT = DataLayer.justFIXCNTstrata();
             //  any stratum matches?
             if (justFIXCNT.Count == 0)
             {
@@ -40,10 +42,10 @@ namespace CruiseProcessing
             foreach (StratumDO jf in justFIXCNT)
             {
                 //  pull species for the stratum
-                List<LCDDO> justSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
+                List<LCDDO> justSpecies = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
                                                         "GROUP BY Species", "C", jf.Code, "");                
                 //  pull current stratum from tree
-                List<TreeDO> justTrees = bslyr.JustFIXCNTtrees((long)jf.Stratum_CN);
+                List<TreeDO> justTrees = DataLayer.JustFIXCNTtrees((long)jf.Stratum_CN);
 
                 //  process by stratum and report
                 string secondLine = reportConstants.FPPO;
@@ -73,7 +75,7 @@ namespace CruiseProcessing
             //  SC1 and SC2 reports by units
             //  cutting unit acres used in SC2 to expand unit per acre value
             currST.CuttingUnits.Populate();
-            List<PlotDO> pList = bslyr.getPlots();
+            List<PlotDO> pList = DataLayer.getPlots();
             foreach (CuttingUnitDO cu in currST.CuttingUnits)
             {
                 //  need number of plots for SC2 report
@@ -91,7 +93,7 @@ namespace CruiseProcessing
                 //  clear out stand table list for next unit
                 countsToOutput.Clear();
                 //  load DIB classes for this stratum and load into output list
-                List<TreeDO> justDIBS = bslyr.getTreeDBH("C", currST.Code, "C");
+                List<TreeDO> justDIBS = DataLayer.getTreeDBH("C", currST.Code, "C");
                 double DIBsum = justDIBS.Sum(j => j.DBH);
                 if (DIBsum > 0)
                     LoadTreeDIBclasses(justDIBS[justDIBS.Count - 1].DBH, countsToOutput, 3);
@@ -152,7 +154,7 @@ namespace CruiseProcessing
                 //  clear out stand table list for next unit
                 countsToOutput.Clear();
                 //  load DIB classes for this stratum and load into output list
-                List<TreeDO> justDIBS = bslyr.getTreeDBH("C", currST.Code, "C");
+                List<TreeDO> justDIBS = DataLayer.getTreeDBH("C", currST.Code, "C");
                 double DIBsum = justDIBS.Sum(j => j.DBH);
                 if (DIBsum > 0)
                     LoadTreeDIBclasses(justDIBS[justDIBS.Count - 1].DBH, countsToOutput, 3);

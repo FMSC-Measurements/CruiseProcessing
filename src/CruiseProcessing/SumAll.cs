@@ -10,8 +10,7 @@ namespace CruiseProcessing
 {
     public class SumAll
     {
-        #region
-        public string fileName;
+        
         public class TempPOPvalues
         {
             public string tpLeave { get; set; }
@@ -46,8 +45,13 @@ namespace CruiseProcessing
         private double theDenom;
         private double theExpanFac;
         private List<TempPOPvalues> tpopList = new List<TempPOPvalues>();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+
+        protected CPbusinessLayer DataLayer { get; }
+
+        public SumAll(CPbusinessLayer dataLayer)
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
 
         public void SumAllValues(string currST, string currMeth, int currST_CN, List<StratumDO> sList, List<PlotDO> pList,
                                         List<LCDDO> justCurrentLCD, List<POPDO> justCurrentPOP, List<PRODO> justCurrentPRO)
@@ -60,7 +64,7 @@ namespace CruiseProcessing
                                                     "EXPFAC","TOTHTSUM","MHPSUM","MHSSUM","HUSDSUM","LOGSTOP"};
             //  loops through current LCD for groups to sum
             //  need all tree calculated values too for this stratum
-            List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues(currST_CN);
+            List<TreeCalculatedValuesDO> tcvList = DataLayer.getTreeCalculatedValues(currST_CN);
             List<TreeCalculatedValuesDO> justThisGroup = new List<TreeCalculatedValuesDO>();
             foreach (LCDDO ldo in justCurrentLCD)
             {
@@ -73,7 +77,7 @@ namespace CruiseProcessing
                 else
                 {
                     //  get just trees for current LCD group
-                    justThisGroup = bslyr.GetLCDtrees(currST, ldo, "M");
+                    justThisGroup = DataLayer.GetLCDtrees(currST, ldo, "M");
                     //  loop through list of fields to sum
                     for (int k = 0; k < 35; k++)
                     {
@@ -82,13 +86,13 @@ namespace CruiseProcessing
                 }   //  endif
             }   //  end foreach loop
 
-            bslyr.SaveLCD(justCurrentLCD);
+            DataLayer.SaveLCD(justCurrentLCD);
 
             //  Calculate ratio, plot values, etc. for statistics in POP table
             foreach (POPDO pdo in justCurrentPOP)
             {
                 //  Get all trees for this group
-                List<TreeCalculatedValuesDO> currPOPtrees = bslyr.GetPOPtrees(pdo,currST, "M");
+                List<TreeCalculatedValuesDO> currPOPtrees = DataLayer.GetPOPtrees(pdo,currST, "M");
                 //  Determine if there is recoverable product to accumulate
                 double sumRecover = currPOPtrees.Sum(tcv => tcv.Tree.RecoverablePrimary);
                 //  Also for POP make sure there is secondary to accumulate
@@ -134,7 +138,7 @@ namespace CruiseProcessing
                 {
                     //  stage 1 is sum of all plot KPIs so pull stratum from plot table
                     //  and the method will need a separate function since table to sum will be a PlotDO
-                    List<PlotDO> currentPlots = bslyr.GetStrataPlots(pdo.Stratum);
+                    List<PlotDO> currentPlots = DataLayer.GetStrataPlots(pdo.Stratum);
                     Accumulate3PPNTstage1(currentPlots, pdo, sumRecover, sumSecondary);
                     //  stage 2 also needs to be summed for this method
                     AccumulateStage2(currPOPtrees, currMeth, pdo, sumRecover);
@@ -145,19 +149,19 @@ namespace CruiseProcessing
                 tpopList.Clear();
             }   //  end foreach loop
 
-            bslyr.SavePOP(justCurrentPOP);
+            DataLayer.SavePOP(justCurrentPOP);
             
             //  Calculate proration factors for this stratum
             double unitAcres = 0;
             foreach (PRODO prdo in justCurrentPRO)
             {
                 //  get unit acres
-                List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+                List<CuttingUnitDO> cutList = DataLayer.getCuttingUnits();
                 unitAcres = CuttingUnitMethods.GetUnitAcres(cutList, prdo.CuttingUnit);
                 CalculateProration(prdo, justCurrentLCD, justCurrentPOP, unitAcres, currMeth);
             }   //  end foreach loop
 
-            bslyr.SavePRO(justCurrentPRO);
+            DataLayer.SavePRO(justCurrentPRO);
 
             return;
         }   //  end SumAllValues
@@ -473,7 +477,7 @@ namespace CruiseProcessing
                         //  no recovered for weight
                         //  log a warning if theGrossNumer is zero--means flag not checked
                         if (theGrossNumer == 0)
-                            Utilities.LogError("TreeCalculatedValues", (int)tcv.Tree_CN, "W", "21", fileName);
+                            DataLayer.LogError("TreeCalculatedValues", (int)tcv.Tree_CN, "W", "21");
                         break;
                 }   //  end switch
 
@@ -614,7 +618,7 @@ namespace CruiseProcessing
                 {
                     //  since this totals plot values using tree count, find all trees in Tree for this plot
                     string[] valuesArray = new string[3] { plt.Plot_CN.ToString(), plt.Stratum_CN.ToString(), pdo.SampleGroup };
-                    List<TreeDO> justTrees = bslyr.getTreesOrdered("WHERE Plot_CN = @p1 AND Stratum_CN = @p2 ORDER BY ", 
+                    List<TreeDO> justTrees = DataLayer.getTreesOrdered("WHERE Plot_CN = @p1 AND Stratum_CN = @p2 ORDER BY ", 
                                                                 "TreeNumber", valuesArray);
                     List<TreeDO> currentSampleGroup = justTrees.FindAll(
                         delegate(TreeDO t)
@@ -805,7 +809,7 @@ namespace CruiseProcessing
                                     //  no recovered product for weight
                                     //  log warning messages if values equal zero - means biomass flag not checked
                                     if (grossSumPP == 0 && netSumPP == 0)
-                                        Utilities.LogError("TreeCalculatedValues", (int)pt.Tree_CN, "W", "21", fileName);
+                                        DataLayer.LogError("TreeCalculatedValues", (int)pt.Tree_CN, "W", "21");
                                     break;
                             }   //  end switch on unit of measure
                         }   //  endif on method

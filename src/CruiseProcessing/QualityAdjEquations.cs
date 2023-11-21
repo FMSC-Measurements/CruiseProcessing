@@ -13,16 +13,19 @@ namespace CruiseProcessing
 {
     public partial class QualityAdjEquations : Form
     {
-        #region
         private List<QualityAdjEquationDO> qaList = new List<QualityAdjEquationDO>();
-        public string fileName;
         private int trackRow = -1;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
 
-        public QualityAdjEquations()
+        protected QualityAdjEquations()
         {
             InitializeComponent();
+        }
+
+        public QualityAdjEquations(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
 
@@ -30,7 +33,7 @@ namespace CruiseProcessing
         {
             //  if there are equations, show in grid
             //  if not, just initialize the grid
-            qaList = bslyr.getQualAdjEquations();
+            qaList = DataLayer.getQualAdjEquations();
             qualityAdjEquationDOBindingSource.DataSource = qaList;
             qualityEquationList.DataSource = qualityAdjEquationDOBindingSource;
 
@@ -92,7 +95,7 @@ namespace CruiseProcessing
             if (nResult == DialogResult.Yes)
             {
                 Cursor.Current = Cursors.WaitCursor;
-                bslyr.SaveQualityAdjEquations(qaList);
+                DataLayer.SaveQualityAdjEquations(qaList);
                 Cursor.Current = this.Cursor;
             }   //  endif
             Close();

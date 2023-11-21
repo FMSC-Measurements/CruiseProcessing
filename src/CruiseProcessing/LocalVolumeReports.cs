@@ -12,7 +12,7 @@ namespace CruiseProcessing
 {
     class LocalVolumeReports
     {
-        #region
+        
         private ArrayList DBHclass = new ArrayList();
         private string[] colsPageOne = new string[4];
         private string[] colsPageTwo = new string[2];
@@ -21,8 +21,14 @@ namespace CruiseProcessing
         private string currSaleName;
         private string currDate;
         private StringBuilder ReportTitle = new StringBuilder();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        public CPbusinessLayer DataLayer { get; }
+
+        public LocalVolumeReports(CPbusinessLayer dataLayer)
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
+
+
         public int OutputLocalVolume(string fileName)
         {
             //  first, does text file exists?  Can' write local volume if it hasn't been created
@@ -35,7 +41,7 @@ namespace CruiseProcessing
             }   //  endif file doesn't exists
 
             //  Pull regression results table
-            List<RegressionDO> resultsList = bslyr.getRegressionResults();
+            List<RegressionDO> resultsList = DataLayer.getRegressionResults();
 
             if (resultsList.Count == 0)
             {
@@ -45,7 +51,7 @@ namespace CruiseProcessing
             // Initialize report title
             ReportTitle.Append("LOCAL VOLUME TABLE REPORT - ");
             //  need sale info to complete the heading
-            List<SaleDO> sList = bslyr.getSale();
+            List<SaleDO> sList = DataLayer.getSale();
             currSale = sList[0].SaleNumber;
             currSaleName = sList[0].Name;
             currDate = DateTime.Now.ToString();

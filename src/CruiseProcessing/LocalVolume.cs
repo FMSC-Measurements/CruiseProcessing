@@ -16,8 +16,11 @@ namespace CruiseProcessing
 {
     public partial class LocalVolume : Form
     {
-        #region
-        public string fileName;
+        [DllImport("LocalVolume.dll", EntryPoint = "?GetLocalTable@CMakeLocalVolumeTable@@QAEXQAMQANHHPAN22PAM3PAH@Z", CallingConvention = CallingConvention.StdCall)]
+        extern static void GetLocalTable(float[] DBHarray, double[] VolArray, int nItem, int TitleCode, ref double coef1, ref double coef2,
+                            ref double coef3, ref float meanSqEr, ref float rSquared, ref int ModelCode);
+
+
         private string UOMtoUse = "";
         private string volType = "";
         private string volumeToUse = "None";
@@ -37,16 +40,19 @@ namespace CruiseProcessing
         private int ModelCode = 0;
         private static StringBuilder MainTitle = new StringBuilder(256);
         private static StringBuilder MainTitle_TW = new StringBuilder(256);
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        [DllImport("LocalVolume.dll", EntryPoint = "?GetLocalTable@CMakeLocalVolumeTable@@QAEXQAMQANHHPAN22PAM3PAH@Z", CallingConvention = CallingConvention.StdCall)]
-        extern static void GetLocalTable(float[] DBHarray, double[] VolArray, int nItem, int TitleCode, ref double coef1, ref double coef2, 
-                                    ref double coef3, ref float meanSqEr, ref float rSquared, ref int ModelCode);
-       
-        #endregion
+        
 
-        public LocalVolume()
+        protected CPbusinessLayer DataLayer {get;}
+
+        protected LocalVolume()
         {
             InitializeComponent();
+        }
+
+        public LocalVolume(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()
@@ -56,11 +62,11 @@ namespace CruiseProcessing
             useNet.Checked = true;
             volumeToUse = "Net";
             //  then we need the unique species/product groups plus live/dead for the grid
-            rgList = bslyr.GetUniqueSpeciesGroups();
+            rgList = DataLayer.GetUniqueSpeciesGroups();
             SpeciesGroups.DataSource = rgList;
 
             //  remove existing regressions in table
-            bslyr.DeleteRegressions();
+            DataLayer.DeleteRegressions();
         }   //  end setupDialog
 
 
@@ -149,7 +155,7 @@ namespace CruiseProcessing
                 if (rl.rgSelected == 1)
                 {
                     //  pull trees
-                    List<TreeCalculatedValuesDO> justTrees = bslyr.getRegressTrees(rl.rgSpecies, rl.rgProduct, rl.rgLiveDead, "M");
+                    List<TreeCalculatedValuesDO> justTrees = DataLayer.getRegressTrees(rl.rgSpecies, rl.rgProduct, rl.rgLiveDead, "M");
 
                     //  load up arrays
                     foreach (TreeCalculatedValuesDO jt in justTrees)
@@ -317,8 +323,7 @@ namespace CruiseProcessing
             }   //  endif topwood
 
             //  Save results
-            bslyr.SaveRegress(resultsList);
-            bslyr.fileName = fileName;
+            DataLayer.SaveRegress(resultsList);
 
             return;
         }   //  end onRegression
@@ -327,10 +332,9 @@ namespace CruiseProcessing
         private void onFinished(object sender, EventArgs e)
         {
             //  call class to generate reports
-            LocalVolumeReports lvr = new LocalVolumeReports();
-            lvr.bslyr.fileName = bslyr.fileName;
-            lvr.bslyr.DAL = bslyr.DAL;
-            int nResult = lvr.OutputLocalVolume(fileName);
+            LocalVolumeReports lvr = new LocalVolumeReports(DataLayer);
+
+            int nResult = lvr.OutputLocalVolume(DataLayer.FilePath);
             if (nResult == 0)
             {
                 MessageBox.Show("Regression results have been added to the text output file.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -354,7 +358,7 @@ namespace CruiseProcessing
             //  they wouldn't regress weight.  Some regions (like 6) have different rules but would still not
             //  regress directly on weight but would select probably CUFT for regression.
             double totalVolume = 0;
-            List<TreeCalculatedValuesDO> checkVolume = bslyr.getTreeCalculatedValues();
+            List<TreeCalculatedValuesDO> checkVolume = DataLayer.getTreeCalculatedValues();
             switch (UOMtoUse)
             {
                 case "03 -- Cubic foot":
@@ -387,7 +391,7 @@ namespace CruiseProcessing
 
         private void groupSelected(object sender, DataGridViewCellEventArgs e)
         {
-            List<TreeDO> tList = bslyr.getTrees();
+            List<TreeDO> tList = DataLayer.getTrees();
             List<TreeDO> justGroups = new List<TreeDO>();
             //  pull group from tree data and update number of trees selected
             int nthRow = SpeciesGroups.CurrentCell.RowIndex;

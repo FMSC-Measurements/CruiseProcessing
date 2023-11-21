@@ -13,28 +13,13 @@ namespace CruiseProcessing
 {
     public partial class MainMenu : Form
     {
-        #region
-        public string fileName;
-        public string newTemplateFile;
         public int templateFlag;
         public int whichProcess;
         string currentRegion;
-        public DAL DAL { get; set; }
-        public CruiseDatastore_V3 DAL_V3 { get; set; }
-
-        //CPbusinessLayer bslyr = new CPbusinessLayer();
-        //public string[,] addedReports = new string[,] { {"A14", "Summary of Species Based on Unit Level Data" },
-          //                                              {"R208", "Stewardship Average Product Cost"},
-            //                                            {"LV01","Volume Summary for Sample Group"},
-              //                                          {"LV02","Volume Summary for Strata"},
-                //                                        {"LV03","Net Volume Statistics for Sample Group"},
-                  //                                      {"LV04","Gross Volume Statistics for Sample Group"},
-                    //                                    {"LV05","Volume by Species within Cutting Unit Across All Stratum"}};
-        #endregion
-
-        //protected string AppVerson = "2022.03.23";
 
         protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
+
+        public CPbusinessLayer DataLayer { get; private set; }
 
         public MainMenu()
         {
@@ -65,7 +50,6 @@ namespace CruiseProcessing
             menuButton3.Enabled = false;
             processBtn.Enabled = false;
             menuButton5.Enabled = false;
-
         }
 
         private void onExit(object sender, EventArgs e)
@@ -147,12 +131,7 @@ namespace CruiseProcessing
             
             // let user know it's happening
             //  replace this with the processing status window
-            ProcessStatus statusDlg = new ProcessStatus();
-            //statusDlg.bslyr = bslyr;
-
-
-            statusDlg.DAL = DAL;
-            statusDlg.fileName = fileName;
+            ProcessStatus statusDlg = new ProcessStatus(DataLayer);
             statusDlg.ShowDialog();   
             Cursor.Current = this.Cursor;
             modifyWeightFacts.Visible = false;
@@ -300,260 +279,172 @@ namespace CruiseProcessing
 
         private void onFile(object sender, EventArgs e)
         {
-            //  clear filename in case user wants to change files
-            fileName = "";
             //  Create an instance of the open file dialog
             OpenFileDialog browseDialog = new OpenFileDialog();
 
             //  Set filter options and filter index
-            browseDialog.Filter = "Cruise Files|*.cruise;*.crz3|All Files|*.*";
+            browseDialog.Filter = "Cruise Files|*.cruise;*.crz3|Template Files|*.cut;*.crz3t|All Files|*.*";
             browseDialog.FilterIndex = 1;
-
             browseDialog.Multiselect = false;
 
-            //  February 2017 -- nowhave the option to edit volume equations and selected reports
-            //  on template files.  Need a flag indicating it is a template file so some
-            //  tasks are skipped that would apply to just cruise files.
-            templateFlag = 0;
-            //  capture filename selected
-            while (fileName == "" || fileName == null)
+            var dialogResult = browseDialog.ShowDialog();
+            if (dialogResult == DialogResult.OK)
             {
-                DialogResult dResult = browseDialog.ShowDialog();
+                OpenFile(browseDialog.FileName);
+            }
 
-                if (dResult == DialogResult.Cancel)
+        }   //  end onFile
+
+        public void OpenFile(string filePath)
+        {
+            var fileName = Path.GetFileName(filePath);
+            var extention = Path.GetExtension(filePath).ToLowerInvariant();
+
+            var isTemplate = false;
+            string cruiseID = null;
+            DAL dal = null;
+            CruiseDatastore_V3 dal_v3 = null;
+
+            if(extention == ".cruise")
+            {
+                dal = new DAL(filePath);
+            }
+            else if (extention == ".crz3")
+            {
+                var processFilePath = Path.ChangeExtension(filePath, ".process");
+
+                var v3db = new CruiseDatastore_V3(filePath);
+                cruiseID = v3db.ExecuteScalar<string>("SELECT CruiseID FROM Cruise LIMIT 1");
+
+
+                var downConverter = new DownMigrator();
+                if (!downConverter.EnsureCanMigrate(cruiseID, v3db, out var error_message))
                 {
+                    MessageBox.Show("Unable to open V3 Cruise File due to Design Checks \r\nMessages: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                if (dResult == DialogResult.OK)
+
+                try
                 {
+                    var v2db = new DAL(processFilePath, true);
 
-                    fileName = browseDialog.FileName;
-                    if (fileName.EndsWith(".cut") || fileName.EndsWith(".CUT"))
-                    {
-                        //  disable all buttons except equations and reports
-                        menuButton2.BackgroundImage = Properties.Resources.button_image;
-                        menuButton3.BackgroundImage = Properties.Resources.button_image;
-                        processBtn.BackgroundImage = Properties.Resources.disabled_button;
-                        menuButton5.BackgroundImage = Properties.Resources.disabled_button;
-                        menuButton2.Enabled = true;
-                        menuButton3.Enabled = true;
-                        processBtn.Enabled = false;
-                        menuButton5.Enabled = false;
+                    downConverter.MigrateFromV3ToV2(cruiseID, v3db, v2db, "Cruise Processing");
 
-                        //  Have user enter a different file to preserve the regional tempalte file
-                        DialogResult dr = MessageBox.Show("Do you want to use a different filename for any changes made?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (dr == DialogResult.Yes)
-                        {
-                            
-                            //  show dialog to captue new filanem
-                            EnterNewFilename enf = new EnterNewFilename();
-                            enf.ShowDialog();
-                            //  copy original file to new filename
-                            string pathName = Path.GetDirectoryName(fileName);
-                            pathName += "\\";
-                            newTemplateFile = enf.templateFilename;
-                            newTemplateFile = newTemplateFile.Insert(0, pathName);
-                            File.Copy(fileName, newTemplateFile, true);
-                            fileName = newTemplateFile;
-                            DAL = new DAL(newTemplateFile);
-                            templateFlag = 1;
-                        }
-                        else if (dr == DialogResult.No)
-                        {
-                            //fileName = fileName;
-                            DAL = new DAL(fileName);
-                            if (fileName.EndsWith(".CUT") || fileName.EndsWith(".cut"))
-                            {
-                                newTemplateFile = fileName;
-                                templateFlag = 1;
-                            }
-                            else templateFlag = 0;
-                        }   //  endif
+                    dal = v2db;
+                    dal_v3 = v3db;
 
-                    }
-                    else if (!fileName.EndsWith(".cruise") && !fileName.EndsWith(".CRUISE"))
-                    {
-                        if (!fileName.EndsWith(".crz3") && !fileName.EndsWith(".CRZ3"))
-                        {
-                            //  is it a cruise file?
-                            MessageBox.Show("File selected is not a cruise file.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-                        else
-                        {
-                            DAL_V3 = new CruiseDatastore_V3(fileName);
-
-                            string V2FileName = fileName.Replace(".crz3", "").Replace(".CRZ3", "");
-
-                            //V2FileName = V2FileName + "WBTest.cruise";
-                            V2FileName = V2FileName + ".process";
-
-                            try
-                            {
-                                var cruiseIDs = DAL_V3.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
-                                if (cruiseIDs.Length > 1)
-                                {   
-                                    MessageBox.Show("File contains multiple cruises. \r\nOpening files with multiple cruises is not supported yet", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
-                                else if (cruiseIDs.Length == 0)
-                                {
-                                    MessageBox.Show("File contains no cruises. \r\nOpening a file with no cruises is not supported.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
-
-
-                                var cruiseID = cruiseIDs.First();
-
-                                string cruiseV2Path = V2FileName;
-
-
-                                CruiseDatastoreBuilder_V2 V2Builder = new CruiseDatastoreBuilder_V2();
-                                Updater_V2 v2Updater = new Updater_V2();
-
-                                CruiseDatastore myV2DAL = new DAL(cruiseV2Path, true);
-                                //CruiseDatastore v2DB = new CruiseDatastore(cruiseV2Path, true, V2Builder, v2Updater);
-
-                                
-                                DownMigrator myMyigrator = new DownMigrator();
-
-                                string error_message = "";
-                                if (myMyigrator.EnsureCanMigrate(cruiseID, DAL_V3, out error_message))
-                                {
-                                    //CONVERT LOGIC NEEDED HERE.
-
-                                    try
-                                    {
-                                        myMyigrator.MigrateFromV3ToV2(cruiseID, DAL_V3, myV2DAL);
-                                        fileName = V2FileName;
-                                    }//end try
-                                    catch(Exception ex)
-                                    {
-                                        MessageBox.Show("This version 3 file can not be migrated. \r\nError: " + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                        //delete *.process.
-                                        if(File.Exists(V2FileName))
-                                        {
-                                            File.Delete(V2FileName);
-                                        }//end if
-                                        fileName = "";
-                                        return;
-                                    }//end catch
-                                    
-
-
-                                }//end if
-                                else
-                                {
-                                    MessageBox.Show("This version 3 file can not migrate to V2. \r\nError: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }//end else
-                                
-                            }
-                            catch(Exception ex)
-                            {
-                                MessageBox.Show("An excpetion occured.  This version 3 file can not be migrated. \r\n" + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-                        }
-                      
-                    }   //  endif            
                 }
-            };  //  end while
+                catch (Exception ex)
+                {
+                    if (File.Exists(processFilePath))
+                    { File.Delete(processFilePath); }
 
-            if (templateFlag == 0)
+                    MessageBox.Show("Error Translating V3 Cruise Data \r\nError: " + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+            }
+            else if(extention == ".cut")
             {
-                //  check for fatal errors before doing anything else --  October 20145
-                //fileName = fileName;
-                DAL = new DAL(fileName);
-                
-                //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
-                DAL.OpenConnection();
-
-                string[] errors;
- //               bool ithResult = bslyr.DAL.HasCruiseErrors(out errors);
-                bool ithResult = false;
-                if (ithResult)
+                dal = new DAL(filePath);
+                isTemplate = true;
+            }
+            else if(extention == ".crz3t")
+            {
+                var tempV2 = Path.ChangeExtension(filePath, ".cut.process");
+                try
                 {
-                    MessageBox.Show("This file has errors which affect processing.\nCannot continue until these are fixed in CruiseManager.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var v3db = new CruiseDatastore_V3(filePath);
+                    cruiseID = v3db.ExecuteScalar<string>("SELECT CruiseID FROM Cruise LIMIT 1");
+                    var tempV2Db = new DAL(tempV2, true);
+                    var downConverter = new DownMigrator();
+                    downConverter.MigrateFromV3ToV2(cruiseID, v3db, tempV2Db, "Cruise Processing");
 
-                    menuButton2.BackgroundImage = Properties.Resources.disabled_button;
-                    menuButton3.BackgroundImage = Properties.Resources.disabled_button;
-                    processBtn.BackgroundImage = Properties.Resources.disabled_button;
-                    menuButton5.BackgroundImage = Properties.Resources.disabled_button;
-                    menuButton2.Enabled = false;
-                    menuButton3.Enabled = false;
-                    processBtn.Enabled = false;
-                    menuButton5.Enabled = false;
-                    return; 
-                }   //  end check for fatal errors
+                    dal = tempV2Db;
+                    dal_v3 = v3db;
+                    isTemplate = true;
 
-                // if filename is not blank, enable remaining menu buttons
-                if (fileName.Contains(".cruise") || fileName.Contains(".CRUISE") || fileName.Contains(".process") || fileName.Contains(".PROCESS"))
+                }
+                catch(Exception ex)
                 {
-                    menuButton2.BackgroundImage = Properties.Resources.button_image;
-                    menuButton3.BackgroundImage = Properties.Resources.button_image;
-                    processBtn.BackgroundImage = Properties.Resources.button_image;
-                    menuButton5.BackgroundImage = Properties.Resources.button_image;
+                    if(File.Exists(tempV2))
+                    { File.Delete(tempV2); }
+                    return;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Invalid File Type Selected", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-                    menuButton2.Enabled = true;
-                    menuButton3.Enabled = true;
-                    processBtn.Enabled = true;
-                    menuButton5.Enabled = true;
+            //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
+            dal.OpenConnection();
 
-                    //  need region number in order to hide volume button as well as region 9 button
-                    List<SaleDO> saleList = new List<SaleDO>();
-                    saleList = DAL.From<SaleDO>().Read().ToList();
-                    currentRegion = saleList[0].Region;
+            var datalayer = new CPbusinessLayer(dal, dal_v3, cruiseID);
 
-                    CPbusinessLayer bslyr = new CPbusinessLayer();
-                    bslyr.DAL = DAL;
+            if (isTemplate)
+            {
+                //  disable all buttons except equations and reports
+                menuButton2.BackgroundImage = Properties.Resources.button_image;
+                menuButton3.BackgroundImage = Properties.Resources.button_image;
+                processBtn.BackgroundImage = Properties.Resources.disabled_button;
+                menuButton5.BackgroundImage = Properties.Resources.disabled_button;
+                menuButton2.Enabled = true;
+                menuButton3.Enabled = true;
+                processBtn.Enabled = false;
+                menuButton5.Enabled = false;
+            }
+            else
+            {
+                menuButton2.BackgroundImage = Properties.Resources.button_image;
+                menuButton3.BackgroundImage = Properties.Resources.button_image;
+                processBtn.BackgroundImage = Properties.Resources.button_image;
+                menuButton5.BackgroundImage = Properties.Resources.button_image;
 
-                    if (this.DAL_V3 != null)
-                    {
-                        bslyr.DAL_V3 = this.DAL_V3;
+                menuButton2.Enabled = true;
+                menuButton3.Enabled = true;
+                processBtn.Enabled = true;
+                menuButton5.Enabled = true;
 
-                    }//end if
+                //  need region number in order to hide volume button as well as region 9 button
+                List<SaleDO> saleList = new List<SaleDO>();
+                saleList = dal.From<SaleDO>().Read().ToList();
+                currentRegion = saleList[0].Region;
 
-                    if (bslyr.saleWithNullSpecies())
-                    {
-                        //One or more records contain incomplete data which affect processing.\n
-                        MessageBox.Show("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }   //  endif fileName
+                if (datalayer.saleWithNullSpecies())
+                {
+                    //One or more records contain incomplete data which affect processing.\n
+                    MessageBox.Show("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                } 
+            }
 
+            templateFlag = (isTemplate) ? 1 : 0;
 
-                }   //  endif
-            }   //  endif tempalteFlag
+            DataLayer = datalayer;
             //  add file name to title line at top
             if (fileName.Length > 35)
             {
                 string tempName = "..." + fileName.Substring(fileName.Length - 35, 35);
                 Text = tempName;
-            }   //  endif fileName
+            }
+        }
 
-        }   //  end onFile
+        protected bool EnsureFileOpen()
+        {
+            if (DataLayer != null) { return true; }
+
+            MessageBox.Show("No file selected.  Cannot continue.\nPlease select a file.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
+        }
 
 
         private void onButton1Click(object sender, EventArgs e)
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-
-            if(this.DAL_V3 != null)
-            {
-                bslyr.DAL_V3 = this.DAL_V3;
-            }//end if
-
-
             if (whichProcess == 1)       //  equations
             {
-                VolumeEquations volEqObj = new VolumeEquations();
-                volEqObj.bslyr.fileName = fileName;
-                volEqObj.bslyr.DAL = DAL;
-                if (this.DAL_V3 != null)
-                {
-                    volEqObj.bslyr.DAL_V3 = DAL_V3;
-                }//end if
+                VolumeEquations volEqObj = new VolumeEquations(DataLayer);
 
                 if (templateFlag == 0)
                 {
@@ -574,25 +465,16 @@ namespace CruiseProcessing
             {
                 //  calls routine to add standard and regional reports
                 List<ReportsDO> currentReports = new List<ReportsDO>();
-                if (templateFlag == 1)
-                {
-                    bslyr.fileName = newTemplateFile;
-                    bslyr.DAL = new DAL(newTemplateFile);
-                }
-                else bslyr.fileName = fileName;
                 //  get all reports
-                currentReports = bslyr.GetReports();
+                currentReports = DataLayer.GetReports();
                 //  and get the all reports array
                 allReportsArray ara = new allReportsArray();
                 //  then check for various conditions to know what to do with the reports list
                 if (currentReports.Count == 0)
                 {
                     currentReports = ReportMethods.fillReportsList();
-                    bslyr.SaveReports(currentReports);
-                    if (DAL_V3 != null)
-                    {
-                        bslyr.insertReportsV3();
-                    }
+                    DataLayer.SaveReports(currentReports);
+
 
                 }//end if
                 else if (currentReports.Count < ara.reportsArray.GetLength(0))
@@ -602,33 +484,23 @@ namespace CruiseProcessing
                     {
                         //  old reports -- update list
                         currentReports = ReportMethods.updateReportsList(currentReports, ara);
-                        bslyr.SaveReports(currentReports);
+                        DataLayer.SaveReports(currentReports);
                     }
                     else
                     {
                         //  new reports -- just add
                         currentReports = ReportMethods.addReports(currentReports, ara);
-                        bslyr.SaveReports(currentReports);
+                        DataLayer.SaveReports(currentReports);
                     }   //  endif
 
-                    //if the reports are out of sync delete and refresh V3.
-                    if (DAL_V3 != null)
-                    {
-                        bslyr.insertReportsV3();
-                    }
                 }   //  endif
                 //  now get reports selected
 
 
-                currentReports = ReportMethods.deleteReports(currentReports, bslyr);
-                currentReports = bslyr.GetSelectedReports();
+                currentReports = ReportMethods.deleteReports(currentReports, DataLayer);
+                currentReports = DataLayer.GetSelectedReports();
                 //  Get selected reports 
-                ReportsDialog rd = new ReportsDialog();
-                rd.fileName = fileName;
-                rd.bslyr.fileName = bslyr.fileName;
-                rd.bslyr.DAL = bslyr.DAL;
-                //add version 3 ref for saving back.
-                rd.bslyr.DAL_V3 = bslyr.DAL_V3;
+                ReportsDialog rd = new ReportsDialog(DataLayer);
 
 
                 rd.reportList = currentReports;
@@ -640,13 +512,13 @@ namespace CruiseProcessing
             {
                 
                 //  Pull reports selected
-                bslyr.fileName = fileName;
+    
                 //  See if volume has been calculated (sum expansion factor since those are calculated before volume)
                 //  July 2014 -- However it looks like expansion factors could be present but volume is not
                 //  need to pull calculated values as well and sum net volumes
-                List<TreeDO> tList = bslyr.getTrees();
+                List<TreeDO> tList = DataLayer.getTrees();
                 double summedEF = tList.Sum(t => t.ExpansionFactor);
-                List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
+                List<TreeCalculatedValuesDO> tcvList = DataLayer.getTreeCalculatedValues();
                 double summedNetBDFT = tcvList.Sum(tc => tc.NetBDFTPP);
                 double summedNetCUFT = tcvList.Sum(tc => tc.NetCUFTPP);
                 if (summedEF == 0 && summedNetBDFT == 0 && summedNetCUFT == 0)
@@ -654,7 +526,7 @@ namespace CruiseProcessing
                     MessageBox.Show("Looks like volume has not been calculated.\nReports cannot be produced without calculated volume.\nPlease calculate volume before continuing.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }   //  endif no volume for reports
-                List<ReportsDO> selectedReports = bslyr.GetSelectedReports(); 
+                List<ReportsDO> selectedReports = DataLayer.GetSelectedReports(); 
 
                 //  no reports?  let user know to go back and select reports
                 if (selectedReports.Count == 0)
@@ -664,11 +536,9 @@ namespace CruiseProcessing
                 }   //  endif no reports
 
                 //  Show dialog creating text file
-                TextFileOutput tfo = new TextFileOutput();
+                TextFileOutput tfo = new TextFileOutput(DataLayer);
                 tfo.selectedReports = selectedReports;
-                tfo.fileName = fileName;
                 tfo.currRegion = currentRegion;
-                tfo.bslyr = bslyr;
                 tfo.setupDialog();
                 tfo.ShowDialog();
                 string outFile = tfo.outFile;
@@ -696,30 +566,18 @@ namespace CruiseProcessing
 
         private void onButton2Click(object sender, EventArgs e)
         {
-            //  Cannot continue if filename is blank
-            if (fileName == "")
-            {
-                MessageBox.Show("No filename selected.  Cannot continue.\nPlease select a filename.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }   //  endif fileName
+            if(!EnsureFileOpen()) { return; }
            
 
             if(whichProcess == 1)   //  equations
             {
-                ValueEquations valEqObj = new ValueEquations();
-                valEqObj.bslyr.fileName = fileName;
-                valEqObj.bslyr.DAL = DAL;
-
-                if (this.DAL_V3 != null)
-                {
-                    valEqObj.bslyr.DAL_V3 = this.DAL_V3;
-                }//end if
-
-                if (valEqObj.bslyr.saleWithNullSpecies())
+                if (DataLayer.saleWithNullSpecies())
                 {
                     MessageBox.Show("This file has errors which affect processing.\nThis file has an invalid species, please correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
-                }   //  endif fileName
+                }
+
+                ValueEquations valEqObj = new ValueEquations(DataLayer);
 
                 int nResult = valEqObj.setupDialog();
                 if(nResult == 1)
@@ -728,9 +586,7 @@ namespace CruiseProcessing
             else if(whichProcess == 2)  //  reports
             {
                 //  calls routine to add graphical reports
-                GraphReportsDialog grd = new GraphReportsDialog();
-                grd.bslyr.fileName = fileName;
-                grd.bslyr.DAL = DAL;
+                GraphReportsDialog grd = new GraphReportsDialog(DataLayer);
                 grd.setupDialog();
                 grd.ShowDialog();
                 return;
@@ -738,10 +594,7 @@ namespace CruiseProcessing
             else if(whichProcess == 4)  // output
             {
                 //  calls routine to create an html output file
-                HTMLoutput ho = new HTMLoutput();
-                ho.fileName = fileName;
-                ho.bslyr.fileName = fileName;
-                ho.bslyr.DAL = DAL;
+                HTMLoutput ho = new HTMLoutput(DataLayer);
                 ho.CreateHTMLfile();
                 return;
             }   //  endif whichProcess
@@ -751,31 +604,23 @@ namespace CruiseProcessing
         
         private void onButton3Click(object sender, EventArgs e)
         {
-            //  Cannot continue if filename is blank
-            if (fileName == "")
-            {
-                MessageBox.Show("No filename selected.  Cannot continue.\nPlease select a filename.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }   //  endif fileName
+            if (!EnsureFileOpen()) { return; }
 
             //  March 2017 -- per Karen Jones, quality adjustment equations no longer used
-/*            if(whichProcess == 1)   //  equations
-            {
-                QualityAdjEquations quaEqObj = new QualityAdjEquations();
-                quaEqObj.bslyr.fileName = bslyr.fileName;
-                quaEqObj.bslyr.DAL = bslyr.DAL;
-                quaEqObj.setupDialog();
-                quaEqObj.ShowDialog();
+            /*            if(whichProcess == 1)   //  equations
+                        {
+                            QualityAdjEquations quaEqObj = new QualityAdjEquations();
+                            quaEqObj.bslyr.fileName = bslyr.fileName;
+                            quaEqObj.bslyr.DAL = bslyr.DAL;
+                            quaEqObj.setupDialog();
+                            quaEqObj.ShowDialog();
 
-            }
-*/            
-            if(whichProcess == 4)  //  output
+                        }
+            */
+            if (whichProcess == 4)  //  output
             {
                 //  calls routine to create pdf file
-                PDFfileOutput pfo = new PDFfileOutput();
-                pfo.fileName = fileName;
-                pfo.bslyr.fileName = fileName;
-                pfo.bslyr.DAL = DAL;
+                PDFfileOutput pfo = new PDFfileOutput(DataLayer);
                 int nResult = pfo.setupDialog();
                 if(nResult == 0)
                     pfo.ShowDialog();
@@ -786,30 +631,19 @@ namespace CruiseProcessing
 
         private void onButton4Click(object sender, EventArgs e)
         {
-            //  Cannot continue if filename is blank
-            if (fileName == "")
-            {
-                MessageBox.Show("No filename selected.  Cannot continue.\nPlease select a filename.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }   //  endif fileName
+            if (!EnsureFileOpen()) { return; }
 
-            if(whichProcess == 1)   //  equations
+            if (whichProcess == 1)   //  equations
             {
                 //  calls R8 volume equation entry
-                R8VolEquation r8vol = new R8VolEquation();
-                r8vol.bslyr.fileName = fileName;
-                r8vol.fileName = fileName;
-                r8vol.bslyr.DAL = DAL;
+                R8VolEquation r8vol = new R8VolEquation(DataLayer);
                 r8vol.ShowDialog();
 
             }
             else if(whichProcess == 4)  //  output
             {
                 //  calls routine to create CSV output file
-                SelectCSV sc = new SelectCSV();
-                sc.fileName = fileName;
-                sc.bslyr.fileName = fileName;
-                sc.bslyr.DAL = DAL;
+                SelectCSV sc = new SelectCSV(DataLayer);
                 sc.setupDialog();
                 sc.ShowDialog();
             }   //  endif whichProcess
@@ -818,28 +652,19 @@ namespace CruiseProcessing
 
         private void onButton5Click(object sender, EventArgs e)
         {
-            //  Cannot continue if filename is blank
-            if (fileName == "")
-            {
-                MessageBox.Show("No filename selected.  Cannot continue.\nPlease select a filename.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }   //  endif fileName
+            if (!EnsureFileOpen()) { return; }
 
             if (whichProcess == 1)   //  equations
             {
                 //  calls R9 volume equation entry
-                R9VolEquation r9vol = new R9VolEquation();
-                r9vol.fileName = fileName;
-                r9vol.bslyr.fileName = fileName;
-                r9vol.bslyr.DAL = DAL;
+                R9VolEquation r9vol = new R9VolEquation(DataLayer);
                 r9vol.setupDialog();
                 r9vol.ShowDialog();
             }
             else if (whichProcess == 4)      //  output
             {
                 //  calls routine to preview output file -- print preview
-                PrintPreview p = new PrintPreview();
-                p.fileName = fileName;
+                PrintPreview p = new PrintPreview(DataLayer);
                 p.setupDialog();
                 p.ShowDialog();
                 return;
@@ -850,22 +675,15 @@ namespace CruiseProcessing
 
         private void onButton6Click(object sender, EventArgs e)
         {
-            //  Cannot continue if filename is blank
-            if (fileName == "")
-            {
-                MessageBox.Show("No filename selected.  Cannot continue.\nPlease select a filename.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }   //  endif fileName
+            if (!EnsureFileOpen()) { return; }
 
-            if(whichProcess == 4)  //  output
+            if (whichProcess == 4)  //  output
             {
                 //  calls local volume routine
                 //MessageBox.Show("Under Construction", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
            
-                LocalVolume lv = new LocalVolume();
-                lv.fileName = fileName;
-                lv.bslyr.fileName = fileName;
-                lv.bslyr.DAL = DAL;
+                LocalVolume lv = new LocalVolume(DataLayer);
+
                 lv.setupDialog();
                 lv.ShowDialog();
                 return;
@@ -883,9 +701,7 @@ namespace CruiseProcessing
         private void onModifyWeightFactors(object sender, EventArgs e)
         {
             int mResult = -1;
-            ModifyWeightFactors mwf = new ModifyWeightFactors();
-            mwf.bslyr.fileName = fileName;
-            mwf.bslyr.DAL = DAL;
+            ModifyWeightFactors mwf = new ModifyWeightFactors(DataLayer);
             mResult = mwf.setupDialog();
             if(mResult == 1) mwf.ShowDialog();
             return;
@@ -893,9 +709,7 @@ namespace CruiseProcessing
         
         private void onModMerchRules(object sender, EventArgs e)
         {
-            ModifyMerchRules mmr = new ModifyMerchRules();
-            mmr.bslyr.fileName = fileName;
-            mmr.bslyr.DAL = DAL;
+            ModifyMerchRules mmr = new ModifyMerchRules(DataLayer);
             mmr.setupDialog();
             mmr.ShowDialog();
             //MessageBox.Show("Under construction", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -904,19 +718,8 @@ namespace CruiseProcessing
 
         private bool doesCruiseHaveVolumeEquations()
         {
-            bool hasVolEquations = false;
-
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-
-            List<VolumeEquationDO> myVEQList = bslyr.getVolumeEquations();
-
-            if(myVEQList.Count > 0)
-            {
-                hasVolEquations = true;
-            }//end if
-
-            return hasVolEquations;
+            List<VolumeEquationDO> myVEQList = DataLayer.getVolumeEquations();
+            return myVEQList.Count > 0;
         }
 
     }
