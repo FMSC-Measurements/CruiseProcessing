@@ -12,21 +12,28 @@ namespace CruiseProcessing
 {
     public partial class PrintPreview : Form
     {
-        #region
-        public string fileName;
+        
         private string fileToPreview;
-        #endregion
 
-        public PrintPreview()
+        protected PrintPreview()
         {
             InitializeComponent();
         }
 
+        public PrintPreview(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
+
+        protected CPbusinessLayer DataLayer { get; }
+        protected string FilePath => DataLayer.FilePath;
+
+
         public void setupDialog()
         {
-            //  clear filename and create output to preview
-            fileToPreview = "";
-            fileToPreview = System.IO.Path.ChangeExtension(fileName, "out");
+            fileToPreview = System.IO.Path.ChangeExtension(DataLayer.FilePath, "out");
+
             //  make sure it exists
             if (!File.Exists(fileToPreview))
             {
@@ -47,9 +54,8 @@ namespace CruiseProcessing
 
         private void onBrowse(object sender, EventArgs e)
         {
-            //  clear filename and create output to preview
-            fileToPreview = "";
-            fileToPreview = System.IO.Path.ChangeExtension(fileName, "out");
+            fileToPreview = System.IO.Path.ChangeExtension(DataLayer.FilePath, "out");
+
             //  make sure it exists
             if (!File.Exists(fileToPreview))
             {

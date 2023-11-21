@@ -13,20 +13,24 @@ namespace CruiseProcessing
 {
     public partial class GraphReportsDialog : Form
     {
-        #region
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        protected CPbusinessLayer DataLayer { get; }
         private List<ReportsDO> reportList = new List<ReportsDO>();
-        #endregion
 
-        public GraphReportsDialog()
+        protected GraphReportsDialog()
         {
             InitializeComponent();
+        }
+
+        public GraphReportsDialog(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()
         {
             //  are there any graph reports selected
-            reportList = bslyr.GetReports();
+            reportList = DataLayer.GetReports();
             List<ReportsDO> justGraphs = reportList.FindAll(
                 delegate(ReportsDO r)
                 {
@@ -153,7 +157,7 @@ namespace CruiseProcessing
             else updateList("GR11", false);
 
             //  save reports list
-            bslyr.SaveReports(reportList);
+            DataLayer.SaveReports(reportList);
             Close();
             return;
         }   //  end onFinished

@@ -19,28 +19,32 @@ namespace CruiseProcessing
         private List<SumFields> sumList = new List<SumFields>();
         #endregion
 
+        public OutputTIM(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
+
         public void CreateSUMfile()
         {
             //  pull tables needed initially
-            List<SaleDO> sList = bslyr.getSale();
-            List<CuttingUnitDO> cuList = bslyr.getCuttingUnits();
-            List<StratumDO> strList = bslyr.getStratum();
-            List<POPDO> popList = bslyr.getPOP();
-            List<PRODO> proList = bslyr.getPRO();
+            List<SaleDO> sList = DataLayer.getSale();
+            List<CuttingUnitDO> cuList = DataLayer.getCuttingUnits();
+            List<StratumDO> strList = DataLayer.getStratum();
+            List<POPDO> popList = DataLayer.getPOP();
+            List<PRODO> proList = DataLayer.getPRO();
             //  need to pull constant values from sale list
             regionNumber = sList[0].Region;
             //  already have "cruise" number through CreateTextFile (saleName)
 
             //  setup filename for SUM file
-            string SUMout = System.IO.Path.GetDirectoryName(fileName);
+            string SUMout = System.IO.Path.GetDirectoryName(FilePath);
             SUMout += "\\";
             SUMout += cruiseNum;     //  Request for sale (cruise) number to be used as SUM filename and the dump file
             SUMout += ".sum";
 
             //  check for more than two UOM and issue warning that SUM file will not load into TIM
-            List<POPDO> UOMgroups = bslyr.GetUOMfromPOP();
+            List<POPDO> UOMgroups = DataLayer.GetUOMfromPOP();
             if (UOMgroups.Count > 2)
-                Utilities.LogError("SUM file", 0, "W", "20",fileName);
+                DataLayer.LogError("SUM file", 0, "W", "20");
 
             //  FIXCNT and UOM 04 will not load into TIM -- loop by UOM groups
             foreach (POPDO pop in UOMgroups)
@@ -93,10 +97,10 @@ namespace CruiseProcessing
             //  going to try renaming the SQLite database with the addition of ".dmp"
             //  test load was -- successful?  April 2013 --  NO
             //  use crz.dmp and salename like the sum file
-            string dumpFile = System.IO.Path.GetDirectoryName(fileName);
+            string dumpFile = System.IO.Path.GetDirectoryName(FilePath);
             dumpFile += "\\";
             dumpFile += cruiseNum + ".crz.dmp";
-            File.Copy(fileName, dumpFile, true);
+            File.Copy(FilePath, dumpFile, true);
 
             return;
         }   //  end CreateSUMfile
@@ -220,7 +224,7 @@ namespace CruiseProcessing
 
         private void Load1V(StreamWriter strSumOut, POPDO pop, List<POPDO> popList, List<PRODO> proList)
         {
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             //  need just cut trees from pop list
             List<POPDO> justCutPops = POPmethods.GetCutTrees(popList);
             foreach (POPDO jcp in justCutPops)
@@ -242,7 +246,7 @@ namespace CruiseProcessing
                         productTypes[2] = "RP";
 
                     //  need unit for 100% and STM of Y
-                    string currMeth = Utilities.MethodLookup(jcp.Stratum, bslyr);
+                    string currMeth = Utilities.MethodLookup(jcp.Stratum, DataLayer);
                     if (currMeth == "100" || jcp.STM == "Y")
                     {
                         //  find unit numbers in the PRO table for this group
@@ -330,11 +334,11 @@ namespace CruiseProcessing
         private void Load2V(StreamWriter strSumOut, List<CuttingUnitDO> cuList, List<PRODO> proList,List<StratumDO> strList)
         {
             double PCPOPSTG = 0.0;
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             foreach(StratumDO sd in strList)
             {
                 string currMeth = sd.Method;
-                double STacres = Utilities.AcresLookup((long)sd.Stratum_CN, bslyr, sd.Code);
+                double STacres = Utilities.AcresLookup((long)sd.Stratum_CN, DataLayer, sd.Code);
                 if(currMeth != "FIXCNT")
                 {
                     //  Pull strata from PRO table
@@ -448,14 +452,13 @@ namespace CruiseProcessing
         {
             double STacres;
             ArrayList justUnits = new ArrayList();
-            List<LCDDO> lcdList = bslyr.getLCD();
-            List<TreeDO> tList = bslyr.getTrees();
-            TreeListMethods Tlm = new TreeListMethods();
+            List<LCDDO> lcdList = DataLayer.getLCD();
+            List<TreeDO> tList = DataLayer.getTrees();
             //  Process by stratum
             foreach (StratumDO sd in strList)
             {
                 //  save correct acres for later use   
-                STacres = Utilities.ReturnCorrectAcres(sd.Code, bslyr, (long)sd.Stratum_CN);
+                STacres = Utilities.ReturnCorrectAcres(sd.Code, DataLayer, (long)sd.Stratum_CN);
                 if (sd.Method != "FIXCNT")
                 {
                     //  need LCD by stratum
@@ -477,12 +480,12 @@ namespace CruiseProcessing
                         justUnits.Clear();
                         if (sd.Method == "100" || js.STM == "Y")
                         {
-                            List<TreeDO> currentStratum = Tlm.GetCurrentStratum(tList, sd.Code);
+                            List<TreeDO> currentStratum = TreeListMethods.GetCurrentStratum(tList, sd.Code);
                             justUnits = getLCDunits(currentStratum,"C","M",js.Species,js.STM);
                             foreach (object ju in justUnits)
                             {
                                 //  pull trees
-                                List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues((int) sd.Stratum_CN);
+                                List<TreeCalculatedValuesDO> tcvList = DataLayer.getTreeCalculatedValues((int) sd.Stratum_CN);
                                 List<TreeCalculatedValuesDO> justTrees = tcvList.FindAll(
                                     delegate(TreeCalculatedValuesDO tcv)
                                     {
@@ -1178,15 +1181,15 @@ namespace CruiseProcessing
             double SummedError = 0.0;
             double TotalNetVol = 0.0;
             double TotalSummedErr = 0.0;
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             //  process by stratum
             foreach (StratumDO sd in strList)
             {
                 if (sd.Method != "FIXCNT")
                 {
-                    double STacres = Utilities.ReturnCorrectAcres(sd.Code, bslyr, (long)sd.Stratum_CN);
+                    double STacres = Utilities.ReturnCorrectAcres(sd.Code, DataLayer, (long)sd.Stratum_CN);
                     //  pull sample groups for the stratum and loop accordingly
-                    List<SampleGroupDO> currSampleGroups = bslyr.getSampleGroups((int)sd.Stratum_CN);
+                    List<SampleGroupDO> currSampleGroups = DataLayer.getSampleGroups((int)sd.Stratum_CN);
                     double SGnetVol = 0.0;
                     SummedNetVol = 0.0;
                     SummedError = 0.0;

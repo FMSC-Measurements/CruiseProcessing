@@ -11,7 +11,6 @@ namespace CruiseProcessing
 {
     public class OutputStandTables : CreateTextFile
     {
-        #region
         public string currentReport;
         private List<string> prtFields = new List<string>();
         private double strAcres = 0;
@@ -31,7 +30,10 @@ namespace CruiseProcessing
         private int numPages = 0;
         private int begGroup;
         private int endGroup;
-        #endregion
+
+        public OutputStandTables(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void CreateStandTables(StreamWriter strWriteOut, reportHeaders rh,
                                         ref int pageNumb, int classInterval)
@@ -40,7 +42,7 @@ namespace CruiseProcessing
             //  This will change depending on the stand table report
             string currentTitle = fillReportTitle(currentReport);
             //  get current sale number for those reports by sale
-            List<SaleDO> sList = bslyr.getSale();
+            List<SaleDO> sList = DataLayer.getSale();
             currSale = sList[0].SaleNumber;
             //  what is the cut/leave code?
             if (currentReport.Substring(0, 2) == "TC")
@@ -124,7 +126,7 @@ namespace CruiseProcessing
                 orderedBy = "Species,PrimaryProduct,UOM";
             else if (StratumOrSale == "SALE" && GroupedBy == "S")
                 orderedBy = "Species";
-            treeData = bslyr.getTreeCalculatedValues(whatCutCode, orderedBy, StratumOrSale);
+            treeData = DataLayer.getTreeCalculatedValues(whatCutCode, orderedBy, StratumOrSale);
 
             if (treeData.Count == 0)
             {
@@ -156,12 +158,12 @@ namespace CruiseProcessing
                                             ref int pageNumb, reportHeaders rh)
         {
             //  header and column headers are stratum dependent so loop by stratum
-            List<StratumDO> strList = bslyr.getStratum();
+            List<StratumDO> strList = DataLayer.getStratum();
             foreach (StratumDO s in strList)
             {
                 reportData.Clear();
                 //  Load DIB classes for the current stratum
-                List<TreeDO> justDIBs = bslyr.getTreeDBH(whatCutCode, s.Code, "M");
+                List<TreeDO> justDIBs = DataLayer.getTreeDBH(whatCutCode, s.Code, "M");
                 if (justDIBs.Count > 0)
                 {
                     LoadTreeDIBclasses(justDIBs[justDIBs.Count - 1].DBH, reportData, classInterval);
@@ -203,9 +205,9 @@ namespace CruiseProcessing
                     //  load column headers here
                     List<LCDDO> justGroups = new List<LCDDO>();
                     if (whatProduct == "BOTH")
-                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = @p1 ", "GROUP BY Stratum,Species", s.Code, whatCutCode);
+                        justGroups = DataLayer.getLCDOrdered("WHERE Stratum = @p1 ", "GROUP BY Stratum,Species", s.Code, whatCutCode);
                     else
-                        justGroups = bslyr.getLCDOrdered("WHERE Stratum = @p1 ", "GROUP BY Stratum,Species,PrimaryProduct,UOM", s.Code, whatCutCode);
+                        justGroups = DataLayer.getLCDOrdered("WHERE Stratum = @p1 ", "GROUP BY Stratum,Species,PrimaryProduct,UOM", s.Code, whatCutCode);
                     //  loop through calculated data to fill stand table
                     processGroups(justGroups, strWriteOut, rh, ref pageNumb, justStrataData, classInterval, s.Code);
 
@@ -225,7 +227,7 @@ namespace CruiseProcessing
             reportData.Clear();
 
             //  DIB classes will be the same for each page so load 'em up
-            List<TreeDO> justDIBs = bslyr.getTreeDBH(whatCutCode);
+            List<TreeDO> justDIBs = DataLayer.getTreeDBH(whatCutCode);
             LoadTreeDIBclasses(justDIBs[justDIBs.Count - 1].DBH, reportData, classInterval);
 
             //  update current title
@@ -262,10 +264,10 @@ namespace CruiseProcessing
             switch (GroupedBy)
             {
                 case "SPU":
-                    speciesGroups = bslyr.getLCDOrdered("", "GROUP BY Species,PrimaryProduct,UOM", whatCutCode, "");
+                    speciesGroups = DataLayer.getLCDOrdered("", "GROUP BY Species,PrimaryProduct,UOM", whatCutCode, "");
                     break;
                 case "S":
-                    speciesGroups = bslyr.getLCDOrdered("", "GROUP BY Species", whatCutCode, "");
+                    speciesGroups = DataLayer.getLCDOrdered("", "GROUP BY Species", whatCutCode, "");
                     break;
             }   //  end switch on GroupedBy
 
@@ -318,7 +320,7 @@ namespace CruiseProcessing
                     List<TreeCalculatedValuesDO> currentGroupData = GetCurrentGroup(currentData, groupsToPrint[k]);
                     foreach (TreeCalculatedValuesDO cgd in currentGroupData)
                     {
-                        strAcres = Utilities.ReturnCorrectAcres(cgd.Tree.Stratum.Code, bslyr, (long)cgd.Tree.Stratum_CN);
+                        strAcres = Utilities.ReturnCorrectAcres(cgd.Tree.Stratum.Code, DataLayer, (long)cgd.Tree.Stratum_CN);
                         currEF = cgd.Tree.ExpansionFactor;
                         LoadStandTable(cgd, reportData, groupsToPrint, classInterval, tableColumn);
                     }   //  end foreach loop
@@ -410,7 +412,7 @@ namespace CruiseProcessing
             nthRow = FindTreeDIBindex(listToLoad, jsd.Tree.DBH, classInterval);
 
             //string currMeth = Utilities.MethodLookup(justGroups[whichColumn].Stratum, bslyr);
-            string currMeth = Utilities.MethodLookup(jsd.Tree.Stratum.Code, bslyr);
+            string currMeth = Utilities.MethodLookup(jsd.Tree.Stratum.Code, DataLayer);
 
             //  Sum up appropriate value and products
             //  first sum up primary product then check whatProduct to add in secondary
@@ -440,7 +442,7 @@ namespace CruiseProcessing
                                 LoadProperColumn(listToLoad, jsd.Tree.ExpansionFactor, whichColumn);
                             else
                             {
-                                List<LCDDO> lcdList = bslyr.getLCD();
+                                List<LCDDO> lcdList = DataLayer.getLCD();
                                 List<LCDDO> allGroups = lcdList.FindAll(
                                     delegate(LCDDO l)
                                     {

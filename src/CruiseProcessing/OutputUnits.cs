@@ -11,7 +11,6 @@ namespace CruiseProcessing
 {
     class OutputUnits : CreateTextFile
     {
-        #region
         public string currentReport;
         public string currCL;
         private int[] fieldLengths;
@@ -44,15 +43,18 @@ namespace CruiseProcessing
         private string recoveredFlag = "n";
         private long currSTcn;
         private long currCUcn;
-        #endregion
+
+        public OutputUnits(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void OutputUnitReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  This generates VSM4 as well as UC reports 1-6 -- remaining UC reports are stand table format
             string currentTitle = fillReportTitle(currentReport);
-            sList = bslyr.getStratum();
-            cList = bslyr.getCuttingUnits();
-            proList = bslyr.getPRO();
+            sList = DataLayer.getStratum();
+            cList = DataLayer.getCuttingUnits();
+            proList = DataLayer.getPRO();
             string orderBy = "";
             // reset summation variables
             numTrees = 0.0;
@@ -111,7 +113,7 @@ namespace CruiseProcessing
                         {
                             case "100":
                                 //  select cut trees from tree calculated values
-                                List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues((int) s.Stratum_CN, orderBy);
+                                List<TreeCalculatedValuesDO> treeList = DataLayer.getTreeCalculatedValues((int) s.Stratum_CN, orderBy);
                                 tcvList = treeList.FindAll(
                                     delegate(TreeCalculatedValuesDO tdo)
                                     {
@@ -121,10 +123,10 @@ namespace CruiseProcessing
                             case "STR":
                             case "S3P":
                             case "3P":
-                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2", orderBy);                        
+                                lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2", orderBy);                        
                                 break;
                             default:
-                                lcdList = bslyr.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2 ", orderBy);
+                                lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2 ", orderBy);
                                 break;
                         }   //  end switch on method
                         LoadAndPrintProrated(strWriteOut, s, currentReport, rh, ref pageNumb);
@@ -183,7 +185,7 @@ namespace CruiseProcessing
                         {
                             s.CuttingUnits.Populate();
                             //  need current UOM to set report title
-                            string currUOM = bslyr.getUOM((int)s.Stratum_CN);
+                            string currUOM = DataLayer.getUOM((int)s.Stratum_CN);
                             //  Create report heading
                             rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO_PPO, "");
                             //  Fix reportTitles accordingly
@@ -207,13 +209,13 @@ namespace CruiseProcessing
                             fieldLengths = new int[] { 3, 9, 8, 7, 7, 6, 9, 7, 9, 10, 10, 7, 8, 10, 13, 4 };
 
                             //  process by groups so each cutting unit and sample group is on a separate page 
-                            List<SampleGroupDO> sgList = bslyr.getSampleGroups((int)s.Stratum_CN);
+                            List<SampleGroupDO> sgList = DataLayer.getSampleGroups((int)s.Stratum_CN);
                             foreach (CuttingUnitDO cud in s.CuttingUnits)
                             {
                                 //  pull calculated values for this group
-                                tcvList = bslyr.getTreeCalculatedValues((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
+                                tcvList = DataLayer.getTreeCalculatedValues((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
                                  //  August 2016 -- also need count records from tree table in case method is F3P
-                                List<TreeDO> tUnitsList = bslyr.JustUnitTrees((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
+                                List<TreeDO> tUnitsList = DataLayer.JustUnitTrees((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
                                 List<TreeCalculatedValuesDO> justSampleGroups = new List<TreeCalculatedValuesDO>();
                                 foreach (SampleGroupDO sg in sgList)
                                 {
@@ -306,7 +308,7 @@ namespace CruiseProcessing
             if (currMeth == "3P" || currMeth == "S3P")
             {
                 //  moved to beginning as it will be used elsewhere
-                List<CountTreeDO> cList = bslyr.getCountTrees();
+                List<CountTreeDO> cList = DataLayer.getCountTrees();
                 List<CountTreeDO> justCurrentCounts = CountTreeMethods.GetSingleValue(cList, currSG, currST, "", currCU, 0);
                 foreach (CountTreeDO c in justCurrentCounts)
                 {
@@ -929,9 +931,9 @@ namespace CruiseProcessing
             //  or sample groups for UC6
             ArrayList groupsToProcess = new ArrayList();
             if (currentReport == "UC5" || currentReport == "LV05")
-                groupsToProcess = bslyr.GetJustSpecies("Tree");
+                groupsToProcess = DataLayer.GetJustSpecies("Tree");
             else if (currentReport == "UC6")
-                groupsToProcess = bslyr.GetJustSampleGroups();
+                groupsToProcess = DataLayer.GetJustSampleGroups();
             foreach (string gtp in groupsToProcess)
             {
                 //  pull data based on strata method and species
@@ -942,7 +944,7 @@ namespace CruiseProcessing
                     {
                         case "100":
                             //  data comes from trees and must be expanded
-                            tcvList = bslyr.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cdo.CuttingUnit_CN);
+                            tcvList = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cdo.CuttingUnit_CN);
                             List<TreeCalculatedValuesDO> currentGroup = new List<TreeCalculatedValuesDO>();
                             if (currentReport == "UC5" || currentReport == "LV05")
                             {
@@ -966,7 +968,7 @@ namespace CruiseProcessing
                             break;
                         default:
                             //  otherwise data comes from LCD and is NOT expanded
-                            lcdList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species", currCL, stratum.Code);
+                            lcdList = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species", currCL, stratum.Code);
                             List<LCDDO> currGroup = new List<LCDDO>();
                             if (currentReport == "UC5" || currentReport == "LV05")
                             {
@@ -1029,7 +1031,7 @@ namespace CruiseProcessing
             //  sum species groups by stratum
             cdo.Strata.Populate();
             prtFields = new List<string>();
-            string[,] groupsToProcess = bslyr.GetUniqueSpeciesProduct();
+            string[,] groupsToProcess = DataLayer.GetUniqueSpeciesProduct();
             int numRows = groupsToProcess.GetLength(0);
             for (int k = 0; k < numRows; k++)
             {
@@ -1041,7 +1043,7 @@ namespace CruiseProcessing
                         switch (s.Method)
                         {
                             case "100":
-                                tcvList = bslyr.getTreeCalculatedValues((int)s.Stratum_CN, (int)cdo.CuttingUnit_CN);
+                                tcvList = DataLayer.getTreeCalculatedValues((int)s.Stratum_CN, (int)cdo.CuttingUnit_CN);
                                 List<TreeCalculatedValuesDO> currentGroup = tcvList.FindAll(
                                     delegate(TreeCalculatedValuesDO tdo)
                                     {
@@ -1053,7 +1055,7 @@ namespace CruiseProcessing
                                 break;
                             default:
                                 //  any other method comes from the LCD table
-                                lcdList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ",
+                                lcdList = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ",
                                                     "Species", "C", s.Code, "");
                                 List<LCDDO> currGroup = lcdList.FindAll(
                                     delegate(LCDDO l)
@@ -1774,15 +1776,15 @@ namespace CruiseProcessing
                     case "UC2":
                         //  total values
                         //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                        if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3P" ||
-                            Utilities.MethodLookup(ldo.Stratum, bslyr) == "S3P")
+                        if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3P" ||
+                            Utilities.MethodLookup(ldo.Stratum, DataLayer) == "S3P")
                         {
                             numTrees += pull3PtallyTrees(proList, lcdList, ldo.SampleGroup, 
                                                 ldo.Species, ldo.Stratum, ldo.PrimaryProduct, 
                                                 ldo.LiveDead, ldo.STM, currCU);
                             estTrees = 0.0;
                         }
-                        else if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3PPNT")
+                        else if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3PPNT")
                         {
                             numTrees += ldo.SumExpanFactor * proratFac;
                             estTrees = 0.0;
@@ -1812,15 +1814,15 @@ namespace CruiseProcessing
                         if (ldo.UOM != "05")
                         {
                             //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                            if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3P" ||
-                                Utilities.MethodLookup(ldo.Stratum, bslyr) == "S3P")
+                            if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3P" ||
+                                Utilities.MethodLookup(ldo.Stratum, DataLayer) == "S3P")
                             {
                                 numTrees += pull3PtallyTrees(proList, lcdList, ldo.SampleGroup,
                                                     ldo.Species, ldo.Stratum, ldo.PrimaryProduct,
                                                     ldo.LiveDead, ldo.STM, currCU);
                                 estTrees = 0.0;
                             }
-                            else if (Utilities.MethodLookup(ldo.Stratum, bslyr) == "3PPNT")
+                            else if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3PPNT")
                             {
                                 numTrees += ldo.SumExpanFactor * proratFac;
                                 estTrees = 0.0;
@@ -1980,15 +1982,15 @@ namespace CruiseProcessing
                 if (l.UOM != "05")
                 {
                     //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                    if (Utilities.MethodLookup(l.Stratum, bslyr) == "3P" ||
-                        Utilities.MethodLookup(l.Stratum, bslyr) == "S3P")
+                    if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3P" ||
+                        Utilities.MethodLookup(l.Stratum, DataLayer) == "S3P")
                     {
                         numTrees += pull3PtallyTrees(proList, lcdList, l.SampleGroup,
                                                 l.Species, l.Stratum, l.PrimaryProduct,
                                                 l.LiveDead, l.STM, currCU);
                         estTrees = 0.0;
                     }
-                    else if (Utilities.MethodLookup(l.Stratum, bslyr) == "3PPNT")
+                    else if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3PPNT")
                     {
                         numTrees += l.SumExpanFactor * proratFac;
                         estTrees = 0.0;
@@ -2115,7 +2117,7 @@ namespace CruiseProcessing
                                     long currCU_CN, long currST_CN)
         {
             //  sums sure-to-measure trees for VSM5 report
-            List<TreeCalculatedValuesDO> tList = bslyr.getTreeCalculatedValues((int) currST_CN,(int) currCU_CN);
+            List<TreeCalculatedValuesDO> tList = DataLayer.getTreeCalculatedValues((int) currST_CN,(int) currCU_CN);
             //  find all trees for this group
             List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
                 delegate(TreeCalculatedValuesDO tdo)
@@ -2169,7 +2171,7 @@ namespace CruiseProcessing
             //  for just non-STM first
             //  need entire LCD list for UC5-6
             if (currentReport == "UC5" || currentReport == "UC6")
-                lcdList = bslyr.getLCD();
+                lcdList = DataLayer.getLCD();
 
             List<LCDDO> justGroups = lcdList.FindAll(
                 delegate(LCDDO l)

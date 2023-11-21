@@ -11,7 +11,6 @@ namespace CruiseProcessing
 {
     class OutputTreeGrade : CreateTextFile
     {
-        #region
         public string currRept;
         private int[] fieldLengths;
         private List<string> prtFields;
@@ -20,8 +19,10 @@ namespace CruiseProcessing
         private List<ReportSubtotal> productSubTotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> saleTotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> eachLine = new List<ReportSubtotal>();
-        #endregion
 
+        public OutputTreeGrade(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void CreateTreeGradeReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
@@ -29,7 +30,7 @@ namespace CruiseProcessing
 
             numOlines = 0;
             //  need data from LCD; cut trees only; ordered by primary product, species and tree grade
-            List<LCDDO> lcdList = LCDmethods.GetCutGroupedBy("", "", 8, bslyr);
+            List<LCDDO> lcdList = LCDmethods.GetCutGroupedBy("", "", 8, DataLayer);
 
             string volType = "";
             double volSum = 0;
@@ -179,9 +180,9 @@ namespace CruiseProcessing
             else if (volType == "CUFT")
                 currentValue = lcd.SumNCUFT;
             //  also need strata acres to expand volume
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
             long currStrCN = StratumMethods.GetStratumCN(lcd.Stratum, sList);
-            double currAcres = Utilities.ReturnCorrectAcres(lcd.Stratum, bslyr, currStrCN);
+            double currAcres = Utilities.ReturnCorrectAcres(lcd.Stratum, DataLayer, currStrCN);
             switch (lcd.TreeGrade)
             {
                 case "0":

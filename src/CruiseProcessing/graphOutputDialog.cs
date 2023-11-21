@@ -12,15 +12,18 @@ namespace CruiseProcessing
 {
     public partial class graphOutputDialog : Form
     {
-        #region
         public ArrayList graphReports = new ArrayList();
-        public string fileName;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
 
-        public graphOutputDialog()
+        protected graphOutputDialog()
         {
             InitializeComponent();
+        }
+
+        public graphOutputDialog(CPbusinessLayer dataLayer)
+            :this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         private void onCancel(object sender, EventArgs e)
@@ -37,11 +40,8 @@ namespace CruiseProcessing
             //  loop through list and display graphs
             for (int k = 0; k < graphReports.Count; k++)
             {
-                OutputGraphs og = new OutputGraphs();
+                OutputGraphs og = new OutputGraphs(DataLayer);
                 og.currentReport = graphReports[k].ToString();
-                og.fileName = fileName;
-                og.bslyr.fileName = bslyr.fileName;
-                og.bslyr.DAL = bslyr.DAL;
                 og.createGraphs();
             }   //  end for k loop
             Close();

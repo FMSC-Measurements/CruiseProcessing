@@ -11,7 +11,7 @@ namespace CruiseProcessing
 {
     public class OutputR8 : CreateTextFile
     {
-        #region
+
         public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -26,7 +26,10 @@ namespace CruiseProcessing
         private double currGRScuft = 0;
         private double pineTop = 0;
         private double hardwoodTop = 0;
-        #endregion
+
+        public OutputR8(CPbusinessLayer businessLayer) : base(businessLayer)
+        {
+        }
 
         public void CreateR8Reports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
@@ -34,7 +37,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             // grad LCD list to see if there's volume for the report
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             currGRSbdft = lcdList.Sum(l => l.SumGBDFT);
             currGRScuft = lcdList.Sum(l => l.SumGCUFT);
             if (currGRSbdft == 0 && currGRScuft == 0)
@@ -48,7 +51,7 @@ namespace CruiseProcessing
             {
                 case "R801":
                     //  total sale acres
-                    List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+                    List<CuttingUnitDO> cutList = DataLayer.getCuttingUnits();
                     double totalAcres = cutList.Sum(c => c.Area);
                     //  create complete header
                     completeHeader = createCompleteHeader(totalAcres);
@@ -65,7 +68,7 @@ namespace CruiseProcessing
                     }   //  end for j loop
 
                     //  Uses cut and measured trees only
-                    List<TreeCalculatedValuesDO> treeList = bslyr.getTreeCalculatedValues();
+                    List<TreeCalculatedValuesDO> treeList = DataLayer.getTreeCalculatedValues();
                     List<TreeCalculatedValuesDO> justTrees = treeList.FindAll(
                         delegate(TreeCalculatedValuesDO tcv)
                         {
@@ -78,7 +81,7 @@ namespace CruiseProcessing
                     rh.createReportTitle(currentTitle, 6, 0, 0, "BY SAMPLE GROUP, SPECIES, AND PRODUCT", reportConstants.FCTO);
                     numOlines = 0;
                     //  processed by group
-                    List<SampleGroupDO> justGroups = bslyr.getSampleGroups("WHERE CutLeave = @p1 GROUP BY Code");
+                    List<SampleGroupDO> justGroups = DataLayer.getSampleGroups("WHERE CutLeave = @p1 GROUP BY Code");
                     OutputSawtimber(strWriteOut, ref pageNumb, rh, justGroups, lcdList);
                     numOlines = 0;
                     OutputProduct8(strWriteOut, ref pageNumb, rh, justGroups, lcdList);
@@ -101,7 +104,7 @@ namespace CruiseProcessing
                 //  get acres for stratum change
                 if (prevST != jt.Tree.Stratum.Code)
                 {
-                    currAC = Utilities.ReturnCorrectAcres(jt.Tree.Stratum.Code, bslyr, (long)jt.Tree.Stratum_CN);
+                    currAC = Utilities.ReturnCorrectAcres(jt.Tree.Stratum.Code, DataLayer, (long)jt.Tree.Stratum_CN);
                     prevST = jt.Tree.Stratum.Code;
                 }   //  endif previous stratum
 
@@ -421,7 +424,7 @@ namespace CruiseProcessing
                 //  accumulate data by species
                 string prevST = "*";
                 double currAC = 0;
-                List<StratumDO> sList = bslyr.getStratum();
+                List<StratumDO> sList = DataLayer.getStratum();
                 foreach (LCDDO js in justSpecies)
                 {
                     //  find species in listToOutput or add it
@@ -438,7 +441,7 @@ namespace CruiseProcessing
                             {
                                 return s.Code == js.Stratum;
                             });
-                        currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[mthRow].Stratum_CN);
+                        currAC = Utilities.ReturnCorrectAcres(js.Stratum, DataLayer, (long)sList[mthRow].Stratum_CN);
                         prevST = js.Stratum;
                     }   //  endif
 
@@ -538,7 +541,7 @@ namespace CruiseProcessing
                     //  accumulate data by species
                     string prevST = "*";
                     double currAC = 0;
-                    List<StratumDO> sList = bslyr.getStratum();
+                    List<StratumDO> sList = DataLayer.getStratum();
                     foreach (LCDDO js in justSpecies)
                     {
                         //  find species in listToOutput or add it
@@ -555,7 +558,7 @@ namespace CruiseProcessing
                                 {
                                     return s.Code == js.Stratum;
                                 });
-                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[mthRow].Stratum_CN);
+                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, DataLayer, (long)sList[mthRow].Stratum_CN);
                             prevST = js.Stratum;
                         }   //  endif
 
@@ -658,7 +661,7 @@ namespace CruiseProcessing
                     //  accumulate data by species
                     string prevST = "*";
                     double currAC = 0;
-                    List<StratumDO> sList = bslyr.getStratum();
+                    List<StratumDO> sList = DataLayer.getStratum();
                     foreach (LCDDO js in justSpecies)
                     {
                         //  find species in listToOutput or add it
@@ -675,7 +678,7 @@ namespace CruiseProcessing
                                 {
                                     return s.Code == js.Stratum;
                                 });
-                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[mthRow].Stratum_CN);
+                            currAC = Utilities.ReturnCorrectAcres(js.Stratum, DataLayer, (long)sList[mthRow].Stratum_CN);
                             prevST = js.Stratum;
                         }   //  endif
 

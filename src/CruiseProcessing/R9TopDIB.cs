@@ -14,26 +14,29 @@ namespace CruiseProcessing
 {
     public partial class R9TopDIB : Form
     {
-        #region
-        public string fileName;
         public List<JustDIBs> jstDIB = new List<JustDIBs>();
         private int selectedRow;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
 
 
-        public R9TopDIB()
+        protected R9TopDIB()
         {
             InitializeComponent();
+        }
+
+        public R9TopDIB(CPbusinessLayer dataLayer)
+            :this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()
         {
             //  Get unique species list from trees
-            ArrayList uniqueSpecies = bslyr.GetJustSpecies("Tree");
+            ArrayList uniqueSpecies = DataLayer.GetJustSpecies("Tree");
 
             //  any volume equations??
-            List<VolumeEquationDO> volList = bslyr.getVolumeEquations();
+            List<VolumeEquationDO> volList = DataLayer.getVolumeEquations();
             if (volList.Count <= 0)
             {
                 //  Initialize dibs as zero

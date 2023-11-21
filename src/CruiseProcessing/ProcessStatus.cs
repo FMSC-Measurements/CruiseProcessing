@@ -13,13 +13,17 @@ namespace CruiseProcessing
 {
     public partial class ProcessStatus : Form
     {
-        public string fileName;
-        public DAL DAL { get; set; }
-        //public CPbusinessLayer bslyr = new CPbusinessLayer();
+        public CPbusinessLayer DataLayer { get; }
 
-        public ProcessStatus()
+        protected ProcessStatus()
         {
             InitializeComponent();
+        }
+
+        public ProcessStatus(CPbusinessLayer dataLayer)
+            :this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer)); ;
         }
 
         private void on_GO(object sender, EventArgs e)
@@ -95,9 +99,7 @@ namespace CruiseProcessing
                moved to EditCheck routine*/
             //  Show editCheck message -- edit checks complete
 
-            EditChecks eChecks = new EditChecks();
-            eChecks.fileName = fileName;
-            eChecks.DAL = DAL;
+            EditChecks eChecks = new EditChecks(DataLayer);
 
             int err = eChecks.CheckErrors();
             if (err < 0)
@@ -117,20 +119,18 @@ namespace CruiseProcessing
             //  put a warning message in the error log table indicating the secondary product was set to a default
             //  June 2013
             List<SaleDO> saleList = new List<SaleDO>();
-            saleList = DAL.From<SaleDO>().Read().ToList();
+            saleList = DataLayer.DAL.From<SaleDO>().Read().ToList();
             string currRegion = saleList[0].Region;
 
             //string currRegion = bslyr.getRegion();
 
             DefaultSecondaryProduct(currRegion);
 
-            CalculateTreeValues calcTreeVal = new CalculateTreeValues();
-            CalculatedValues calcVal = new CalculatedValues();
+            CalculateTreeValues calcTreeVal = new CalculateTreeValues(DataLayer);
+            CalculatedValues calcVal = new CalculatedValues(DataLayer);
 
 
             //  retrieve lists needed and sets up population IDs
-            calcVal.fileName = fileName;
-            calcVal.DAL = DAL;
             //   List<SampleGroupDO> sgList = bslyr.getSampleGroups();
             //   List<TreeDefaultValueDO> tdvList = bslyr.getTreeDefaults();
             //   List<CountTreeDO> ctList = bslyr.getCountTrees();
@@ -141,22 +141,16 @@ namespace CruiseProcessing
 
             calcVal.CalcValues();
 
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
             //  now need some other tables to start summing values
-            List<LCDDO> lcdList = bslyr.getLCD();
-            List<POPDO> popList = bslyr.getPOP();
-            List<PRODO> proList = bslyr.getPRO();
-            List<StratumDO> sList = bslyr.getStratum();
-            List<SampleGroupDO> sgList = bslyr.getSampleGroups();
-            List<TreeDefaultValueDO> tdvList = bslyr.getTreeDefaults();
-            List<CountTreeDO> ctList = bslyr.getCountTrees();
-            List<PlotDO> pList = bslyr.getPlots();
-            List<TreeDO> tList = bslyr.getTrees();
-
-            calcTreeVal.fileName = fileName;
-            calcTreeVal.bslyr.fileName = fileName;
-            calcTreeVal.bslyr.DAL = bslyr.DAL;
+            List<LCDDO> lcdList = DataLayer.getLCD();
+            List<POPDO> popList = DataLayer.getPOP();
+            List<PRODO> proList = DataLayer.getPRO();
+            List<StratumDO> sList = DataLayer.getStratum();
+            List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
+            List<TreeDefaultValueDO> tdvList = DataLayer.getTreeDefaults();
+            List<CountTreeDO> ctList = DataLayer.getCountTrees();
+            List<PlotDO> pList = DataLayer.getPlots();
+            List<TreeDO> tList = DataLayer.getTrees();
 
             //  show preparation of data is complete
             prepareCheck.Enabled = true;
@@ -194,11 +188,11 @@ namespace CruiseProcessing
                 //  Update 3P tally
                 if (sdo.Method == "3P")
                 {
-                    List<LCDDO> LCDstratum = LCDmethods.GetStratumGroupedBy(fileName, sdo.Code, bslyr);
+                    List<LCDDO> LCDstratum = LCDmethods.GetStratumGroupedBy(sdo.Code, DataLayer);
 
-                    Update3Ptally(fileName, ctList, justCurrentLCD, tList, LCDstratum);
+                    Update3Ptally(ctList, justCurrentLCD, tList, LCDstratum);
                     //  Save 
-                    bslyr.SaveLCD(justCurrentLCD);
+                    DataLayer.SaveLCD(justCurrentLCD);
                 }   //  endif method is 3P
 
 
@@ -210,17 +204,14 @@ namespace CruiseProcessing
                         {
                             return td.Stratum.Code == sdo.Code;
                         });
-                    List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues((int)sdo.Stratum_CN);
+                    List<TreeCalculatedValuesDO> tcvList = DataLayer.getTreeCalculatedValues((int)sdo.Stratum_CN);
                     UpdateExpansionFactors(justCurrentStratum, tcvList);
                     //  Save update
-                    bslyr.SaveTrees(justCurrentStratum);
+                    DataLayer.SaveTrees(justCurrentStratum);
                 }   //  endif on method
 
                 //  Sum data for the LCD, POP and PRO table
-                SumAll Sml = new SumAll();
-                Sml.fileName = fileName;
-                Sml.bslyr.fileName = bslyr.fileName;
-                Sml.bslyr.DAL = bslyr.DAL;
+                SumAll Sml = new SumAll(DataLayer);
                 Sml.SumAllValues(sdo.Code, sdo.Method, (int)sdo.Stratum_CN, sList, pList, justCurrentLCD,
                                     justCurrentPOP, justCurrentPRO);
 
@@ -228,9 +219,9 @@ namespace CruiseProcessing
                 if (sdo.Method == "STR")
                 {
 
-                    UpdateSTRtally(fileName, sdo.Code, justCurrentLCD, ctList, lcdList);
+                    UpdateSTRtally(sdo.Code, justCurrentLCD, ctList, lcdList);
                     //  save
-                    bslyr.SaveLCD(lcdList);
+                    DataLayer.SaveLCD(lcdList);
                 }   //  endif method is STR
 
             }   //  end foreach stratum
@@ -247,8 +238,8 @@ namespace CruiseProcessing
         }   //  end on_GO
 
 
-        private void Update3Ptally(string fileName, List<CountTreeDO> ctList,  
-                                    List<LCDDO> justCurrentLCD, List<TreeDO> tList, List<LCDDO> LCDstratum)
+        private void Update3Ptally(List<CountTreeDO> ctList, List<LCDDO> justCurrentLCD,
+                                    List<TreeDO> tList, List<LCDDO> LCDstratum)
         {
             double TotalEF = 0;
             double TotalMeas = 0;
@@ -309,8 +300,8 @@ namespace CruiseProcessing
         //  August 2016 -- need to replace tally for STR method when
         //  multiple species in a sample group were tallied by sample group and not
         //  by species.  Replace with sum of expansion factor
-        private void UpdateSTRtally(string fileName, string currST, List<LCDDO> justCurrentLCD,
-                                    List<CountTreeDO> ctList, List<LCDDO> lcdList)
+        private void UpdateSTRtally(string currST, List<LCDDO> justCurrentLCD, List<CountTreeDO> ctList,
+                                    List<LCDDO> lcdList)
         {
             //Possibly update this from Sample group instead of strata.  See templeton.
             //  pull count records for STR stratum
@@ -406,11 +397,9 @@ namespace CruiseProcessing
 
         private void DefaultSecondaryProduct(string currRegion)
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            ErrorLogMethods elm = new ErrorLogMethods();
-            bslyr.DAL = DAL;
+            ErrorLogMethods elm = new ErrorLogMethods(DataLayer);
 
-            List<SampleGroupDO> sgList = bslyr.getSampleGroups();
+            List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
 
             foreach (SampleGroupDO sgd in sgList)
             {
@@ -436,7 +425,7 @@ namespace CruiseProcessing
                     }   //  end switch
                 }   //  endif
             }   //  end foreach loop
-            bslyr.SaveSampleGroups(sgList);
+            DataLayer.SaveSampleGroups(sgList);
             return;
         }   //  end DefaultSecondaryProduct
     }

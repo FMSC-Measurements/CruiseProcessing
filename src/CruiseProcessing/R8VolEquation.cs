@@ -13,13 +13,12 @@ namespace CruiseProcessing
 {
     public partial class R8VolEquation : Form
     {
-        #region
-        public string fileName;
+        
         public float secDIB;
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         string[] topwoodStatus = new string[30];
         int pulpwoodHeight = -1;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        
         //string[,] DIBbySpecies;
         List<JustDIBs> DIBbySpecies = new List<JustDIBs>();
         string[,] forestDefaultList = new string[12,3] {{"02","3","10"},
@@ -67,21 +66,26 @@ namespace CruiseProcessing
                                                          {"13","03","5","27"},
                                                          {"13","04","5","29"},
                                                          {"13","07","5","28"}};
-        #endregion
+
+        protected CPbusinessLayer DataLayer { get; }
 
 
-        public R8VolEquation()
+        protected R8VolEquation()
         {
             InitializeComponent();
+        }
+
+        public R8VolEquation(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
 
         private void onTopwoodClick(object sender, EventArgs e)
         {
             //  setup dialog and get checked species in return
-            R8Topwood r8top = new R8Topwood();
-            r8top.bslyr.fileName = bslyr.fileName;
-            r8top.bslyr.DAL = bslyr.DAL;
+            R8Topwood r8top = new R8Topwood(DataLayer);
             r8top.setupDialog(); 
             r8top.ShowDialog();
             topwoodStatus = r8top.checkStatus;
@@ -91,7 +95,7 @@ namespace CruiseProcessing
         private void onOK(object sender, EventArgs e)
         {
             //  open volume equation table and remove all before building and saving equations
-            bslyr.deleteVolumeEquations();
+            DataLayer.deleteVolumeEquations();
             volList.Clear();
 
             //  Need to build volume equation and store in table, so goes into VolumeEqList
@@ -99,7 +103,7 @@ namespace CruiseProcessing
             string currentDistrict = "";
             string currGeoCode = "";
             string currGrpCode = "";
-            List<SaleDO> saleList = bslyr.getSale();
+            List<SaleDO> saleList = DataLayer.getSale();
             foreach (SaleDO sd in saleList)
             {
                 currentForest = sd.Forest;
@@ -138,7 +142,7 @@ namespace CruiseProcessing
             }   //  endif
 
             //  get unique species/product combinations
-            string[,] speciesProduct = bslyr.GetUniqueSpeciesProduct();
+            string[,] speciesProduct = DataLayer.GetUniqueSpeciesProduct();
             for(int k=0;k<speciesProduct.GetLength(0);k++)
             {
                 //  need species and product
@@ -170,14 +174,11 @@ namespace CruiseProcessing
             }   //  end foreach
 
             //  Save equations in database
-            bslyr.SaveVolumeEquations(volList);
+            DataLayer.SaveVolumeEquations(volList);
 
             if (calcBiomass.Checked == true)
             {
-                VolumeEquations ve = new VolumeEquations();
-                ve.bslyr.fileName = fileName;
-                ve.fileName = fileName;
-                ve.bslyr.DAL = bslyr.DAL;
+                VolumeEquations ve = new VolumeEquations(DataLayer);
                 ve.updateBiomass(volList);
             }   //  endif calculate biomass
             Close();
@@ -466,10 +467,7 @@ namespace CruiseProcessing
             //  use this dialog for region 8 instead
             // of the code above
             //  Save equations
-            R9TopDIB r9DIB = new R9TopDIB();
-            r9DIB.fileName = fileName;
-            r9DIB.bslyr.fileName = fileName;
-            r9DIB.bslyr.DAL = bslyr.DAL;
+            R9TopDIB r9DIB = new R9TopDIB(DataLayer);
             r9DIB.setupDialog();
             r9DIB.Show();
             DIBbySpecies = r9DIB.jstDIB;

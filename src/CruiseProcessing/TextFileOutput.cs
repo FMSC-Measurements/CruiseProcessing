@@ -17,18 +17,22 @@ namespace CruiseProcessing
     {
         #region
         public List<ReportsDO> selectedReports = new List<ReportsDO>();
-        public string fileName;
-        public string outFile;
-        public int retrnState;
-        public string currRegion;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        public string outFile { get; protected set; }
+        public int retrnState { get; protected set; }
+        public string currRegion { get; set; }
+        public CPbusinessLayer DataLayer { get; }
 
         #endregion
 
-
-        public TextFileOutput()
+        protected TextFileOutput()
         {
             InitializeComponent();
+        }
+
+        public TextFileOutput(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
 
@@ -65,10 +69,7 @@ namespace CruiseProcessing
             fileStatus.Refresh();
 
             //  calls routine to create text output file
-            CreateTextFile ctf = new CreateTextFile();
-            ctf.bslyr.fileName = bslyr.fileName;
-            ctf.bslyr.DAL = bslyr.DAL;
-            ctf.fileName = fileName;
+            CreateTextFile ctf = new CreateTextFile(DataLayer);
             ctf.currentRegion = currRegion;
             ctf.selectedReports = selectedReports;
 

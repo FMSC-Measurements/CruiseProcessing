@@ -11,6 +11,13 @@ namespace CruiseProcessing
 {
     public class ValueEqMethods
     {
+        public ErrorLogMethods ELM { get; }
+
+        public ValueEqMethods(ErrorLogMethods elm) 
+        {
+            ELM = elm;
+        }
+
         //  edit checks
         public int CheckEquations(List<ValueEquationDO> valList, string currRegion)
         {
@@ -32,7 +39,6 @@ namespace CruiseProcessing
 							                           "VLPP0913", "VLPP0914"};
             string[] R10equations = new string[8] {"VLPP0001", "VLPP0002", "VLPP0003", "VLPP0004",
 						                               "VLPP0006", "VLPP0007", "VLPP0010", "VLPP0012"};
-            ErrorLogMethods elm = new ErrorLogMethods();
             int errorsFound = 0;
             bool badEquation = false;
             bool badCoefficient = false;
@@ -96,13 +102,13 @@ namespace CruiseProcessing
 
                 if (badEquation)
                 {
-                    elm.LoadError("ValueEquation", "E", "1", (long)val.rowID, "ValueEquationNumber");
+                    ELM.LoadError("ValueEquation", "E", "1", (long)val.rowID, "ValueEquationNumber");
                     errorsFound++;
                     badEquation = false;
                 }   //  endif bad equation
                 if (badCoefficient)
                 {
-                    elm.LoadError("ValueEquation", "E", "2", (long)val.rowID, "Coefficient");
+                    ELM.LoadError("ValueEquation", "E", "2", (long)val.rowID, "Coefficient");
                     errorsFound++;
                     badCoefficient = false;
                 }   //  endif badCoefficient

@@ -12,7 +12,6 @@ namespace CruiseProcessing
 {
     public class OutputR4 : CreateTextFile
     {
-        #region
         public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -29,7 +28,10 @@ namespace CruiseProcessing
         private double currEF = 0;
         private double convFactor = 100.0;
         private string[] completeHeader;
-        #endregion
+
+        public OutputR4(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void CreateR4Reports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
@@ -37,7 +39,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             //  grab LCD list
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             //  Any data for current report?
             switch (currentReport)
             {
@@ -62,15 +64,15 @@ namespace CruiseProcessing
             }   //  end switch
 
             //  get cutting unit list to total sale acres
-            List<CuttingUnitDO> cList = bslyr.getCuttingUnits();
+            List<CuttingUnitDO> cList = DataLayer.getCuttingUnits();
             double totalSaleAcres = cList.Sum(c => c.Area);
             //  and stratum list to get expansion acres later
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
 
             //  determine which heights to use for mean height calculation
             int hgtOne = 0;
             int hgtTwo = 0;
-            List<TreeDO> tList = bslyr.getTrees();
+            List<TreeDO> tList = DataLayer.getTrees();
             whichHeightFields(ref hgtOne, ref hgtTwo, tList);
 
             //  set volume type for headers
@@ -95,7 +97,7 @@ namespace CruiseProcessing
                     completeHeader = createCompleteHeader();
                     rh.createReportTitle(currentTitle, 6, 0, 0, volTitle, reportConstants.FCTO_PPO);
                     //  group LCD by species as the first two reports run by species
-                    List<LCDDO> speciesList = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species,PrimaryProduct", "C", "");
+                    List<LCDDO> speciesList = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species,PrimaryProduct", "C", "");
                     foreach(LCDDO sl in speciesList)
                     {
                         AccumulateSpeciesVolume(lcdList,sl.Species, hgtOne, sl.PrimaryProduct);
@@ -111,7 +113,7 @@ namespace CruiseProcessing
                 case "R404":
                     //  June 2017 -- These reports are by logging method so if it is blank or null
                     //  cannot generate the report
-                    List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
+                    List<CuttingUnitDO> cutList = DataLayer.getCuttingUnits();
                       int noMethod = 0;
                     foreach (CuttingUnitDO ct in cutList)
                     {
@@ -128,7 +130,7 @@ namespace CruiseProcessing
                         completeHeader = createCompleteHeader();
                         rh.createReportTitle(currentTitle, 6, 0, 0, volTitle, reportConstants.FCTO_PPO);
                         //  these reports are prorated and grouped by logging method
-                        List<CuttingUnitDO> justMethods = bslyr.getLoggingMethods();
+                        List<CuttingUnitDO> justMethods = DataLayer.getLoggingMethods();
                         AccumulateByLogMethod(justMethods, hgtOne);
                         WriteCurrentGroup(rh, strWriteOut, ref pageNumb, totalSaleAcres);
                         //  update total
@@ -151,7 +153,7 @@ namespace CruiseProcessing
                 });
 
             //  need stratum table to get acres
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
             currAC = 0;
             currDBH2 = 0;
             currHGT = 0;
@@ -172,7 +174,7 @@ namespace CruiseProcessing
                         {
                             return s.Code == js.Stratum;
                         });
-                    currAC = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, (long)sList[nthRow].Stratum_CN);
+                    currAC = Utilities.ReturnCorrectAcres(js.Stratum, DataLayer, (long)sList[nthRow].Stratum_CN);
                     prevST = js.Stratum;
                 }   //  endif
                 switch (currentReport)
@@ -245,8 +247,8 @@ namespace CruiseProcessing
             currLOGS = 0;
             currHGT = 0;
 
-            List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
-            List<PRODO> proList = bslyr.getPRO();
+            List<CuttingUnitDO> cutList = DataLayer.getCuttingUnits();
+            List<PRODO> proList = DataLayer.getPRO();
             //  accumulate sums for each logging method
             foreach (CuttingUnitDO jm in justMethods)
             {
@@ -265,7 +267,7 @@ namespace CruiseProcessing
                     foreach (StratumDO stratum in ju.Strata)
                     {
                         //  pull strata from LCD table
-                        List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ", "", 
+                        List<LCDDO> justStrata = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ", "", 
                                                                         "C", stratum.Code, "");
                         foreach (LCDDO js in justStrata)
                         {

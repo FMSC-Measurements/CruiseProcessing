@@ -17,23 +17,26 @@ namespace CruiseProcessing
 {
     public partial class PDFfileOutput : Form
     {
-        #region
-            public string fileName;
-            private string outputFileName;
-            private string PDFoutFile;
-            private ArrayList graphReports = new ArrayList();
-            private string[] graphFlag = new string[9];
-            public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        private string outputFileName;
+        private string PDFoutFile;
+        private ArrayList graphReports = new ArrayList();
+        private string[] graphFlag = new string[9];
+        protected CPbusinessLayer DataLayer { get; }
 
-        public PDFfileOutput()
+        protected PDFfileOutput()
         {
             InitializeComponent();
         }
 
+        public PDFfileOutput(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
+
         public int setupDialog()
         {
-            outputFileName = System.IO.Path.ChangeExtension(fileName, "out");
+            outputFileName = System.IO.Path.ChangeExtension(DataLayer.FilePath, "out");
             outputFileToConvert.Text = outputFileName;
             PDFoutFile = System.IO.Path.ChangeExtension(outputFileName, "PDF");
             PDFoutputFile.Text = PDFoutFile;
@@ -50,9 +53,9 @@ namespace CruiseProcessing
             //  are there any graph files to add to the PDF file?
             if (CheckForGraphReports() == true)
             {
-                List<SaleDO> saleList = bslyr.getSale();
+                List<SaleDO> saleList = DataLayer.getSale();
                 string currSaleName = saleList[0].Name;
-                string dirPath = System.IO.Path.GetDirectoryName(fileName);
+                string dirPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
                 dirPath += "\\Graphs\\";
                 dirPath += currSaleName;
                 DirectoryInfo di = new DirectoryInfo(dirPath);
@@ -60,7 +63,7 @@ namespace CruiseProcessing
                 int nextRow = 0;
                 foreach (var fi in di.GetFiles("*.jpg"))
                 {
-                    currPath = System.IO.Path.GetDirectoryName(fileName);
+                    currPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
                     currPath += "\\Graphs\\";
                     currPath += currSaleName;
                     currPath += "\\";
@@ -101,7 +104,7 @@ namespace CruiseProcessing
                     }   //  end switch
                 }   //  end foreach loop
             }   //  endif graph reports
-            
+
             return 0;
         }   //  end setupDialog
 
@@ -134,7 +137,8 @@ namespace CruiseProcessing
                 {
                     outputFileName = browseDialog.FileName;
                     //  confirm it is an output file
-                    if (!fileName.EndsWith(".out") && !fileName.EndsWith(".OUT"))
+                    var extention = Path.GetExtension(DataLayer.FilePath).ToLowerInvariant();
+                    if (extention != ".out")
                     {
                         MessageBox.Show("File selected is not an output file.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
@@ -151,10 +155,10 @@ namespace CruiseProcessing
         {
             //  disable convert button to avoid accidental double click
             convert_Button.Enabled = false;
-            Document PDFdoc = new Document(new iTextSharp.text.Rectangle(792f,612f));
+            Document PDFdoc = new Document(new iTextSharp.text.Rectangle(792f, 612f));
             PdfWriter.GetInstance(PDFdoc, new FileStream(PDFoutFile, FileMode.Create));
             outputFileName = outputFileToConvert.Text;
-            
+
             //  make sure output file exists before trying to create the PDF file
             if (File.Exists(outputFileName))
             {
@@ -186,7 +190,7 @@ namespace CruiseProcessing
                         }   //  endif page break
                     }   //  end while
                 }   //  end using
-                
+
                 //  add graph reports
                 if (graphReports.Count > 0)
                 {
@@ -227,7 +231,7 @@ namespace CruiseProcessing
                     WM.Append("/");
                     WM.Append(DateTime.Now.Year.ToString());
                 }   //  endif
-                if(pwd.includeDate == 0)
+                if (pwd.includeDate == 0)
                     AddWatermarkText(PDForiginalText, PDFoutFile, WM.ToString(), 60.0f, 0.3f, 45.0f);
                 else if (pwd.includeDate == 1)
                     AddWatermarkText(PDForiginalText, PDFoutFile, WM.ToString(), 40.0f, 0.3f, 45.0f);
@@ -240,11 +244,11 @@ namespace CruiseProcessing
             sb.Append("PDF File has been created.\n");
             sb.Append(PDFoutFile);
             MessageBox.Show(sb.ToString(), "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            
+
         }   //  end onConvert
 
         private void onFinished(object sender, EventArgs e)
-        {            
+        {
             Close();
             return;
         }   //  end onFinished
@@ -252,9 +256,9 @@ namespace CruiseProcessing
 
         private bool CheckForGraphReports()
         {
-            List<ReportsDO> selReports = bslyr.GetSelectedReports();
+            List<ReportsDO> selReports = DataLayer.GetSelectedReports();
             int nthRow = selReports.FindIndex(
-                delegate(ReportsDO r)
+                delegate (ReportsDO r)
                 {
                     return r.ReportID.Substring(0, 2) == "GR";
                 });
@@ -263,7 +267,7 @@ namespace CruiseProcessing
             else return false;
         }   //  end CheckForGraphReports
 
-        
+
         private void addGraphReports(Document PDFdoc)
         {
             Chunk oneChunk = new Chunk();
@@ -301,7 +305,7 @@ namespace CruiseProcessing
                         img[j].ScaleToFit(200f, 250f);
                         PdfPCell aCell = new PdfPCell(img[j]);
                         aCell.HorizontalAlignment = PdfPCell.ALIGN_CENTER;
-                        graphTable.AddCell(aCell);      
+                        graphTable.AddCell(aCell);
                     }   //  end for j loop
                     // prep to add to document
                     graphTable.CompleteRow();

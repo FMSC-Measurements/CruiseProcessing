@@ -12,7 +12,6 @@ namespace CruiseProcessing
 {
     class OutputStatsToo : CreateTextFile
     {
-        #region
         public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -27,14 +26,17 @@ namespace CruiseProcessing
         private List<ReportSubtotal> totalUOM = new List<ReportSubtotal>();
         private List<ReportSubtotal> totalStrata = new List<ReportSubtotal>();
         private List<StatSums> groupSums = new List<StatSums>();
-        #endregion
+
+        public OutputStatsToo(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void OutputStatReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  ST3 (DS1) and ST4 (DS2)
             string currentTitle = fillReportTitle(currentReport);
-            popList = bslyr.getPOP();
-            lcdList = bslyr.getLCD();
+            popList = DataLayer.getPOP();
+            lcdList = DataLayer.getLCD();
 
             //  check for no data
             List<POPDO> popCutOnly = POPmethods.GetCutTrees(popList);
@@ -82,7 +84,7 @@ namespace CruiseProcessing
             if (pagesToPrint[0] == 1)
             {
                 //  pull strata, product and UOM groups from LCD
-                List<LCDDO> justGroups = bslyr.GetLCDgroup(fileName,"Stratum,PrimaryProduct,UOM");
+                List<LCDDO> justGroups = DataLayer.GetLCDgroup(FilePath,"Stratum,PrimaryProduct,UOM");
                 // primary product pages
                 if (currentReport == "ST3")
                     finishColumnHeaders(rh.ST3columns, "PRIMARY PRODUCT");
@@ -116,7 +118,7 @@ namespace CruiseProcessing
             if (pagesToPrint[1] == 1)
             {
                 //  pull strata, product and UOM groups from LCD
-                List<LCDDO> justGroups = bslyr.GetLCDgroup(fileName, "Stratum,SecondaryProduct,UOM");
+                List<LCDDO> justGroups = DataLayer.GetLCDgroup(FilePath, "Stratum,SecondaryProduct,UOM");
                 //  reset field lengths for body of report
                 if(currentReport == "ST3")
                 {
@@ -147,7 +149,7 @@ namespace CruiseProcessing
             if (pagesToPrint[2] == 1)
             {
                 //  pull strata, product and UOM groups from LCD
-                List<LCDDO> justGroups = bslyr.GetLCDgroup(fileName, "Stratum,SecondaryProduct,UOM");
+                List<LCDDO> justGroups = DataLayer.GetLCDgroup(FilePath, "Stratum,SecondaryProduct,UOM");
                 //  reset field lengths for body of report
                 if (currentReport == "ST3")
                 {
@@ -204,13 +206,13 @@ namespace CruiseProcessing
         {
             double strataAcres = 0.0;
             string currMeth;
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
             //  process by groups
             foreach (LCDDO js in justGroups)
             {
                 //  find acres and methods
-                currMeth = Utilities.MethodLookup(js.Stratum, bslyr);
-                strataAcres = Utilities.ReturnCorrectAcres(js.Stratum, bslyr, 
+                currMeth = Utilities.MethodLookup(js.Stratum, DataLayer);
+                strataAcres = Utilities.ReturnCorrectAcres(js.Stratum, DataLayer, 
                                 StratumMethods.GetStratumCN(js.Stratum, sList));
                 //  Pull current group from LCD list
                 List<LCDDO> currentGroup = new List<LCDDO>();

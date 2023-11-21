@@ -1,11 +1,10 @@
-﻿using System;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
@@ -31,32 +30,41 @@ namespace CruiseProcessing
         private double currLIVE = 0;
         private double currDEAD = 0;
         private double[] percentsArray = new double[6];
+
         private string[] columnHeaderI = new string[] {"         QUAD    AVG GM   TOTAL      GROSS",
                                                        "         MEAN     LOG      NET       MERCH      GROSS                  GROSS      GROSS    TOTAL #  TOTAL #                AVG VOL",
                                                        "STRATA   DBH     VOLUME   VOLUME     VOLUME     VOLUME  RCVRY  SLVG    VOLUME     VOLUME    MERCH    LOGS     NUM    NUM   / ACRE",
                                                        "NUMBER  (INCH)   (XXXX)   (XXXX)     (XXXX)     (XXXX)   (%)    (%)  (GRADE 7)  (GRADE 8)   LOGS   (GRD 7-9)  TREES* ACRES  (XXXX)"};
+
         private string[] columnHeaderII = new string[] {"         QUAD   AVG GM   TOTAL      GROSS",
                                                         "         MEAN    LOG      NET       MERCH      GROSS             GROSS     GROSS     TOTAL  TOTAL #          PERCENT VOLUME BY GRADE",
                                                         "SPECIES  DBH    VOLUME   VOLUME     VOLUME     VOLUME RCVRY SLVG VOLUME    VOLUME    MERCH   LOGS    NUM",
                                                         "        (INCH)  (XXXX)   (XXXX)     (XXXX)     (XXXX)  (%)   (%) (GRADE 7) (GRADE 8) LOGS   (GR 7-9) TREES*    1   2   3   4   5   6"};
+
         private string[] columnHeaderIII = new string[] {"                   QUAD   AVG GM   TOTAL      GROSS",
                                                          "                   MEAN    LOG      NET       MERCH      GROSS              GROSS      GROSS      TOTAL #  TOTAL #   EST.",
                                                          " UNIT   SPECIES    DBH    VOLUME   VOLUME     VOLUME     VOLUME RCVRY SLVG  VOLUME     VOLUME     MERCH    LOGS      NO.",
                                                          " NUMBER           (INCH)  (XXXX)   (XXXX)     (XXXX)     (XXXX)  (%)   (%)  (GRADE 7)  (GRADE 8)  LOGS     (GRD 7-9) TREES"};
+
         private string[] columnHeaderIV = new string[] {" DIB |        L   O   G         G   R   A   D  E                     |         |   LOG GRADE    | HD/VIS |        |        |",
                                                         "CLASS|                                                               |  NET    |                | DEFECT | GROSS  |  GRADE | GROSS",
                                                         "  1\" |      0        1        2        3        4        5        6  | VOLUME  |    7       8   | (1-8)  | MERCH  |    9   | VOLUME"};
+
         private string[] completeHeader = new string[4];
         #endregion
+
+        public OutputBLM(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void CreateBLMreports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
             //  fix extra line here
-            List<VolumeEquationDO> vList = bslyr.getVolumeEquations();
+            List<VolumeEquationDO> vList = DataLayer.getVolumeEquations();
             int nthRow = vList.FindIndex(
-                delegate(VolumeEquationDO ved)
+                delegate (VolumeEquationDO ved)
                 {
                     return ved.VolumeEquationNumber.Substring(3, 4) == "B32W";
                 });
@@ -64,7 +72,7 @@ namespace CruiseProcessing
                 extraLine = extraLine.Replace("XX", "32");
             else extraLine = extraLine.Replace("XX", "16");
             //  is there data in log stock to create report?
-            List<LogStockDO> logList = bslyr.getLogStock();
+            List<LogStockDO> logList = DataLayer.getLogStock();
             if (logList.Count == 0)
             {
                 noDataForReport(strWriteOut, currentReport, " >>>> No log stock records for report");
@@ -86,8 +94,8 @@ namespace CruiseProcessing
                 case "BLM01":
                 case "BLM02":        //  reports by stratum
                     //  pull tables to be used
-                    List<StratumDO> sList = bslyr.getStratum();
-                    List<LCDDO> lcdList = bslyr.getLCD();
+                    List<StratumDO> sList = DataLayer.getStratum();
+                    List<LCDDO> lcdList = DataLayer.getLCD();
                     numOlines = 0;
                     AccumulateByStrata(sList, lcdList);
                     fieldLengths = new int[] { 1, 7, 7, 9, 9, 11, 12, 7, 6, 11, 9, 9, 9, 9, 7, 8 };
@@ -102,10 +110,11 @@ namespace CruiseProcessing
                     //  output CSV file
                     createCSVfile();
                     break;
+
                 case "BLM03":
                 case "BLM04":        //  reports by unit -- prorated
                     numOlines = 0;
-                    cutList = bslyr.getCuttingUnits();
+                    cutList = DataLayer.getCuttingUnits();
                     AccumulateByUnit(cutList);
                     fieldLengths = new int[] { 1, 7, 7, 9, 9, 11, 12, 7, 6, 11, 9, 9, 9, 9, 7, 8 };
                     completeHeader = createCompleteHeader();
@@ -116,11 +125,12 @@ namespace CruiseProcessing
                     //  output CSV file
                     createCSVfile();
                     break;
+
                 case "BLM05":
                 case "BLM06":        //  report by species
                     //  pull tables to be used
-                    speciesGroups = bslyr.getLCDOrdered("", "GROUP BY Species", "C", "");
-                    treeList = bslyr.getTrees();
+                    speciesGroups = DataLayer.getLCDOrdered("", "GROUP BY Species", "C", "");
+                    treeList = DataLayer.getTrees();
                     numOlines = 0;
                     List<ReportSubtotal> PerCentArray = AccumulateBySpecies(treeList, speciesGroups);
                     fieldLengths = new int[] { 1, 7, 6, 9, 9, 11, 11, 5, 5, 9, 9, 9, 9, 9, 4, 4, 4, 4, 4, 3 };
@@ -135,11 +145,12 @@ namespace CruiseProcessing
                     //  output CSV file
                     createCSVfile();
                     break;
+
                 case "BLM07":
                 case "BLM08":        //  report by unit and species -- prorated
-                    cutList = bslyr.getCuttingUnits();
+                    cutList = DataLayer.getCuttingUnits();
                     List<CSVlist> CSV7and8 = new List<CSVlist>();
-                    speciesGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
+                    speciesGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
                     numOlines = 0;
                     fieldLengths = new int[] { 1, 6, 10, 6, 10, 9, 11, 11, 5, 7, 11, 9, 9, 9, 8 };
                     completeHeader = createCompleteHeader();
@@ -158,14 +169,15 @@ namespace CruiseProcessing
                     //  output CSV file
                     createCSVfile(CSV7and8);
                     break;
+
                 case "BLM09":
                 case "BLM10":        //  report by DIB class and species
                     numOlines = 0;
                     completeHeader = createCompleteHeader();
                     fieldLengths = new int[] { 1, 4, 9, 9, 9, 9, 9, 9, 11, 8, 9, 11, 7, 11, 7, 9 };
-                    ArrayList justSpecies = bslyr.GetJustSpecies("Tree");
+                    ArrayList justSpecies = DataLayer.GetJustSpecies("Tree");
                     //  load log DIBs into output list
-                    List<LogStockDO> justDIBs = bslyr.getLogDIBs();
+                    List<LogStockDO> justDIBs = DataLayer.getLogDIBs();
                     //  process by species
                     foreach (object js in justSpecies)
                     {
@@ -188,7 +200,6 @@ namespace CruiseProcessing
             return;
         }   //  end CreateBLMreports
 
-
         private void AccumulateByStrata(List<StratumDO> sList, List<LCDDO> lcdList)
         {
             //  loop by stratum
@@ -197,12 +208,12 @@ namespace CruiseProcessing
                 ReportSubtotal r = new ReportSubtotal();
                 r.Value1 = s.Code;
                 s.CuttingUnits.Populate();
-                
+
                 //  need strata acres for expansion
-                currAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long)s.Stratum_CN);
+                currAcres = Utilities.ReturnCorrectAcres(s.Code, DataLayer, (long)s.Stratum_CN);
                 //  pull stratum from LCD to calculate quad mean DBH later -- sum expansion factor
                 List<LCDDO> justStrata = lcdList.FindAll(
-                    delegate(LCDDO l)
+                    delegate (LCDDO l)
                     {
                         return l.Stratum == s.Code;
                     });
@@ -215,7 +226,6 @@ namespace CruiseProcessing
             }   //  end foreach loop
             return;
         }   //  end AccumulateByStrata
-
 
         private List<ReportSubtotal> AccumulateBySpecies(List<TreeDO> treeList, List<LCDDO> speciesGroups)
         {
@@ -238,13 +248,13 @@ namespace CruiseProcessing
                 r.Value1 = sg.Species;
 
                 //  find all species in LCD
-                List<LCDDO> currentSpecies = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Species = @p2 ", 
+                List<LCDDO> currentSpecies = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Species = @p2 ",
                                                         "", "C", sg.Species, "");
                 foreach (LCDDO cs in currentSpecies)
                 {
                     //  need acres for current stratum
-                    List<StratumDO> sList = bslyr.GetCurrentStratum(cs.Stratum);
-                    currAcres = Utilities.ReturnCorrectAcres(cs.Stratum, bslyr, (long)sList[0].Stratum_CN);
+                    List<StratumDO> sList = DataLayer.GetCurrentStratum(cs.Stratum);
+                    currAcres = Utilities.ReturnCorrectAcres(cs.Stratum, DataLayer, (long)sList[0].Stratum_CN);
                     AccumulateExpFac(r, sList[0].Method, currentSpecies, cs, 2);
                     //  need all trees for the current species and stratum
                     AccumulateVolume(r, cs.Stratum, currAcres, cs.STM, cs.SampleGroup, cs.Species);
@@ -254,14 +264,13 @@ namespace CruiseProcessing
             return PerCentList;
         }   //  end AccumulateBySpecies
 
-
         private void AccumulateByUnit(List<CuttingUnitDO> cutList)
         {
             //  Works for BLM03 and BLM04
-            List<PRODO> proList = bslyr.getPRO();
+            List<PRODO> proList = DataLayer.getPRO();
             List<ReportSubtotal> strataSums = new List<ReportSubtotal>();
             List<ReportSubtotal> unitSums = new List<ReportSubtotal>();
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             string currMethod = "";
             //  fill output list with cutting units
             foreach (CuttingUnitDO cud in cutList)
@@ -277,9 +286,9 @@ namespace CruiseProcessing
                 //  accumulate volume
                 foreach (StratumDO stratum in cud.Strata)
                 {
-                    List<StratumDO> currStratum = bslyr.GetCurrentStratum(stratum.Code);
+                    List<StratumDO> currStratum = DataLayer.GetCurrentStratum(stratum.Code);
                     //  strata acres for expansion
-                    double currAcres = Utilities.ReturnCorrectAcres(currStratum[0].Code, bslyr, (long)currStratum[0].Stratum_CN);
+                    double currAcres = Utilities.ReturnCorrectAcres(currStratum[0].Code, DataLayer, (long)currStratum[0].Stratum_CN);
 
                     if (currStratum[0].Method != "100")
                     {
@@ -294,7 +303,7 @@ namespace CruiseProcessing
                                 ReportSubtotal ss = new ReportSubtotal();
                                 ss.Value1 = currStratum[0].Code;
                                 ss.Value2 = js.SampleGroup;
-                                //  Accumulate expansion factor, DBH squared  
+                                //  Accumulate expansion factor, DBH squared
                                 ss.Value15 = js.SumDBHOBsqrd * currAcres;
                                 ss.Value14 = js.SumExpanFactor;
                                 ss.Value16 = js.SumExpanFactor * currAcres;
@@ -314,7 +323,7 @@ namespace CruiseProcessing
                                 uu.Value15 = js.SumDBHOBsqrd * currAcres;
                                 //  for 3P methods find unit talled trees in pro list
                                 int mthRow = proList.FindIndex(
-                                    delegate(PRODO p)
+                                    delegate (PRODO p)
                                     {
                                         return p.Stratum == currStratum[0].Code && p.CuttingUnit == cud.Code &&
                                             p.STM == "Y" && p.SampleGroup == js.SampleGroup;
@@ -333,41 +342,39 @@ namespace CruiseProcessing
                         AccumulateUnitVolume(uu, currStratum[0].Code, currAcres, cud.Code, (long)currStratum[0].Stratum_CN, (long)cud.CuttingUnit_CN, "N");
                         unitSums.Add(uu);
                     }   //  endif on method
-
                 }   //  end for k loop
-
 
                 //  prorate each list (strataSums and unitSums) into listToOutput
                 if (strataSums.Count > 0)
                 {
-                        foreach (ReportSubtotal ss in strataSums)
-                        {
-                            //  find all records for sample group and unit
-                            List<PRODO> justUnits = proList.FindAll(
-                                delegate(PRODO p)
-                                {
-                                    return p.Stratum == ss.Value1 && p.CuttingUnit == r.Value1 &&
-                                            p.CutLeave == "C" && p.STM == "N" &&
-                                            p.SampleGroup == ss.Value2;
-                                });
-                            foreach (PRODO ju in justUnits)
+                    foreach (ReportSubtotal ss in strataSums)
+                    {
+                        //  find all records for sample group and unit
+                        List<PRODO> justUnits = proList.FindAll(
+                            delegate (PRODO p)
                             {
-                                r.Value3 += ss.Value3 * ju.ProrationFactor;
-                                r.Value4 += ss.Value4 * ju.ProrationFactor;
-                                r.Value5 += ss.Value5 * ju.ProrationFactor;
-                                r.Value6 += ss.Value6 * ju.ProrationFactor;
-                                r.Value7 += ss.Value7 * ju.ProrationFactor;
-                                r.Value8 += ss.Value8 * ju.ProrationFactor;
-                                r.Value10 += ss.Value10 * ju.ProrationFactor;
-                                r.Value12 += ss.Value12 * ju.ProrationFactor;
-                                r.Value13 += ss.Value13 * ju.ProrationFactor;
-                                if (currMethod == "S3P" || currMethod == "3P")
-                                    r.Value14 += ju.TalliedTrees;
-                                else r.Value14 += ss.Value14 * ju.ProrationFactor;
-                                r.Value15 += ss.Value15;
-                                r.Value16 += ss.Value16;
-                            }   //  end foreach loop on justUnits
-                        }   //  end foreach loop  on strataSums
+                                return p.Stratum == ss.Value1 && p.CuttingUnit == r.Value1 &&
+                                        p.CutLeave == "C" && p.STM == "N" &&
+                                        p.SampleGroup == ss.Value2;
+                            });
+                        foreach (PRODO ju in justUnits)
+                        {
+                            r.Value3 += ss.Value3 * ju.ProrationFactor;
+                            r.Value4 += ss.Value4 * ju.ProrationFactor;
+                            r.Value5 += ss.Value5 * ju.ProrationFactor;
+                            r.Value6 += ss.Value6 * ju.ProrationFactor;
+                            r.Value7 += ss.Value7 * ju.ProrationFactor;
+                            r.Value8 += ss.Value8 * ju.ProrationFactor;
+                            r.Value10 += ss.Value10 * ju.ProrationFactor;
+                            r.Value12 += ss.Value12 * ju.ProrationFactor;
+                            r.Value13 += ss.Value13 * ju.ProrationFactor;
+                            if (currMethod == "S3P" || currMethod == "3P")
+                                r.Value14 += ju.TalliedTrees;
+                            else r.Value14 += ss.Value14 * ju.ProrationFactor;
+                            r.Value15 += ss.Value15;
+                            r.Value16 += ss.Value16;
+                        }   //  end foreach loop on justUnits
+                    }   //  end foreach loop  on strataSums
                 }   //  endif strataSums has records
                 //  repeat for unitSums which is 100%  and STM=Y and does not get prorated
                 if (unitSums.Count > 0)
@@ -395,16 +402,14 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateByUnit
 
-
-
         private List<ReportSubtotal> AccumulateByUnitSpecies(CuttingUnitDO currUnit, List<LCDDO> speciesGroups)
         {
             //  BLM07 / BLM08
             List<ReportSubtotal> unitTotals = new List<ReportSubtotal>();
             List<ReportSubtotal> strataSums = new List<ReportSubtotal>();
             List<ReportSubtotal> unitSums = new List<ReportSubtotal>();
-            List<LCDDO> lcdList = bslyr.getLCD();
-            List<PRODO> proList = bslyr.getPROunit(currUnit.Code);
+            List<LCDDO> lcdList = DataLayer.getLCD();
+            List<PRODO> proList = DataLayer.getPROunit(currUnit.Code);
             List<LogStockDO> justLogs = new List<LogStockDO>();
             string currMethod = "";
             //  load species into list to output
@@ -421,8 +426,8 @@ namespace CruiseProcessing
                 foreach (StratumDO stratum in currUnit.Strata)
                 {
                     //  Get current acres
-                    List<StratumDO> currStratum = bslyr.GetCurrentStratum(stratum.Code);
-                    currAcres = Utilities.ReturnCorrectAcres(currStratum[0].Code, bslyr, (long)currStratum[0].Stratum_CN);
+                    List<StratumDO> currStratum = DataLayer.GetCurrentStratum(stratum.Code);
+                    currAcres = Utilities.ReturnCorrectAcres(currStratum[0].Code, DataLayer, (long)currStratum[0].Stratum_CN);
                     currMethod = currStratum[0].Method;
                     //  need sample groups for current species to ensure proration factor is applied appropriately
                     List<LCDDO> justSpecies = LCDmethods.GetCutOrLeave(lcdList, "C", sg.Species, currStratum[0].Code, "");
@@ -464,17 +469,16 @@ namespace CruiseProcessing
                             uu.Value15 = sg.SumDBHOBsqrd * currAcres;
                             uu.Value16 = sg.SumExpanFactor * currAcres;
                             //AccumulateUnitVolume(uu, sg.Stratum, currAcres, currUnit.Code, (long)currStratum[0].Stratum_CN, (long)currUnit.CuttingUnit_CN, "N");
-                            AccumulateVolume((long) currStratum[0].Stratum_CN, (long) currUnit.CuttingUnit_CN, uu, currAcres, js.Species);
+                            AccumulateVolume((long)currStratum[0].Stratum_CN, (long)currUnit.CuttingUnit_CN, uu, currAcres, js.Species);
                             unitSums.Add(uu);
                         }   //  endif
                     }   //  endif method
 
-                
-                //  sum up DBH squared and expansion factors
-                //  find current stratum and species in LCD list to sum up for certain methods
-                //  For S3P, 3P and STR, number of trees comes from PRO list
+                    //  sum up DBH squared and expansion factors
+                    //  find current stratum and species in LCD list to sum up for certain methods
+                    //  For S3P, 3P and STR, number of trees comes from PRO list
                     List<LCDDO> strataGroups = lcdList.FindAll(
-                        delegate(LCDDO ld)
+                        delegate (LCDDO ld)
                         {
                             return ld.Species == sg.Species && ld.Stratum == currStratum[0].Code;
                         });
@@ -484,7 +488,7 @@ namespace CruiseProcessing
                         {
                             //  find tallied trees in PRO list
                             int mthRow = proList.FindIndex(
-                                delegate(PRODO p)
+                                delegate (PRODO p)
                                 {
                                     return p.Stratum == currStratum[0].Code && p.SampleGroup == str.SampleGroup &&
                                             p.CuttingUnit == currUnit.Code && p.CutLeave == "C" &&
@@ -497,15 +501,15 @@ namespace CruiseProcessing
                                     r.Value15 += str.SumDBHOBsqrd * currAcres;
                                     r.Value16 += str.SumExpanFactor * currAcres;
                                 }   //  endif
-                                
-                                    r.Value14 += proList[mthRow].TalliedTrees;
+
+                                r.Value14 += proList[mthRow].TalliedTrees;
                             }   //  endif mthRow
                         }
-                        else if(currMethod != "100")
+                        else if (currMethod != "100")
                         {
                             //  find proration factor for group
                             int mthRow = proList.FindIndex(
-                                delegate(PRODO p)
+                                delegate (PRODO p)
                                 {
                                     return p.Stratum == str.Stratum && p.SampleGroup == str.SampleGroup &&
                                         p.CuttingUnit == currUnit.Code && p.CutLeave == "C" &&
@@ -517,57 +521,55 @@ namespace CruiseProcessing
                             r.Value15 += str.SumDBHOBsqrd * currAcres;
                             r.Value16 += str.SumExpanFactor * currAcres;
                         }
-                        else if(currMethod == "100")
+                        else if (currMethod == "100")
                         {
-                            List<TreeDO> tList = bslyr.getTrees();
+                            List<TreeDO> tList = DataLayer.getTrees();
                             List<TreeDO> justTrees = tList.FindAll(
-                                delegate(TreeDO tt)
+                                delegate (TreeDO tt)
                                 {
                                     return tt.Stratum.Code == str.Stratum && tt.CuttingUnit.Code == currUnit.Code &&
                                         tt.Species == str.Species && tt.SampleGroup.Code == str.SampleGroup;
                                 });
-                            r.Value14 += justTrees.Count; 
+                            r.Value14 += justTrees.Count;
                             r.Value15 += str.SumDBHOBsqrd * currAcres;
                             r.Value16 += str.SumExpanFactor * currAcres;
                         }   //  endif on method
                     }   //  end foreach loop on strataGroups
-
-                }   //  end foreach loop                
+                }   //  end foreach loop
 
                 //  now apply proration factor for the  unit
                 if (strataSums.Count > 0)
                 {
-                        foreach (ReportSubtotal ss in strataSums)
-                        {
-                            //  find all proration records for sample group and unit
-                            List<PRODO> justUnits = proList.FindAll(
-                                delegate(PRODO p)
-                                {
-                                    return p.Stratum == ss.Value1 && p.CuttingUnit == r.Value1 && 
-                                            p.CutLeave == "C" && p.STM == "N" && p.SampleGroup == ss.Value2;
-                                });
-                            foreach (PRODO ju in justUnits)
+                    foreach (ReportSubtotal ss in strataSums)
+                    {
+                        //  find all proration records for sample group and unit
+                        List<PRODO> justUnits = proList.FindAll(
+                            delegate (PRODO p)
                             {
-                                r.Value3 += ss.Value3 * ju.ProrationFactor;
-                                r.Value4 += ss.Value4 * ju.ProrationFactor;
-                                r.Value5 += ss.Value5 * ju.ProrationFactor;
-                                r.Value6 += ss.Value6 * ju.ProrationFactor;
-                                r.Value7 += ss.Value7 * ju.ProrationFactor;
-                                r.Value8 += ss.Value8 * ju.ProrationFactor;
-                                r.Value10 += ss.Value10 * ju.ProrationFactor;
-                                r.Value12 += ss.Value12 * ju.ProrationFactor;
-                                r.Value13 += ss.Value13 * ju.ProrationFactor;
-                                //  if no trees were collected for the current sample group
-                                //  don't sum DBH squared values
-                                //  throws off quad mean calculation to have total strata
-                                if (ju.ProrationFactor > 0)
-                                {
-                                    r.Value15 += ss.Value15;
-                                    r.Value16 += ss.Value16;
-                                }   //  endif
-
-                            }   //  end foreach loop  on justUnits
-                        }   //  end foreach loop on strataSums
+                                return p.Stratum == ss.Value1 && p.CuttingUnit == r.Value1 &&
+                                        p.CutLeave == "C" && p.STM == "N" && p.SampleGroup == ss.Value2;
+                            });
+                        foreach (PRODO ju in justUnits)
+                        {
+                            r.Value3 += ss.Value3 * ju.ProrationFactor;
+                            r.Value4 += ss.Value4 * ju.ProrationFactor;
+                            r.Value5 += ss.Value5 * ju.ProrationFactor;
+                            r.Value6 += ss.Value6 * ju.ProrationFactor;
+                            r.Value7 += ss.Value7 * ju.ProrationFactor;
+                            r.Value8 += ss.Value8 * ju.ProrationFactor;
+                            r.Value10 += ss.Value10 * ju.ProrationFactor;
+                            r.Value12 += ss.Value12 * ju.ProrationFactor;
+                            r.Value13 += ss.Value13 * ju.ProrationFactor;
+                            //  if no trees were collected for the current sample group
+                            //  don't sum DBH squared values
+                            //  throws off quad mean calculation to have total strata
+                            if (ju.ProrationFactor > 0)
+                            {
+                                r.Value15 += ss.Value15;
+                                r.Value16 += ss.Value16;
+                            }   //  endif
+                        }   //  end foreach loop  on justUnits
+                    }   //  end foreach loop on strataSums
                 }   //  endif strataSums has records
                 //  repeat for unitSums which is 100% or STM=Y and does not get prorated
                 if (unitSums.Count > 0)
@@ -594,12 +596,11 @@ namespace CruiseProcessing
             return unitTotals;
         }   //  end AccumulateByUnitSpecies
 
-
         private void AccumulateExpFac(ReportSubtotal currObj, string currMeth, List<LCDDO> currStrata,
                                         LCDDO currGrp, int whatToUse)
         {
             //  This accumulates expansion based on method for specific reports
-            if(currMeth == "S3P" || currMeth == "3P")
+            if (currMeth == "S3P" || currMeth == "3P")
             {
                 switch (whatToUse)
                 {
@@ -607,6 +608,7 @@ namespace CruiseProcessing
                         currObj.Value14 = currStrata.Sum(c => c.TalliedTrees);
                         currObj.Value16 = currStrata.Sum(c => c.SumExpanFactor * currAcres);
                         break;
+
                     case 2:
                         currObj.Value14 += currGrp.TalliedTrees;
                         currObj.Value16 += currGrp.SumExpanFactor * currAcres;
@@ -621,6 +623,7 @@ namespace CruiseProcessing
                         currObj.Value14 = currStrata.Sum(c => c.SumExpanFactor * currAcres);
                         currObj.Value16 = currStrata.Sum(c => c.SumExpanFactor * currAcres);
                         break;
+
                     case 2:
                         currObj.Value14 += currGrp.SumExpanFactor * currAcres;
                         currObj.Value16 += currGrp.SumExpanFactor * currAcres;
@@ -633,6 +636,7 @@ namespace CruiseProcessing
                 case 1:
                     currObj.Value15 = currStrata.Sum(c => c.SumDBHOBsqrd) * currAcres;
                     break;
+
                 case 2:
                     currObj.Value15 += currGrp.SumDBHOBsqrd * currAcres;
                     break;
@@ -640,16 +644,15 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateExpFac
 
-
         private void AccumulateUnitVolume(ReportSubtotal currOBJ, string currST, string currSTM, double currAC, string currSP)
         {
             //  Works for BLM03 and BLM04 --  should work for any STM -- but doesnt't -- only STM=N
-            string[] logGrades = new string[12] { "", " ","0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            string[] logGrades = new string[12] { "", " ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
             //  loop by log grades
             for (int j = 0; j < 12; j++)
             {
                 //justLogs = bslyr.getStrataLogs(currST, currSTM, logGrades[j], currOBJ.Value2, currSP);
-                justLogs = bslyr.getStrataLogs(currSP, currST, currOBJ.Value2, currSTM, logGrades[j]);
+                justLogs = DataLayer.getStrataLogs(currSP, currST, currOBJ.Value2, currSTM, logGrades[j]);
                 if (justLogs.Count > 0)
                 {
                     SumVolume(currAC);
@@ -660,30 +663,29 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateUnitVolume
 
-
         private void AccumulateUnitVolume(ReportSubtotal currOBJ, string currST, double cAcres, string currCU, long currST_CN, long currCU_CN, string currSTM)
         {
             //  Woroks for BLM03 and BLM04 100% method only and STM=Y
             string[] logGrades = new string[12] { "", " ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
             //  need all unit trees
-            List<TreeDO> allTrees = bslyr.getUnitTrees(currST_CN, currCU_CN);
+            List<TreeDO> allTrees = DataLayer.getUnitTrees(currST_CN, currCU_CN);
             //  sum needed values for logs in each tree except
             //  for expansion factor which is just from trees.
             List<TreeDO> justTrees = allTrees.FindAll(
-                delegate(TreeDO t)
+                delegate (TreeDO t)
                 {
                     return t.STM == currSTM;
                 });
             if (currSTM == "N")
             {
-                currOBJ.Value14 = justTrees.Sum(jt => jt.ExpansionFactor);            
+                currOBJ.Value14 = justTrees.Sum(jt => jt.ExpansionFactor);
                 currOBJ.Value16 = justTrees.Sum(jt => jt.ExpansionFactor * cAcres);
                 currOBJ.Value15 = justTrees.Sum(jt => jt.DBH * jt.DBH * cAcres);
             }   //  endif
             //  then sum logs by grade for each tree
             for (int j = 0; j < 12; j++)
             {
-                justLogs = bslyr.getUnitLogs(currST_CN, currCU_CN, logGrades[j], currSTM);
+                justLogs = DataLayer.getUnitLogs(currST_CN, currCU_CN, logGrades[j], currSTM);
                 if (justLogs.Count > 0)
                 {
                     SumVolume(cAcres);
@@ -694,8 +696,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateUnitVolume
 
-
-        private void AccumulateVolume(ReportSubtotal currObj, string currST, double cAcres, string currSTM, 
+        private void AccumulateVolume(ReportSubtotal currObj, string currST, double cAcres, string currSTM,
                                         string currSG, string currSP)
         {
             //  Works for BLM reports -- not unit reports
@@ -705,26 +706,28 @@ namespace CruiseProcessing
             {
                 switch (currentReport)
                 {
-                    case "BLM01":       case "BLM02":
-                        justLogs = bslyr.getStrataLogs(currST, logGrades[j]);
+                    case "BLM01":
+                    case "BLM02":
+                        justLogs = DataLayer.getStrataLogs(currST, logGrades[j]);
                         break;
-                    case "BLM05":       case "BLM06":
-                    case "BLM07":       case "BLM08":
-                        justLogs = bslyr.getStrataLogs(currSP, currST, currSG, currSTM, logGrades[j]);
+
+                    case "BLM05":
+                    case "BLM06":
+                    case "BLM07":
+                    case "BLM08":
+                        justLogs = DataLayer.getStrataLogs(currSP, currST, currSG, currSTM, logGrades[j]);
                         break;
                 }   //  end switch on report
 
                 if (justLogs.Count > 0)
                 {
                     SumVolume(cAcres);
-                    //  then sum by log grade  
+                    //  then sum by log grade
                     LoadLogGrades(currObj, logGrades[j], justLogs, cAcres, currSP);
                 }   //  endif
-
             }   //  end for j loop
             return;
         }   //  end AccumulateVolume
-
 
         private void AccumulateVolume(long currST_CN, long currCU_CN, ReportSubtotal currObj,
                                         double cAcres, string currSP)
@@ -734,25 +737,22 @@ namespace CruiseProcessing
             //  loop by grade to sum volume
             for (int j = 0; j < 12; j++)
             {
-
-                List<LogStockDO> unitLogs = bslyr.getUnitLogs(currST_CN, currCU_CN, logGrades[j], "N");
+                List<LogStockDO> unitLogs = DataLayer.getUnitLogs(currST_CN, currCU_CN, logGrades[j], "N");
                 //  find justLogs the currentDate species in the unit
                 justLogs = unitLogs.FindAll(
-                    delegate(LogStockDO ul)
+                    delegate (LogStockDO ul)
                     {
                         return ul.Tree.Species == currSP;
                     });
                 if (justLogs.Count > 0)
                 {
                     SumVolume(cAcres);
-                    //  then sum by log grade  
+                    //  then sum by log grade
                     LoadLogGrades(currObj, logGrades[j], justLogs, cAcres, currSP);
                 }   //  endif
-
             }   //  end for j loop
             return;
         }   //  end AccumulateVolume
-
 
         private void AccumulateBySpeciesDIB()
         {
@@ -760,17 +760,16 @@ namespace CruiseProcessing
             string[] logGrades = new string[] { "", " ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
             double minDIB = 0;
             double maxDIB = 0;
-            List<StratumDO> sList = bslyr.getStratum();
+            List<StratumDO> sList = DataLayer.getStratum();
             //  Accumulate by DIB class and log grade
             foreach (ReportSubtotal lto in listToOutput)
             {
-
                 if (Convert.ToDouble(lto.Value1) > 0)
                 {
                     foreach (StratumDO s in sList)
                     {
                         //  get strata acres
-                        currAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long)s.Stratum_CN);
+                        currAcres = Utilities.ReturnCorrectAcres(s.Code, DataLayer, (long)s.Stratum_CN);
 
                         //  a single decimal works to a certain extent
                         //  but because SSQLite adds decimals, some logs get dropped from the report
@@ -781,7 +780,7 @@ namespace CruiseProcessing
                         maxDIB = Convert.ToDouble(lto.Value1) + 0.5;
                         foreach (object lg in logGrades)
                         {
-                            List<LogStockDO> justLogs = bslyr.getLogSpecies(currSP, (float)minDIB, (float)maxDIB,
+                            List<LogStockDO> justLogs = DataLayer.getLogSpecies(currSP, (float)minDIB, (float)maxDIB,
                                                                             s.Code, lg.ToString());
 
                             if (justLogs.Count > 0)
@@ -794,33 +793,44 @@ namespace CruiseProcessing
                                         //  load based on grade
                                         switch (lg.ToString())
                                         {
-                                            case "0":       case " ":       case "":
+                                            case "0":
+                                            case " ":
+                                            case "":
                                                 lto.Value3 += justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "1":
                                                 lto.Value4 += justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "2":
                                                 lto.Value5 += justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "3":
                                                 lto.Value6 += justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "4":
                                                 lto.Value7 += justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "5":
                                                 lto.Value8 += justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "6":
                                                 lto.Value9 += justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "7":
                                                 lto.Value11 += justLogs.Sum(jl => jl.BoardFootRemoved * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "8":
                                                 lto.Value12 += justLogs.Sum(jl => jl.BoardFootRemoved * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "9":
                                                 lto.Value15 += justLogs.Sum(jl => jl.GrossBoardFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
@@ -834,6 +844,7 @@ namespace CruiseProcessing
                                         if (lg.ToString() != "9")
                                             lto.Value14 += justLogs.Sum(jl => jl.BoardFootRemoved * jl.Tree.ExpansionFactor) * currAcres;
                                         break;
+
                                     case "BLM10":
                                         //  cubic foot
                                         //  load based on grade
@@ -844,30 +855,39 @@ namespace CruiseProcessing
                                             case "":
                                                 lto.Value3 += justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "1":
                                                 lto.Value4 += justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "2":
                                                 lto.Value5 += justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "3":
                                                 lto.Value6 += justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "4":
                                                 lto.Value7 += justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "5":
                                                 lto.Value8 += justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "6":
                                                 lto.Value9 += justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "7":
                                                 lto.Value11 += justLogs.Sum(jl => jl.CubicFootRemoved * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "8":
                                                 lto.Value12 += justLogs.Sum(jl => jl.CubicFootRemoved * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
+
                                             case "9":
                                                 lto.Value15 += justLogs.Sum(jl => jl.GrossCubicFoot * jl.Tree.ExpansionFactor) * currAcres;
                                                 break;
@@ -893,7 +913,6 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateBySpeciesDIB
 
-
         private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             //  This works for BLM01, BLM02, BLM03, BLM04
@@ -916,6 +935,7 @@ namespace CruiseProcessing
                             // by stratum
                             prtFields.Add(lto.Value1.PadLeft(2, ' '));
                             break;
+
                         case "BLM03":
                         case "BLM04":
                             //  by unit
@@ -956,8 +976,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroups
 
-
-        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
+        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
                                             List<ReportSubtotal> PerCentList)
         {
             //  Works for BLM05 and BLM06
@@ -968,7 +987,7 @@ namespace CruiseProcessing
                 prtFields.Clear();
                 prtFields.Add("");
                 //  output header if needed
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                         completeHeader, 13, ref pageNumb, "");
                 //  set first field to species
                 prtFields.Add(lto.Value1.PadLeft(6, ' '));
@@ -992,12 +1011,12 @@ namespace CruiseProcessing
                 prtFields.Add(String.Format("{0,8:F0}", lto.Value12).PadLeft(8, ' '));
                 prtFields.Add(String.Format("{0,8:F0}", lto.Value13).PadLeft(8, ' '));
                 prtFields.Add(String.Format("{0,8:F0}", lto.Value6).PadLeft(8, ' '));
-                prtFields.Add(String.Format("{0,8:F0}", lto.Value10).PadLeft(8,' '));
-                prtFields.Add(String.Format("{0,8:F0}", lto.Value14).PadLeft(8,' '));
+                prtFields.Add(String.Format("{0,8:F0}", lto.Value10).PadLeft(8, ' '));
+                prtFields.Add(String.Format("{0,8:F0}", lto.Value14).PadLeft(8, ' '));
                 //  percent list
                 //  find all of current species in the percent list
                 List<ReportSubtotal> currSpecies = PerCentList.FindAll(
-                    delegate(ReportSubtotal cs)
+                    delegate (ReportSubtotal cs)
                     {
                         return cs.Value1 == lto.Value1;
                     });
@@ -1015,8 +1034,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroups
 
-        
-        private void writeCurrentGroups(List<ReportSubtotal> unitTotals,StreamWriter strWriteOut, 
+        private void writeCurrentGroups(List<ReportSubtotal> unitTotals, StreamWriter strWriteOut,
                                                     ref int pageNumb, reportHeaders rh)
         {
             //  Works for BLM07 and BLM08
@@ -1062,11 +1080,10 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  output unit total line if unit has volume
-            if(listToOutput.Sum(lto => lto.Value14) > 0)
+            if (listToOutput.Sum(lto => lto.Value14) > 0)
                 outputUnitTotal(listToOutput[0].Value1, unitTotals, strWriteOut, rh, ref pageNumb);
             return;
         }   //  end writeCurrentGroups
-
 
         private void writeCurrentGroups(reportHeaders rh, ref int pageNumb, StreamWriter strWriteOut)
         {
@@ -1077,7 +1094,7 @@ namespace CruiseProcessing
                 prtFields.Clear();
                 prtFields.Add("");
                 //  output headers if needed
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                     completeHeader, 14, ref pageNumb, extraLine);
                 if (Convert.ToDouble(lto.Value1) > 0)
                 {
@@ -1103,12 +1120,11 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroups
 
-
-        private void outputUnitTotal(string currUnit, List<ReportSubtotal> unitTotal, 
+        private void outputUnitTotal(string currUnit, List<ReportSubtotal> unitTotal,
                                     StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             double calcValue = 0;
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                 completeHeader, 13, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write("UNIT ");
@@ -1141,7 +1157,6 @@ namespace CruiseProcessing
             numOlines++;
             return;
         }   //  end outputUnitTotal
-
 
         private List<ReportSubtotal> updateUnitTotal()
         {
@@ -1184,7 +1199,6 @@ namespace CruiseProcessing
             return updatedTotal;
         }   //  end updateUnitTotal
 
-
         private void updateTotalLine()
         {
             ReportSubtotal rs = new ReportSubtotal();
@@ -1201,7 +1215,7 @@ namespace CruiseProcessing
             rs.Value14 = listToOutput.Sum(l => l.Value14);
             rs.Value15 = listToOutput.Sum(l => l.Value15);
             rs.Value16 = listToOutput.Sum(l => l.Value16);
-                
+
             //  need totalToOutput sum acres separately in case something was suppressed.
             foreach (ReportSubtotal lto in listToOutput)
             {
@@ -1209,15 +1223,14 @@ namespace CruiseProcessing
                     rs.Value11 += lto.Value11;
             }   //  end foreach loop for acres
             totalToOutput.Add(rs);
-            
+
             return;
         }   //  end updateTotalLine
-
 
         private void outputTotalLine(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
             double calcValue = 0;
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                 completeHeader, 13, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             if (currentReport == "BLM07" || currentReport == "BLM08")
@@ -1227,8 +1240,10 @@ namespace CruiseProcessing
             else strWriteOut.Write(" TOTALS-");
             switch (currentReport)
             {
-                case "BLM01":       case "BLM02":
-                case "BLM03":       case "BLM04":
+                case "BLM01":
+                case "BLM02":
+                case "BLM03":
+                case "BLM04":
                     //  Quad Mean DBH
                     calcValue = CalculateQuadMean(totalToOutput[0].Value15, totalToOutput[0].Value16);
                     strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
@@ -1258,7 +1273,9 @@ namespace CruiseProcessing
                     calcValue = CalculateAvgVolPerAcre(totalToOutput[0].Value4, totalToOutput[0].Value11);
                     strWriteOut.WriteLine(String.Format("{0,8:F0}", calcValue).PadLeft(9, ' '));
                     break;
-                case "BLM05":                case "BLM06":
+
+                case "BLM05":
+                case "BLM06":
                     //  Quad Mean DBH
                     calcValue = CalculateQuadMean(totalToOutput[0].Value15, totalToOutput[0].Value16);
                     strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(5, ' '));
@@ -1284,8 +1301,10 @@ namespace CruiseProcessing
                     strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value10).PadLeft(9, ' '));
                     strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value14).PadLeft(9, ' '));
                     break;
-                case "BLM07":                case "BLM08":
-                //  Quad Mean DBH
+
+                case "BLM07":
+                case "BLM08":
+                    //  Quad Mean DBH
                     calcValue = CalculateQuadMean(totalToOutput[0].Value15, totalToOutput[0].Value16);
                     strWriteOut.Write(String.Format("{0,5:F1}", calcValue).PadLeft(8, ' '));
                     //  Avg GM log volume
@@ -1310,7 +1329,9 @@ namespace CruiseProcessing
                     strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value10).PadLeft(9, ' '));
                     strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value14).PadLeft(9, ' '));
                     break;
-                case "BLM09":               case "BLM10":
+
+                case "BLM09":
+                case "BLM10":
                     strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value3).PadLeft(8, ' '));
                     strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value4).PadLeft(9, ' '));
                     strWriteOut.Write(String.Format("{0,8:F0}", totalToOutput[0].Value5).PadLeft(9, ' '));
@@ -1330,19 +1351,18 @@ namespace CruiseProcessing
             return;
         }   //  end outputTotalLine
 
-
         private void SumVolume(double cAcres)
         {
             //  Sums appropriate volume for type of volume indicated
             if (justLogs.Count > 0)
             {
                 justLive = justLogs.FindAll(
-                    delegate(LogStockDO ls)
+                    delegate (LogStockDO ls)
                     {
                         return ls.Tree.LiveDead == "L";
                     });
                 justDead = justLogs.FindAll(
-                    delegate(LogStockDO lsd)
+                    delegate (LogStockDO lsd)
                     {
                         return lsd.Tree.LiveDead == "D";
                     });
@@ -1357,6 +1377,7 @@ namespace CruiseProcessing
                     if (justDead.Count > 0) currDEAD = justLogs.Sum(jl => jl.NetBoardFoot * jl.Tree.ExpansionFactor * cAcres);
                     currREM = justLogs.Sum(jl => jl.BoardFootRemoved * jl.Tree.ExpansionFactor * cAcres);
                     break;
+
                 case "CUBIC":
                     currGRS = justLogs.Sum(jl => jl.GrossCubicFoot * jl.Tree.ExpansionFactor * cAcres);
                     currNET = justLogs.Sum(jl => jl.NetCubicFoot * jl.Tree.ExpansionFactor * cAcres);
@@ -1368,22 +1389,29 @@ namespace CruiseProcessing
             return;
         }   //  end SumVolume
 
-
         private void LoadLogGrades(ReportSubtotal currOBJ, string currLogGrade, List<LogStockDO> justLogs, double cAcres, string currSP)
         {
             //  Loads current log grade into current object for report
             currOBJ.Value3 += currGRS;
             switch (currLogGrade)
             {
-                case "0":       case "1":       case "2":       case "3":
-                case "4":       case "5":       case "6":       case "":
-                case " ":       case null:
+                case "0":
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                case "":
+                case " ":
+                case null:
                     currOBJ.Value5 += currREM;
                     //  sum live and dead separately
                     currOBJ.Value4 += currLIVE;
                     currOBJ.Value7 += currDEAD;
                     currOBJ.Value6 += justLogs.Sum(jl => jl.Tree.ExpansionFactor * cAcres);
                     break;
+
                 case "7":
                     currOBJ.Value12 += currGRS;
                     currOBJ.Value5 += currREM;
@@ -1391,6 +1419,7 @@ namespace CruiseProcessing
                     //  also need to sum 7 and 8 together
                     currOBJ.Value8 += justLogs.Sum(jl => jl.Tree.ExpansionFactor * cAcres);
                     break;
+
                 case "8":
                     currOBJ.Value13 += currGRS;
                     currOBJ.Value5 += currREM;
@@ -1398,6 +1427,7 @@ namespace CruiseProcessing
                     //  and need 7 and 8 summed together
                     currOBJ.Value8 += justLogs.Sum(jl => jl.Tree.ExpansionFactor * cAcres);
                     break;
+
                 case "9":
                     currOBJ.Value10 += justLogs.Sum(jl => jl.Tree.ExpansionFactor * cAcres);
                     break;
@@ -1410,15 +1440,12 @@ namespace CruiseProcessing
             return;
         }   //  end LoadLogGrades
 
-
-        
         public double CalculateAvgGrossMerch(double denomInator, double numeRator1, double numeRator2)
         {
             if (numeRator1 > 0)
                 return denomInator / (numeRator1 + numeRator2);
             else return 0;
         }   //  end CalculateAvgGrossMerch
-
 
         private double CalculateAvgVolPerAcre(double denomInator, double numeRator)
         {
@@ -1429,12 +1456,11 @@ namespace CruiseProcessing
             else return 0;
         }   //  end CalculateAvgVolPerAcre
 
-
         private void LoadPerCentList(double currNet, string logGrade, string currSP)
         {
             //  find species and log grade in PerCentList
             int nthRow = PerCentList.FindIndex(
-                delegate(ReportSubtotal r)
+                delegate (ReportSubtotal r)
                 {
                     return r.Value1 == currSP && r.Value2 == logGrade;
                 });
@@ -1443,7 +1469,6 @@ namespace CruiseProcessing
             else PerCentList[0].Value3 += currNET;
             return;
         }   //  end LoadPerCentList
-
 
         private string[] createCompleteHeader()
         {
@@ -1455,6 +1480,7 @@ namespace CruiseProcessing
                     finnishHeader = columnHeaderI;
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "BDFT");
                     break;
+
                 case "BLM03":
                     //  board foot report
                     finnishHeader = columnHeaderI;
@@ -1462,21 +1488,25 @@ namespace CruiseProcessing
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "BDFT");
                     finnishHeader[3] = finnishHeader[3].Replace("TREES*", "TREES");
                     break;
+
                 case "BLM05":
                     //  board foot report
                     finnishHeader = columnHeaderII;
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "BDFT");
                     break;
+
                 case "BLM07":
                     //  board foot report
                     finnishHeader = columnHeaderIII;
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "BDFT");
                     break;
+
                 case "BLM02":
                     //  cubic foot report
                     finnishHeader = columnHeaderI;
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "CUFT");
                     break;
+
                 case "BLM04":
                     // cubic foot report
                     finnishHeader = columnHeaderI;
@@ -1484,16 +1514,19 @@ namespace CruiseProcessing
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "CUFT");
                     finnishHeader[3] = finnishHeader[3].Replace("TREES*", "TREES");
                     break;
+
                 case "BLM06":
                     //  cubic foot report
                     finnishHeader = columnHeaderII;
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "CUFT");
                     break;
+
                 case "BLM08":
                     //  cubic foot report
                     finnishHeader = columnHeaderIII;
                     finnishHeader[3] = finnishHeader[3].Replace("XXXX", "CUFT");
                     break;
+
                 case "BLM09":
                 case "BLM10":
                     //  log grade report
@@ -1505,19 +1538,19 @@ namespace CruiseProcessing
             return finnishHeader;
         }   //  end createCompleteHeader
 
-
-
         private void createCSVfile()
         {
-            string CSVoutfile = System.IO.Path.ChangeExtension(fileName, currentReport);
+            string CSVoutfile = System.IO.Path.ChangeExtension(FilePath, currentReport);
             CSVoutfile += ".csv";
-            OutputCSV oc = new OutputCSV();
+            OutputCSV oc = new OutputCSV(DataLayer);
             //  first need to load CSVlist with first few fields and then finish based on specific report
             List<CSVlist> CSVoutputList = new List<CSVlist>();
-            switch(currentReport)
+            switch (currentReport)
             {
-                case "BLM01":       case "BLM02":
-                case "BLM03":       case "BLM04":
+                case "BLM01":
+                case "BLM02":
+                case "BLM03":
+                case "BLM04":
                     foreach (ReportSubtotal lto in listToOutput)
                     {
                         CSVlist cv = new CSVlist();
@@ -1540,7 +1573,9 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                     writeCSV(CSVoutfile, CSVoutputList, 15);
                     break;
-                case "BLM05":       case "BLM06":
+
+                case "BLM05":
+                case "BLM06":
                     foreach (ReportSubtotal lto in listToOutput)
                     {
                         CSVlist cv = new CSVlist();
@@ -1557,10 +1592,10 @@ namespace CruiseProcessing
                         cv.field11 = lto.Value6.ToString();
                         cv.field12 = lto.Value10.ToString();
                         cv.field13 = lto.Value14.ToString();
-                    
+
                         //  find all of current species in the percent list
                         List<ReportSubtotal> currSpecies = PerCentList.FindAll(
-                            delegate(ReportSubtotal cs)
+                            delegate (ReportSubtotal cs)
                             {
                                 return cs.Value1 == lto.Value1;
                             });
@@ -1582,13 +1617,12 @@ namespace CruiseProcessing
             return;
         }   //  end createCSVfile
 
-
         private void createCSVfile(List<CSVlist> CSV7and8)
         {
             // does CSV file for just BLM07 and BLM08
-            string CSVoutfile = System.IO.Path.ChangeExtension(fileName, currentReport);
+            string CSVoutfile = System.IO.Path.ChangeExtension(FilePath, currentReport);
             CSVoutfile += ".csv";
-            OutputCSV oc = new OutputCSV();
+            OutputCSV oc = new OutputCSV(DataLayer);
             //  first need to load CSVlist with first few fields and then finish based on specific report
             List<CSVlist> CSVoutputList = new List<CSVlist>();
             foreach (CSVlist c in CSV7and8)
@@ -1598,8 +1632,7 @@ namespace CruiseProcessing
             return;
         }   //  end createCSVfile
 
-
-        private void capture7and8CSV(List<ReportSubtotal> listToOutput,List<CSVlist> CSV7and8)
+        private void capture7and8CSV(List<ReportSubtotal> listToOutput, List<CSVlist> CSV7and8)
         {
             foreach (ReportSubtotal lto in listToOutput)
             {
@@ -1637,138 +1670,183 @@ namespace CruiseProcessing
                             case 0:
                                 sb.Append(lto.field1);
                                 break;
+
                             case 1:
                                 sb.Append(lto.field2);
                                 break;
+
                             case 2:
                                 sb.Append(lto.field3);
                                 break;
+
                             case 3:
                                 sb.Append(lto.field4);
                                 break;
+
                             case 4:
                                 sb.Append(lto.field5);
                                 break;
+
                             case 5:
                                 sb.Append(lto.field6);
                                 break;
+
                             case 6:
                                 sb.Append(lto.field7);
                                 break;
+
                             case 7:
                                 sb.Append(lto.field8);
                                 break;
+
                             case 8:
                                 sb.Append(lto.field9);
                                 break;
+
                             case 9:
                                 sb.Append(lto.field10);
                                 break;
+
                             case 10:
                                 sb.Append(lto.field11);
                                 break;
+
                             case 11:
                                 sb.Append(lto.field12);
                                 break;
+
                             case 12:
                                 sb.Append(lto.field13);
                                 break;
+
                             case 13:
                                 sb.Append(lto.field14);
                                 break;
+
                             case 14:
                                 sb.Append(lto.field15);
                                 break;
+
                             case 15:
                                 sb.Append(lto.field16);
                                 break;
+
                             case 16:
                                 sb.Append(lto.field17);
                                 break;
+
                             case 17:
                                 sb.Append(lto.field18);
                                 break;
+
                             case 18:
                                 sb.Append(lto.field19);
                                 break;
+
                             case 19:
                                 sb.Append(lto.field20);
                                 break;
+
                             case 20:
                                 sb.Append(lto.field21);
                                 break;
+
                             case 21:
                                 sb.Append(lto.field22);
                                 break;
+
                             case 22:
                                 sb.Append(lto.field23);
                                 break;
+
                             case 23:
                                 sb.Append(lto.field24);
                                 break;
+
                             case 24:
                                 sb.Append(lto.field25);
                                 break;
+
                             case 25:
                                 sb.Append(lto.field26);
                                 break;
+
                             case 26:
                                 sb.Append(lto.field27);
                                 break;
+
                             case 27:
                                 sb.Append(lto.field28);
                                 break;
+
                             case 28:
                                 sb.Append(lto.field29);
                                 break;
+
                             case 29:
                                 sb.Append(lto.field30);
                                 break;
+
                             case 30:
                                 sb.Append(lto.field31);
                                 break;
+
                             case 31:
                                 sb.Append(lto.field32);
                                 break;
+
                             case 32:
                                 sb.Append(lto.field33);
                                 break;
+
                             case 33:
                                 sb.Append(lto.field34);
                                 break;
+
                             case 34:
                                 sb.Append(lto.field35);
                                 break;
+
                             case 35:
                                 sb.Append(lto.field36);
                                 break;
+
                             case 36:
                                 sb.Append(lto.field37);
                                 break;
+
                             case 37:
                                 sb.Append(lto.field38);
                                 break;
+
                             case 38:
                                 sb.Append(lto.field39);
                                 break;
+
                             case 39:
                                 sb.Append(lto.field40);
                                 break;
+
                             case 40:
                                 sb.Append(lto.field41);
                                 break;
+
                             case 41:
                                 sb.Append(lto.field42);
                                 break;
+
                             case 42:
                                 sb.Append(lto.field43);
                                 break;
+
                             case 43:
                                 sb.Append(lto.field44);
                                 break;
+
                             case 44:
                                 sb.Append(lto.field45);
                                 break;
+
                             case 45:
                                 sb.Append(lto.field46);
                                 break;
@@ -1782,6 +1860,5 @@ namespace CruiseProcessing
             }   //  end using
             return;
         }   //  end writeCSV
-
     }   //  end class OutputBLM
 }

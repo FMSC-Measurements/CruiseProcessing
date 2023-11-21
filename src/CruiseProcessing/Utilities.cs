@@ -118,25 +118,6 @@ namespace CruiseProcessing
             }
         }   //  end CurrentDLLversion
 
-
-        public static void LogError(string tableName, int table_CN, string errLevel, string errMessage, string filename)
-        {
-            List<ErrorLogDO> errList = new List<ErrorLogDO>();
-            ErrorLogDO eldo = new ErrorLogDO();
-
-            eldo.TableName = tableName;
-            eldo.CN_Number = table_CN;
-            eldo.Level = errLevel;
-            eldo.ColumnName = "Volume";
-            eldo.Message = errMessage;
-            eldo.Program = "CruiseProcessing";
-            errList.Add(eldo);
-
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.fileName = filename;
-            bslyr.SaveErrorMessages(errList);
-        }   //  end LogError6
-
         public static StringBuilder GetIdentifier(string tableName, long CNtoFind, CPbusinessLayer bslyr)
         {
             StringBuilder ident = new StringBuilder();

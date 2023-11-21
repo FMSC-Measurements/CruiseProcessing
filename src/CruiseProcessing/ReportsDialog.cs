@@ -14,17 +14,22 @@ namespace CruiseProcessing
 {
     public partial class ReportsDialog : Form
     {
-        #region
-        public string fileName;
+        //TODO template flag
         public int templateFlag;
         public List<ReportsDO> reportList = new List<ReportsDO>();
         private List<ReportsDO> allReports = new List<ReportsDO>();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
 
-        public ReportsDialog()
+
+        protected ReportsDialog()
         {
             InitializeComponent();
+        }
+
+        public ReportsDialog(CPbusinessLayer dataLayer)
+            :this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()
@@ -120,7 +125,7 @@ namespace CruiseProcessing
                 return;
             }   //  endif selectedGroup is regional reports
 
-            List<ReportsDO> allReports = bslyr.GetReports();
+            List<ReportsDO> allReports = DataLayer.GetReports();
             availableReports.Items.Clear();
             if (selectedGroup == "L")
             {
@@ -205,7 +210,7 @@ namespace CruiseProcessing
                 return;
             }   //  endif selectedRegion
 
-            allReports = bslyr.GetReports();
+            allReports = DataLayer.GetReports();
             List<ReportsDO> groupList = allReports.FindAll(
                 delegate(ReportsDO rl)
                 {
@@ -240,7 +245,7 @@ namespace CruiseProcessing
                 string currentSaleNum = " ";
                 if (templateFlag != 1)
                 {
-                    List<SaleDO> sList = bslyr.getSale();
+                    List<SaleDO> sList = DataLayer.getSale();
                     currentSale = sList[0].Name;
                     currentSaleNum = sList[0].SaleNumber;
                 }   //  endif
@@ -248,23 +253,23 @@ namespace CruiseProcessing
                 try
                 {
                     // is it empty?
-                    checkMatrix = bslyr.getLogMatrix("R008");
+                    checkMatrix = DataLayer.getLogMatrix("R008");
                     if (checkMatrix.Count == 0)
                     {
                         //  load default matrix for both reports
                         checkMatrix.Clear();
                         checkMatrix = loadDefaultMatrix(currentSale, currentSaleNum);
                         //  save default matrix
-                        bslyr.SaveLogMatrix(checkMatrix, "");
+                        DataLayer.SaveLogMatrix(checkMatrix, "");
                     }   //  endif
                 }
                 catch
                 {
                     //   need to create the table and load the default
-                    int iDone = bslyr.CreateNewTable("LogMatrix");
+                    int iDone = DataLayer.CreateNewTable("LogMatrix");
                     checkMatrix = loadDefaultMatrix(currentSale,currentSaleNum);
                     //  save default matrix
-                    bslyr.SaveLogMatrix(checkMatrix, "");
+                    DataLayer.SaveLogMatrix(checkMatrix, "");
                 }   //  endif
 
                 //  see if log matrix table needs to be updated
@@ -275,7 +280,7 @@ namespace CruiseProcessing
                     DialogResult d8 = MessageBox.Show("The log matrix is different for each report.\nUpdate R008?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if(d8 == DialogResult.Yes)
                     {
-                        reportMatrix = bslyr.getLogMatrix("R008");
+                        reportMatrix = DataLayer.getLogMatrix("R008");
                         LogMatrixUpdate lmu = new LogMatrixUpdate();
                         lmu.reportMatrix = reportMatrix;
                         lmu.currSaleName = currentSale;
@@ -284,14 +289,14 @@ namespace CruiseProcessing
                         lmu.setupDialog();
                         lmu.ShowDialog();
                         reportMatrix = lmu.reportMatrix;
-                        bslyr.SaveLogMatrix(reportMatrix, "R008");
+                        DataLayer.SaveLogMatrix(reportMatrix, "R008");
 
                         //  need to update R009?
                         DialogResult d9 = MessageBox.Show("Update R009?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (d9 == DialogResult.Yes)
                         {
                             //  retrieve R009 matrix and update
-                            reportMatrix = bslyr.getLogMatrix("R009");
+                            reportMatrix = DataLayer.getLogMatrix("R009");
                             LogMatrixUpdate lmx = new LogMatrixUpdate();
                             lmx.reportMatrix = reportMatrix;
                             lmx.currSaleNumber = currentSale;
@@ -303,7 +308,7 @@ namespace CruiseProcessing
                             if (rtnResult == 1)
                             {
                                 reportMatrix = lmx.reportMatrix;
-                                bslyr.SaveLogMatrix(reportMatrix, "R009");
+                                DataLayer.SaveLogMatrix(reportMatrix, "R009");
                             }   //  endif
                         }       //  endif
                     }
@@ -313,7 +318,7 @@ namespace CruiseProcessing
                         if(d9 == DialogResult.Yes)
                         {
                             //  retrieve R009 matrix and update
-                            reportMatrix = bslyr.getLogMatrix("R009");
+                            reportMatrix = DataLayer.getLogMatrix("R009");
                             LogMatrixUpdate lmx = new LogMatrixUpdate();
                             lmx.reportMatrix = reportMatrix;
                             lmx.currSaleNumber = currentSale;
@@ -325,7 +330,7 @@ namespace CruiseProcessing
                             if (rtnResult == 1)
                             {
                                 reportMatrix = lmx.reportMatrix;
-                                bslyr.SaveLogMatrix(reportMatrix, "R009");
+                                DataLayer.SaveLogMatrix(reportMatrix, "R009");
                             }   //  endif
                         }       //  endif
                     }   //  endif
@@ -391,12 +396,6 @@ namespace CruiseProcessing
 
         private void onFinished(object sender, EventArgs e)
         {
-            //  Did user open a file?
-            if (fileName == "" || fileName == null || fileName == " ")
-            {
-                MessageBox.Show("NO FILENAME ENTERED", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }   //  endif filename missing
 
             //  reset selected to zero before updating
             foreach (ReportsDO rl in reportList)
@@ -439,7 +438,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Update reports table in database
-            bslyr.updateReports(reportList);
+            DataLayer.updateReports(reportList);
             Close();
             return;
         }   //  end onFinished

@@ -13,20 +13,24 @@ namespace CruiseProcessing
 {
     public partial class StewardshipProductCosts : Form
     {
-        #region
         public List<StewProductCosts> stewList = new List<StewProductCosts>();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        public CPbusinessLayer DataLayer { get; }
 
-        public StewardshipProductCosts()
+        protected StewardshipProductCosts()
         {
             InitializeComponent();
+        }
+
+        public StewardshipProductCosts(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()
         {
             //  pull unique cutting unit, species and primary product to put in stewList
-            List<TreeDO> justSpecies = bslyr.getUniqueStewardGroups();
+            List<TreeDO> justSpecies = DataLayer.getUniqueStewardGroups();
             foreach (TreeDO js in justSpecies)
             {
                 StewProductCosts spc = new StewProductCosts();
@@ -68,7 +72,7 @@ namespace CruiseProcessing
             }
             else
             {
-                bslyr.SaveStewCosts(stewList);
+                DataLayer.SaveStewCosts(stewList);
                 Close();
                 return;
             }   //  endif no groups included

@@ -11,7 +11,6 @@ namespace CruiseProcessing
 {
     class OutputSummary : CreateTextFile
     {
-        #region
         public string currentReport;
         public string currCL;
         private double totalStrataAcres;
@@ -29,7 +28,10 @@ namespace CruiseProcessing
         private int hgtTwo = 0;
         private int[] sourceFlag = new int[3];
         private List<ReportSubtotal> rptSubtotal = new List<ReportSubtotal>();
-        #endregion
+
+        public OutputSummary(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void OutputSummaryReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
         {
@@ -38,11 +40,11 @@ namespace CruiseProcessing
             numOlines = 0;
             List<LCDDO> currentGroup = new List<LCDDO>();
             //  pull stratum table to process reports
-            sList = bslyr.getStratum();
+            sList = DataLayer.getStratum();
             //  Need tree list to finish height headers
-            List<TreeDO> tList = bslyr.getTrees();
+            List<TreeDO> tList = DataLayer.getTrees();
             //  check for data before continuing
-            List<LCDDO> lcdList = bslyr.getLCD();
+            List<LCDDO> lcdList = DataLayer.getLCD();
             int nthRow = lcdList.FindIndex(
                 delegate(LCDDO l)
                 {
@@ -56,7 +58,7 @@ namespace CruiseProcessing
 
             foreach (StratumDO s in sList)
             {
-                totalStrataAcres = Utilities.ReturnCorrectAcres(s.Code, bslyr, (long) s.Stratum_CN);
+                totalStrataAcres = Utilities.ReturnCorrectAcres(s.Code, DataLayer, (long) s.Stratum_CN);
                 currMethod = s.Method;
                 //  pull groups to process by report
                 switch (currentReport)
@@ -65,45 +67,45 @@ namespace CruiseProcessing
                     case "VPA1":      //  (B2)
                     case "VAL1":      //  (B3)
                     case "VSM6":
-                        currentGroup = bslyr.GetLCDgroup(s.Code, 1, currCL);
+                        currentGroup = DataLayer.GetLCDgroup(s.Code, 1, currCL);
                         //  override total strata acres for certain reports
                         if (currentReport == "VPA1")
                         {
                             totalStrataAcres = 1.0;
                             if(s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
+                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, DataLayer, s.Code);
                         }   //  endif
                         if (currentReport == "VAL1")
                         {
                             totalPerAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
+                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, DataLayer, s.Code);
                         }   //  endif
                         break;
                     case "VSM2":      //  Sample group volume summary (CP1)
                     case "VPA2":        //  (CP2)
                     case "VAL2":        //  (CP3)
                     case "LV01":         //  Leave trees only
-                        currentGroup = bslyr.GetLCDgroup(s.Code, 2, currCL);
+                        currentGroup = DataLayer.GetLCDgroup(s.Code, 2, currCL);
                         //  override total strata acres for certain reports
                         if (currentReport == "VPA2")
                         {
                             totalStrataAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
+                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, DataLayer, s.Code);
                         }   //  endif
                         if (currentReport == "VAL2")
                         {
                             totalPerAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
+                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, DataLayer, s.Code);
                         }   //  endif
                         break;
                     case "VSM3":      //  Stratum volume summary (CS1)
                     case "VPA3":        //  (CS2)
                     case "VAL3":        //  (CS3)
                     case "LV02":         //  Leave trees only
-                        currentGroup = bslyr.GetLCDgroup(s.Code, 3, currCL);
+                        currentGroup = DataLayer.GetLCDgroup(s.Code, 3, currCL);
                         if (currentGroup.Count == 0 && currentReport != "LV02")
                         {
                             //  changed slightly since this refers to stratum and not the report
@@ -122,13 +124,13 @@ namespace CruiseProcessing
                         {
                             totalStrataAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
+                                totalStrataAcres = Utilities.AcresLookup((long)s.Stratum_CN, DataLayer, s.Code);
                         }   //  endif
                         if (currentReport == "VAL3")
                         {
                             totalPerAcres = 1.0;
                             if (s.Method == "100" || s.Method == "STR" || s.Method == "3P" || s.Method == "S3P")
-                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, bslyr, s.Code);
+                                totalPerAcres = Utilities.AcresLookup((long)s.Stratum_CN, DataLayer, s.Code);
                         }   //  endif
                         break;
                 }   //  end switch
@@ -172,7 +174,7 @@ namespace CruiseProcessing
                             //  September 2016 -- per K.Cormier -- dropping contract species from LCD identifier
                             //sb.Append("TreeGrade = ? AND ContractSpecies = ? AND STM = ?");
                             sb.Append("TreeGrade = @p9 AND STM = @p10");
-                            currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 1, "");
+                            currentData = DataLayer.GetLCDdata(sb.ToString(), lcd, 1, "");
                             //  need to get sourceFlag
                             FindSourceFlag(currentData);
                             //  write current group
@@ -209,7 +211,7 @@ namespace CruiseProcessing
                                 StringBuilder sb = new StringBuilder();
                                 sb.Append("WHERE Stratum = @p1 AND PrimaryProduct = @p2 AND UOM = @p3 AND CutLeave = @p4 ");
                                 sb.Append("AND SampleGroup = @p5 AND STM = @p6");
-                                currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 2, currCL);
+                                currentData = DataLayer.GetLCDdata(sb.ToString(), lcd, 2, currCL);
                                 //  set sourceflag
                                 FindSourceFlag(currentData);
                                 //  write current group
@@ -247,7 +249,7 @@ namespace CruiseProcessing
                             {
                                 StringBuilder sb = new StringBuilder();
                                 sb.Append("WHERE Stratum = @p1 AND PrimaryProduct = @p2 AND UOM = @p3 AND CutLeave = @p4");
-                                currentData = bslyr.GetLCDdata(sb.ToString(), lcd, 3, currCL);
+                                currentData = DataLayer.GetLCDdata(sb.ToString(), lcd, 3, currCL);
                                 //  set sourceflag
                                 FindSourceFlag(currentData);
                                 //  write current group

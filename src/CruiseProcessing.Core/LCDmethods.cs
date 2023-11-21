@@ -226,10 +226,10 @@ namespace CruiseProcessing
         }   //  end GetCutGroupedBy
 
 
-        public static List<LCDDO> GetStratumGroupedBy(string fileName, string currentST, CPbusinessLayer bslyr)
+        public static List<LCDDO> GetStratumGroupedBy(string currentST, CPbusinessLayer dataLayer)
         {
             List<LCDDO> justStratum = new List<LCDDO>();
-            justStratum = bslyr.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2  GROUP BY ","SampleGroup,Species,STM","C",currentST);
+            justStratum = dataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2  GROUP BY ","SampleGroup,Species,STM","C",currentST);
             return justStratum;
         }   //  end GetStratumGroupedBy
 

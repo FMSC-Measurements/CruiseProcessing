@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
+using System.Linq;
 
 namespace CruiseProcessing
 {
     public class OutputR5 : CreateTextFile
     {
-        #region
         public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -20,8 +16,10 @@ namespace CruiseProcessing
         private regionalReportHeaders rRH = new regionalReportHeaders();
         private string[] completeHeader = new string[6];
         private int tableCounter = 0;
-        #endregion
 
+        public OutputR5(CPbusinessLayer dataLayer) : base(dataLayer)
+        {
+        }
 
         public void CreateR5report(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
@@ -32,11 +30,11 @@ namespace CruiseProcessing
             fieldLengths = new int[] { 2, 12, 14, 16, 16, 16, 11 };
             //  This report prints a page for each species/product combination and log DIB classes
             //  pull species/product combinations from LCD to ultimately pull log data
-            List<LCDDO> justGroups = bslyr.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species,PrimaryProduct", "C", "");
+            List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species,PrimaryProduct", "C", "");
             foreach (LCDDO jg in justGroups)
             {
                 //  get DIB classes for this group
-                List<LogStockDO> justDIBs = bslyr.getCutLogs("C", jg.Species, jg.PrimaryProduct, 1);
+                List<LogStockDO> justDIBs = DataLayer.getCutLogs("C", jg.Species, jg.PrimaryProduct, 1);
                 //  Load DIBs into output list
                 LoadLogDIBclasses(listToOutput, justDIBs);
 
@@ -44,10 +42,10 @@ namespace CruiseProcessing
                 tableCounter++;
                 completeHeader = createCompleteHeader(jg.Species, jg.PrimaryProduct);
                 //  load values into output list
-                List<LogStockDO> justLogs = bslyr.getCutLogs("C", jg.Species, jg.PrimaryProduct, 0);
+                List<LogStockDO> justLogs = DataLayer.getCutLogs("C", jg.Species, jg.PrimaryProduct, 0);
                 AccumulateVolumes(justLogs);
                 //  output group
-                if(listToOutput.Count > 0)
+                if (listToOutput.Count > 0)
                     WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
             }   //  end foreach loop
             return;
@@ -62,13 +60,13 @@ namespace CruiseProcessing
                 //  pull stratum for correct acres
                 if (currST != jl.Tree.Stratum.Code)
                 {
-                    currSTacres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, bslyr, (long)jl.Tree.Stratum_CN);
+                    currSTacres = Utilities.ReturnCorrectAcres(jl.Tree.Stratum.Code, DataLayer, (long)jl.Tree.Stratum_CN);
                     currST = jl.Tree.Stratum.Code;
                 }   //  endif
 
                 //  find DIB class to update
                 int nthRow = listToOutput.FindIndex(
-                    delegate(RegionalReports r)
+                    delegate (RegionalReports r)
                     {
                         return r.value7 == jl.DIBClass;
                     });
@@ -82,12 +80,11 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateVolumes
 
-
         private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
         {
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
                                     completeHeader, 12, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
@@ -118,7 +115,6 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-
         private void updateTotals()
         {
             ReportSubtotal r = new ReportSubtotal();
@@ -131,23 +127,20 @@ namespace CruiseProcessing
             return;
         }   //  end updateTotals
 
-
         private string[] createCompleteHeader(string currSP, string currPP)
         {
             string[] finnishHeader = new string[6];
             finnishHeader[0] = rRH.R501columns[0];
             finnishHeader[0] = finnishHeader[0].Replace("XX", tableCounter.ToString());
-            finnishHeader[0] = finnishHeader[0].Replace("ZZZZZZ",currSP.PadRight(6,' '));
+            finnishHeader[0] = finnishHeader[0].Replace("ZZZZZZ", currSP.PadRight(6, ' '));
             finnishHeader[1] = rRH.R501columns[1];
-            finnishHeader[1] = finnishHeader[1].Replace("TT",currPP);
+            finnishHeader[1] = finnishHeader[1].Replace("TT", currPP);
             finnishHeader[2] = rRH.R501columns[2];
             finnishHeader[3] = rRH.R501columns[3];
             finnishHeader[4] = rRH.R501columns[4];
             finnishHeader[5] = rRH.R501columns[5];
-            
 
             return finnishHeader;
         }   //  end createCompleteHeader
-
     }
 }
