@@ -339,7 +339,7 @@ namespace CruiseProcessing
                     if (File.Exists(processFilePath))
                     { File.Delete(processFilePath); }
 
-                    MessageBox.Show("Error Translating V3 Cruise Data \r\nError: " + ex.InnerException.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error Translating V3 Cruise Data \r\nError: " + ex.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
