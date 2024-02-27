@@ -11,7 +11,6 @@ namespace CruiseProcessing
     public class reportHeaders
     {
         //  constant fields
-        StringBuilder sb = new StringBuilder();
         public string cruiseName;
         public string saleName;
         public int pageNum;
@@ -517,7 +516,7 @@ namespace CruiseProcessing
                                         string titleTwo, string titleThree)
         {
             //  write report title and page number
-            sb.Clear();
+            var sb = new StringBuilder();
             sb.Append(titleOne.PadRight(124,' '));
             sb.Append("PAGE ");
             sb.Append(pageNum);
