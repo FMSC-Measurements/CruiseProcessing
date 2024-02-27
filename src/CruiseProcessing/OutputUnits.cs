@@ -2071,43 +2071,41 @@ namespace CruiseProcessing
                 }   //  endif
 
                 //  sum volumes
-                if (cg.UOM != "05")
+                //  Feb 2024 - removed conditional that only summed trees if UOM was not '05'
+                //  total trees by method
+                if (currMethod == "3P" || currMethod == "S3P")
+                    numTrees += justTalliedTrees;
+                else numTrees += cg.SumExpanFactor * proratFac;
+
+                if (cg.STM == "Y")
                 {
-                    //  total trees by method
-                    if (currMethod == "3P" || currMethod == "S3P")
-                        numTrees += justTalliedTrees;
-                    else numTrees += cg.SumExpanFactor * proratFac;
-
-                    if (cg.STM == "Y")
+                    //  need to sum up volumes differently here
+                    sumSTMtrees(cg, currCU, currCU_CN, currST_CN);
+                }
+                else
+                {
+                    switch (cg.PrimaryProduct)
                     {
-                        //  need to sum up volumes differently here
-                        sumSTMtrees(cg, currCU, currCU_CN, currST_CN);
-                    }
-                    else
-                    {
-                        switch (cg.PrimaryProduct)
-                        {
-                            case "01":
-                                currGBDFT += cg.SumGBDFT * proratFac;
-                                currNBDFT += cg.SumNBDFT * proratFac;
-                                currGCUFT += cg.SumGCUFT * proratFac;
-                                currNCUFT += cg.SumNCUFT * proratFac;
-                                break;
-                            default:
-                                currGBDFTnonsaw += cg.SumGBDFT * proratFac;
-                                currNBDFTnonsaw += cg.SumNBDFT * proratFac;
-                                currGCUFTnonsaw += cg.SumGCUFT * proratFac;
-                                currNCUFTnonsaw += cg.SumNCUFT * proratFac;
-                                break;
-                        }   //  end switch on product
+                        case "01":
+                            currGBDFT += cg.SumGBDFT * proratFac;
+                            currNBDFT += cg.SumNBDFT * proratFac;
+                            currGCUFT += cg.SumGCUFT * proratFac;
+                            currNCUFT += cg.SumNCUFT * proratFac;
+                            break;
+                        default:
+                            currGBDFTnonsaw += cg.SumGBDFT * proratFac;
+                            currNBDFTnonsaw += cg.SumNBDFT * proratFac;
+                            currGCUFTnonsaw += cg.SumGCUFT * proratFac;
+                            currNCUFTnonsaw += cg.SumNCUFT * proratFac;
+                            break;
+                    }   //  end switch on product
 
-                        //  accumulate topwood separately for this report
-                        currGCUFTtopwood += cg.SumGCUFTtop * proratFac;
+                    //  accumulate topwood separately for this report
+                    currGCUFTtopwood += cg.SumGCUFTtop * proratFac;
 
-                        //  sum up expansion factor and DBH squared for quad mean calc
-                        sumDBHsquared += cg.SumDBHOBsqrd;
-                        sumExpanFactor += cg.SumExpanFactor;
-                    }   //  endif
+                    //  sum up expansion factor and DBH squared for quad mean calc
+                    sumDBHsquared += cg.SumDBHOBsqrd;
+                    sumExpanFactor += cg.SumExpanFactor;
                 }   //  endif
             }   //  end foreach loop
             return;
