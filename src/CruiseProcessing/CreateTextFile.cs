@@ -79,338 +79,344 @@ namespace CruiseProcessing
                 OutputLogStock ols = new OutputLogStock(DataLayer);
                 foreach (ReportsDO rdo in selectedReports)
                 {
-
-                    switch (rdo.ReportID)
+                    try
                     {
-                        case "A01":
-                        case "A02":
-                        case "A03":
-                        case "A04":
-                        case "A05":
-                        case "A06":
-                        case "A07":
-                        case "A08":
-                        case "A09":
-                        case "A10":
-                        case "A13":
-                        case "L1":
-                        case "A15":
-                            OutputList ol = new OutputList(DataLayer);
-                            ol.mainHeaderFields = mainHeaderFields;
-                            ol.currentReport = rdo.ReportID.ToString();
-                            if (currentRegion == "10" && rdo.ReportID == "L1")
-                                MessageBox.Show("L1 report for Region 10 does not appear in text output file.\nInstead, create CSV5 to create file for cut and/or leave trees.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            else ol.OutputListReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "A11":
-                        case "A12":
-                            OutputTreeGrade otg = new OutputTreeGrade(DataLayer);
-                            otg.currRept = rdo.ReportID;
-                            otg.mainHeaderFields = mainHeaderFields;
-                            otg.CreateTreeGradeReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "A14":
-                            OutputUnitSummary ous = new OutputUnitSummary(DataLayer);
-                            ous.currentReport = rdo.ReportID;
-                            ous.mainHeaderFields = mainHeaderFields;
-                            ous.createUnitSummary(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "ST1":
-                        case "ST2":
-                            OutputStats ost = new OutputStats(DataLayer);
-                            ost.currCL = "C";
-                            ost.mainHeaderFields = mainHeaderFields;
-                            ost.currentReport = rdo.ReportID;
-                            ost.CreateStatReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "ST3":
-                        case "ST4":
-                            OutputStatsToo otoo = new OutputStatsToo(DataLayer);
-                            otoo.mainHeaderFields = mainHeaderFields;
-                            otoo.currentReport = rdo.ReportID;
-                            otoo.OutputStatReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "VSM1":
-                        case "VSM2":
-                        case "VSM3":
-                        case "VPA1":
-                        case "VPA2":
-                        case "VPA3":
-                        case "VAL1":
-                        case "VAL2":
-                        case "VAL3":
-                        case "VSM6":
-                            OutputSummary os = new OutputSummary(DataLayer);
-                            os.currCL = "C";
-                            os.currentReport = rdo.ReportID;
-                            os.mainHeaderFields = mainHeaderFields;
-                            os.OutputSummaryReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "VSM4":
-                        case "VSM5":
-                            ou.mainHeaderFields = mainHeaderFields;
-                            ou.currentReport = rdo.ReportID;
-                            ou.OutputUnitReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "UC1":
-                        case "UC2":
-                        case "UC3":
-                        case "UC4":
-                        case "UC5":
-                        case "UC6":
-                            ou.currCL = "C";
-                            ou.mainHeaderFields = mainHeaderFields;
-                            ou.currentReport = rdo.ReportID;
-                            ou.OutputUnitReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "TIM":
-                            OutputTIM ot = new OutputTIM(DataLayer);
-                            ot.cruiseNum = cruiseName;
-                            ot.CreateSUMfile();
-                            break;
-                        case "TC1":
-                        case "TC2":
-                        case "TC3":
-                        case "TC4":
-                        case "TC6":
-                        case "TC8":
-                        case "TC10":
-                        case "TC12":
-                        case "TC19":
-                        case "TC20":
-                        case "TC21":
-                        case "TC22":
-                        case "TC24":
-                        case "TL1":
-                        case "TL6":
-                        case "TL7":
-                        case "TL8":
-                        case "TL9":
-                        case "TL10":
-                        case "TL12":
-                            //  2-inch diameter class
-                            OutputStandTables oStand2 = new OutputStandTables(DataLayer);
-                            oStand2.mainHeaderFields = mainHeaderFields;
-                            oStand2.currentReport = rdo.ReportID;
-                            oStand2.CreateStandTables(strWriteOut, rh, ref pageNumber, 2);
-                            break;
-                        case "TC51":
-                        case "TC52":
-                        case "TC53":
-                        case "TC54":
-                        case "TC56":
-                        case "TC57":
-                        case "TC58":
-                        case "TC59":
-                        case "TC60":
-                        case "TC62":
-                        case "TC65":
-                        case "TC71":
-                        case "TC72":
-                        case "TC74":
-                        case "TL52":
-                        case "TL54":
-                        case "TL56":
-                        case "TL58":
-                        case "TL59":
-                        case "TL60":
-                        case "TL62":
-                            //  1-inch diameter class
-                            OutputStandTables oStand1 = new OutputStandTables(DataLayer);
-                            oStand1.mainHeaderFields = mainHeaderFields;
-                            oStand1.currentReport = rdo.ReportID;
-                            oStand1.CreateStandTables(strWriteOut, rh, ref pageNumber, 1);
-                            break;
-                        case "UC7":
-                        case "UC8":
-                        case "UC9":
-                        case "UC10":
-                        case "UC11":
-                        case "UC12":
-                        case "UC13":
-                        case "UC14":
-                        case "UC15":
-                        case "UC16":
-                        case "UC17":
-                        case "UC18":
-                        case "UC19":
-                        case "UC20":
-                        case "UC21":
-                        case "UC22":
-                        case "UC23":
-                        case "UC24":
-                        case "UC25":
-                        case "UC26":
-                            //  UC stand tables
-                            OutputUnitStandTables oUnits = new OutputUnitStandTables(DataLayer);
-                            oUnits.mainHeaderFields = mainHeaderFields;
-                            oUnits.currentReport = rdo.ReportID;
-                            oUnits.CreateUnitStandTables(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "WT1":
-                        case "WT2":
-                        case "WT3":
-                        case "WT4":
-                        case "WT5":
-                            OutputWeight ow = new OutputWeight(DataLayer);
-                            ow.mainHeaderFields = mainHeaderFields;
-                            ow.currentReport = rdo.ReportID;
-                            ow.OutputWeightReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "LD1":
-                        case "LD2":
-                        case "LD3":
-                        case "LD4":
-                        case "LD5":
-                        case "LD6":
-                        case "LD7":
-                        case "LD8":
-                            old.currentReport = rdo.ReportID;
-                            old.mainHeaderFields = mainHeaderFields;
-                            old.CreateLiveDead(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "L2":
-                        case "L8":
-                        case "L10":
-                            ols.currentReport = rdo.ReportID;
-                            ols.mainHeaderFields = mainHeaderFields;
-                            ols.CreateLogReports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "BLM01":
-                        case "BLM02":
-                        case "BLM03":
-                        case "BLM04":
-                        case "BLM05":
-                        case "BLM06":
-                        case "BLM07":
-                        case "BLM08":
-                        case "BLM09":
-                        case "BLM10":
-                            OutputBLM ob = new OutputBLM(DataLayer);
-                            ob.currentReport = rdo.ReportID;
-                            ob.mainHeaderFields = mainHeaderFields;
-                            ob.CreateBLMreports(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "R101":
-                        case "R102":
-                        case "R103":
-                        case "R104":
-                        case "R105":
-                            OutputR1 r1 = new OutputR1(DataLayer);
-                            r1.currentReport = rdo.ReportID;
-                            r1.mainHeaderFields = mainHeaderFields;
-                            r1.CreateR1reports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "R201":
-                        case "R202":
-                        case "R203":
-                        case "R204":
-                        case "R205":
-                        case "R206":
-                        case "R207":
-                        case "R208":
-                            OutputR2 r2 = new OutputR2(DataLayer);
-                            r2.currentReport = rdo.ReportID;
-                            r2.mainHeaderFields = mainHeaderFields;
-                            r2.CreateR2Reports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "R301":
-                            OutputR3 r3 = new OutputR3(DataLayer);
-                            r3.currentReport = rdo.ReportID;
-                            r3.mainHeaderFields = mainHeaderFields;
-                            r3.CreateR3Reports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "R401":
-                        case "R402":
-                        case "R403":
-                        case "R404":
-                            OutputR4 r4 = new OutputR4(DataLayer);
-                            r4.currentReport = rdo.ReportID;
-                            r4.mainHeaderFields = mainHeaderFields;
-                            r4.CreateR4Reports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "R501":
-                            OutputR5 r5 = new OutputR5(DataLayer);
-                            r5.currentReport = rdo.ReportID;
-                            r5.mainHeaderFields = mainHeaderFields;
-                            r5.CreateR5report(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "R604":
-                        case "R605":
-                        case "R602":
-                            OutputR6 r6 = new OutputR6(DataLayer);
-                            r6.currentReport = rdo.ReportID;
-                            r6.mainHeaderFields = mainHeaderFields;
-                            r6.CreateR6reports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "R801":
-                        case "R802":
-                            OutputR8 r8 = new OutputR8(DataLayer);
-                            r8.currentReport = rdo.ReportID;
-                            r8.mainHeaderFields = mainHeaderFields;
-                            r8.CreateR8Reports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "R902":
-                            OutputR9 r9 = new OutputR9(DataLayer);
-                            r9.currentReport = rdo.ReportID;
-                            r9.mainHeaderFields = mainHeaderFields;
-                            //r9.CreateR9Reports(strWriteOut, ref pageNumber, rh);
-                            r9.OutputTipwoodReport(strWriteOut, rh, ref pageNumber);
-                            break;
-                        case "R001":
-                        case "R002":
-                        case "R003":
-                        case "R004":
-                        case "R005":
-                        case "R006":
-                        case "R007":
-                        case "R008":
-                        case "R009":
-                            OutputR10 r10 = new OutputR10(DataLayer);
-                            r10.currentReport = rdo.ReportID;
-                            r10.mainHeaderFields = mainHeaderFields;
-                            r10.CreateR10reports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "SC1":
-                        case "SC2":
-                        case "SC3":
-                            OutputStemCounts osc = new OutputStemCounts(DataLayer);
-                            osc.currentReport = rdo.ReportID;
-                            osc.mainHeaderFields = mainHeaderFields;
-                            osc.createStemCountReports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "LV01":
-                        case "LV02":
-                        case "LV03":
-                        case "LV04":
-                        case "LV05":
-                            OutputLeave olt = new OutputLeave(DataLayer);
-                            olt.currentReport = rdo.ReportID;
-                            olt.mainHeaderFields = mainHeaderFields;
-                            olt.createLeaveTreeReports(strWriteOut, ref pageNumber, rh);
-                            break;
-                        case "GR01":
-                        case "GR02":
-                        case "GR03":
-                        case "GR04":
-                        case "GR05":
-                        case "GR06":
-                        case "GR07":
-                        case "GR08":
-                        case "GR09":
-                        case "GR10":
-                        case "GR11":
-                            graphReports.Add(rdo.ReportID);
-                            string graphFile = System.IO.Path.GetDirectoryName(FilePath);
-                            graphFile += "\\Graphs\\";
-                            graphFile += rdo.ReportID;
-                            strWriteOut.WriteLine("\f");
-                            strWriteOut.Write("Graph Report ");
-                            strWriteOut.Write(rdo.ReportID);
-                            strWriteOut.WriteLine(" can be found in the following file: ");
-                            strWriteOut.WriteLine(graphFile);
-                            break;
-                    }   //  end switch
+                        switch (rdo.ReportID)
+                        {
+                            case "A01":
+                            case "A02":
+                            case "A03":
+                            case "A04":
+                            case "A05":
+                            case "A06":
+                            case "A07":
+                            case "A08":
+                            case "A09":
+                            case "A10":
+                            case "A13":
+                            case "L1":
+                            case "A15":
+                                OutputList ol = new OutputList(DataLayer);
+                                ol.mainHeaderFields = mainHeaderFields;
+                                ol.currentReport = rdo.ReportID.ToString();
+                                if (currentRegion == "10" && rdo.ReportID == "L1")
+                                    MessageBox.Show("L1 report for Region 10 does not appear in text output file.\nInstead, create CSV5 to create file for cut and/or leave trees.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                else ol.OutputListReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "A11":
+                            case "A12":
+                                OutputTreeGrade otg = new OutputTreeGrade(DataLayer);
+                                otg.currRept = rdo.ReportID;
+                                otg.mainHeaderFields = mainHeaderFields;
+                                otg.CreateTreeGradeReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "A14":
+                                OutputUnitSummary ous = new OutputUnitSummary(DataLayer);
+                                ous.currentReport = rdo.ReportID;
+                                ous.mainHeaderFields = mainHeaderFields;
+                                ous.createUnitSummary(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "ST1":
+                            case "ST2":
+                                OutputStats ost = new OutputStats(DataLayer);
+                                ost.currCL = "C";
+                                ost.mainHeaderFields = mainHeaderFields;
+                                ost.currentReport = rdo.ReportID;
+                                ost.CreateStatReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "ST3":
+                            case "ST4":
+                                OutputStatsToo otoo = new OutputStatsToo(DataLayer);
+                                otoo.mainHeaderFields = mainHeaderFields;
+                                otoo.currentReport = rdo.ReportID;
+                                otoo.OutputStatReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "VSM1":
+                            case "VSM2":
+                            case "VSM3":
+                            case "VPA1":
+                            case "VPA2":
+                            case "VPA3":
+                            case "VAL1":
+                            case "VAL2":
+                            case "VAL3":
+                            case "VSM6":
+                                OutputSummary os = new OutputSummary(DataLayer);
+                                os.currCL = "C";
+                                os.currentReport = rdo.ReportID;
+                                os.mainHeaderFields = mainHeaderFields;
+                                os.OutputSummaryReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "VSM4":
+                            case "VSM5":
+                                ou.mainHeaderFields = mainHeaderFields;
+                                ou.currentReport = rdo.ReportID;
+                                ou.OutputUnitReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "UC1":
+                            case "UC2":
+                            case "UC3":
+                            case "UC4":
+                            case "UC5":
+                            case "UC6":
+                                ou.currCL = "C";
+                                ou.mainHeaderFields = mainHeaderFields;
+                                ou.currentReport = rdo.ReportID;
+                                ou.OutputUnitReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "TIM":
+                                OutputTIM ot = new OutputTIM(DataLayer);
+                                ot.cruiseNum = cruiseName;
+                                ot.CreateSUMfile();
+                                break;
+                            case "TC1":
+                            case "TC2":
+                            case "TC3":
+                            case "TC4":
+                            case "TC6":
+                            case "TC8":
+                            case "TC10":
+                            case "TC12":
+                            case "TC19":
+                            case "TC20":
+                            case "TC21":
+                            case "TC22":
+                            case "TC24":
+                            case "TL1":
+                            case "TL6":
+                            case "TL7":
+                            case "TL8":
+                            case "TL9":
+                            case "TL10":
+                            case "TL12":
+                                //  2-inch diameter class
+                                OutputStandTables oStand2 = new OutputStandTables(DataLayer);
+                                oStand2.mainHeaderFields = mainHeaderFields;
+                                oStand2.currentReport = rdo.ReportID;
+                                oStand2.CreateStandTables(strWriteOut, rh, ref pageNumber, 2);
+                                break;
+                            case "TC51":
+                            case "TC52":
+                            case "TC53":
+                            case "TC54":
+                            case "TC56":
+                            case "TC57":
+                            case "TC58":
+                            case "TC59":
+                            case "TC60":
+                            case "TC62":
+                            case "TC65":
+                            case "TC71":
+                            case "TC72":
+                            case "TC74":
+                            case "TL52":
+                            case "TL54":
+                            case "TL56":
+                            case "TL58":
+                            case "TL59":
+                            case "TL60":
+                            case "TL62":
+                                //  1-inch diameter class
+                                OutputStandTables oStand1 = new OutputStandTables(DataLayer);
+                                oStand1.mainHeaderFields = mainHeaderFields;
+                                oStand1.currentReport = rdo.ReportID;
+                                oStand1.CreateStandTables(strWriteOut, rh, ref pageNumber, 1);
+                                break;
+                            case "UC7":
+                            case "UC8":
+                            case "UC9":
+                            case "UC10":
+                            case "UC11":
+                            case "UC12":
+                            case "UC13":
+                            case "UC14":
+                            case "UC15":
+                            case "UC16":
+                            case "UC17":
+                            case "UC18":
+                            case "UC19":
+                            case "UC20":
+                            case "UC21":
+                            case "UC22":
+                            case "UC23":
+                            case "UC24":
+                            case "UC25":
+                            case "UC26":
+                                //  UC stand tables
+                                OutputUnitStandTables oUnits = new OutputUnitStandTables(DataLayer);
+                                oUnits.mainHeaderFields = mainHeaderFields;
+                                oUnits.currentReport = rdo.ReportID;
+                                oUnits.CreateUnitStandTables(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "WT1":
+                            case "WT2":
+                            case "WT3":
+                            case "WT4":
+                            case "WT5":
+                                OutputWeight ow = new OutputWeight(DataLayer);
+                                ow.mainHeaderFields = mainHeaderFields;
+                                ow.currentReport = rdo.ReportID;
+                                ow.OutputWeightReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "LD1":
+                            case "LD2":
+                            case "LD3":
+                            case "LD4":
+                            case "LD5":
+                            case "LD6":
+                            case "LD7":
+                            case "LD8":
+                                old.currentReport = rdo.ReportID;
+                                old.mainHeaderFields = mainHeaderFields;
+                                old.CreateLiveDead(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "L2":
+                            case "L8":
+                            case "L10":
+                                ols.currentReport = rdo.ReportID;
+                                ols.mainHeaderFields = mainHeaderFields;
+                                ols.CreateLogReports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "BLM01":
+                            case "BLM02":
+                            case "BLM03":
+                            case "BLM04":
+                            case "BLM05":
+                            case "BLM06":
+                            case "BLM07":
+                            case "BLM08":
+                            case "BLM09":
+                            case "BLM10":
+                                OutputBLM ob = new OutputBLM(DataLayer);
+                                ob.currentReport = rdo.ReportID;
+                                ob.mainHeaderFields = mainHeaderFields;
+                                ob.CreateBLMreports(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "R101":
+                            case "R102":
+                            case "R103":
+                            case "R104":
+                            case "R105":
+                                OutputR1 r1 = new OutputR1(DataLayer);
+                                r1.currentReport = rdo.ReportID;
+                                r1.mainHeaderFields = mainHeaderFields;
+                                r1.CreateR1reports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "R201":
+                            case "R202":
+                            case "R203":
+                            case "R204":
+                            case "R205":
+                            case "R206":
+                            case "R207":
+                            case "R208":
+                                OutputR2 r2 = new OutputR2(DataLayer);
+                                r2.currentReport = rdo.ReportID;
+                                r2.mainHeaderFields = mainHeaderFields;
+                                r2.CreateR2Reports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "R301":
+                                OutputR3 r3 = new OutputR3(DataLayer);
+                                r3.currentReport = rdo.ReportID;
+                                r3.mainHeaderFields = mainHeaderFields;
+                                r3.CreateR3Reports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "R401":
+                            case "R402":
+                            case "R403":
+                            case "R404":
+                                OutputR4 r4 = new OutputR4(DataLayer);
+                                r4.currentReport = rdo.ReportID;
+                                r4.mainHeaderFields = mainHeaderFields;
+                                r4.CreateR4Reports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "R501":
+                                OutputR5 r5 = new OutputR5(DataLayer);
+                                r5.currentReport = rdo.ReportID;
+                                r5.mainHeaderFields = mainHeaderFields;
+                                r5.CreateR5report(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "R604":
+                            case "R605":
+                            case "R602":
+                                OutputR6 r6 = new OutputR6(DataLayer);
+                                r6.currentReport = rdo.ReportID;
+                                r6.mainHeaderFields = mainHeaderFields;
+                                r6.CreateR6reports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "R801":
+                            case "R802":
+                                OutputR8 r8 = new OutputR8(DataLayer);
+                                r8.currentReport = rdo.ReportID;
+                                r8.mainHeaderFields = mainHeaderFields;
+                                r8.CreateR8Reports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "R902":
+                                OutputR9 r9 = new OutputR9(DataLayer);
+                                r9.currentReport = rdo.ReportID;
+                                r9.mainHeaderFields = mainHeaderFields;
+                                //r9.CreateR9Reports(strWriteOut, ref pageNumber, rh);
+                                r9.OutputTipwoodReport(strWriteOut, rh, ref pageNumber);
+                                break;
+                            case "R001":
+                            case "R002":
+                            case "R003":
+                            case "R004":
+                            case "R005":
+                            case "R006":
+                            case "R007":
+                            case "R008":
+                            case "R009":
+                                OutputR10 r10 = new OutputR10(DataLayer);
+                                r10.currentReport = rdo.ReportID;
+                                r10.mainHeaderFields = mainHeaderFields;
+                                r10.CreateR10reports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "SC1":
+                            case "SC2":
+                            case "SC3":
+                                OutputStemCounts osc = new OutputStemCounts(DataLayer);
+                                osc.currentReport = rdo.ReportID;
+                                osc.mainHeaderFields = mainHeaderFields;
+                                osc.createStemCountReports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "LV01":
+                            case "LV02":
+                            case "LV03":
+                            case "LV04":
+                            case "LV05":
+                                OutputLeave olt = new OutputLeave(DataLayer);
+                                olt.currentReport = rdo.ReportID;
+                                olt.mainHeaderFields = mainHeaderFields;
+                                olt.createLeaveTreeReports(strWriteOut, ref pageNumber, rh);
+                                break;
+                            case "GR01":
+                            case "GR02":
+                            case "GR03":
+                            case "GR04":
+                            case "GR05":
+                            case "GR06":
+                            case "GR07":
+                            case "GR08":
+                            case "GR09":
+                            case "GR10":
+                            case "GR11":
+                                graphReports.Add(rdo.ReportID);
+                                string graphFile = System.IO.Path.GetDirectoryName(FilePath);
+                                graphFile += "\\Graphs\\";
+                                graphFile += rdo.ReportID;
+                                strWriteOut.WriteLine("\f");
+                                strWriteOut.Write("Graph Report ");
+                                strWriteOut.Write(rdo.ReportID);
+                                strWriteOut.WriteLine(" can be found in the following file: ");
+                                strWriteOut.WriteLine(graphFile);
+                                break;
+                        }   //  end switch
+                    }
+                    catch(Exception e)
+                    {
+                        MessageBox.Show($"Error Creating Report: {rdo.ReportID}" + "\r\n" + e.Message);
+                    }
                 }   //  end foreach loop
 
                 //  Any warning messages to print?
