@@ -70,9 +70,9 @@ namespace CruiseProcessing
                 string cLine;
                 while ((cLine = strRead.ReadLine()) != null)
                 {
-                    if (cLine != "" && cLine != " " && cLine != null && cLine != "\f")
+                    if (!string.IsNullOrWhiteSpace(cLine) && cLine.Length > 2 && cLine != "\f")
                     {
-                        if (cLine.Substring(0, 3) == reportToUse)
+                        if (cLine.Length >= 3 && cLine.Substring(0, 3) == reportToUse)
                         {
                             switch (cLine.Substring(0, 3))
                             {
@@ -126,7 +126,7 @@ namespace CruiseProcessing
                                     break;
                             }   //  end switch
                         }
-                        else if (cLine.Substring(0, 4) == reportToUse)
+                        else if (cLine.Length >= 4 && cLine.Substring(0, 4) == reportToUse)
                         {
                             //  works just for VSM4 (CSV11)
                             reportFound = 1;
