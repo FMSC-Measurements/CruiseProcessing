@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
@@ -68,17 +69,18 @@ namespace CruiseProcessing
                                                          {"13","07","5","28"}};
 
         protected CPbusinessLayer DataLayer { get; }
-
+        public IDialogService DialogService { get; }
 
         protected R8VolEquation()
         {
             InitializeComponent();
         }
 
-        public R8VolEquation(CPbusinessLayer dataLayer)
+        public R8VolEquation(CPbusinessLayer dataLayer, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
 
@@ -178,7 +180,7 @@ namespace CruiseProcessing
 
             if (calcBiomass.Checked == true)
             {
-                VolumeEquations ve = new VolumeEquations(DataLayer);
+                VolumeEquations ve = new VolumeEquations(DataLayer, DialogService);
                 ve.updateBiomass(volList);
             }   //  endif calculate biomass
             Close();

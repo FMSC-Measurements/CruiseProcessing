@@ -13,7 +13,7 @@ namespace CruiseProcessing
 {
     public partial class StewardshipProductCosts : Form
     {
-        public List<StewProductCosts> stewList = new List<StewProductCosts>();
+        public List<StewProductCosts> StewList { get; } = new List<StewProductCosts>();
         public CPbusinessLayer DataLayer { get; }
 
         protected StewardshipProductCosts()
@@ -27,8 +27,10 @@ namespace CruiseProcessing
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
-        public void setupDialog()
+        protected override void OnLoad(EventArgs e)
         {
+            base.OnLoad(e);
+
             //  pull unique cutting unit, species and primary product to put in stewList
             List<TreeDO> justSpecies = DataLayer.getUniqueStewardGroups();
             foreach (TreeDO js in justSpecies)
@@ -37,13 +39,11 @@ namespace CruiseProcessing
                 spc.costUnit = js.CuttingUnit.Code;
                 spc.costSpecies = js.Species;
                 spc.costProduct = js.SampleGroup.PrimaryProduct;
-                stewList.Add(spc);
+                StewList.Add(spc);
             }   //  end foreach loop
-            stewProductCostsBindingSource.DataSource = stewList;
+            stewProductCostsBindingSource.DataSource = StewList;
             StewardCosts.DataSource = stewProductCostsBindingSource;
-
-            return;
-        }   //  end setupDialog
+        }
 
 
         private void onCancel(object sender, EventArgs e)
@@ -60,7 +60,7 @@ namespace CruiseProcessing
         private void onFinished(object sender, EventArgs e)
         {
             //  make the includeInReport has some groups selected
-            List<StewProductCosts> groupsIncluded = stewList.FindAll(
+            List<StewProductCosts> groupsIncluded = StewList.FindAll(
                 delegate(StewProductCosts sp)
                 {
                     return sp.includeInReport == "True";
@@ -72,7 +72,7 @@ namespace CruiseProcessing
             }
             else
             {
-                DataLayer.SaveStewCosts(stewList);
+                DataLayer.SaveStewCosts(StewList);
                 Close();
                 return;
             }   //  endif no groups included

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Data;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL;
 using System.Reflection;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
@@ -20,9 +20,12 @@ namespace CruiseProcessing
         protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
 
         public CPbusinessLayer DataLayer { get; private set; }
+        public DialogService DialogService { get; }
 
         public MainMenu()
         {
+            DialogService = new DialogService(this);
+
             InitializeComponent();
             //  initially hide all buttons and labels
             processButton1.Visible = false;
@@ -131,7 +134,7 @@ namespace CruiseProcessing
             
             // let user know it's happening
             //  replace this with the processing status window
-            ProcessStatus statusDlg = new ProcessStatus(DataLayer);
+            ProcessStatus statusDlg = new ProcessStatus(DataLayer, DialogService);
             statusDlg.ShowDialog();   
             Cursor.Current = this.Cursor;
             modifyWeightFacts.Visible = false;
@@ -444,7 +447,7 @@ namespace CruiseProcessing
         {
             if (whichProcess == 1)       //  equations
             {
-                VolumeEquations volEqObj = new VolumeEquations(DataLayer);
+                VolumeEquations volEqObj = new VolumeEquations(DataLayer, DialogService);
 
                 if (templateFlag == 0)
                 {
@@ -536,7 +539,7 @@ namespace CruiseProcessing
                 }   //  endif no reports
 
                 //  Show dialog creating text file
-                TextFileOutput tfo = new TextFileOutput(DataLayer);
+                TextFileOutput tfo = new TextFileOutput(DataLayer, DialogService);
                 tfo.selectedReports = selectedReports;
                 tfo.currRegion = currentRegion;
                 tfo.setupDialog();
@@ -636,14 +639,14 @@ namespace CruiseProcessing
             if (whichProcess == 1)   //  equations
             {
                 //  calls R8 volume equation entry
-                R8VolEquation r8vol = new R8VolEquation(DataLayer);
+                R8VolEquation r8vol = new R8VolEquation(DataLayer, DialogService);
                 r8vol.ShowDialog();
 
             }
             else if(whichProcess == 4)  //  output
             {
                 //  calls routine to create CSV output file
-                SelectCSV sc = new SelectCSV(DataLayer);
+                SelectCSV sc = new SelectCSV(DataLayer, DialogService);
                 sc.setupDialog();
                 sc.ShowDialog();
             }   //  endif whichProcess
@@ -657,7 +660,7 @@ namespace CruiseProcessing
             if (whichProcess == 1)   //  equations
             {
                 //  calls R9 volume equation entry
-                R9VolEquation r9vol = new R9VolEquation(DataLayer);
+                R9VolEquation r9vol = new R9VolEquation(DataLayer, DialogService);
                 r9vol.setupDialog();
                 r9vol.ShowDialog();
             }

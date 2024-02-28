@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,11 +36,11 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public VolumeEquations(CPbusinessLayer dataLayer)
+        public VolumeEquations(CPbusinessLayer dataLayer, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-            Veq = new VolumeEqMethods(new ErrorLogMethods(dataLayer), dataLayer);
+            Veq = new VolumeEqMethods(new ErrorLogMethods(dataLayer, dialogService), dataLayer);
         }
 
         public int setupDialog()

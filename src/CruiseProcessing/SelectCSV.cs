@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
@@ -31,16 +32,18 @@ namespace CruiseProcessing
                                                         "ReportVSM4.csv"};
         
         protected CPbusinessLayer DataLayer { get; }
+        public IDialogService DialogService { get; }
 
         protected SelectCSV()
         {
             InitializeComponent();
         }
 
-        public SelectCSV(CPbusinessLayer dataLayer)
+        public SelectCSV(CPbusinessLayer dataLayer, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         public void setupDialog()
@@ -91,7 +94,7 @@ namespace CruiseProcessing
 
         private void onCreateFiles(object sender, EventArgs e)
         {
-            OutputCSV ocsv = new OutputCSV(DataLayer);
+            OutputCSV ocsv = new OutputCSV(DataLayer, DialogService);
             string currPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             currPath += "\\";
             for (int j = 0; j < 11; j++)
