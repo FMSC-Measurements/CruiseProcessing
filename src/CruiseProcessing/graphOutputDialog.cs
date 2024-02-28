@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace CruiseProcessing
 {
     public partial class graphOutputDialog : Form
     {
-        public ArrayList graphReports = new ArrayList();
+        public IEnumerable<string> GraphReports { get; }
         protected CPbusinessLayer DataLayer { get; }
 
         protected graphOutputDialog()
@@ -20,10 +14,11 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public graphOutputDialog(CPbusinessLayer dataLayer)
-            :this()
+        public graphOutputDialog(CPbusinessLayer dataLayer, IEnumerable<string> graphReports)
+            : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            GraphReports = graphReports ?? throw new ArgumentNullException(nameof(graphReports));
         }
 
         private void onCancel(object sender, EventArgs e)
@@ -38,15 +33,14 @@ namespace CruiseProcessing
             Cancel_button.Enabled = false;
 
             //  loop through list and display graphs
-            for (int k = 0; k < graphReports.Count; k++)
+            foreach (var report in GraphReports)
             {
                 OutputGraphs og = new OutputGraphs(DataLayer);
-                og.currentReport = graphReports[k].ToString();
+                og.currentReport = report;
                 og.createGraphs();
-            }   //  end for k loop
+            }
             Close();
             return;
         }   //  end onContinue
-
     }
 }

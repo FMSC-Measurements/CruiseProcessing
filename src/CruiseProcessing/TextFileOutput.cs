@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Services;
 
 
 namespace CruiseProcessing
@@ -21,6 +22,7 @@ namespace CruiseProcessing
         public int retrnState { get; protected set; }
         public string currRegion { get; set; }
         public CPbusinessLayer DataLayer { get; }
+        public IDialogService DialogService { get; }
 
         #endregion
 
@@ -29,10 +31,11 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public TextFileOutput(CPbusinessLayer dataLayer)
+        public TextFileOutput(CPbusinessLayer dataLayer, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
 
@@ -69,7 +72,7 @@ namespace CruiseProcessing
             fileStatus.Refresh();
 
             //  calls routine to create text output file
-            CreateTextFile ctf = new CreateTextFile(DataLayer);
+            CreateTextFile ctf = new CreateTextFile(DataLayer, DialogService);
             ctf.currentRegion = currRegion;
             ctf.selectedReports = selectedReports;
 

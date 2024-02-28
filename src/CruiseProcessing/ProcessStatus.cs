@@ -8,22 +8,25 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
     public partial class ProcessStatus : Form
     {
         public CPbusinessLayer DataLayer { get; }
+        public IDialogService DialogService { get; }
 
         protected ProcessStatus()
         {
             InitializeComponent();
         }
 
-        public ProcessStatus(CPbusinessLayer dataLayer)
+        public ProcessStatus(CPbusinessLayer dataLayer, IDialogService dialogService)
             :this()
         {
-            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer)); ;
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         private void on_GO(object sender, EventArgs e)
@@ -99,7 +102,7 @@ namespace CruiseProcessing
                moved to EditCheck routine*/
             //  Show editCheck message -- edit checks complete
 
-            EditChecks eChecks = new EditChecks(DataLayer);
+            EditChecks eChecks = new EditChecks(DataLayer, DialogService);
 
             int err = eChecks.CheckErrors();
             if (err < 0)
@@ -397,7 +400,7 @@ namespace CruiseProcessing
 
         private void DefaultSecondaryProduct(string currRegion)
         {
-            ErrorLogMethods elm = new ErrorLogMethods(DataLayer);
+            ErrorLogMethods elm = new ErrorLogMethods(DataLayer, DialogService);
 
             List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
 
