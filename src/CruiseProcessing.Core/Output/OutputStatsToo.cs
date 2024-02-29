@@ -5,15 +5,13 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 
 namespace CruiseProcessing
 {
-    class OutputStatsToo : CreateTextFile
+    class OutputStatsToo : ReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[7];
@@ -28,11 +26,11 @@ namespace CruiseProcessing
         private List<ReportSubtotal> totalStrata = new List<ReportSubtotal>();
         private List<StatSums> groupSums = new List<StatSums>();
 
-        public OutputStatsToo(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputStatsToo(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void OutputStatReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void OutputStatReports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  ST3 (DS1) and ST4 (DS2)
             string currentTitle = fillReportTitle(currentReport);
@@ -79,7 +77,7 @@ namespace CruiseProcessing
                     fieldLengths = new int[] { 33, 5, 4, 4, 13, 12, 16, 12 };
                     break;
             }   //  end switch on report
-            rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
 
             //  process by product pages
             if (pagesToPrint[0] == 1)
@@ -88,32 +86,32 @@ namespace CruiseProcessing
                 List<LCDDO> justGroups = DataLayer.GetLCDgroup(FilePath,"Stratum,PrimaryProduct,UOM");
                 // primary product pages
                 if (currentReport == "ST3")
-                    finishColumnHeaders(rh.ST3columns, "PRIMARY PRODUCT");
+                    finishColumnHeaders(reportHeaders.ST3columns, "PRIMARY PRODUCT");
                 else if (currentReport == "ST4")
-                    finishColumnHeaders(rh.ST4columns, "");
+                    finishColumnHeaders(reportHeaders.ST4columns, "");
                 numOlines = 0;
                 aggProduct.Clear();
                 aggUOM.Clear();
                 aggStrata.Clear();
                 groupSums.Clear();
-                ProcessData(strWriteOut, rh, ref pageNumb, justGroups, "PP");
+                ProcessData(strWriteOut, ref pageNumb, justGroups, "PP");
                 //  output subtotals here
                 switch (currentReport)
                 {
                     case "ST3":
-                        OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, aggProduct, "PRIMARY PRODUCT VOLUME");
-                        OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, aggUOM, "PRIMARY PRODUCT VOLUME");
-                        OutputSubtotal(strWriteOut, rh, ref pageNumb, 3, aggStrata, "PRIMARY PRODUCT VOLUME");
+                        OutputSubtotal(strWriteOut, ref pageNumb, 1, aggProduct, "PRIMARY PRODUCT VOLUME");
+                        OutputSubtotal(strWriteOut, ref pageNumb, 2, aggUOM, "PRIMARY PRODUCT VOLUME");
+                        OutputSubtotal(strWriteOut, ref pageNumb, 3, aggStrata, "PRIMARY PRODUCT VOLUME");
                         break;
                     case "ST4":
-                        OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, aggProduct, "PRIMARY PRODUCT $ VALUE");
-                        OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, aggUOM, "PRIMARY PRODUCT $ VALUE");
-                        OutputSubtotal(strWriteOut, rh, ref pageNumb, 3, aggStrata, "PRIMARY PRODUCT $ VALUE");
+                        OutputSubtotal(strWriteOut, ref pageNumb, 1, aggProduct, "PRIMARY PRODUCT $ VALUE");
+                        OutputSubtotal(strWriteOut, ref pageNumb, 2, aggUOM, "PRIMARY PRODUCT $ VALUE");
+                        OutputSubtotal(strWriteOut, ref pageNumb, 3, aggStrata, "PRIMARY PRODUCT $ VALUE");
                         break;
                 }   //  end switch on current report
                 // output footer statement
                 strWriteOut.WriteLine("");
-                strWriteOut.WriteLine(rh.STfooters[2]);
+                strWriteOut.WriteLine(reportHeaders.STfooters[2]);
                 numOlines++;
             }   //  endif
             if (pagesToPrint[1] == 1)
@@ -124,12 +122,12 @@ namespace CruiseProcessing
                 if(currentReport == "ST3")
                 {
                     fieldLengths = new int[] { 1, 5, 4, 4, 13, 11, 15, 19, 12, 10, 14, 10 };
-                    finishColumnHeaders(rh.ST3columns, "SECONDARY PRODUCT");
+                    finishColumnHeaders(reportHeaders.ST3columns, "SECONDARY PRODUCT");
                 }
                 else if (currentReport == "ST4")
                 {
                     fieldLengths = new int[] { 33, 5, 4, 4, 13, 12, 16, 12 };
-                    finishColumnHeaders(rh.ST4columns, "");
+                    finishColumnHeaders(reportHeaders.ST4columns, "");
                 }   //  endif on report
 
                 // secondary product pages
@@ -137,14 +135,14 @@ namespace CruiseProcessing
                 aggProduct.Clear();
                 aggUOM.Clear();
                 aggStrata.Clear();
-                ProcessData(strWriteOut, rh, ref pageNumb, justGroups, "SP");
+                ProcessData(strWriteOut, ref pageNumb, justGroups, "SP");
                 //  output subtotals here
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, aggProduct, "SECONDARY PRODUCT VOLUME");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, aggUOM, "SECONDARY PRODUCT VOLUME");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 3, aggStrata, "SECONDARY PRODUCT VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 1, aggProduct, "SECONDARY PRODUCT VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 2, aggUOM, "SECONDARY PRODUCT VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 3, aggStrata, "SECONDARY PRODUCT VOLUME");
                 // output footer statement
                 strWriteOut.WriteLine("");
-                strWriteOut.WriteLine(rh.STfooters[2]);
+                strWriteOut.WriteLine(reportHeaders.STfooters[2]);
                 numOlines++;
             }   //  endif
             if (pagesToPrint[2] == 1)
@@ -155,12 +153,12 @@ namespace CruiseProcessing
                 if (currentReport == "ST3")
                 {
                     fieldLengths = new int[] { 1, 5, 4, 4, 13, 11, 15, 19, 12, 10, 14, 10 };
-                    finishColumnHeaders(rh.ST3columns, "RECOVERED PRODUCT");
+                    finishColumnHeaders(reportHeaders.ST3columns, "RECOVERED PRODUCT");
                 }
                 else if (currentReport == "ST4")
                 {
                     fieldLengths = new int[] { 33, 5, 4, 4, 13, 12, 16, 12 };
-                    finishColumnHeaders(rh.ST4columns, "");
+                    finishColumnHeaders(reportHeaders.ST4columns, "");
                 }   //  endif on report
 
                 //  recovered product pages
@@ -168,14 +166,14 @@ namespace CruiseProcessing
                 aggProduct.Clear();
                 aggUOM.Clear();
                 aggStrata.Clear();
-                ProcessData(strWriteOut, rh, ref pageNumb, justGroups, "RP");
+                ProcessData(strWriteOut, ref pageNumb, justGroups, "RP");
                 //  output subtotals here
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, aggProduct, "RECOVERED PRODUCT VOLUME");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, aggUOM, "RECOVERED PRODUCT VOLUME");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 3, aggStrata, "RECOVERED PRODUCT VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 1, aggProduct, "RECOVERED PRODUCT VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 2, aggUOM, "RECOVERED PRODUCT VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 3, aggStrata, "RECOVERED PRODUCT VOLUME");
                 // output footer statement
                 strWriteOut.WriteLine("");
-                strWriteOut.WriteLine(rh.STfooters[2]);
+                strWriteOut.WriteLine(reportHeaders.STfooters[2]);
                 numOlines++;
             }   //  endif
 
@@ -183,27 +181,26 @@ namespace CruiseProcessing
             numOlines = 0;
             if (currentReport == "ST3")
             {
-                finishColumnHeaders(rh.ST3columns, "******* TOTAL");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, totalProduct, "TOTAL VOLUME");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, totalUOM, "TOTAL VOLUME");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 3, totalStrata, "TOTAL VOLUME"); 
+                finishColumnHeaders(reportHeaders.ST3columns, "******* TOTAL");
+                OutputSubtotal(strWriteOut, ref pageNumb, 1, totalProduct, "TOTAL VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 2, totalUOM, "TOTAL VOLUME");
+                OutputSubtotal(strWriteOut, ref pageNumb, 3, totalStrata, "TOTAL VOLUME"); 
             }
             else if (currentReport == "ST4")
             {
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 1, totalProduct, "TOTAL $ VALUE");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 2, totalUOM, "TOTAL $ VALUE");
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, 3, totalStrata, "TOTAL $ VALUE");
+                OutputSubtotal(strWriteOut, ref pageNumb, 1, totalProduct, "TOTAL $ VALUE");
+                OutputSubtotal(strWriteOut, ref pageNumb, 2, totalUOM, "TOTAL $ VALUE");
+                OutputSubtotal(strWriteOut, ref pageNumb, 3, totalStrata, "TOTAL $ VALUE");
             }   //  endif on report
 
             strWriteOut.WriteLine("");
-            strWriteOut.WriteLine(rh.STfooters[2]);
+            strWriteOut.WriteLine(reportHeaders.STfooters[2]);
 
             return;
         }   //  end OutputStatReports
 
 
-        private void ProcessData(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, List<LCDDO> justGroups, 
-                                        string prodType)
+        private void ProcessData(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> justGroups, string prodType)
         {
             double strataAcres = 0.0;
             string currMeth;
@@ -235,13 +232,13 @@ namespace CruiseProcessing
                         switch (prodType)
                         {
                             case "PP":
-                                WriteCurrentGroup(strWriteOut, rh, ref pageNumb, "PRIMARY PRODUCT VOLUME");
+                                WriteCurrentGroup(strWriteOut, ref pageNumb, "PRIMARY PRODUCT VOLUME");
                                 break;
                             case "SP":
-                                WriteCurrentGroup(strWriteOut, rh, ref pageNumb, "SECONDARY PRODUCT VOLUME");
+                                WriteCurrentGroup(strWriteOut, ref pageNumb, "SECONDARY PRODUCT VOLUME");
                                 break;
                             case "RP":
-                                WriteCurrentGroup(strWriteOut, rh, ref pageNumb, "RECOVERED PRODUCT VOLUME");
+                                WriteCurrentGroup(strWriteOut, ref pageNumb, "RECOVERED PRODUCT VOLUME");
                                 break;
                         }   //  end switch on product
                         break;
@@ -249,13 +246,13 @@ namespace CruiseProcessing
                         switch (prodType)
                         {
                             case "PP":
-                                WriteCurrentGroup("PRIMARY PRODUCT $ VALUE", rh, strWriteOut, ref pageNumb);
+                                WriteCurrentGroup("PRIMARY PRODUCT $ VALUE", strWriteOut, ref pageNumb);
                                 break;
                             case "SP":
-                                WriteCurrentGroup("SECONDARY PRODUCT $ VALUE", rh, strWriteOut, ref pageNumb);
+                                WriteCurrentGroup("SECONDARY PRODUCT $ VALUE", strWriteOut, ref pageNumb);
                                 break;
                             case "RP":
-                                WriteCurrentGroup("RECOVERED PRODUCT $ VALUE", rh, strWriteOut, ref pageNumb);
+                                WriteCurrentGroup("RECOVERED PRODUCT $ VALUE", strWriteOut, ref pageNumb);
                                 break;
                         }   //  end switch on product
                         break;
@@ -625,7 +622,7 @@ namespace CruiseProcessing
         }   //  end DetermineCombinedError
 
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string prodType)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, string prodType)
         {
             double FinalGrossErr = 0;
             double FinalNetErr = 0;
@@ -642,7 +639,7 @@ namespace CruiseProcessing
             FinalGrossErr2 = groupSums.Sum(gs => gs.GrossErrSq);
             FinalNetErr2 = groupSums.Sum(gs => gs.NetErrSq);
 
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], prodType, rh.reportTitles[1], 
+            WriteReportHeading(strWriteOut, reportTitles[0], prodType, reportTitles[1], 
                                     completeHeader, 7, ref pageNumb, "");
             prtFields.Add("");
             prtFields.Add(groupSums[0].ST.PadLeft(2, ' '));
@@ -697,7 +694,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void WriteCurrentGroup(string prodType, reportHeaders rh, StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(string prodType, StreamWriter strWriteOut, ref int pageNumb)
         {
             //  overloaded for ST4 report
             double FinalGrossErr = 0.0;
@@ -710,7 +707,7 @@ namespace CruiseProcessing
             FinalGrossVol = groupSums.Sum(gs => gs.GrossVol);
             FinalGrossErr2 = groupSums.Sum(gs => gs.GrossErrSq);
 
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], prodType, rh.reportTitles[1],
+            WriteReportHeading(strWriteOut, reportTitles[0], prodType, reportTitles[1],
                                     completeHeader, 7, ref pageNumb, "");
             prtFields.Add("");
             prtFields.Add(groupSums[0].ST.PadLeft(2, ' '));
@@ -951,15 +948,15 @@ namespace CruiseProcessing
         }   //  end UpdateTotals
 
 
-        private void OutputSubtotal(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, int whichSubtotal,
-                                        List<ReportSubtotal> subtotalToPrint, string prodType)
+        private void OutputSubtotal(StreamWriter strWriteOut, ref int pageNumb, int whichSubtotal, List<ReportSubtotal> subtotalToPrint,
+                                        string prodType)
         {
             string fieldFormat1 = "{0,10:F1}";
             string fieldFormat2 = "{0,7:F2}";
             string fieldFormat3 = "{0,10:F0}";
             double finalErr = 0;
             //  write headers if needed
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], prodType, rh.reportTitles[1],
+            WriteReportHeading(strWriteOut, reportTitles[0], prodType, reportTitles[1],
                                  completeHeader, 7, ref pageNumb, "");
             switch (whichSubtotal)
             {
@@ -969,7 +966,7 @@ namespace CruiseProcessing
                     else if (currentReport == "ST4")
                         fieldLengths = new int[] { 38, 4, 4, 13, 12, 16, 12 };
                     strWriteOut.WriteLine("");
-                    strWriteOut.WriteLine(rh.STsubtotals[0]);
+                    strWriteOut.WriteLine(reportHeaders.STsubtotals[0]);
                     numOlines += 2;
                     break;
                 case 2:     //  UOM
@@ -978,7 +975,7 @@ namespace CruiseProcessing
                     else if (currentReport == "ST4")
                         fieldLengths = new int[] { 42, 4, 13, 12, 16, 12 };
                     strWriteOut.WriteLine("");
-                    strWriteOut.WriteLine(rh.STsubtotals[1]);
+                    strWriteOut.WriteLine(reportHeaders.STsubtotals[1]);
                     numOlines += 2;
                     break;
                 case 3: //  strata
@@ -987,7 +984,7 @@ namespace CruiseProcessing
                     else if (currentReport == "ST4")
                         fieldLengths = new int[] { 33, 9, 4, 13, 12, 16, 12 };
                     strWriteOut.WriteLine("");
-                    strWriteOut.WriteLine(rh.STsubtotals[2]);
+                    strWriteOut.WriteLine(reportHeaders.STsubtotals[2]);
                     numOlines += 2;
                     break;
             }   //  end switch
@@ -995,7 +992,7 @@ namespace CruiseProcessing
             {
                 finalErr = 0;
                 //  write headers if needed
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], prodType, rh.reportTitles[1], 
+                WriteReportHeading(strWriteOut, reportTitles[0], prodType, reportTitles[1], 
                                      completeHeader, 7, ref pageNumb, "");
                 switch (whichSubtotal)
                 {

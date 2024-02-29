@@ -400,7 +400,7 @@ namespace CruiseProcessing
 
         private void DefaultSecondaryProduct(string currRegion)
         {
-            ErrorLogMethods elm = new ErrorLogMethods(DataLayer, DialogService);
+            ErrorLogMethods elm = new ErrorLogMethods(DataLayer);
 
             List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
 

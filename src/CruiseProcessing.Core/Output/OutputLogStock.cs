@@ -1,5 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,29 +8,24 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputLogStock : CreateTextFile
+    public class OutputLogStock : ReportGeneratorBase
     {
-        public string currentReport;
         public List<ReportSubtotal> ListToOutput = new List<ReportSubtotal>();
         public List<ReportSubtotal> ListToOutputCCF = new List<ReportSubtotal>();
         public List<ReportSubtotal> ListToOutputMBF = new List<ReportSubtotal>();
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private string currSP = "*";
-        private double strAcres = 0;
         private int nthRow = 0;
         private int tableNum = 0;
         private StringBuilder extraHeadingLine = new StringBuilder();
-        private double currEF = 0;
-        private double currCubic = 0;
-        private double currBoard = 0;
         public List<LogStockDO> logStockList = new List<LogStockDO>();
 
-        public OutputLogStock(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputLogStock(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateLogReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void CreateLogReports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -60,14 +55,14 @@ namespace CruiseProcessing
             {
                 case "L2":
                     fieldLengths = new int[] { 1, 7, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 10 };
-                    rh.createReportTitle(currentTitle, 1, 0, 0, "", "");
-                    LoadAndPrintByGrade(justCutLogs, sList, strWriteOut, rh, ref pageNumb);
+                    SetReportTitles(currentTitle, 1, 0, 0, "", "");
+                    LoadAndPrintByGrade(justCutLogs, sList, strWriteOut, ref pageNumb);
                     break;
 
                 case "L8":
                     fieldLengths = new int[] { 1, 7, 9, 12, 12, 12, 12, 9, 12, 12, 9, 12, 11 };
-                    rh.createReportTitle(currentTitle, 1, 0, 0, "", "");
-                    LoadAndPrintByProduct(justCutLogs, sList, strWriteOut, rh, ref pageNumb);
+                    SetReportTitles(currentTitle, 1, 0, 0, "", "");
+                    LoadAndPrintByProduct(justCutLogs, sList, strWriteOut, ref pageNumb);
                     break;
 
                 case "L10":
@@ -75,14 +70,14 @@ namespace CruiseProcessing
                     string joinedLine = reportConstants.FCTO;
                     joinedLine += " - ";
                     joinedLine += reportConstants.B1DC;
-                    rh.createReportTitle(currentTitle, 6, 0, 0, joinedLine, reportConstants.oneInchDC);
-                    LoadAndPrintByLength(justCutLogs, sList, strWriteOut, ref pageNumb, rh);
+                    SetReportTitles(currentTitle, 6, 0, 0, joinedLine, reportConstants.oneInchDC);
+                    LoadAndPrintByLength(justCutLogs, sList, strWriteOut, ref pageNumb);
                     break;
             }   //  end switch
         }   //  end CreateLogReports
 
         private void LoadAndPrintByGrade(List<LogStockDO> listToLoad, List<StratumDO> sList,
-                                        StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+                                        StreamWriter strWriteOut, ref int pageNumb)
         {
             //  load list for each species
             double calcGross = 0;
@@ -97,9 +92,9 @@ namespace CruiseProcessing
                 {
                     //  output table for current species
                     extraHeadingLine = LoadExtraHeading(0);
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                            rh.L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
-                    writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,9:F2}", "{0,10:F2}", ListToOutput, 1000);
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                            reportHeaders.L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
+                    writeCurrentGroup(strWriteOut, ref pageNumb, "{0,9:F2}", "{0,10:F2}", ListToOutput, 1000);
                     //  clear ListToOutput for next species
                     clearOutputList(ListToOutput);
                     currSP = ls.Tree.Species;
@@ -110,7 +105,7 @@ namespace CruiseProcessing
                 //  find row for dib class
                 nthRow = FindDIBindex(ListToOutput, ls.SmallEndDiameter);
                 //  need stratum acres
-                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, DataLayer, (long)ls.Tree.Stratum_CN);
+                var strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, DataLayer, (long)ls.Tree.Stratum_CN);
                 calcGross = ls.GrossBoardFoot * ls.Tree.ExpansionFactor * strAcres;
                 calcNet = ls.NetBoardFoot * ls.Tree.ExpansionFactor * strAcres;
                 switch (ls.Grade)
@@ -167,15 +162,14 @@ namespace CruiseProcessing
             //  print last species group
             //  output table for current species
             extraHeadingLine = LoadExtraHeading(0);
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rh.L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
-            writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,9:F2}", "{0,10:F2}", ListToOutput, 1000);
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    reportHeaders.L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
+            writeCurrentGroup(strWriteOut, ref pageNumb, "{0,9:F2}", "{0,10:F2}", ListToOutput, 1000);
             return;
         }   //  end LoadAndPrintByGrade
 
         private void LoadAndPrintByProduct(List<LogStockDO> listToLoad, List<StratumDO> sList,
-                                            StreamWriter strWriteOut, reportHeaders rh,
-                                            ref int pageNumb)
+                                            StreamWriter strWriteOut, ref int pageNumb)
         {
             //  load list by product
             tableNum = 1;
@@ -188,9 +182,9 @@ namespace CruiseProcessing
                 {
                     //  output table for current species
                     extraHeadingLine = LoadExtraHeading(0);
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rh.L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
-                    writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,8:F1}", "{0,11:F1}", ListToOutput, 1);
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        reportHeaders.L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
+                    writeCurrentGroup(strWriteOut, ref pageNumb, "{0,8:F1}", "{0,11:F1}", ListToOutput, 1);
                     //  clear ListToOutput for next species
                     clearOutputList(ListToOutput);
                     currSP = ls.Tree.Species;
@@ -201,9 +195,9 @@ namespace CruiseProcessing
                 //  find row for dib class
                 nthRow = FindDIBindex(ListToOutput, ls.SmallEndDiameter);
                 //  also need stratum acres
-                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, DataLayer, (long)ls.Tree.Stratum_CN);
+                var strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, DataLayer, (long)ls.Tree.Stratum_CN);
                 //  grab expansion factor for calculations
-                currEF = ls.Tree.ExpansionFactor;
+                var currEF = ls.Tree.ExpansionFactor;
                 switch (ls.Grade)
                 {
                     case "7":       //  topwood
@@ -229,15 +223,14 @@ namespace CruiseProcessing
             //  print last species group
             //  output table for current species
             extraHeadingLine = LoadExtraHeading(0);
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
-            writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,8:F1}", "{0,11:F1}", ListToOutput, 1);
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
+            writeCurrentGroup(strWriteOut, ref pageNumb, "{0,8:F1}", "{0,11:F1}", ListToOutput, 1);
             return;
         }   //  end LoadAndPrintByProduct
 
         private void LoadAndPrintByLength(List<LogStockDO> listToLoad, List<StratumDO> sList,
-                                            StreamWriter strWriteOut, ref int pageNumb,
-                                            reportHeaders rh)
+                                            StreamWriter strWriteOut, ref int pageNumb)
         {
             //  load lists for each species
             foreach (LogStockDO ls in listToLoad)
@@ -249,24 +242,24 @@ namespace CruiseProcessing
                     //  output tables for current species
                     //  log counts
                     extraHeadingLine = LoadExtraHeading(1);
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rh.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
-                    writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,5:F0}", "{0,6:F0}", ListToOutput, 1);
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                    writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutput, 1);
                     //  CCF list
                     if (ListToOutputCCF.Sum(l => l.Value16) > 0)
                     {
                         extraHeadingLine = LoadExtraHeading(2);
-                        WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                            rh.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
-                        writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,5:F0}", "{0,6:F0}", ListToOutputCCF, 100);
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                            reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                        writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputCCF, 100);
                     }   //  endif CCF to print
                     //  MBF list
                     if (ListToOutputMBF.Sum(l => l.Value16) > 0)
                     {
                         extraHeadingLine = LoadExtraHeading(3);
-                        WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                            rh.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
-                        writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,5:F0}", "{0,6:F0}", ListToOutputMBF, 1000);
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                            reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                        writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputMBF, 1000);
                     }   //  endif MBF to print
                     //  clear output lists for next species
                     clearOutputList(ListToOutput);
@@ -281,12 +274,12 @@ namespace CruiseProcessing
                 //  find row for dib class
                 nthRow = FindDIBindex(ListToOutput, ls.SmallEndDiameter);
                 //  also need stratum acres
-                strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, DataLayer, (long)ls.Tree.Stratum_CN);
+                var strAcres = Utilities.ReturnCorrectAcres(ls.Tree.Stratum.Code, DataLayer, (long)ls.Tree.Stratum_CN);
                 //  and grab expansion for calculations
-                currEF = ls.Tree.ExpansionFactor;
+                var currEF = ls.Tree.ExpansionFactor;
                 //  grab needed values for each page
-                currCubic = ls.NetCubicFoot;
-                currBoard = ls.NetBoardFoot;
+                var currCubic = ls.NetCubicFoot;
+                var currBoard = ls.NetBoardFoot;
                 if (ls.Grade != "7" && ls.Grade != "8" && ls.Grade != "9")
                 {
                     switch (ls.Length)
@@ -393,31 +386,30 @@ namespace CruiseProcessing
             //  print last species
             //  log counts
             extraHeadingLine = LoadExtraHeading(1);
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
-            writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,5:F0}", "{0,6:F0}", ListToOutput, 1);
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+            writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutput, 1);
             //  CCF list
             if (ListToOutputCCF.Sum(l => l.Value16) > 0)
             {
                 extraHeadingLine = LoadExtraHeading(2);
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rh.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
-                writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,5:F0}", "{0,6:F0}", ListToOutputCCF, 100);
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputCCF, 100);
             }   //  endif CCF to print
             //  MBF list
             if (ListToOutputMBF.Sum(l => l.Value16) > 0)
             {
                 extraHeadingLine = LoadExtraHeading(3);
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rh.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
-                writeCurrentGroup(strWriteOut, ref pageNumb, rh, "{0,5:F0}", "{0,6:F0}", ListToOutputMBF, 1000);
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputMBF, 1000);
             }   //  endif MBF to print
             return;
         }   //  end LoadAndPrintByLength
 
-        private void writeCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
-                                        string formatOne, string formatTwo, List<ReportSubtotal> outputList,
-                                        float convFactor)
+        private void writeCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, string formatOne,
+                                        string formatTwo, List<ReportSubtotal> outputList, float convFactor)
         {
             //  print lines for each report
             string verticalBar = "|";
@@ -683,5 +675,18 @@ namespace CruiseProcessing
             }   //  end foreach loop
             return;
         }   //  end clearOutputList
+
+        public static int FindDIBindex(List<ReportSubtotal> ListToOutput, float SmEndDiam)
+        {
+            string DIBtoFind = (Math.Floor(SmEndDiam + 0.5)).ToString();
+            int rowToLoad = ListToOutput.FindIndex(
+                delegate (ReportSubtotal r)
+                {
+                    return r.Value1 == DIBtoFind;
+                });
+            if (rowToLoad < 0)
+                rowToLoad = 0;
+            return rowToLoad;
+        }   //  end FindDIBindex
     }   //  end OutputLogStock
 }

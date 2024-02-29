@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,12 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputR10 : CreateTextFile
+    public class OutputR10 : ReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
-        private regionalReportHeaders rRH = new regionalReportHeaders();
         private double currGRS = 0;
         private double currNET = 0;
         private double currREM = 0;
@@ -26,11 +25,14 @@ namespace CruiseProcessing
         private int footFlag;
         private string[] completeHeader;
 
-        public OutputR10(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public IDialogService DialogService { get; }
+
+        public OutputR10(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void CreateR10reports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        public void CreateR10reports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -76,7 +78,7 @@ namespace CruiseProcessing
                     numOlines = 0;
                     fieldLengths = new int[] { 1, 8, 10, 13, 10, 11, 11, 9 };
                     completeHeader = createCompleteHeader();
-                    rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
+                    SetReportTitles(currentTitle, 6, 0, 0, "", "");
                     if (currentReport == "R001") convFactor = 1000.0;
                     int currRow = 0;
                     foreach (LCDDO sl in speciesList)
@@ -88,7 +90,7 @@ namespace CruiseProcessing
                         AccumulateVolume(logList, sl.Species, currRow, sList);
                         currRow++;
                     }   //  end foreach
-                    WriteCurrentGroup(strWriteOut, ref pageNumb, rh, completeHeader);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb, completeHeader);
                     updateTotal();
                     outputTotal(strWriteOut);
                     outputLogSummary(strWriteOut, lcdList, sList);
@@ -104,13 +106,13 @@ namespace CruiseProcessing
                         updatedLine = updatedLine.Replace("XXX", "MBF");
                     else if (currentReport == "R004")
                         updatedLine = updatedLine.Replace("XXX", "CCF");
-                    rh.createReportTitle(currentTitle, 6, 0, 0, updatedLine, "");
+                    SetReportTitles(currentTitle, 6, 0, 0, updatedLine, "");
                     if (currentReport == "R003") convFactor = 1000.0;
                     AccumulateByLogGrade(logList, speciesList, sList);
                     //  need to total each species before printing so net percent can be calculated
                     //  at print time
                     updateGradeTotals();
-                    WriteCurrentGroup(strWriteOut, ref pageNumb, rh, completeHeader);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb, completeHeader);
                     outputTotal(strWriteOut);
                     break;
 
@@ -132,8 +134,8 @@ namespace CruiseProcessing
                         numOlines = 0;
                         fieldLengths = new int[] { 1, 4, 7, 3, 7, 6, 9, 8, 9, 10, 10, 8, 8, 8, 9, 9, 8, 5 };
                         completeHeader = createCompleteHeader();
-                        rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO_PPO, "--  CUBIC FOOT  --");
-                        AccumulateMostlyLCD(lcdList, speciesList, sList, strWriteOut, ref pageNumb, rh);
+                        SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO_PPO, "--  CUBIC FOOT  --");
+                        AccumulateMostlyLCD(lcdList, speciesList, sList, strWriteOut, ref pageNumb);
                     }   //  endif
                     break;
 
@@ -368,7 +370,7 @@ namespace CruiseProcessing
         }   //  end AccumulateByLogGrade
 
         private void AccumulateMostlyLCD(List<LCDDO> lcdList, List<LCDDO> speciesList, List<StratumDO> sList,
-                                          StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+                                          StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R005
             double currUnitAcres = 0;
@@ -381,10 +383,8 @@ namespace CruiseProcessing
             double currAcres = 0;
             List<ReportSubtotal> logMethodSubtotal = new List<ReportSubtotal>();
             //  Which height field to use?
-            int hgtOne = 0;
-            int hgtTwo = 0;
             List<TreeDO> tList = DataLayer.getTrees();
-            whichHeightFields(ref hgtOne, ref hgtTwo, tList);
+            whichHeightFields(out var hgtOne, out var hgtTwo, tList);
 
             //  need PRO table
             List<PRODO> proList = DataLayer.getPRO();
@@ -442,7 +442,7 @@ namespace CruiseProcessing
                             //  Logs
                             currLOGS += justSpecies.Sum(j => j.SumLogsMS) * proFactor;
                             //  sum appropriate height
-                            switch (hgtOne)
+                            switch ((int)hgtOne)
                             {
                                 case 1:
                                     currHGT += justSpecies.Sum(j => j.SumTotHgt) * proFactor;
@@ -490,7 +490,7 @@ namespace CruiseProcessing
                 //  write current logging method group
                 //  sum unit acres for printing
                 currUnitAcres = justUnits.Sum(j => j.Area);
-                WriteCurrentGroup(currUnitAcres, strWriteOut, ref pageNumb, rh);
+                WriteCurrentGroup(currUnitAcres, strWriteOut, ref pageNumb);
                 updateSubtotals(ref logMethodSubtotal);
                 updateOverallTotal();
                 totalAcres += currUnitAcres;
@@ -510,8 +510,7 @@ namespace CruiseProcessing
             string cruiseNumb = DataLayer.getCruiseNumber();
             //  update headers for output file based on report
             string[] completeHeaders = new string[5];
-            regionalReportHeaders rrh = new regionalReportHeaders();
-            completeHeader = rrh.R006R007columns;
+            completeHeader = regionalReportHeaders.R006R007columns;
             switch (currentReport)
             {
                 case "R006":
@@ -780,7 +779,7 @@ namespace CruiseProcessing
             double calcValue = 0;
             //  modify summary labels
             string volType = "";
-            string[] summaryLabels = rRH.R001R002parTwo;
+            string[] summaryLabels = regionalReportHeaders.R001R002parTwo;
             switch (currentReport)
             {
                 case "R001":
@@ -978,7 +977,7 @@ namespace CruiseProcessing
         }   //  end outputLogSummary
 
         private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb,
-                                        reportHeaders rh, string[] completeHeader)
+                                        string[] completeHeader)
         {
             //  Works for R001/R002 and R003/R004
             switch (currentReport)
@@ -988,8 +987,8 @@ namespace CruiseProcessing
                     //double calcValue = 0;
                     foreach (RegionalReports lto in listToOutput)
                     {
-                        WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1],
-                                rh.reportTitles[2], completeHeader, 14, ref pageNumb, "");
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1],
+                                reportTitles[2], completeHeader, 14, ref pageNumb, "");
                         prtFields.Clear();
                         prtFields.Add("");
                         prtFields.Add(" ");
@@ -1020,7 +1019,7 @@ namespace CruiseProcessing
                     int currentLine = 1;
                     foreach (RegionalReports lto in listToOutput)
                     {
-                        WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                             completeHeader, 11, ref pageNumb, "");
                         prtFields.Clear();
                         prtFields.Add("");
@@ -1103,18 +1102,16 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-        private void WriteCurrentGroup(double unitAcres, StreamWriter strWriteOut,
-                                            ref int pageNumb, reportHeaders rh)
+        private void WriteCurrentGroup(double unitAcres, StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R005 only
             double calcValue = 0;
             int loadAcres = 0;
 
-            regionalReportHeaders rrh = new regionalReportHeaders();
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                                rrh.R005columns, 17, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                                regionalReportHeaders.R005columns, 17, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 //  method, species, product
@@ -1521,9 +1518,9 @@ namespace CruiseProcessing
         private string[] createCompleteHeader()
         {
             string[] finnishHeader = new string[7];
-            finnishHeader[6] = rRH.R10specialLine;
+            finnishHeader[6] = regionalReportHeaders.R10specialLine;
             for (int k = 0; k < 5; k++)
-                finnishHeader[k] = rRH.R001R002columns[k];
+                finnishHeader[k] = regionalReportHeaders.R001R002columns[k];
 
             switch (currentReport)
             {

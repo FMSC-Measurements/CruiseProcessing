@@ -1,46 +1,37 @@
-﻿using CruiseProcessing.Services;
+﻿using CruiseProcessing.Output;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
 namespace CruiseProcessing
 {
-    internal class OutputLeave : CreateTextFile
+    internal class OutputLeave : ReportGeneratorBase
     {
-        public string currentReport;
-        public ArrayList mainHeaderFields;
+        public List<string> mainHeaderFields;
 
-        public OutputLeave(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputLeave(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void createLeaveTreeReports(StreamWriter strWriteout, ref int pageNumb, reportHeaders rh)
+        public void createLeaveTreeReports(StreamWriter strWriteout, ref int pageNumb)
         {
             switch (currentReport)
             {
                 case "LV01":
                 case "LV02":
-                    OutputSummary os = new OutputSummary(DataLayer, DialogService);
-                    os.currCL = "L";
-                    os.currentReport = currentReport;
-                    os.mainHeaderFields = mainHeaderFields;
-                    os.OutputSummaryReports(strWriteout, rh, ref pageNumb);
+                    OutputSummary os = new OutputSummary("L", DataLayer, HeaderData, currentReport);
+                    os.OutputSummaryReports(strWriteout, ref pageNumb);
                     break;
 
                 case "LV03":
                 case "LV04":
-                    OutputStats osr = new OutputStats(DataLayer, DialogService);
-                    osr.currCL = "L";
-                    osr.currentReport = currentReport;
-                    osr.mainHeaderFields = mainHeaderFields;
-                    osr.CreateStatReports(strWriteout, rh, ref pageNumb);
+                    OutputStats osr = new OutputStats("L", DataLayer, HeaderData, currentReport);
+                    osr.CreateStatReports(strWriteout, ref pageNumb);
                     break;
 
                 case "LV05":
-                    OutputUnits ou = new OutputUnits(DataLayer, DialogService);
-                    ou.currCL = "L";
-                    ou.currentReport = currentReport;
-                    ou.mainHeaderFields = mainHeaderFields;
-                    ou.OutputUnitReports(strWriteout, rh, ref pageNumb);
+                    OutputUnits ou = new OutputUnits("L", DataLayer, HeaderData, currentReport);
+                    ou.OutputUnitReports(strWriteout, ref pageNumb);
                     break;
             }   //  end switch on report
             return;

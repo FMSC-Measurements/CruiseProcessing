@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
 using System.Collections;
@@ -9,7 +10,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputBLM : CreateTextFile
+    public class OutputBLM : ReportGeneratorBase
     {
         #region
         public string currentReport;
@@ -52,13 +53,16 @@ namespace CruiseProcessing
                                                         "  1\" |      0        1        2        3        4        5        6  | VOLUME  |    7       8   | (1-8)  | MERCH  |    9   | VOLUME"};
 
         private string[] completeHeader = new string[4];
+
+        public IDialogService DialogService { get; }
         #endregion
 
-        public OutputBLM(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputBLM(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void CreateBLMreports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void CreateBLMreports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -101,10 +105,10 @@ namespace CruiseProcessing
                     AccumulateByStrata(sList, lcdList);
                     fieldLengths = new int[] { 1, 7, 7, 9, 9, 11, 12, 7, 6, 11, 9, 9, 9, 9, 7, 8 };
                     completeHeader = createCompleteHeader();
-                    rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
-                    writeCurrentGroups(strWriteOut, ref pageNumb, rh);
+                    SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
+                    writeCurrentGroups(strWriteOut, ref pageNumb);
                     updateTotalLine();
-                    outputTotalLine(strWriteOut, rh, ref pageNumb);
+                    outputTotalLine(strWriteOut, ref pageNumb);
                     //  output footnote
                     strWriteOut.WriteLine("");
                     strWriteOut.WriteLine("*  NOTE:  THIS TOTAL INCLUDES CULL TREES.");
@@ -119,10 +123,10 @@ namespace CruiseProcessing
                     AccumulateByUnit(cutList);
                     fieldLengths = new int[] { 1, 7, 7, 9, 9, 11, 12, 7, 6, 11, 9, 9, 9, 9, 7, 8 };
                     completeHeader = createCompleteHeader();
-                    rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
-                    writeCurrentGroups(strWriteOut, ref pageNumb, rh);
+                    SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
+                    writeCurrentGroups(strWriteOut, ref pageNumb);
                     updateTotalLine();
-                    outputTotalLine(strWriteOut, rh, ref pageNumb);
+                    outputTotalLine(strWriteOut, ref pageNumb);
                     //  output CSV file
                     createCSVfile();
                     break;
@@ -136,10 +140,10 @@ namespace CruiseProcessing
                     List<ReportSubtotal> PerCentArray = AccumulateBySpecies(treeList, speciesGroups);
                     fieldLengths = new int[] { 1, 7, 6, 9, 9, 11, 11, 5, 5, 9, 9, 9, 9, 9, 4, 4, 4, 4, 4, 3 };
                     completeHeader = createCompleteHeader();
-                    rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
-                    writeCurrentGroups(strWriteOut, ref pageNumb, rh, PerCentArray);
+                    SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
+                    writeCurrentGroups(strWriteOut, ref pageNumb, PerCentArray);
                     updateTotalLine();
-                    outputTotalLine(strWriteOut, rh, ref pageNumb);
+                    outputTotalLine(strWriteOut, ref pageNumb);
                     //  output footnote
                     strWriteOut.WriteLine("");
                     strWriteOut.WriteLine("*  NOTE:  THIS TOTAL INCLUDES CULL TREES.");
@@ -155,18 +159,18 @@ namespace CruiseProcessing
                     numOlines = 0;
                     fieldLengths = new int[] { 1, 6, 10, 6, 10, 9, 11, 11, 5, 7, 11, 9, 9, 9, 8 };
                     completeHeader = createCompleteHeader();
-                    rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
+                    SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, extraLine);
                     foreach (CuttingUnitDO cud in cutList)
                     {
                         cud.Strata.Populate();
                         List<ReportSubtotal> unitTotals = AccumulateByUnitSpecies(cud, speciesGroups);
-                        writeCurrentGroups(unitTotals, strWriteOut, ref pageNumb, rh);
+                        writeCurrentGroups(unitTotals, strWriteOut, ref pageNumb);
                         //  need to capture CSV records here
                         capture7and8CSV(listToOutput, CSV7and8);
                         listToOutput.Clear();
                         unitTotals.Clear();
                     }   //  end foreach cutting unit
-                    outputTotalLine(strWriteOut, rh, ref pageNumb);
+                    outputTotalLine(strWriteOut, ref pageNumb);
                     //  output CSV file
                     createCSVfile(CSV7and8);
                     break;
@@ -186,12 +190,12 @@ namespace CruiseProcessing
                         currSP = Convert.ToString(js);
                         extraLine = "    SPECIES:  ";
                         extraLine += currSP.PadLeft(6, ' ');
-                        rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
+                        SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
                         AccumulateBySpeciesDIB();
-                        writeCurrentGroups(rh, ref pageNumb, strWriteOut);
+                        writeCurrentGroups(ref pageNumb, strWriteOut);
                         //  update total line
                         updateTotalLine();
-                        outputTotalLine(strWriteOut, rh, ref pageNumb);
+                        outputTotalLine(strWriteOut, ref pageNumb);
                         listToOutput.Clear();
                         totalToOutput.Clear();
                         numOlines = 0;
@@ -914,7 +918,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateBySpeciesDIB
 
-        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  This works for BLM01, BLM02, BLM03, BLM04
             double calcValue = 0;
@@ -926,7 +930,7 @@ namespace CruiseProcessing
                     prtFields.Clear();
                     prtFields.Add("");
                     //  output header if needed
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                         completeHeader, 13, ref pageNumb, "");
                     //  set first field based on current report
                     switch (currentReport)
@@ -977,8 +981,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroups
 
-        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
-                                            List<ReportSubtotal> PerCentList)
+        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> PerCentList)
         {
             //  Works for BLM05 and BLM06
             double calcValue = 0;
@@ -988,7 +991,7 @@ namespace CruiseProcessing
                 prtFields.Clear();
                 prtFields.Add("");
                 //  output header if needed
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                         completeHeader, 13, ref pageNumb, "");
                 //  set first field to species
                 prtFields.Add(lto.Value1.PadLeft(6, ' '));
@@ -1036,7 +1039,7 @@ namespace CruiseProcessing
         }   //  end writeCurrentGroups
 
         private void writeCurrentGroups(List<ReportSubtotal> unitTotals, StreamWriter strWriteOut,
-                                                    ref int pageNumb, reportHeaders rh)
+                                                    ref int pageNumb)
         {
             //  Works for BLM07 and BLM08
             double calcValue = 0;
@@ -1048,7 +1051,7 @@ namespace CruiseProcessing
                     prtFields.Clear();
                     prtFields.Add("");
                     //  output header if needed
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                         completeHeader, 13, ref pageNumb, "");
                     prtFields.Add(lto.Value1.PadLeft(3, ' '));
                     prtFields.Add(lto.Value2.PadLeft(6, ' '));
@@ -1082,11 +1085,11 @@ namespace CruiseProcessing
 
             //  output unit total line if unit has volume
             if (listToOutput.Sum(lto => lto.Value14) > 0)
-                outputUnitTotal(listToOutput[0].Value1, unitTotals, strWriteOut, rh, ref pageNumb);
+                outputUnitTotal(listToOutput[0].Value1, unitTotals, strWriteOut, ref pageNumb);
             return;
         }   //  end writeCurrentGroups
 
-        private void writeCurrentGroups(reportHeaders rh, ref int pageNumb, StreamWriter strWriteOut)
+        private void writeCurrentGroups(ref int pageNumb, StreamWriter strWriteOut)
         {
             //  for BLM09 and BLM10
             //  build print array for each class line in output list
@@ -1095,7 +1098,7 @@ namespace CruiseProcessing
                 prtFields.Clear();
                 prtFields.Add("");
                 //  output headers if needed
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 14, ref pageNumb, extraLine);
                 if (Convert.ToDouble(lto.Value1) > 0)
                 {
@@ -1122,10 +1125,10 @@ namespace CruiseProcessing
         }   //  end writeCurrentGroups
 
         private void outputUnitTotal(string currUnit, List<ReportSubtotal> unitTotal,
-                                    StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+                                    StreamWriter strWriteOut, ref int pageNumb)
         {
             double calcValue = 0;
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 13, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write("UNIT ");
@@ -1228,10 +1231,10 @@ namespace CruiseProcessing
             return;
         }   //  end updateTotalLine
 
-        private void outputTotalLine(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb)
         {
             double calcValue = 0;
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                 completeHeader, 13, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             if (currentReport == "BLM07" || currentReport == "BLM08")
@@ -1543,7 +1546,7 @@ namespace CruiseProcessing
         {
             string CSVoutfile = System.IO.Path.ChangeExtension(FilePath, currentReport);
             CSVoutfile += ".csv";
-            OutputCSV oc = new OutputCSV(DataLayer, DialogService);
+            OutputCSV oc = new OutputCSV(DataLayer, DialogService, HeaderData, currentReport);
             //  first need to load CSVlist with first few fields and then finish based on specific report
             List<CSVlist> CSVoutputList = new List<CSVlist>();
             switch (currentReport)
@@ -1623,7 +1626,7 @@ namespace CruiseProcessing
             // does CSV file for just BLM07 and BLM08
             string CSVoutfile = System.IO.Path.ChangeExtension(FilePath, currentReport);
             CSVoutfile += ".csv";
-            OutputCSV oc = new OutputCSV(DataLayer, DialogService);
+            OutputCSV oc = new OutputCSV(DataLayer, DialogService, HeaderData, currentReport);
             //  first need to load CSVlist with first few fields and then finish based on specific report
             List<CSVlist> CSVoutputList = new List<CSVlist>();
             foreach (CSVlist c in CSV7and8)
@@ -1861,5 +1864,25 @@ namespace CruiseProcessing
             }   //  end using
             return;
         }   //  end writeCSV
+
+        protected static void LoadLogDIBclasses(List<LogStockDO> justDIBs, List<ReportSubtotal> ListToOutput)
+        {
+            //  uses ReportSubtotal (BLM reports)
+            foreach (LogStockDO jd in justDIBs)
+            {
+                ReportSubtotal r = new ReportSubtotal();
+                r.Value1 = jd.DIBClass.ToString();
+                ListToOutput.Add(r);
+            }   //  end foreach loop
+            return;
+        }   //  end LoadLogDIBclasses
+
+        protected static double CalculateQuadMean(double deNominator, double numErator)
+        {
+            if (numErator > 0)
+                return Math.Sqrt(deNominator / numErator);
+            else return 0;
+        }   //  end CalculateQuadMean
+
     }   //  end class OutputBLM
 }

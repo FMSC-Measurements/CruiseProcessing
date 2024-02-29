@@ -1,5 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    internal class OutputWeight : CreateTextFile
+    internal class OutputWeight : ReportGeneratorBase
     {
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
 
@@ -20,7 +20,6 @@ namespace CruiseProcessing
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
 
         #region
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields;
         private List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
@@ -47,11 +46,11 @@ namespace CruiseProcessing
 
         #endregion
 
-        public OutputWeight(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputWeight(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void OutputWeightReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void OutputWeightReports(StreamWriter strWriteOut, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
 
@@ -101,35 +100,35 @@ namespace CruiseProcessing
                     //  pull LCD groups to process
                     List<LCDDO> justGroups = DataLayer.GetLCDgroup("", 4, "C");
                     fieldLengths = new int[] { 12, 14, 10, 3, 6, 11, 12, 15, 10, 15, 10 };
-                    rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                    processLCDgroups(strWriteOut, justGroups, rh, ref pageNumb);
-                    WriteSubtotal(strWriteOut, rh, ref pageNumb);
+                    SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                    processLCDgroups(strWriteOut, justGroups, ref pageNumb);
+                    WriteSubtotal(strWriteOut, ref pageNumb);
                     break;
 
                 case "WT2":
                 case "WT3":
-                    rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                    processSlashLoad(strWriteOut, rh, ref pageNumb);
+                    SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                    processSlashLoad(strWriteOut, ref pageNumb);
                     break;
 
                 case "WT4":
                     fieldLengths = new int[] { 3, 11, 13, 17, 18, 19, 5 };
-                    rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.BCUFS, "");
-                    rh.reportTitles[2] = reportConstants.FCTO;
-                    processUnits(strWriteOut, cList, rh, ref pageNumb);
+                    SetReportTitles(currentTitle, 5, 0, 0, reportConstants.BCUFS, "");
+                    reportTitles[2] = reportConstants.FCTO;
+                    processUnits(strWriteOut, cList, ref pageNumb);
                     break;
 
                 case "WT5":
                     sList = DataLayer.getStratum();
                     fieldLengths = new int[] { 1, 10, 4, 3, 11, 12, 12, 12, 11, 2, 11, 8 };
-                    rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                    processSaleSummary(strWriteOut, rh, ref pageNumb);
+                    SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                    processSaleSummaryWT5(strWriteOut, ref pageNumb);
                     break;
             }   //  end switch on report
             return;
         }   //  end OutputWeightReports
 
-        private void processLCDgroups(StreamWriter strWriteOut, List<LCDDO> justGroups, reportHeaders rh, ref int pageNumb)
+        private void processLCDgroups(StreamWriter strWriteOut, List<LCDDO> justGroups, ref int pageNumb)
         {
             //  loop through groups list and print each species, product, contract species combination
             double currGRS = 0.0;
@@ -138,7 +137,6 @@ namespace CruiseProcessing
             {
                 //  pull group from LCD
                 StringBuilder sb = new StringBuilder();
-                sb.Clear();
                 sb.Append("WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND ");
                 sb.Append(" LiveDead = @p4 AND ContractSpecies = @p5 AND CutLeave = @p6");
                 List<LCDDO> groupData = DataLayer.GetLCDdata(sb.ToString(), jg, 4, "");
@@ -167,7 +165,7 @@ namespace CruiseProcessing
                 //  write current group
                 if (currGRS > 0 || currGRST > 0)
                 {
-                    WriteCurrentGroup(strWriteOut, jg, currGRS, currGRST, ref poundsPP, ref poundsSP, rh, ref pageNumb);
+                    WriteCurrentGroupWT1(strWriteOut, jg, currGRS, currGRST, ref poundsPP, ref poundsSP, ref pageNumb);
                     //  create a line for the subtotal if needed
                     UpdateSubtotal(jg.ContractSpecies, jg.PrimaryProduct, jg.SecondaryProduct, currGRS, currGRST,
                                     poundsPP, poundsSP);
@@ -181,7 +179,7 @@ namespace CruiseProcessing
             return;
         }   //  end processLCDgroups
 
-        private void processUnits(StreamWriter strWriteOut, List<CuttingUnitDO> cList, reportHeaders rh, ref int pageNumb)
+        private void processUnits(StreamWriter strWriteOut, List<CuttingUnitDO> cList, ref int pageNumb)
         {
             //  WT4
             int firstLine = 1;
@@ -275,8 +273,8 @@ namespace CruiseProcessing
                         }   //  end foreach loop on group
                     }   //  end foreach loop on stratum
                     if (unitSaw > 0 || unitNonsawPP > 0)
-                        WriteCurrentGroup(strWriteOut, rh, ref pageNumb, ref firstLine, unitSaw, unitNonsawPP, unitNonsawSP,
-                                        cdo.Area, cdo.Code, jg.Species);
+                        WriteCurrentGroupWT4(strWriteOut, ref pageNumb, ref firstLine, unitSaw, unitNonsawPP, unitNonsawSP, cdo.Area,
+                                        cdo.Code, jg.Species);
 
                     //  Update subtotals
                     totalUnitSaw += unitSaw / 2000;
@@ -290,7 +288,7 @@ namespace CruiseProcessing
                 if (totalUnitSaw > 0 || totalUnitNonsawPP > 0 || totalUnitNonsawSP > 0)
                 {
                     //  Output subtotal line
-                    OutputTotalLine(strWriteOut, rh, ref pageNumb, totalUnitSaw, totalUnitNonsawPP, totalUnitNonsawSP, 1);
+                    OutputTotalLine(strWriteOut, ref pageNumb, totalUnitSaw, totalUnitNonsawPP, totalUnitNonsawSP, 1);
                 }   //  endif totalUnitSaw
                 //  update grand total
                 grandTotalSaw += totalUnitSaw;
@@ -302,11 +300,11 @@ namespace CruiseProcessing
                 firstLine = 1;
             }   //  end foreach loop
             //  output grand total here
-            OutputTotalLine(strWriteOut, rh, ref pageNumb, grandTotalSaw, grandTotalNonsawPP, grandTotalNonsawSP, 2);
+            OutputTotalLine(strWriteOut, ref pageNumb, grandTotalSaw, grandTotalNonsawPP, grandTotalNonsawSP, 2);
             return;
         }   //  end processUnits
 
-        private void processSaleSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        private void processSaleSummaryWT5(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  WT5
             List<LCDDO> lcdList = DataLayer.getLCD();
@@ -316,7 +314,7 @@ namespace CruiseProcessing
             foreach (StratumDO sd in sList)
             {
                 double STacres = Utilities.ReturnCorrectAcres(sd.Code, DataLayer, (long)sd.Stratum_CN);
-                finishColumnHeaders(rh.WT5columns, sd.Code, ref completeHeader);
+                finishColumnHeaders(reportHeaders.WT5columns, sd.Code, ref completeHeader);
 
                 //  pull stratum and species groups from LCD
                 List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 GROUP BY ", "Species", "C", sd.Code);
@@ -332,8 +330,8 @@ namespace CruiseProcessing
                     totTree = (groupData.Sum(gd => gd.SumWgtBAT)) * STacres;
 
                     if (totTree > 0)
-                        WriteCurrentGroup(strWriteOut, rh, ref pageNumb, jg.Species, jg.BiomassProduct.ToString(), totPrim, totSec,
-                                                    totTip, totBran, totFol, totTree, completeHeader);
+                        WriteCurrentGroupWT5(strWriteOut, ref pageNumb, jg.Species, jg.BiomassProduct.ToString(), totPrim, totSec, totTip,
+                                                    totBran, totFol, totTree, completeHeader);
                     //  Update subtotal
                     subtotPrim += totPrim;
                     subtotSec += totSec;
@@ -349,8 +347,8 @@ namespace CruiseProcessing
                     totTree = 0;
                 }   //  end foreach loop
                     //  print subtotal line here
-                OutputSubtotal(strWriteOut, rh, ref pageNumb, subtotPrim, subtotSec, subtotTip, subtotBran,
-                                subtotFol, subtotTree, completeHeader);
+                OutputSubtotal(strWriteOut, ref pageNumb, subtotPrim, subtotSec, subtotTip, subtotBran, subtotFol,
+                                subtotTree, completeHeader);
                 //  each strata prints on a separate page so reset number of lines and subtotals
                 numOlines = 0;
                 subtotPrim = 0;
@@ -361,7 +359,7 @@ namespace CruiseProcessing
                 subtotTree = 0;
             }   //  end foreach loop
                 //  overall summary page
-            OverallSummary(strWriteOut, rh, ref pageNumb, lcdList);
+            OverallSummary(strWriteOut, ref pageNumb, lcdList);
             return;
         }   //  end processSaleSummary
 
@@ -374,12 +372,12 @@ namespace CruiseProcessing
             return;
         }   //  end finishColumnHeaders
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, LCDDO jg, double currGRS, double currGRST,
-                                        ref double poundsPP, ref double poundsSP, reportHeaders rh, ref int pageNumb)
+        private void WriteCurrentGroupWT1(StreamWriter strWriteOut, LCDDO jg, double currGRS, double currGRST,
+                                        ref double poundsPP, ref double poundsSP, ref int pageNumb)
         {
             //  WT1 only
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                               rh.WT1columns, 3, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                               reportHeaders.WT1columns, 3, ref pageNumb, "");
 
             if (currGRS > 0)
             {
@@ -429,13 +427,13 @@ namespace CruiseProcessing
             return;
         }   //  end Write CurrentGroup
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, ref int firstLine,
-                                        double unitSaw, double unitNonsawPP, double unitNonsawSP,
-                                        double unitAcres, string unitCode, string currSP)
+        private void WriteCurrentGroupWT4(StreamWriter strWriteOut, ref int pageNumb, ref int firstLine, double unitSaw,
+                                        double unitNonsawPP, double unitNonsawSP, double unitAcres,
+                                        string unitCode, string currSP)
         {
             //  WT4 only
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rh.WT4columns, 10, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    reportHeaders.WT4columns, 10, ref pageNumb, "");
             prtFields.Add("");
             if (firstLine == 1)
             {
@@ -455,12 +453,12 @@ namespace CruiseProcessing
             printOneRecord(fieldLengths, prtFields, strWriteOut);
         }   //  end WriteCurrentGroup
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string currSP,
-                                        string currBP, double MSprim, double MSsecd, double bioTip, double bioBran,
-                                        double bioFol, double bioTot, string[] completeHeader)
+        private void WriteCurrentGroupWT5(StreamWriter strWriteOut, ref int pageNumb, string currSP, string currBP,
+                                        double MSprim, double MSsecd, double bioTip, double bioBran, double bioFol,
+                                        double bioTot, string[] completeHeader)
         {
             //  WT5 only
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], completeHeader, 4, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],completeHeader, 4, ref pageNumb, "");
             prtFields.Add("");
             prtFields.Add(currSP.PadRight(6, ' '));
             //  removed product code as it was confusing to users.  may 2016
@@ -530,14 +528,14 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotal
 
-        private void WriteSubtotal(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        private void WriteSubtotal(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  WT1
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], rh.WT1columns, 3, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.WT1columns, 3, ref pageNumb, "");
 
             strWriteOut.WriteLine("\n");
             for (int k = 0; k < 3; k++)
-                strWriteOut.WriteLine(rh.WT1total[k]);
+                strWriteOut.WriteLine(reportHeaders.WT1total[k]);
             strWriteOut.WriteLine(reportConstants.longLine);
             double totalTons = 0;
             foreach (ReportSubtotal rs in rptSubtotals)
@@ -583,7 +581,7 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("\n");
             //  write footer
             for (int k = 0; k < 5; k++)
-                strWriteOut.WriteLine(rh.WT1footer[k]);
+                strWriteOut.WriteLine(reportHeaders.WT1footer[k]);
 
             if (footFlag == 1)
             {
@@ -593,12 +591,12 @@ namespace CruiseProcessing
             return;
         }   //  end WriteSubtotal
 
-        private void OutputTotalLine(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, double totalValue1,
-                                    double totalValue2, double totalValue3, int whichTotal)
+        private void OutputTotalLine(StreamWriter strWriteOut, ref int pageNumb, double totalValue1, double totalValue2,
+                                    double totalValue3, int whichTotal)
         {
             //  WT4
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rh.WT4columns, 10, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    reportHeaders.WT4columns, 10, ref pageNumb, "");
             strWriteOut.WriteLine("                                            __________________________________________________");
             if (whichTotal == 1)
             {
@@ -623,13 +621,12 @@ namespace CruiseProcessing
             return;
         }   //  end OutputTotalLine
 
-        private void OutputSubtotal(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
-                                    double subValue1, double subValue2, double subValue3,
-                                    double subValue4, double subValue5, double subValue6,
-                                    string[] completeHeader)
+        private void OutputSubtotal(StreamWriter strWriteOut, ref int pageNumb, double subValue1,
+                                    double subValue2, double subValue3, double subValue4,
+                                    double subValue5, double subValue6, string[] completeHeader)
         {
             //  WT5
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 4, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(" ALL SPECIES   |  ");
@@ -648,19 +645,19 @@ namespace CruiseProcessing
             double overallTotal = subValue1 + subValue2 + subValue3 + subValue4 + subValue5;
             strWriteOut.WriteLine(String.Format("{0,8:F1}", overallTotal / 2000).PadLeft(8, ' '));
             strWriteOut.WriteLine("");
-            strWriteOut.WriteLine(rh.WT5footer[0]);
-            strWriteOut.WriteLine(rh.WT5footer[1]);
+            strWriteOut.WriteLine(reportHeaders.WT5footer[0]);
+            strWriteOut.WriteLine(reportHeaders.WT5footer[1]);
 
             return;
         }   //  end OutputSubtotal
 
-        private void OverallSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, List<LCDDO> lcdList)
+        private void OverallSummary(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> lcdList)
         {
             //  WT5 only
             double STacres;
             //  need to finish the header
             string[] completeHeader = new string[4];
-            finishColumnHeaders(rh.WT5columns, "OVERALL SALE SUMMARY", ref completeHeader);
+            finishColumnHeaders(reportHeaders.WT5columns, "OVERALL SALE SUMMARY", ref completeHeader);
             //  Order LCD by species and biomass product
             List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "Species,BiomassProduct", "C", "");
             foreach (LCDDO jg in justGroups)
@@ -681,8 +678,8 @@ namespace CruiseProcessing
                 }   //  end foreach loop on data
                 //  Write current group
                 if (totTree > 0)
-                    WriteCurrentGroup(strWriteOut, rh, ref pageNumb, jg.Species, jg.BiomassProduct.ToString(), totPrim,
-                                            totSec, totTip, totBran, totFol, totTree, completeHeader);
+                    WriteCurrentGroupWT5(strWriteOut, ref pageNumb, jg.Species, jg.BiomassProduct.ToString(), totPrim, totSec,
+                                            totTip, totBran, totFol, totTree, completeHeader);
                 //  update totals
                 subtotPrim += totPrim;
                 subtotSec += totSec;
@@ -699,12 +696,12 @@ namespace CruiseProcessing
             }   //  end foreach group
 
             //  output subtotals
-            OutputSubtotal(strWriteOut, rh, ref pageNumb, subtotPrim, subtotSec, subtotTip, subtotBran, subtotFol,
-                                    subtotTree, completeHeader);
+            OutputSubtotal(strWriteOut, ref pageNumb, subtotPrim, subtotSec, subtotTip, subtotBran, subtotFol, subtotTree,
+                                    completeHeader);
             return;
         }   //  end OverallSummary
 
-        private void processSlashLoad(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        private void processSlashLoad(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  First, need region, forest and district
             string currReg = DataLayer.getRegion();
@@ -776,7 +773,7 @@ namespace CruiseProcessing
                             }   //  endif
                         }   //  end foreach
                         //  write page for current stratum or cutting unit
-                        WriteCurrentGroup(strWriteOut, rh, ref pageNumb, currST, bList, "");
+                        WriteCurrentGroup(strWriteOut, ref pageNumb, currST, bList, "");
                         //  update summary list for last page
                         UpdateSummaryList(summaryList, bList);
                         //  clear list for next stratum or cutting unit
@@ -784,7 +781,7 @@ namespace CruiseProcessing
                         numOlines = 0;
                     }   //  end foreach loop on stratum or cutting unit
                     //  output summary page
-                    WriteCurrentGroup(strWriteOut, rh, ref pageNumb, "SALE", summaryList, "");
+                    WriteCurrentGroup(strWriteOut, ref pageNumb, "SALE", summaryList, "");
                     break;
 
                 case "WT3":
@@ -847,8 +844,8 @@ namespace CruiseProcessing
                             }   //  end foreach loop on groups
                         }   //  end for j loop on stratum
                         //  print cutting unit page here
-                        List<BiomassData> unitList = SumUpUnitList(strWriteOut, rh, ref pageNumb, bList,
-                                                                c.Code, c.Area);//  if any one bioSpecies in the bList is zero, skip reporet
+                        List<BiomassData> unitList = SumUpUnitList(strWriteOut, ref pageNumb, bList, c.Code,
+                                                                c.Area);//  if any one bioSpecies in the bList is zero, skip reporet
                         foreach (BiomassData bl in bList)
                         {
                             if (bl.bioSpecies == 0)
@@ -857,7 +854,7 @@ namespace CruiseProcessing
                                 return;
                             }   //  endif
                         }   //  end foreach
-                        WriteCurrentGroup(strWriteOut, rh, ref pageNumb, "", unitList, c.Code);
+                        WriteCurrentGroup(strWriteOut, ref pageNumb, "", unitList, c.Code);
                         //  clear biomass data list for next cutting unit
                         bList.Clear();
                         numOlines = 0;
@@ -970,8 +967,8 @@ namespace CruiseProcessing
             return 1;
         }   //  end CalculateComponentValues
 
-        private List<BiomassData> SumUpUnitList(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
-                                        List<BiomassData> bList, string currCU, float unitAcres)
+        private List<BiomassData> SumUpUnitList(StreamWriter strWriteOut, ref int pageNumb, List<BiomassData> bList,
+                                        string currCU, float unitAcres)
         {
             //  WT3 report
             //  Sum up strata values for current unit
@@ -1079,8 +1076,8 @@ namespace CruiseProcessing
             return unitList;
         }   //  end SumUpUnitList
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
-                                        string currST, List<BiomassData> bList, string currCU)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, string currST,
+                                        List<BiomassData> bList, string currCU)
         {
             //  output WT2/WT3
             double lineTotal = 0;
@@ -1089,21 +1086,21 @@ namespace CruiseProcessing
             switch (currentReport)
             {
                 case "WT2":
-                    completeHeader = completeHeaderColumns(currST, bList, rh);
+                    completeHeader = completeHeaderColumns(currST, bList);
                     break;
 
                 case "WT3":
-                    completeHeader = completeHeaderColumns(currCU, bList, rh);
+                    completeHeader = completeHeaderColumns(currCU, bList);
                     break;
             }   //  end switch on current report
             prtFields.Clear();
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 13, ref pageNumb, "");
             //  crown section
             for (int n = 0; n < 5; n++)
             {
                 prtFields.Add("         ");
-                prtFields.Add(rh.WT2crown[n]);
+                prtFields.Add(reportHeaders.WT2crown[n]);
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n + 1, bList);
                 //  total column
@@ -1121,7 +1118,7 @@ namespace CruiseProcessing
             {
                 prtFields.Clear();
                 prtFields.Add("        ");
-                prtFields.Add(rh.WT2threeplus[n]);
+                prtFields.Add(reportHeaders.WT2threeplus[n]);
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n + 6, bList);
                 if (n != 3)
@@ -1142,7 +1139,7 @@ namespace CruiseProcessing
             {
                 prtFields.Clear();
                 prtFields.Add("         ");
-                prtFields.Add(rh.WT2crown[n]);
+                prtFields.Add(reportHeaders.WT2crown[n]);
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n + 10, bList);
                 prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
@@ -1342,25 +1339,25 @@ namespace CruiseProcessing
             return totalLine;
         }   //  end LoadLine
 
-        private string[] completeHeaderColumns(string currType, List<BiomassData> bList, reportHeaders rh)
+        private string[] completeHeaderColumns(string currType, List<BiomassData> bList)
         {
             string[] finnishHeader = new string[5];
             switch (currentReport)
             {
                 case "WT2":
                     if (currType != "SALE")
-                        finnishHeader[0] = rh.WT2columns[0].Replace("XXXX", currType.PadLeft(2, ' '));
+                        finnishHeader[0] = reportHeaders.WT2columns[0].Replace("XXXX", currType.PadLeft(2, ' '));
                     else if (currType == "SALE")
                         finnishHeader[0] = "OVERALL SALE SUMMARY";
                     break;
 
                 case "WT3":
-                    finnishHeader[0] = rh.WT2columns[2].Replace("XXXX", currType.PadLeft(4, ' '));
+                    finnishHeader[0] = reportHeaders.WT2columns[2].Replace("XXXX", currType.PadLeft(4, ' '));
                     break;
             }   //  end switch
 
             //  second line
-            finnishHeader[1] = rh.WT2columns[1];
+            finnishHeader[1] = reportHeaders.WT2columns[1];
             finnishHeader[2] = reportConstants.longLine;
             //  load species columns
             finnishHeader[3] = "CROWNS              |";
@@ -1430,5 +1427,27 @@ namespace CruiseProcessing
 
             return;
         }   //  end UpdateSummaryList
+
+        protected class BiomassData
+        {
+            public string userStratum { get; set; }
+            public string userSG { get; set; }
+            public string userSpecies { get; set; }
+            public int bioSpecies { get; set; }
+            public double needles { get; set; }
+            public double quarterInch { get; set; }
+            public double oneInch { get; set; }
+            public double threeInch { get; set; }
+            public double threePlus { get; set; }
+            public double topwoodDryWeight { get; set; }
+            public double cullLogWgt { get; set; }
+            public double cullChunkWgt { get; set; }
+            public double FLIW { get; set; }
+            public double DSTneedles { get; set; }
+            public double DSTquarterInch { get; set; }
+            public double DSToneInch { get; set; }
+            public double DSTthreeInch { get; set; }
+            public double DSTthreePlus { get; set; }
+        }
     }   //  end class OutputWeight
 }

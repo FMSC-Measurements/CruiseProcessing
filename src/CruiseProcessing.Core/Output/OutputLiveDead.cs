@@ -1,5 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,9 +8,8 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    internal class OutputLiveDead : CreateTextFile
+    internal class OutputLiveDead : ReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<ReportSubtotal> productSubtotal = new List<ReportSubtotal>();
@@ -18,7 +17,6 @@ namespace CruiseProcessing
         private List<ReportSubtotal> grandTotal = new List<ReportSubtotal>();
         private string[] completeHeader = new string[8];
         private List<StratumDO> sList = new List<StratumDO>();
-        private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
         private List<PRODO> proList = new List<PRODO>();
         private string volType;
         private string currType;
@@ -29,16 +27,15 @@ namespace CruiseProcessing
         private double totalGrsS = 0.0;
         private double totalNetS = 0.0;
 
-        public OutputLiveDead(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputLiveDead(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateLiveDead(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void CreateLiveDead(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  generates LD1-LD8 live/dead reports
             string currentTitle = fillReportTitle(currentReport);
             sList = DataLayer.getStratum();
-            cList = DataLayer.getCuttingUnits();
             proList = DataLayer.getPRO();
             List<LCDDO> lcdList = DataLayer.getLCD();
 
@@ -79,7 +76,7 @@ namespace CruiseProcessing
                     break;
             }   //  end switch
             //  create report title and headers
-            rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FTS, reportConstants.FCTO);
+            SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FTS, reportConstants.FCTO);
             //  pull LCD groups
             List<LCDDO> justGroups = LCDmethods.GetCutGroupedBy("", "", 9, DataLayer);
             switch (currentReport)
@@ -87,37 +84,37 @@ namespace CruiseProcessing
                 case "LD1":
                 case "LD2":
                     ldList.Clear();
-                    finishColumnHeaders(rh.LD1LD2left, rh.LiveDeadRight);
+                    finishColumnHeaders(reportHeaders.LD1LD2left, reportHeaders.LiveDeadRight);
                     fieldLengths = new int[] { 1, 3, 7, 9, 10, 12, 9, 10, 12, 9, 10, 12, 9, 10, 8 };
                     AccumulateAllData(justGroups, lcdList);
-                    OutputData(strWriteOut, rh, ref pageNumb, "");
+                    OutputData(strWriteOut, ref pageNumb, "");
                     //  output last product subtotal and then grand total
-                    OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "");
-                    OutputSubtotal("G", rh, grandTotal, strWriteOut, ref pageNumb, "");
+                    OutputSubtotal("P", productSubtotal, strWriteOut, ref pageNumb, "");
+                    OutputSubtotal("G", grandTotal, strWriteOut, ref pageNumb, "");
                     break;
 
                 case "LD3":
                 case "LD4":
-                    finishColumnHeaders(rh.LD3LD4left, rh.LiveDeadRight);
+                    finishColumnHeaders(reportHeaders.LD3LD4left, reportHeaders.LiveDeadRight);
                     fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
                     AccumulateAllData("CUT", justGroups);
-                    OutputData(strWriteOut, rh, ref pageNumb, "CUT");
+                    OutputData(strWriteOut, ref pageNumb, "CUT");
                     //  output last product subtotal
-                    OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "CUT");
-                    OutputSubtotal("U", rh, unitMethodSubtotal, strWriteOut, ref pageNumb, "CUT");
-                    OutputSubtotal("G", rh, grandTotal, strWriteOut, ref pageNumb, "CUT");
+                    OutputSubtotal("P", productSubtotal, strWriteOut, ref pageNumb, "CUT");
+                    OutputSubtotal("U", unitMethodSubtotal, strWriteOut, ref pageNumb, "CUT");
+                    OutputSubtotal("G", grandTotal, strWriteOut, ref pageNumb, "CUT");
                     break;
 
                 case "LD5":
                 case "LD6":
-                    finishColumnHeaders(rh.LD5LD6left, rh.LiveDeadRight);
+                    finishColumnHeaders(reportHeaders.LD5LD6left, reportHeaders.LiveDeadRight);
                     fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
                     AccumulateAllData("PAY", justGroups);
-                    OutputData(strWriteOut, rh, ref pageNumb, "PAY");
+                    OutputData(strWriteOut, ref pageNumb, "PAY");
                     //  output last product subtotal
-                    OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "PAY");
-                    OutputSubtotal("U", rh, unitMethodSubtotal, strWriteOut, ref pageNumb, "PAY");
-                    OutputSubtotal("G", rh, grandTotal, strWriteOut, ref pageNumb, "PAY");
+                    OutputSubtotal("P", productSubtotal, strWriteOut, ref pageNumb, "PAY");
+                    OutputSubtotal("U", unitMethodSubtotal, strWriteOut, ref pageNumb, "PAY");
+                    OutputSubtotal("G", grandTotal, strWriteOut, ref pageNumb, "PAY");
                     break;
 
                 case "LD7":
@@ -136,22 +133,22 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                     if (noMethod != -1)
                     {
-                        finishColumnHeaders(rh.LD7LD8left, rh.LiveDeadRight);
+                        finishColumnHeaders(reportHeaders.LD7LD8left, reportHeaders.LiveDeadRight);
                         fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
                         AccumulateAllData("LOG", justGroups);
-                        OutputData(strWriteOut, rh, ref pageNumb, "LOG");
+                        OutputData(strWriteOut, ref pageNumb, "LOG");
                         //  output last product subtotal
-                        OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "LOG");
-                        OutputSubtotal("U", rh, unitMethodSubtotal, strWriteOut, ref pageNumb, "LOG");
-                        OutputSubtotal("G", rh, grandTotal, strWriteOut, ref pageNumb, "LOG");
+                        OutputSubtotal("P", productSubtotal, strWriteOut, ref pageNumb, "LOG");
+                        OutputSubtotal("U", unitMethodSubtotal, strWriteOut, ref pageNumb, "LOG");
+                        OutputSubtotal("G", grandTotal, strWriteOut, ref pageNumb, "LOG");
                     }   //  endif
                     break;
             }   //  end switch on current report
             //  output footer
             strWriteOut.WriteLine("");
-            strWriteOut.WriteLine(rh.LiveDeadFooter[0]);
-            strWriteOut.WriteLine(rh.LiveDeadFooter[1]);
-            strWriteOut.WriteLine(rh.LiveDeadFooter[2]);
+            strWriteOut.WriteLine(reportHeaders.LiveDeadFooter[0]);
+            strWriteOut.WriteLine(reportHeaders.LiveDeadFooter[1]);
+            strWriteOut.WriteLine(reportHeaders.LiveDeadFooter[2]);
 
             return;
         }   // end CreateLiveDead
@@ -536,12 +533,12 @@ namespace CruiseProcessing
             return;
         }   //  end LoadList
 
-        private void OutputData(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string reportType)
+        private void OutputData(StreamWriter strWriteOut, ref int pageNumb, string reportType)
         {
             //  now write body of report with appropriate subtotals
             string currProd = "*";
             string currUnit = "*";
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 16, ref pageNumb, "");
             foreach (LiveDeadRecords ldr in ldList)
             {
@@ -567,7 +564,7 @@ namespace CruiseProcessing
                             }
                             else if (currProd != ldr.value1)
                             {
-                                OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, "");
+                                OutputSubtotal("P", productSubtotal, strWriteOut, ref pageNumb, "");
                                 productSubtotal.Clear();
                                 currProd = ldr.value1;
                                 prtFields.Clear();
@@ -597,7 +594,7 @@ namespace CruiseProcessing
                             else if (currProd != ldr.value1 && currUnit == ldr.value3)
                             {
                                 //  new product but unit is the same -- output product subtotal
-                                OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, reportType);
+                                OutputSubtotal("P", productSubtotal, strWriteOut, ref pageNumb, reportType);
                                 productSubtotal.Clear();
                                 currProd = ldr.value1;
                                 prtFields.Clear();
@@ -608,10 +605,10 @@ namespace CruiseProcessing
                             else if (currUnit != ldr.value3)
                             {
                                 //  output product subtotal
-                                OutputSubtotal("P", rh, productSubtotal, strWriteOut, ref pageNumb, reportType);
+                                OutputSubtotal("P", productSubtotal, strWriteOut, ref pageNumb, reportType);
                                 //  output unit subtotal
                                 prtFields.Clear();
-                                OutputSubtotal("U", rh, unitMethodSubtotal, strWriteOut, ref pageNumb, reportType);
+                                OutputSubtotal("U", unitMethodSubtotal, strWriteOut, ref pageNumb, reportType);
                                 productSubtotal.Clear();
                                 unitMethodSubtotal.Clear();
                                 currProd = ldr.value1;
@@ -732,12 +729,12 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotal
 
-        private void OutputSubtotal(string whichTotal, reportHeaders rh, List<ReportSubtotal> subtotalToPrint,
-                                    StreamWriter strWriteOut, ref int pageNumb, string reportType)
+        private void OutputSubtotal(string whichTotal, List<ReportSubtotal> subtotalToPrint, StreamWriter strWriteOut,
+                                    ref int pageNumb, string reportType)
         {
             prtFields.Clear();
             //  header if needed
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 16, ref pageNumb, "");
             switch (whichTotal)
             {

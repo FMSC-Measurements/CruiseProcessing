@@ -5,20 +5,16 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    class OutputUnits : CreateTextFile
+    class OutputUnits : ReportGeneratorBase
     {
-        public string currentReport;
-        public string currCL;
+        private string currCL { get; }
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
-        private List<StratumDO> sList = new List<StratumDO>();
         private List<TreeCalculatedValuesDO> tcvList = new List<TreeCalculatedValuesDO>();
-        private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
         private List<LCDDO> lcdList = new List<LCDDO>();
         private List<PRODO> proList = new List<PRODO>();
         private List<ReportSubtotal> unitSubtotal = new List<ReportSubtotal>();
@@ -45,16 +41,17 @@ namespace CruiseProcessing
         private long currSTcn;
         private long currCUcn;
 
-        public OutputUnits(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputUnits(string currCL, CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            this.currCL = currCL;
         }
 
-        public void OutputUnitReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void OutputUnitReports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  This generates VSM4 as well as UC reports 1-6 -- remaining UC reports are stand table format
             string currentTitle = fillReportTitle(currentReport);
-            sList = DataLayer.getStratum();
-            cList = DataLayer.getCuttingUnits();
+            var sList = DataLayer.getStratum();
+            var cList = DataLayer.getCuttingUnits();
             proList = DataLayer.getPRO();
             string orderBy = "";
             // reset summation variables
@@ -84,26 +81,26 @@ namespace CruiseProcessing
                         s.CuttingUnits.Populate();
                         currSTcn = (long) s.Stratum_CN;
                         //  Create report title
-                        rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                        SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
                         switch(currentReport)
                         {
                             case "UC1":
-                                finishColumnHeaders(rh.UC1columns, rh.UC1UC2right);
+                                finishColumnHeaders(reportHeaders.UC1columns, reportHeaders.UC1UC2right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
                                 break;
                             case "UC2":
-                                finishColumnHeaders(rh.UC2left, rh.UC1UC2right);
+                                finishColumnHeaders(reportHeaders.UC2left, reportHeaders.UC1UC2right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
                                 break;
                             case "UC3":
-                                finishColumnHeaders(rh.UC3left,rh.UC3TO6right);
+                                finishColumnHeaders(reportHeaders.UC3left, reportHeaders.UC3TO6right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
                                 break;
                             case "UC4":
-                                finishColumnHeaders(rh.UC4left,rh.UC3TO6right);
+                                finishColumnHeaders(reportHeaders.UC4left, reportHeaders.UC3TO6right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
                                 break;
@@ -130,11 +127,11 @@ namespace CruiseProcessing
                                 lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2 ", orderBy);
                                 break;
                         }   //  end switch on method
-                        LoadAndPrintProrated(strWriteOut, s, currentReport, rh, ref pageNumb);
+                        LoadAndPrintProrated(strWriteOut, s, currentReport, ref pageNumb);
                     
                     }   //  end foreach loop
                     //  Output grand total for the report
-                    OutputGrandTotal(strWriteOut, rh, currentReport, ref pageNumb);
+                    OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
                     break;
                 case "UC5":     case "UC6":     case "LV05": 
                     summaryList.Clear();
@@ -145,32 +142,32 @@ namespace CruiseProcessing
                         currCUcn = (long)c.CuttingUnit_CN;
                         //  Create report title
                         if (currentReport == "LV05")
-                            rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FLTO, "");
-                        else rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FLTO, "");
+                        else SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
                         switch (currentReport)
                         {
                             case "UC5":         case "LV05":
-                                finishColumnHeaders(rh.UC5left, rh.UC3TO6right);
+                                finishColumnHeaders(reportHeaders.UC5left, reportHeaders.UC3TO6right);
                                 break;
                             case "UC6":
-                                finishColumnHeaders(rh.UC6left, rh.UC3TO6right);
+                                finishColumnHeaders(reportHeaders.UC6left, reportHeaders.UC3TO6right);
                                 break;
                         }   //  end switch on report
                         fieldLengths = new int[] { 1, 4, 13, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10, 10 };
 
                         //  Load and print data for current cutting unit
-                        LoadAndPrintProrated(strWriteOut, c, rh, ref pageNumb, summaryList);
+                        LoadAndPrintProrated(strWriteOut, c, ref pageNumb, summaryList);
                         if(unitSubtotal.Count > 0)
-                            OutputUnitSubtotal(strWriteOut, ref pageNumb, rh, currentReport);
+                            OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
                         unitSubtotal.Clear();
                     }   //  end foreach loop
                     //  output Subtotal Summary and grand total for the report
-                    OutputSubtotalSummary(strWriteOut, rh, ref pageNumb, summaryList);
-                    OutputGrandTotal(strWriteOut, rh, currentReport, ref pageNumb);
+                    OutputSubtotalSummary(strWriteOut, ref pageNumb, summaryList);
+                    OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
                     break;
                 case "VSM4":        //  3P Tree report (CP4)
                     //  first see if these methods exist in the cruise file
-                    int nthRow = findMethods();
+                    int nthRow = findMethods(sList);
                     if (nthRow == -1)
                     {
                         strWriteOut.WriteLine("\f");
@@ -188,22 +185,22 @@ namespace CruiseProcessing
                             //  need current UOM to set report title
                             string currUOM = DataLayer.getUOM((int)s.Stratum_CN);
                             //  Create report heading
-                            rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO_PPO, "");
+                            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO_PPO, "");
                             //  Fix reportTitles accordingly
-                            rh.reportTitles[2] = rh.reportTitles[1];
+                            reportTitles[2] = reportTitles[1];
                             switch (currUOM)
                             {
                                 case "03":
-                                    rh.reportTitles[1] = "CUFT VOLUME";
+                                    reportTitles[1] = "CUFT VOLUME";
                                     break;
                                 case "01":
-                                    rh.reportTitles[1] = "BDFT VOLUME";
+                                    reportTitles[1] = "BDFT VOLUME";
                                     break;
                                 case "05":
-                                    rh.reportTitles[1] = "WEIGHTS";
+                                    reportTitles[1] = "WEIGHTS";
                                     break;
                                 case "02":
-                                    rh.reportTitles[1] = "CORD VOLUME";
+                                    reportTitles[1] = "CORD VOLUME";
                                     break;
                             }   //  end switch
 
@@ -230,7 +227,7 @@ namespace CruiseProcessing
                                         if (justSampleGroups.Count > 0)
                                         {
                                             WriteCurrentGroup(s.Code, justSampleGroups, currUOM, cud.Code, strWriteOut,
-                                                            rh, ref pageNumb, sg.Code, tUnitsList, s.Method);
+                                                            ref pageNumb, sg.Code, tUnitsList, s.Method);
 
                                             //  print subtotal for current cutting unit and sample group
                                             OutputSubtotal(strWriteOut, currentReport);
@@ -247,7 +244,7 @@ namespace CruiseProcessing
                                         if(justSamples.Count > 0 || justSampleGroups.Count > 0)
                                         {
                                             WriteCurrentGroup(s.Code, justSampleGroups, currUOM, cud.Code, strWriteOut,
-                                                        rh, ref pageNumb, sg.Code, justSamples, s.Method);
+                                                        ref pageNumb, sg.Code, justSamples, s.Method);
 
                                             //  print subtotal for current cutting unit and sample group
                                             OutputSubtotal(strWriteOut, currentReport);
@@ -268,13 +265,13 @@ namespace CruiseProcessing
                     foreach (CuttingUnitDO cud in cList) 
                     {
                         //  create report header
-                        rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                        LoadAndPrintProrated(speciesList, strWriteOut, cud, rh, ref pageNumb);
+                        SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                        LoadAndPrintProrated(speciesList, strWriteOut, cud, ref pageNumb);
                     }   //  end foreach on cutting unit
                     //  output summary table before the grand total
-                    OutputSummaryList(strWriteOut, rh, ref pageNumb, summaryList);
+                    OutputSummaryList(strWriteOut, ref pageNumb, summaryList);
                     //  output grand total
-                    OutputGrandTotal(strWriteOut, rh, ref pageNumb);
+                    OutputGrandTotal(strWriteOut, ref pageNumb);
                     break;
             }   //  end switch on current report
 
@@ -282,9 +279,9 @@ namespace CruiseProcessing
         }   //  end OutputUnitReports
 
 
-        private void WriteCurrentGroup(string currST, List<TreeCalculatedValuesDO> currData, string currUOM, 
-                                        string currCU, StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
-                                        string currSG, List<TreeDO> justUnits, string currMeth)
+        private void WriteCurrentGroup(string currST, List<TreeCalculatedValuesDO> currData, string currUOM,
+                                        string currCU, StreamWriter strWriteOut, ref int pageNumb, string currSG,
+                                        List<TreeDO> justUnits, string currMeth)
         {
             //  for VSM4 (CP4)
             int firstLine = 0;
@@ -293,8 +290,8 @@ namespace CruiseProcessing
                 foreach (TreeCalculatedValuesDO tcv in currData)
                 {
                     //  Setup subtotals
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rh.VSM4columns, 11, ref pageNumb, "");
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        reportHeaders.VSM4columns, 11, ref pageNumb, "");
 
                     prtFields = StratumMethods.buildPrintArray(tcv, currUOM, ref firstLine);
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -349,8 +346,8 @@ namespace CruiseProcessing
                 //  is this the first line?
                 if (firstLine == 0)
                 {
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rh.VSM4columns, 11, ref pageNumb, "");
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        reportHeaders.VSM4columns, 11, ref pageNumb, "");
                 }   //  endif first line
 
 
@@ -399,7 +396,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private int findMethods()
+        private int findMethods(List<StratumDO> sList)
         {
             int nthRow = -1;
             nthRow = sList.FindIndex(
@@ -492,10 +489,10 @@ namespace CruiseProcessing
             return;
         }   //  end OutputSubtotal
 
-        private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb, 
-                                        reportHeaders rh, string currRPT)
+        private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb,
+                                        string currRPT)
         {
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 13, ref pageNumb, "");
             switch (currRPT)
             {   
@@ -555,10 +552,10 @@ namespace CruiseProcessing
             return;
         }   //  end OutputUnitSubtotal
 
-        private void OutputStrataSubtotal(StreamWriter strWriteOut, ref int pageNumb, string currST, 
-                                            reportHeaders rh, string currRPT)
+        private void OutputStrataSubtotal(StreamWriter strWriteOut, ref int pageNumb, string currST,
+                                            string currRPT)
         {
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 13, ref pageNumb, "");
             //  Works with UC reports
             switch (currRPT)
@@ -623,11 +620,11 @@ namespace CruiseProcessing
         }   //  end OutputSubtotal
 
 
-        private void OutputGrandTotal(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        private void OutputGrandTotal(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  works for VSM5 only
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.VSM5columns, 12, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.VSM5columns, 12, ref pageNumb, "");
 
             strWriteOut.WriteLine("");
             strWriteOut.Write(" TOTAL                              ");
@@ -640,9 +637,9 @@ namespace CruiseProcessing
         }   //  end OutputGrandTotal
 
 
-        private void OutputGrandTotal(StreamWriter strWriteOut, reportHeaders rh, string currRPT, ref int pageNumb)
+        private void OutputGrandTotal(StreamWriter strWriteOut, string currRPT, ref int pageNumb)
         {
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 13, ref pageNumb, "");
             //  works for UC reports
             switch (currRPT)
@@ -729,20 +726,19 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("");
 
             grandTotal.Clear();
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 13, ref pageNumb, "");
             //  also output the footer
             for (int k = 0; k < 5; k++)
-                strWriteOut.WriteLine(rh.UCfooter[k]);
+                strWriteOut.WriteLine(reportHeaders.UCfooter[k]);
             return;
         }   //  end OutputGrandTotal
 
 
-        private void OutputSubtotalSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
-                                            List<ReportSubtotal> summaryList)
+        private void OutputSubtotalSummary(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  output summary headers
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 13, ref pageNumb, "");
             strWriteOut.WriteLine("                  _________________________________________________________________________________________________________________");
             strWriteOut.WriteLine("");
@@ -786,13 +782,13 @@ namespace CruiseProcessing
         }   //  end OutputSubtotalSummary
 
 
-        private void OutputSummaryList(StreamWriter strWriteOut, reportHeaders rh, 
-                                        ref int pageNumb, List<ReportSubtotal> summaryList)
+        private void OutputSummaryList(StreamWriter strWriteOut, ref int pageNumb,
+                                        List<ReportSubtotal> summaryList)
         {
             //  works for VSM5 only
             if(numOlines >= 50)
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.VSM5columns, 12, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.VSM5columns, 12, ref pageNumb, "");
             else
             {
                 //  write just column headings
@@ -854,8 +850,8 @@ namespace CruiseProcessing
         }   //  end finishColumnHeaders
 
 
-        private void LoadAndPrintProrated(StreamWriter strWriteOut, StratumDO sdo, string currRPT, 
-                                            reportHeaders rh, ref int pageNumb)
+        private void LoadAndPrintProrated(StreamWriter strWriteOut, StratumDO sdo, string currRPT,
+                                            ref int pageNumb)
         {
             //  loads based on cruise method for UC reports (UC1-UC4)
             string prevCU = "**";
@@ -876,7 +872,7 @@ namespace CruiseProcessing
                 {
                     //  print unit total and reset values
                     unitSubtotal[0].Value1 = prevCU.PadLeft(3, ' '); ;
-                    OutputUnitSubtotal(strWriteOut, ref pageNumb, rh, currentReport);
+                    OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
                     prevCU = cuttingUnit.Code;
                     prtFields.Clear();
                     unitSubtotal.Clear();
@@ -898,16 +894,16 @@ namespace CruiseProcessing
                             });
 
                         //  sum up groups
-                        SumUpGroups(justCurrentGroup, currentReport, strWriteOut, rh, ref pageNumb);
+                        SumUpGroups(justCurrentGroup, currentReport, strWriteOut, ref pageNumb);
                         break;
                     case "STR":
                     case "3P":
                     case "S3P":
-                        SumUpGroups(currentReport, prevCU, strWriteOut, rh, ref pageNumb);
+                        SumUpGroups(currentReport, prevCU, strWriteOut, ref pageNumb);
                         break;
                     default:        //  area based methods
                         //  sum up groups in the strata and output for current unit
-                        SumUpGroups(currentReport, prevCU, strWriteOut, rh, ref pageNumb);
+                        SumUpGroups(currentReport, prevCU, strWriteOut, ref pageNumb);
                         break;
                 }   //  end switch on method
             }   //  end for k loop
@@ -915,17 +911,16 @@ namespace CruiseProcessing
             UpdateUnitTotal(currentReport);
             UpdateStrataTotal(currentReport);
             unitSubtotal[0].Value1 = prevCU.PadLeft(3,' ');
-            OutputUnitSubtotal(strWriteOut, ref pageNumb, rh, currentReport);
+            OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
             if(currentReport != "UC5" || currentReport != "UC6")
-                OutputStrataSubtotal(strWriteOut, ref pageNumb, sdo.Code, rh, currentReport);
+                OutputStrataSubtotal(strWriteOut, ref pageNumb, sdo.Code, currentReport);
             unitSubtotal.Clear();
             strataSubtotal.Clear();
             return;
         }   //  end LoadAndPrintProrated
 
 
-        private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, reportHeaders rh, ref int pageNumb,
-                                            List<ReportSubtotal> summaryList)
+        private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
@@ -1001,7 +996,7 @@ namespace CruiseProcessing
                     if (currentReport == "UC5" || currentReport == "LV05")
                         prtFields.Add(gtp.PadRight(6, ' '));
                     else if (currentReport == "UC6") prtFields.Add(gtp.PadRight(6,' '));   //  sample group
-                    WriteCurrentGroup(strWriteOut, rh, ref pageNumb);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb);
                     UpdateSubtotalSummary(gtp, summaryList);
                     UpdateUnitTotal(currentReport);
                     unitSubtotal[0].Value1 = cdo.Code;
@@ -1025,8 +1020,8 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintProrated (just UC5-UC6)
 
 
-        private void LoadAndPrintProrated(List<ReportSubtotal> speciesList, StreamWriter strWriteOut, 
-                                            CuttingUnitDO cdo, reportHeaders rh, ref int pageNumb)
+        private void LoadAndPrintProrated(List<ReportSubtotal> speciesList, StreamWriter strWriteOut,
+                                            CuttingUnitDO cdo, ref int pageNumb)
         {
             //  overloaded method for VSM5 report -- summary by cutting unit
             //  sum species groups by stratum
@@ -1076,7 +1071,7 @@ namespace CruiseProcessing
                         prtFields.Add(cdo.Code.PadLeft(3, ' '));
                         prtFields.Add(groupsToProcess[k, 0].PadRight(6, ' '));
                         prtFields.Add(groupsToProcess[k, 1].PadRight(2, ' '));
-                        WriteCurrentGroup(cdo.Code, strWriteOut, rh, ref pageNumb, prtFields, groupsToProcess[k, 1]);
+                        WriteCurrentGroup(cdo.Code, strWriteOut, ref pageNumb, prtFields, groupsToProcess[k, 1]);
                         //  This will update unit subtotals and grand total
                         UpdateUnitTotal();
                         unitSubtotal[0].Value1 = cdo.Code;
@@ -1392,7 +1387,7 @@ namespace CruiseProcessing
         }   //  end UpdateSummaryList
 
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  overloaded for UC reports
             string fieldFormat1 = "{0,3:F0}";
@@ -1401,7 +1396,7 @@ namespace CruiseProcessing
             string fieldFormat4 = "{0,10:F2}";
             string fieldFormat5 = "{0,7:F0}";
 
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 15, ref pageNumb, "");
 
             if (currentReport == "UC1" || currentReport == "UC2")
@@ -1453,13 +1448,13 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void WriteCurrentGroup(string currCU, StreamWriter strWriteOut, 
-                                        reportHeaders rh, ref int pageNumb,
-                                        List<string> prtFields, string currPP)
+        private void WriteCurrentGroup(string currCU, StreamWriter strWriteOut,
+                                        ref int pageNumb, List<string> prtFields,
+                                        string currPP)
         {
             //  overloaded for VSM5 report
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], 
-                                rh.reportTitles[2], rh.VSM5columns, 12, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], 
+                                reportTitles[2], reportHeaders.VSM5columns, 12, ref pageNumb, "");
 
             //  load trees and volumes
             prtFields.Add(String.Format("{0,5:F0}", numTrees));
@@ -1494,7 +1489,7 @@ namespace CruiseProcessing
 
 
         private void SumUpGroups(List<TreeCalculatedValuesDO> currentGroup, string currRPT,
-                                    StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+                                    StreamWriter strWriteOut, ref int pageNumb)
         {
             //  This uses the tree data to sum up values for UC reports (100% method)
             string prevSP = "**";
@@ -1536,7 +1531,7 @@ namespace CruiseProcessing
                             prevPP != tcv.Tree.SampleGroup.PrimaryProduct ||
                             prevUOM != tcv.Tree.SampleGroup.UOM)
                 {
-                    WriteCurrentGroup(strWriteOut, rh, ref pageNumb);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb);
                     UpdateUnitTotal(currentReport);
                     UpdateStrataTotal(currentReport);
 
@@ -1653,7 +1648,7 @@ namespace CruiseProcessing
 
             }   //  end foreach loop on tree calculated values
             //  output last group
-            WriteCurrentGroup(strWriteOut, rh, ref pageNumb);
+            WriteCurrentGroup(strWriteOut, ref pageNumb);
             prtFields.Clear();
             UpdateUnitTotal(currentReport);
             UpdateStrataTotal(currentReport);
@@ -1673,8 +1668,7 @@ namespace CruiseProcessing
         }   //  end SumUpGroups for 100% method
 
 
-        private void SumUpGroups(string currRPT, string currCU, StreamWriter strWriteOut, reportHeaders rh,
-                                        ref int pageNumb)
+        private void SumUpGroups(string currRPT, string currCU, StreamWriter strWriteOut, ref int pageNumb)
         {
             //  This sums the current group from the LCD data for the UC reports
             string prevSP = "**";
@@ -1715,7 +1709,7 @@ namespace CruiseProcessing
                          (prevSG != ldo.SampleGroup && (currRPT == "UC2" || currRPT == "UC4")) || 
                           prevPP != ldo.PrimaryProduct || prevUOM != ldo.UOM)
                 {
-                    WriteCurrentGroup(strWriteOut, rh, ref pageNumb);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb);
                     UpdateUnitTotal(currentReport);
                     UpdateStrataTotal(currentReport);
 
@@ -1880,7 +1874,7 @@ namespace CruiseProcessing
                 }   //  end switch
             }   //  end foreach loop on tree calculated values
             //  output last group
-            WriteCurrentGroup(strWriteOut, rh, ref pageNumb);
+            WriteCurrentGroup(strWriteOut, ref pageNumb);
             prtFields.Clear();
             UpdateUnitTotal(currentReport);
             UpdateStrataTotal(currentReport);
@@ -2207,5 +2201,57 @@ namespace CruiseProcessing
 
             return talliedTrees;
         }   //  end pull3PtallyTrees
+
+        protected void captureSTMtrees(long currSTcn, long currCUcn, string currSG, string currSTM, ref double GBDFTsum,
+                            ref double NBDFTsum, ref double GCUFTsum, ref double NCUFTsum, ref double GBDFTnonsaw,
+                            ref double NBDFTnonsaw, ref double GCUFTnonsaw, ref double NCUFTnonsaw,
+                            ref double CordSum, double currProFac)
+        {
+            //  retrieve calc values for current stratum
+            List<TreeCalculatedValuesDO> tList = DataLayer.getTreeCalculatedValues((int)currSTcn, (int)currCUcn);
+            //  Find all STM trees in the current cutting unit
+            List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
+                delegate (TreeCalculatedValuesDO tcv)
+                {
+                    return tcv.Tree.SampleGroup.Code == currSG && tcv.Tree.STM == currSTM;
+                });
+            //  expand and sum up
+            foreach (TreeCalculatedValuesDO js in justSTM)
+            {
+                switch (js.Tree.SampleGroup.PrimaryProduct)
+                {
+                    case "01":
+                        GBDFTsum += js.GrossBDFTPP * js.Tree.ExpansionFactor * currProFac;
+                        NBDFTsum += js.NetBDFTPP * js.Tree.ExpansionFactor * currProFac;
+                        GCUFTsum += js.GrossCUFTPP * js.Tree.ExpansionFactor * currProFac;
+                        NCUFTsum += js.NetCUFTPP * js.Tree.ExpansionFactor * currProFac;
+                        break;
+                    default:
+                        GBDFTnonsaw += js.GrossBDFTPP * js.Tree.ExpansionFactor * currProFac;
+                        NBDFTnonsaw += js.NetBDFTPP * js.Tree.ExpansionFactor * currProFac;
+                        GCUFTnonsaw += js.GrossCUFTPP * js.Tree.ExpansionFactor * currProFac;
+                        NCUFTnonsaw += js.NetCUFTPP * js.Tree.ExpansionFactor * currProFac;
+                        CordSum += js.CordsPP * js.Tree.ExpansionFactor * currProFac;
+                        break;
+                }   //  end switch on primary product
+
+                //  topwood totals
+                GBDFTnonsaw += js.GrossBDFTSP * js.Tree.ExpansionFactor * currProFac;
+                NBDFTnonsaw += js.NetBDFTSP * js.Tree.ExpansionFactor * currProFac;
+                GCUFTnonsaw += js.GrossCUFTSP * js.Tree.ExpansionFactor * currProFac;
+                NCUFTnonsaw += js.NetCUFTSP * js.Tree.ExpansionFactor * currProFac;
+                CordSum += js.CordsSP * js.Tree.ExpansionFactor * currProFac;
+
+                //  Recovered totals
+                if (js.GrossBDFTRP > 0 || js.GrossCUFTRP > 0)
+                {
+                    NBDFTnonsaw += js.GrossBDFTRP * js.Tree.ExpansionFactor * currProFac;
+                    NCUFTnonsaw += js.GrossCUFTRP * js.Tree.ExpansionFactor * currProFac;
+                    CordSum += js.CordsRP * js.Tree.ExpansionFactor * currProFac;
+                }   //  endif
+            }   //  end foreach loop
+
+            return;
+        }   //  end captureSTMtrees
     }
 }

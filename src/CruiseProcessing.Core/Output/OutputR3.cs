@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
@@ -7,25 +8,23 @@ using System.Linq;
 
 namespace CruiseProcessing
 {
-    public class OutputR3 : CreateTextFile
+    public class OutputR3 : ReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
-        private regionalReportHeaders rRH = new regionalReportHeaders();
         private double totalSaleAcres = 0;
 
-        public OutputR3(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputR3(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateR3Reports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        public void CreateR3Reports(StreamWriter strWriteOut, ref int pageNumb)
         {
             // fill report title array
             string currentTitle = fillReportTitle(currentReport);
-            rh.createReportTitle(currentTitle, 6, 0, 0, "", "");
+            SetReportTitles(currentTitle, 6, 0, 0, "", "");
             fieldLengths = new int[] { 1, 7, 3, 6, 8, 9, 7, 10, 8, 9, 9, 8, 7, 8, 7 };
             //  pull groups from LCD
             List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "ContractSpecies,Species", "C", "");
@@ -42,12 +41,12 @@ namespace CruiseProcessing
                     //  output contract species group
                     currCS = jg.ContractSpecies;
                     //  output current contract species
-                    WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb);
                     if (listToOutput.Count > 1)
                     {
                         //  update total line
                         updateTotalLine();
-                        outputTotalLine(strWriteOut, ref pageNumb, rh);
+                        outputTotalLine(strWriteOut, ref pageNumb);
                         totalToOutput.Clear();
                     }   //  endif
                     listToOutput.Clear();
@@ -55,13 +54,13 @@ namespace CruiseProcessing
                 AccumulateValues(jg);
             }   //  end foreach loop
             //  output last group
-            WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
+            WriteCurrentGroup(strWriteOut, ref pageNumb);
             if (listToOutput.Count > 1)
             {
                 //  update total
                 updateTotalLine();
                 //  output total line
-                outputTotalLine(strWriteOut, ref pageNumb, rh);
+                outputTotalLine(strWriteOut, ref pageNumb);
             }   //  endif
             return;
         }   //  end CreateR3Reports
@@ -103,14 +102,14 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateValues
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  writes current contract species group for R301
             double calcValue = 0;
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rRH.R301columns, 10, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R301columns, 10, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -191,13 +190,13 @@ namespace CruiseProcessing
             }   //  endif
         }   //  end updateTotalLine
 
-        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R301
             double calcValue = 0;
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rRH.R301columns, 10, ref pageNumb, "");
-            strWriteOut.WriteLine(rRH.R3specialLine1);
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R301columns, 10, ref pageNumb, "");
+            strWriteOut.WriteLine(regionalReportHeaders.R3specialLine1);
             foreach (ReportSubtotal t in totalToOutput)
             {
                 strWriteOut.Write("    TOTAL- ");

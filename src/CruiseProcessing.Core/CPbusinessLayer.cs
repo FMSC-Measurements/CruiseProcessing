@@ -2007,13 +2007,13 @@ namespace CruiseProcessing
                 //make sure the reports is empty.
                 DAL_V3.Execute("DELETE FROM REPORTS");
 
-                allReportsArray ara = new allReportsArray();
-                for (int k = 0; k < ara.reportsArray.GetLength(0); k++)
+                var reportsArray = allReportsArray.reportsArray;
+                for (int k = 0; k < reportsArray.GetLength(0); k++)
                 {
                     //  since this is an initial list where none exists, selected will always be zero or false
-                    string ReportID = ara.reportsArray[k, 0];
+                    string ReportID = reportsArray[k, 0];
                     bool Selected = false;
-                    string Title = ara.reportsArray[k, 1];
+                    string Title = reportsArray[k, 1];
                     string CreatedBy = "";
 
 

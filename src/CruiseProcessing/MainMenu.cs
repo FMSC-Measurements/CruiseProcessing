@@ -447,7 +447,7 @@ namespace CruiseProcessing
         {
             if (whichProcess == 1)       //  equations
             {
-                VolumeEquations volEqObj = new VolumeEquations(DataLayer, DialogService);
+                VolumeEquations volEqObj = new VolumeEquations(DataLayer);
 
                 if (templateFlag == 0)
                 {
@@ -639,7 +639,7 @@ namespace CruiseProcessing
             if (whichProcess == 1)   //  equations
             {
                 //  calls R8 volume equation entry
-                R8VolEquation r8vol = new R8VolEquation(DataLayer, DialogService);
+                R8VolEquation r8vol = new R8VolEquation(DataLayer);
                 r8vol.ShowDialog();
 
             }
@@ -660,7 +660,7 @@ namespace CruiseProcessing
             if (whichProcess == 1)   //  equations
             {
                 //  calls R9 volume equation entry
-                R9VolEquation r9vol = new R9VolEquation(DataLayer, DialogService);
+                R9VolEquation r9vol = new R9VolEquation(DataLayer);
                 r9vol.setupDialog();
                 r9vol.ShowDialog();
             }

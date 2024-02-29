@@ -5,29 +5,26 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    class OutputTreeGrade : CreateTextFile
+    class OutputTreeGrade : ReportGeneratorBase
     {
-        public string currRept;
         private int[] fieldLengths;
         private List<string> prtFields;
-        private StringBuilder sb = new StringBuilder();
         private int firstLine = 0;
         private List<ReportSubtotal> productSubTotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> saleTotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> eachLine = new List<ReportSubtotal>();
 
-        public OutputTreeGrade(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputTreeGrade(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateTreeGradeReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void CreateTreeGradeReports(StreamWriter strWriteOut, ref int pageNumb)
         {
-            string currentTitle = fillReportTitle(currRept);
+            string currentTitle = fillReportTitle(currentReport);
 
             numOlines = 0;
             //  need data from LCD; cut trees only; ordered by primary product, species and tree grade
@@ -36,23 +33,23 @@ namespace CruiseProcessing
             string volType = "";
             double volSum = 0;
             //  make sure there's data for the current report
-            if (currRept == "A11")
+            if (currentReport == "A11")
             {
                 volType = "BDFT";
                 volSum = lcdList.Sum(l => l.SumNBDFT);
             }
-            else if (currRept == "A12")
+            else if (currentReport == "A12")
             {
                 volType = "CUFT";
                 volSum = lcdList.Sum(l => l.SumNCUFT);
             }   //  endif
             if (volSum == 0)
             {
-                sb.Clear();
+                var sb = new StringBuilder();
                 sb.Append(">> No ");
                 sb.Append(volType);
                 sb.Append(" volume for report ");
-                noDataForReport(strWriteOut,currRept,sb.ToString());
+                noDataForReport(strWriteOut,currentReport,sb.ToString());
                 return;
             }   //  endif volSum
 
@@ -74,14 +71,14 @@ namespace CruiseProcessing
                     prevProduct = "*";
                     numOlines = 0;
                 }   //  endif page 2
-                rh.createReportTitle(currentTitle, 4, 32, 0, reportConstants.FCTO_PPO, "");
+                SetReportTitles(currentTitle, 4, 32, 0, reportConstants.FCTO_PPO, "");
 
 
                 //  Loop through LCD list and accumulate lines
                 foreach (LCDDO lcd in lcdList)
                 {
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rh.A11A12columns, 7, ref pageNumb, "");
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    reportHeaders.A11A12columns, 7, ref pageNumb, "");
                     //  need a new line or subtotal?
                     if (prevSpecies == "*" && prevProduct == "*")
                     {
@@ -92,7 +89,7 @@ namespace CruiseProcessing
                     else if (prevSpecies != lcd.Species)
                     {
                         //  output individual line
-                        WriteCurrentGroup(strWriteOut, rh, ref pageNumb, 1, eachLine);
+                        WriteCurrentGroup(strWriteOut, ref pageNumb, 1, eachLine);
                         //  update product subtotal
                         UpdateTotals(eachLine, productSubTotal, 1);
                         //  update sale total
@@ -104,13 +101,13 @@ namespace CruiseProcessing
                     else if (prevProduct != lcd.PrimaryProduct)
                     {
                         //  time for a subtotal line
-                        WriteCurrentGroup(strWriteOut, rh, ref pageNumb, 1, eachLine);
+                        WriteCurrentGroup(strWriteOut, ref pageNumb, 1, eachLine);
                         //  Update product subtotal
                         UpdateTotals(eachLine, productSubTotal, 1);
                         //  Update sale total
                         UpdateTotals(eachLine, saleTotal, 2);
                         //  Output product subtotal
-                        WriteCurrentGroup(strWriteOut, rh, ref pageNumb, 2, productSubTotal);
+                        WriteCurrentGroup(strWriteOut, ref pageNumb, 2, productSubTotal);
                         //  Clear product subtotal
                         productSubTotal.Clear();
                         //  Clear each line
@@ -125,15 +122,15 @@ namespace CruiseProcessing
                 }   //  end foreach loop
 
                 //  Output last species group
-                WriteCurrentGroup(strWriteOut, rh, ref pageNumb, 1, eachLine);
+                WriteCurrentGroup(strWriteOut, ref pageNumb, 1, eachLine);
                 //  Update product subtotal
                 UpdateTotals(eachLine, productSubTotal, 1);
                 //  Output product total
-                WriteCurrentGroup(strWriteOut, rh, ref pageNumb, 2, productSubTotal);
+                WriteCurrentGroup(strWriteOut, ref pageNumb, 2, productSubTotal);
                 //  Update sale total
                 UpdateTotals(eachLine, saleTotal, 2);
                 //  Output sale total
-                WriteCurrentGroup(strWriteOut, rh, ref pageNumb, 3, saleTotal);
+                WriteCurrentGroup(strWriteOut, ref pageNumb, 3, saleTotal);
             }   //  end for k loop
 
             return;
@@ -227,8 +224,8 @@ namespace CruiseProcessing
             return;
         }   //  end LoadEachLine
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                                        int whichLine, List<ReportSubtotal> listToPrint)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, int whichLine,
+                                        List<ReportSubtotal> listToPrint)
         {
             fieldLengths = new int[] { 1, 3, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 8 };
             prtFields = new List<string>();

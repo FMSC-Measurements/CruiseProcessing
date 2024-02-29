@@ -5,14 +5,12 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    public class OutputStandTables : CreateTextFile
+    public class OutputStandTables : ReportGeneratorBase
     {
-        public string currentReport;
         private List<string> prtFields = new List<string>();
         private double strAcres = 0;
         private int nthRow = 0;
@@ -32,12 +30,12 @@ namespace CruiseProcessing
         private int begGroup;
         private int endGroup;
 
-        public OutputStandTables(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputStandTables(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateStandTables(StreamWriter strWriteOut, reportHeaders rh,
-                                        ref int pageNumb, int classInterval)
+        public void CreateStandTables(StreamWriter strWriteOut, ref int pageNumb,
+                                        int classInterval)
         {
             //  fill report title array
             //  This will change depending on the stand table report
@@ -141,12 +139,12 @@ namespace CruiseProcessing
             switch (StratumOrSale)
             {
                 case "STRATUM":
-                    CalculateAndPrintStratum(classInterval, currentTitle, strWriteOut, 
-                                            ref pageNumb, rh);
+                    CalculateAndPrintStratum(classInterval, currentTitle, strWriteOut,
+                                            ref pageNumb);
                     break;
                 case "SALE":
                     CalculateAndPrintSale(classInterval, currentTitle, strWriteOut,
-                                            ref pageNumb,rh);
+                                            ref pageNumb);
                     break;
             }   //  end switch
 
@@ -154,9 +152,9 @@ namespace CruiseProcessing
         }   //  end CreateStandTables
 
 
-        private void CalculateAndPrintStratum(int classInterval, 
+        private void CalculateAndPrintStratum(int classInterval,
                                             string currentTitle, StreamWriter strWriteOut,
-                                            ref int pageNumb, reportHeaders rh)
+                                            ref int pageNumb)
         {
             //  header and column headers are stratum dependent so loop by stratum
             List<StratumDO> strList = DataLayer.getStratum();
@@ -196,11 +194,11 @@ namespace CruiseProcessing
                     {
                         case 1:         //  one-inch diameter class
                             joinedLine += reportConstants.B1DC;
-                            rh.createReportTitle(strataTitle, 6, 0, 0, joinedLine, reportConstants.oneInchDC);
+                            SetReportTitles(strataTitle, 6, 0, 0, joinedLine, reportConstants.oneInchDC);
                             break;
                         case 2:         //  two-inch diameter class
                             joinedLine += reportConstants.B2DC;
-                            rh.createReportTitle(strataTitle, 6, 0, 0, joinedLine, reportConstants.twoInchDC);
+                            SetReportTitles(strataTitle, 6, 0, 0, joinedLine, reportConstants.twoInchDC);
                             break;
                     }   //  end switch
                     //  load column headers here
@@ -210,7 +208,7 @@ namespace CruiseProcessing
                     else
                         justGroups = DataLayer.getLCDOrdered("WHERE Stratum = @p1 ", "GROUP BY Stratum,Species,PrimaryProduct,UOM", s.Code, whatCutCode);
                     //  loop through calculated data to fill stand table
-                    processGroups(justGroups, strWriteOut, rh, ref pageNumb, justStrataData, classInterval, s.Code);
+                    processGroups(justGroups, strWriteOut, ref pageNumb, justStrataData, classInterval, s.Code);
 
                 }
                 else
@@ -222,7 +220,7 @@ namespace CruiseProcessing
 
 
         private void CalculateAndPrintSale(int classInterval, string currentTitle, StreamWriter strWriteOut,
-                                            ref int pageNumb, reportHeaders rh)
+                                            ref int pageNumb)
         {
             //  Header and colums are sale dependent
             reportData.Clear();
@@ -252,11 +250,11 @@ namespace CruiseProcessing
             {
                 case 1:     //  one-inch diameter class
                     joinedLine += reportConstants.B1DC;
-                    rh.createReportTitle(saleTitle, 6, 0, 0, joinedLine, reportConstants.oneInchDC);
+                    SetReportTitles(saleTitle, 6, 0, 0, joinedLine, reportConstants.oneInchDC);
                     break;
                 case 2:     //  two-inch diameter class
                     joinedLine += reportConstants.B2DC;
-                    rh.createReportTitle(saleTitle, 6, 0, 0, joinedLine, reportConstants.twoInchDC);
+                    SetReportTitles(saleTitle, 6, 0, 0, joinedLine, reportConstants.twoInchDC);
                     break;
             }   //  end switch
 
@@ -272,14 +270,14 @@ namespace CruiseProcessing
                     break;
             }   //  end switch on GroupedBy
 
-            processGroups(speciesGroups, strWriteOut, rh, ref pageNumb, treeData, classInterval, "");
+            processGroups(speciesGroups, strWriteOut, ref pageNumb, treeData, classInterval, "");
             return;
         }   //  end CalculateAndPrintSale
 
 
-        private void processGroups(List<LCDDO> groupsToPrint, StreamWriter strWriteout, reportHeaders rh, 
-                                    ref int pageNumb, List<TreeCalculatedValuesDO> currentData,
-                                    int classInterval, string currST)
+        private void processGroups(List<LCDDO> groupsToPrint, StreamWriter strWriteout, ref int pageNumb,
+                                    List<TreeCalculatedValuesDO> currentData, int classInterval,
+                                    string currST)
         {
             numPages = (int)Math.Ceiling((decimal)groupsToPrint.Count / 10);
             bool lastPage = false;
@@ -333,7 +331,7 @@ namespace CruiseProcessing
                 if (StratumOrSale == "SALE")
                     LoadColumnHeader("", groupsToPrint, lastPage);
                 else LoadColumnHeader(currST, groupsToPrint, lastPage);
-                writeCurrentGroup(strWriteout, rh, ref pageNumb, reportData, endGroup, columnHeader, lastPage);
+                writeCurrentGroup(strWriteout, ref pageNumb, reportData, endGroup, columnHeader, lastPage);
                 clearOutputList(reportData);
                 //  also clera headers
                 columnHeader[0] = null;
@@ -525,9 +523,9 @@ namespace CruiseProcessing
         }   //  end LoadProperColumn
 
 
-        private void writeCurrentGroup(StreamWriter strWriteOut, reportHeaders rh,
-                                        ref int pageNumb, List<StandTables> listToPrint, int lastGroup,
-                                        string[] headerToPrint, bool lastPage)
+        private void writeCurrentGroup(StreamWriter strWriteOut, ref int pageNumb,
+                                        List<StandTables> listToPrint, int lastGroup, string[] headerToPrint,
+                                        bool lastPage)
         {
             string verticalLine = " |";
             prtFields.Clear();
@@ -575,7 +573,7 @@ namespace CruiseProcessing
 
             foreach (StandTables ltp in listToPrint)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                         headerToPrint, 11, ref pageNumb, "");
 
                 prtFields.Add(ltp.dibClass.PadLeft(5, ' '));

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static CruiseProcessing.Output.ReportGeneratorBase;
 
 namespace CruiseProcessing
 {
@@ -875,7 +876,7 @@ namespace CruiseProcessing
 
         //  probably going to have several build print array functions for various reports
         public static List<string> buildPrintArray(TreeDO tl, string cruiseName, List<TreeCalculatedValuesDO> cvList,
-                                        int hgtOne, int hgtTwo, string volType)
+                                        HeightFieldType hgtOne, HeightFieldType hgtTwo, string volType)
         {
             //  builds line for A5 or A7 reports (A05 and A07 now)
             string fieldFormat1 = "{0,5:F1}";
@@ -911,7 +912,7 @@ namespace CruiseProcessing
             treeArray.Add(String.Format(fieldFormat1, tl.DBH).PadLeft(5, ' '));
 
             //  Add heights
-            switch (hgtOne)
+            switch ((int)hgtOne)
             {
                 case 1:
                     treeArray.Add(String.Format(fieldFormat2, tl.TotalHeight).PadLeft(3, ' '));
@@ -934,7 +935,7 @@ namespace CruiseProcessing
                     break;
             }   //  end switch on hgtOne
 
-            switch (hgtTwo)
+            switch ((int)hgtTwo)
             {
                 case 1:
                     treeArray.Add(String.Format(fieldFormat2, tl.TotalHeight).PadLeft(3, ' '));
@@ -1005,7 +1006,7 @@ namespace CruiseProcessing
             return treeArray;
         }   //  end buildPrintArray
 
-        public static List<string> buildPrintArray(TreeDO tdo, List<TreeCalculatedValuesDO> tcvList, int hgtOne, int hgtTwo,
+        public static List<string> buildPrintArray(TreeDO tdo, List<TreeCalculatedValuesDO> tcvList, HeightFieldType hgtOne, HeightFieldType hgtTwo,
                                                 string contentType)
         {
             //  overloaded for Biomass Data report --- A10
@@ -1040,7 +1041,7 @@ namespace CruiseProcessing
             treeArray.Add(String.Format(fieldFormat1, tdo.DBH).PadLeft(5, ' '));
 
             //  Add heights
-            switch (hgtOne)
+            switch ((int)hgtOne)
             {
                 case 1:
                     treeArray.Add(String.Format(fieldFormat2, tdo.TotalHeight).PadLeft(3, ' '));
@@ -1063,7 +1064,7 @@ namespace CruiseProcessing
                     break;
             }   //  end switch on hgtOne
 
-            switch (hgtTwo)
+            switch ((int)hgtTwo)
             {
                 case 1:
                     treeArray.Add(String.Format(fieldFormat2, tdo.TotalHeight).PadLeft(3, ' '));

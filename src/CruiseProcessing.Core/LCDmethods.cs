@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using static CruiseProcessing.Output.ReportGeneratorBase;
 
 namespace CruiseProcessing
 {
@@ -312,7 +313,7 @@ namespace CruiseProcessing
         }   //  end LoadLCDID
 
 
-        public static void LoadLCDmeans(ref List<string> prtFields, List<LCDDO> currData, int hgtOne, int hgtTwo,
+        public static void LoadLCDmeans(ref List<string> prtFields, List<LCDDO> currData, HeightFieldType hgtOne, HeightFieldType hgtTwo,
                                     int currPP, string currRPT, double STacres, string currMeth)
         {
             double summedValue;
@@ -376,7 +377,7 @@ namespace CruiseProcessing
                 //  mean heights
                 double numerAtor1 = 0;
                 double numerAtor2 = 0;
-                switch (hgtOne)
+                switch ((int)hgtOne)
                 {
                     case 1:     //  total height
                         numerAtor1 = currData.Sum(ldo => ldo.SumTotHgt);
@@ -391,7 +392,7 @@ namespace CruiseProcessing
                         numerAtor1 = currData.Sum(ldo => ldo.SumHgtUpStem);
                         break;
                 }   //  end switch
-                switch (hgtTwo)
+                switch ((int)hgtTwo)
                 {
                     case 1:     //  total height
                         numerAtor2 = currData.Sum(ldo => ldo.SumTotHgt);

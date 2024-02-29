@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
@@ -7,31 +8,33 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputCSV : CreateTextFile
+    public class OutputCSV : ReportGeneratorBase
     {
-        public string currentReport;
-        private string[] headerA05 = new string[19] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "GCUFTPP", "NCUFTPP", "GCUFTSP", "NCUFTSP", "TREEFAC", "CHARFAC", "EXPFAC", "PAGCUFTPP", "PANCUFTPP", "PAGCUFTSP", "PANCUFTSP" };
-        private string[] headerA06 = new string[15] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "VALUEPP", "VALUESP", "TREEFAC", "CHARFAC", "EXPFAC", "PAVALUEPP", "PAVALUESP" };
-        private string[] headerA07 = new string[19] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "GBDFTPP", "NBDFTPP", "GBDFTSP", "NBDFTSP", "TREEFAC", "CHARFAC", "EXPFAC", "PAGBDFTPP", "PANBDFTPP", "PAGBDFTSP", "PANBDFTSP" };
-        private string[] headerA10 = new string[18] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "PRIMARYWGT", "SECONDWGT", "FOLIAGE", "LIVEBR", "DEADBR", "STEMTIP", "TOTALTREE", "TREEFAC", "CHARFAC", "EXPFAC" };
-        private string[] headerL1 = new string[22] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "PROD", "UOM", "LOGNUM", "SMDIAM", "LGDIAM", "LENGTH", "GRADE", "DEFECT", "RECV", "GBDFT", "GREMV", "NBDFT", "GCUFT", "GREMV", "NCUFT", "DIBCLS", "TOTEXP" };
-        private string[] headerL2 = new string[13] { "DIBCLS", "GRD 0", "GRD 1", "GRD 2", "GRD 3", "GRD 4", "GRD 5", "GRD 6", "GRD 7", "TOTNET", "CULL", "DEFECT", "TOTAL" };
-        private string[] headerST1 = new string[18] { "STRATA", "PROD", "UOM", "SAMPGRP", "STM", "STGSAMP", "SAMPTREES", "BIG N", "SMALL N", "t VALUE", "MEAN X", "SUM OF X", "SUM X SQRD", "SD", "CV", "STD ERR", "SAM ERR", "COMB SAM ERR" };
-        private string[] headerUC5 = new string[13] { "UNIT", "SPEC", "TOT EST TREES", "SAW EST TREES", "SAW GBDFT", "SAW GCUFT", "SAW NBDFT", "SAW NCUFT", "NS GBDFT", "NS GCUFT", "NS NBDFT", "NS NCUFT", "CORDS" };
-        private string[] headerKPI = new string[4] { "STRATUM", "UNIT", "SPECIES", "ESTIMATE" };
-        private string[] headerTheft = new string[18] { "TREE NUM", "SPECIES", "PRODUCT", "DRC", "DBH", "TOTAL HT", "MERCH HT PRIM", "TOTAL CUFT", "GROSS CUFT", "NET CUFT", "GROSS BDFT", "NET BDFT", "NET CUFT SECONDARY", "NET BDFT SECONDARY", "CORDS", "CORDS SECONDARY", "# LOGS PRIMARY", "# LOGS SECONDARY" };
-        private string[] headerVSM4 = new string[14] { "STRATA", "SAMGRP", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "GROSS", "NET", "EXPFAC", "KPI", "TREECNT", "RATIO", "INIT" };
-        private string[] headerL1R10 = new string[46] { "CRUISE", "STRATA", "UNIT", "PLOT", "TREE", "C/L", "SG", "STM", "SPEC", "PROD", "UOM", "L/D", "YIELD", "CSPEC", "TGRADE", "LOGNUM", "SMDIAM", "LGDIAM", "LENGTH", "VALUE", "GRADE", "DEFECT", "RECV", "GBDFT", "GREMV", "NBDFT", "GCUFT", "GREMV", "NCUFT", "DIBCLS", "TOTEXP", "ACRES", "EXGRD", "NCFTUTIL", "NBFTUTIL", "DBHOB", "TOTHGT", "UNITAC", "XCOORD", "YCOORD", "ZCOORD", "FOREST", "DISTRICT", "SALENAME", "LOGMETH", "SEENDEF" };
+        private static readonly string[] headerA05 = new string[19] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "GCUFTPP", "NCUFTPP", "GCUFTSP", "NCUFTSP", "TREEFAC", "CHARFAC", "EXPFAC", "PAGCUFTPP", "PANCUFTPP", "PAGCUFTSP", "PANCUFTSP" };
+        private static readonly string[] headerA06 = new string[15] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "VALUEPP", "VALUESP", "TREEFAC", "CHARFAC", "EXPFAC", "PAVALUEPP", "PAVALUESP" };
+        private static readonly string[] headerA07 = new string[19] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "GBDFTPP", "NBDFTPP", "GBDFTSP", "NBDFTSP", "TREEFAC", "CHARFAC", "EXPFAC", "PAGBDFTPP", "PANBDFTPP", "PAGBDFTSP", "PANBDFTSP" };
+        private static readonly string[] headerA10 = new string[18] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "HGT1", "HGT2", "PRIMARYWGT", "SECONDWGT", "FOLIAGE", "LIVEBR", "DEADBR", "STEMTIP", "TOTALTREE", "TREEFAC", "CHARFAC", "EXPFAC" };
+        private static readonly string[] headerL1 = new string[22] { "STRATA", "UNIT", "PLOT", "TREE", "SPEC", "PROD", "UOM", "LOGNUM", "SMDIAM", "LGDIAM", "LENGTH", "GRADE", "DEFECT", "RECV", "GBDFT", "GREMV", "NBDFT", "GCUFT", "GREMV", "NCUFT", "DIBCLS", "TOTEXP" };
+        //private static readonly string[] headerL2 = new string[13] { "DIBCLS", "GRD 0", "GRD 1", "GRD 2", "GRD 3", "GRD 4", "GRD 5", "GRD 6", "GRD 7", "TOTNET", "CULL", "DEFECT", "TOTAL" };
+        private static readonly string[] headerST1 = new string[18] { "STRATA", "PROD", "UOM", "SAMPGRP", "STM", "STGSAMP", "SAMPTREES", "BIG N", "SMALL N", "t VALUE", "MEAN X", "SUM OF X", "SUM X SQRD", "SD", "CV", "STD ERR", "SAM ERR", "COMB SAM ERR" };
+        private static readonly string[] headerUC5 = new string[13] { "UNIT", "SPEC", "TOT EST TREES", "SAW EST TREES", "SAW GBDFT", "SAW GCUFT", "SAW NBDFT", "SAW NCUFT", "NS GBDFT", "NS GCUFT", "NS NBDFT", "NS NCUFT", "CORDS" };
+        private static readonly string[] headerKPI = new string[4] { "STRATUM", "UNIT", "SPECIES", "ESTIMATE" };
+        private static readonly string[] headerTheft = new string[18] { "TREE NUM", "SPECIES", "PRODUCT", "DRC", "DBH", "TOTAL HT", "MERCH HT PRIM", "TOTAL CUFT", "GROSS CUFT", "NET CUFT", "GROSS BDFT", "NET BDFT", "NET CUFT SECONDARY", "NET BDFT SECONDARY", "CORDS", "CORDS SECONDARY", "# LOGS PRIMARY", "# LOGS SECONDARY" };
+        private static readonly string[] headerVSM4 = new string[14] { "STRATA", "SAMGRP", "UNIT", "PLOT", "TREE", "SPEC", "DBH", "GROSS", "NET", "EXPFAC", "KPI", "TREECNT", "RATIO", "INIT" };
+        private static readonly string[] headerL1R10 = new string[46] { "CRUISE", "STRATA", "UNIT", "PLOT", "TREE", "C/L", "SG", "STM", "SPEC", "PROD", "UOM", "L/D", "YIELD", "CSPEC", "TGRADE", "LOGNUM", "SMDIAM", "LGDIAM", "LENGTH", "VALUE", "GRADE", "DEFECT", "RECV", "GBDFT", "GREMV", "NBDFT", "GCUFT", "GREMV", "NCUFT", "DIBCLS", "TOTEXP", "ACRES", "EXGRD", "NCFTUTIL", "NBFTUTIL", "DBHOB", "TOTHGT", "UNITAC", "XCOORD", "YCOORD", "ZCOORD", "FOREST", "DISTRICT", "SALENAME", "LOGMETH", "SEENDEF" };
 
-        public OutputCSV(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public IDialogService DialogService { get; }
+
+        public OutputCSV(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         // TODO make method async and display wait cursor when running
         public void OutputCSVfiles(string CSVoutFile, string reportToUse, string textOutFile)
         {
             //  check for Region 10 and L1 file first -- they have a different format for the ListToOutput
-            currentRegion = DataLayer.getRegion();
+            var currentRegion = DataLayer.getRegion();
             if ((currentReport == "CSV5" || currentReport == "L1") && currentRegion == "10")
             {
                 DialogService.ShowInformation("This could take awhile.\r\nPlease wait");

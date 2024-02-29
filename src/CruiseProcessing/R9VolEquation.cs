@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
 
 
 namespace CruiseProcessing
@@ -17,7 +12,6 @@ namespace CruiseProcessing
     public partial class R9VolEquation : Form 
     {
         public CPbusinessLayer DataLayer { get; }
-        public IDialogService DialogService { get; }
 
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         ArrayList topwoodSpecies = new ArrayList();
@@ -32,11 +26,10 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R9VolEquation(CPbusinessLayer dataLayer, IDialogService dialogService)
+        public R9VolEquation(CPbusinessLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
 
@@ -145,7 +138,7 @@ namespace CruiseProcessing
             DataLayer.SaveVolumeEquations(volList);
             if(calcBiomass.Checked == true)
             {
-                VolumeEquations ve = new VolumeEquations(DataLayer, DialogService);
+                VolumeEquations ve = new VolumeEquations(DataLayer);
                 ve.updateBiomass(volList);
             }   //  endif calculate biomass
             Close();

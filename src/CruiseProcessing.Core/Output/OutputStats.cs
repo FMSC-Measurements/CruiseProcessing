@@ -5,28 +5,26 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    class OutputStats : CreateTextFile
+    class OutputStats : ReportGeneratorBase
     {
-        public string currentReport;
-        public string currCL;
+        protected string currCL { get; }
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[9];
         private List<POPDO> popList = new List<POPDO>();
-        private int[] pagesToPrint = new int[3];
         private List<StatList> stage1Stats = new List<StatList>();
         private List<StatList> stage2Stats = new List<StatList>();
 
-        public OutputStats(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputStats(string currCL, CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            this.currCL = currCL;
         }
 
-        public void CreateStatReports(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void CreateStatReports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  For ST1/ST2 (DP1,DP2) LV03/LV04
             string currentTitle = fillReportTitle(currentReport);
@@ -49,64 +47,72 @@ namespace CruiseProcessing
 
             //  need report header
             //  initialize pages to print
-            for (int j = 0; j < 3; j++)
-                pagesToPrint[j] = 0;
+            var printPrimaryProdPage = false;
+            var printSecondaryProdPage = false;
+            var printRecoveredPage = false;
+
             switch (currentReport)
             {
                 case "ST1":     case "LV03":
-                    if(popList.Sum(p => p.Stg1NetXPP) > 0 || popList.Sum(p => p.Stg2NetXPP) > 0)
-                        pagesToPrint[0] = 1;
+                    if (popList.Sum(p => p.Stg1NetXPP) > 0 || popList.Sum(p => p.Stg2NetXPP) > 0)
+                    { printPrimaryProdPage = true; }
+
                     if(popList.Sum(p => p.Stg1NetXSP) > 0 || popList.Sum(p => p.Stg2NetXSP) > 0)
-                        pagesToPrint[1] = 1;
+                    { printSecondaryProdPage= true; }
+
                     if(popList.Sum(p => p.Stg1NetXRP) > 0 || popList.Sum(p => p.Stg2NetXRP) > 0)
-                        pagesToPrint[2] = 1;
+                    { printRecoveredPage= true; }
+
                     fieldLengths = new int[] { 1, 3, 3, 4, 4, 3, 2, 6, 6, 7, 7, 9, 12, 15, 12, 10, 9, 10, 9 };
-                    rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                    SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
                     volType = "NET";
                     break;
                 case "ST2":     case "LV04":
                     if(popList.Sum(p => p.Stg1GrossXPP) > 0 || popList.Sum(p => p.Stg2GrossXPP) > 0)
-                        pagesToPrint[0] = 1;
-                    if(popList.Sum(p => p.Stg1GrossXSP) > 0 || popList.Sum(p => p.Stg2GrossXSP) > 0)
-                        pagesToPrint[1] = 1;
-                    if(popList.Sum(p => p.Stg1GrossXRP) > 0 || popList.Sum(p => p.Stg2GrossXRP) > 0)
-                        pagesToPrint[2] = 1;
+                    { printPrimaryProdPage = true; }
+
+                    if (popList.Sum(p => p.Stg1GrossXSP) > 0 || popList.Sum(p => p.Stg2GrossXSP) > 0)
+                    { printSecondaryProdPage = true; }
+
+                    if (popList.Sum(p => p.Stg1GrossXRP) > 0 || popList.Sum(p => p.Stg2GrossXRP) > 0)
+                    { printRecoveredPage = true; }
+
                     fieldLengths = new int[] { 1, 3, 3, 4, 4, 3, 2, 6, 6, 7, 7, 9, 12, 15, 12, 10, 9, 10, 9 };
-                    rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                    SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
                     volType = "GROSS";
                     break;
             }   //  end switch on report for pages to print
 
 
             //  process by pages (product)
-            if (pagesToPrint[0] == 1)
+            if (printPrimaryProdPage)
             {
                 //  primary product pages
-                finishColumnHeaders(rh.ST1ST2columns, volType, "PRIMARY");
+                finishColumnHeaders(reportHeaders.ST1ST2columns, volType, "PRIMARY");
                 numOlines = 0;
-                ProcessPrimary(strWriteOut, rh, ref pageNumb, volType);
+                ProcessPrimary(strWriteOut, ref pageNumb, volType);
             }   //  endif primary pages
 
-            if (pagesToPrint[1] == 1)
+            if (printSecondaryProdPage)
             {
                 //  secondary product pages
-                finishColumnHeaders(rh.ST1ST2columns, volType, "SECONDARY");
+                finishColumnHeaders(reportHeaders.ST1ST2columns, volType, "SECONDARY");
                 numOlines = 0;
-                ProcessSecondary(strWriteOut, rh, ref pageNumb, volType);
+                ProcessSecondary(strWriteOut, ref pageNumb, volType);
             }   //  endif secondary pages
 
-            if (pagesToPrint[2] == 1)
+            if (printRecoveredPage)
             {
-                finishColumnHeaders(rh.ST1ST2columns, volType, "RECOVERED");
+                finishColumnHeaders(reportHeaders.ST1ST2columns, volType, "RECOVERED");
                 numOlines = 0;
-                ProcessRecovered(strWriteOut, rh, ref pageNumb, volType);
+                ProcessRecovered(strWriteOut, ref pageNumb, volType);
             }   //  endif recovered pages
 
             return;
         }   //  end CreateStatReports
 
 
-        private void ProcessPrimary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
+        private void ProcessPrimary(StreamWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
             List<StratumDO> sList = DataLayer.getStratum();
@@ -156,13 +162,13 @@ namespace CruiseProcessing
                         stage2Stats.Add(slTwo);
                         CalcAllStats(p, 2, currMethod);
                         CalcCombinedError(currMethod);
-                        WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 1, 1, currMethod);
-                        WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 2, 1, currMethod);
+                        WriteCurrentGroup(p, strWriteOut, ref pageNumb, 1, 1, currMethod);
+                        WriteCurrentGroup(p, strWriteOut, ref pageNumb, 2, 1, currMethod);
                     }
                     else if(slOne.SumOfX > 0)
                     {
                         CalcCombinedError(currMethod);
-                        WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 1, 1, currMethod);
+                        WriteCurrentGroup(p, strWriteOut, ref pageNumb, 1, 1, currMethod);
                     }   //  endif stage 2
                     stage1Stats.Clear();
                     stage2Stats.Clear();
@@ -179,7 +185,7 @@ namespace CruiseProcessing
         }   //  end ProcessPrimary
 
 
-        private void ProcessSecondary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
+        private void ProcessSecondary(StreamWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
             List<StratumDO> sList = DataLayer.getStratum();
@@ -228,15 +234,15 @@ namespace CruiseProcessing
                         stage2Stats.Add(slTwo);
                         CalcAllStats(p, 2, currMethod);
                         CalcCombinedError(currMethod);
-                        WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 1, 2, currMethod);
-                        WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 2, 2, currMethod);
+                        WriteCurrentGroup(p, strWriteOut, ref pageNumb, 1, 2, currMethod);
+                        WriteCurrentGroup(p, strWriteOut, ref pageNumb, 2, 2, currMethod);
                     }
                     else if (slOne.SumOfX > 0)
                     {
                         if (slOne.SumOfX > 0 && slOne.SumOfX2 > 0)
                         {
                             CalcCombinedError(currMethod);
-                            WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 1, 2, currMethod);
+                            WriteCurrentGroup(p, strWriteOut, ref pageNumb, 1, 2, currMethod);
                         }   //  endif 
                     }   //  endif stage 2
                     stage1Stats.Clear();
@@ -255,7 +261,7 @@ namespace CruiseProcessing
         }   //  end ProcessSecondary
 
 
-        private void ProcessRecovered(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, string volType)
+        private void ProcessRecovered(StreamWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
             List<StratumDO> sList = DataLayer.getStratum();
@@ -304,15 +310,15 @@ namespace CruiseProcessing
                         stage2Stats.Add(slTwo);
                         CalcAllStats(p, 2, currMethod);
                         CalcCombinedError(currMethod);
-                        WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 1, 3, currMethod);
-                        WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 2, 3, currMethod);
+                        WriteCurrentGroup(p, strWriteOut, ref pageNumb, 1, 3, currMethod);
+                        WriteCurrentGroup(p, strWriteOut, ref pageNumb, 2, 3, currMethod);
                     }
                     else if (slOne.SumOfX > 0)
                     {
                         if (slOne.SumOfX > 0 && slOne.SumOfX2 > 0)
                         {
                             CalcCombinedError(currMethod);
-                            WriteCurrentGroup(p, strWriteOut, rh, ref pageNumb, 1, 3, currMethod);
+                            WriteCurrentGroup(p, strWriteOut, ref pageNumb, 1, 3, currMethod);
                         }   //  endif
                     }   //  endif stage 2
                     stage1Stats.Clear();
@@ -384,8 +390,8 @@ namespace CruiseProcessing
         }   //  end CalcCombinedError
 
 
-        private void WriteCurrentGroup(POPDO p, StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                                            int whichStage, int whichProd, string currMeth)
+        private void WriteCurrentGroup(POPDO p, StreamWriter strWriteOut, ref int pageNumb, int whichStage,
+                                            int whichProd, string currMeth)
         {
             //  ST1/ST2     (DP1/DP2)
             string fieldFormat1 = "{0,5:F0}";
@@ -398,7 +404,7 @@ namespace CruiseProcessing
             string fieldFormat8 = "{0,8:F3}";
             string fieldFormat9 = "{0,9:F3}";
 
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], 
                                 completeHeader, 9, ref pageNumb, "");
             prtFields.Add("");
             prtFields.Add(p.Stratum.PadLeft(2, ' '));

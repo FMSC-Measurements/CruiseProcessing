@@ -5,42 +5,36 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    public class OutputR8 : CreateTextFile
+    public class OutputR8 : ReportGeneratorBase
     {
-
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         List<RegionalReports> listToOutput = new List<RegionalReports>();
         List<RegionalReports> totalToOutput = new List<RegionalReports>();
         List<RegionalReports> reportSummary = new List<RegionalReports>();
-        private regionalReportHeaders rRH = new regionalReportHeaders();
         private string[] completeHeader;
         private double ccfFactor = 100.0;
         private double mbfFactor = 1000.0;
-        private double currGRSbdft = 0;
-        private double currGRScuft = 0;
         private double pineTop = 0;
         private double hardwoodTop = 0;
 
-        public OutputR8(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputR8(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateR8Reports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        public void CreateR8Reports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
 
             // grad LCD list to see if there's volume for the report
             List<LCDDO> lcdList = DataLayer.getLCD();
-            currGRSbdft = lcdList.Sum(l => l.SumGBDFT);
-            currGRScuft = lcdList.Sum(l => l.SumGCUFT);
+            var currGRSbdft = lcdList.Sum(l => l.SumGBDFT);
+            var currGRScuft = lcdList.Sum(l => l.SumGCUFT);
             if (currGRSbdft == 0 && currGRScuft == 0)
             {
                  noDataForReport(strWriteOut, currentReport, " >>>>> No volume for this report.");
@@ -56,7 +50,7 @@ namespace CruiseProcessing
                     double totalAcres = cutList.Sum(c => c.Area);
                     //  create complete header
                     completeHeader = createCompleteHeader(totalAcres);
-                    rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.B2DC, reportConstants.FCTO);
+                    SetReportTitles(currentTitle, 6, 0, 0, reportConstants.B2DC, reportConstants.FCTO);
                     fieldLengths = new int[] { 1, 6, 8, 9, 9, 7, 9, 10, 8, 9, 8, 13, 7, 11, 7, 7 };
                     //  Load DIB classes
                     LoadDIBclasses();
@@ -64,7 +58,7 @@ namespace CruiseProcessing
                     for (int j = 0; j < 7; j++)
                     {
                         RegionalReports r = new RegionalReports();
-                        r.value1 = rRH.R801lines[j];
+                        r.value1 = regionalReportHeaders.R801lines[j];
                         reportSummary.Add(r);
                     }   //  end for j loop
 
@@ -76,18 +70,18 @@ namespace CruiseProcessing
                             return tcv.Tree.SampleGroup.CutLeave == "C" && tcv.Tree.CountOrMeasure == "M";
                         });
                     AccumulateVolume(justTrees);
-                    WriteReport(strWriteOut, ref pageNumb, rh, totalAcres);
+                    WriteReport(strWriteOut, ref pageNumb, totalAcres);
                     break;
                 case "R802":
-                    rh.createReportTitle(currentTitle, 6, 0, 0, "BY SAMPLE GROUP, SPECIES, AND PRODUCT", reportConstants.FCTO);
+                    SetReportTitles(currentTitle, 6, 0, 0, "BY SAMPLE GROUP, SPECIES, AND PRODUCT", reportConstants.FCTO);
                     numOlines = 0;
                     //  processed by group
                     List<SampleGroupDO> justGroups = DataLayer.getSampleGroups("WHERE CutLeave = @p1 GROUP BY Code");
-                    OutputSawtimber(strWriteOut, ref pageNumb, rh, justGroups, lcdList);
+                    OutputSawtimber(strWriteOut, ref pageNumb, justGroups, lcdList);
                     numOlines = 0;
-                    OutputProduct8(strWriteOut, ref pageNumb, rh, justGroups, lcdList);
+                    OutputProduct8(strWriteOut, ref pageNumb, justGroups, lcdList);
                     numOlines = 0;
-                    OutputPulpwood(strWriteOut, ref pageNumb, rh, justGroups, lcdList);
+                    OutputPulpwood(strWriteOut, ref pageNumb, justGroups, lcdList);
                     break;
             }   //  end switch on currentReport
             return;
@@ -199,12 +193,12 @@ namespace CruiseProcessing
         }   //  end AccumulateVolume
 
 
-        private void WriteReport(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, double totalAcres)
+        private void WriteReport(StreamWriter strWriteOut, ref int pageNumb, double totalAcres)
         {
             //  R801
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                         completeHeader, 14, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
@@ -244,11 +238,11 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(String.Format("{0,7:F2}", listToOutput.Sum(l => l.value20) / ccfFactor).PadLeft(8, ' '));
 
             //  output subtotal lines
-            strWriteOut.Write(rRH.R801subtotal[0]);
+            strWriteOut.Write(regionalReportHeaders.R801subtotal[0]);
             strWriteOut.Write(String.Format("{0,7:F2}", pineTop / ccfFactor).PadLeft(7, ' '));
             strWriteOut.WriteLine(String.Format("{0,7:F2}", hardwoodTop / ccfFactor).PadLeft(18, ' '));
 
-            strWriteOut.Write(rRH.R801subtotal[1]);
+            strWriteOut.Write(regionalReportHeaders.R801subtotal[1]);
             double calcValue = 0;
             calcValue = listToOutput.Sum(l => l.value18);
             calcValue += pineTop;
@@ -258,12 +252,12 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(String.Format("{0,7:F2}", calcValue / ccfFactor).PadLeft(18, ' '));
 
             //  output summary table
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                 completeHeader, 14, ref pageNumb, "");
             strWriteOut.WriteLine("");
             for (int h = 0; h < 3; h++)
             {
-                strWriteOut.WriteLine(rRH.R801summary[h]);
+                strWriteOut.WriteLine(regionalReportHeaders.R801summary[h]);
             }   //  end for loop
             double calcTrees = 0;
             double boardFoot = 0;
@@ -402,8 +396,8 @@ namespace CruiseProcessing
         }   //  end WriteReport
 
 
-        private void OutputSawtimber(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        List<SampleGroupDO> justGroups, List<LCDDO> lcdList)
+        private void OutputSawtimber(StreamWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
+                                        List<LCDDO> lcdList)
         {
             //  R802    --  sawtimber page
             RegionalReports r1 = new RegionalReports();
@@ -419,8 +413,8 @@ namespace CruiseProcessing
                         return l.CutLeave == "C" && l.PrimaryProduct == "01" && l.SampleGroup == jg.Code;
                     });
 
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                           rRH.R802sawtimber, 14, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                           regionalReportHeaders.R802sawtimber, 14, ref pageNumb, "");
 
                 //  accumulate data by species
                 string prevST = "*";
@@ -475,8 +469,8 @@ namespace CruiseProcessing
                     strWriteOut.WriteLine(jg.Code.PadLeft(2, ' '));
                     foreach (RegionalReports lto in listToOutput)
                     {
-                        WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                                            rRH.R802sawtimber, 14, ref pageNumb, "");
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                                            regionalReportHeaders.R802sawtimber, 14, ref pageNumb, "");
                         prtFields.Clear();
                         prtFields.Add("");
                         prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -519,8 +513,8 @@ namespace CruiseProcessing
 
 
 
-        private void OutputProduct8(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        List<SampleGroupDO> justGroups, List<LCDDO> lcdList)
+        private void OutputProduct8(StreamWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
+                                        List<LCDDO> lcdList)
         {
             //  R802    --  product 8 
             RegionalReports r2 = new RegionalReports();
@@ -536,8 +530,8 @@ namespace CruiseProcessing
                                 return l.CutLeave == "C" && l.PrimaryProduct == "08" && l.SampleGroup == jg.Code;
                             });
 
-                            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                                    rRH.R802product08, 14, ref pageNumb, "");
+                            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                                    regionalReportHeaders.R802product08, 14, ref pageNumb, "");
                            
                     //  accumulate data by species
                     string prevST = "*";
@@ -592,8 +586,8 @@ namespace CruiseProcessing
                         strWriteOut.WriteLine(jg.Code.PadLeft(2, ' '));
                         foreach (RegionalReports lto in listToOutput)
                         {
-                            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                                    rRH.R802product08, 14, ref pageNumb, "");
+                            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                                    regionalReportHeaders.R802product08, 14, ref pageNumb, "");
                             prtFields.Clear();
                             prtFields.Add("");
                             prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -639,8 +633,8 @@ namespace CruiseProcessing
 
 
 
-        private void OutputPulpwood(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        List<SampleGroupDO> justGroups, List<LCDDO> lcdList)
+        private void OutputPulpwood(StreamWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
+                                        List<LCDDO> lcdList)
         {
             //  R802    --  pulpwood page
             RegionalReports r3 = new RegionalReports();
@@ -656,8 +650,8 @@ namespace CruiseProcessing
                                 return l.CutLeave == "C" && l.SampleGroup == jg.Code &&
                                         l.PrimaryProduct != "01" && l.PrimaryProduct != "08";
                             });
-                            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                            rRH.R802pulpwood, 14, ref pageNumb, "");
+                            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                            regionalReportHeaders.R802pulpwood, 14, ref pageNumb, "");
 
                     //  accumulate data by species
                     string prevST = "*";
@@ -712,8 +706,8 @@ namespace CruiseProcessing
                         strWriteOut.WriteLine(jg.Code.PadLeft(2, ' '));
                         foreach (RegionalReports lto in listToOutput)
                         {
-                            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                                    rRH.R802pulpwood, 14, ref pageNumb, "");
+                            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                                    regionalReportHeaders.R802pulpwood, 14, ref pageNumb, "");
                             prtFields.Clear();
                             prtFields.Add("");
                             prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -810,7 +804,7 @@ namespace CruiseProcessing
 
         private string[] createCompleteHeader(double saleAcres)
         {
-            string[] finnishHeader = rRH.R801columns;
+            string[] finnishHeader = regionalReportHeaders.R801columns;
             finnishHeader[0] = finnishHeader[0].Replace("XXXXX", String.Format("{0,6:F2}", saleAcres).PadLeft(6, ' '));
             return finnishHeader;
         }   //  end createCompleteHeader

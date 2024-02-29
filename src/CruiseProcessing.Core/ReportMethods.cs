@@ -15,14 +15,14 @@ namespace CruiseProcessing
             List<ReportsDO> rList = new List<ReportsDO>();
 
             //  need the reports array to loop through
-            allReportsArray ara = new allReportsArray();
-            for (int k = 0; k < ara.reportsArray.GetLength(0); k++)
+            var reportsArray = allReportsArray.reportsArray;
+            for (int k = 0; k < reportsArray.GetLength(0); k++)
             {
                 ReportsDO rl = new ReportsDO();
-                rl.ReportID = ara.reportsArray[k, 0];
+                rl.ReportID = reportsArray[k, 0];
                 //  since this is an initial list where none exists, selected will always be zero or false
                 rl.Selected = false;
-                rl.Title = ara.reportsArray[k, 1];
+                rl.Title = reportsArray[k, 1];
                 rList.Add(rl);
             }   //  end for k loop
 
@@ -30,7 +30,7 @@ namespace CruiseProcessing
         }   //  end fillReportsList
 
 
-        public static List<ReportsDO> updateReportsList(List<ReportsDO> rList,allReportsArray ara)
+        public static List<ReportsDO> updateReportsList(List<ReportsDO> rList, string[,] reportsArray)
         {
             //  convert old reports ID to new reportsID
             foreach (ReportsDO r in rList)
@@ -224,40 +224,40 @@ namespace CruiseProcessing
                     default:
                         //  means report doesn't need an update just a title
                         //  look it up in the reports array
-                        for (int j = 0; j < ara.reportsArray.GetLength(0); j++)
+                        for (int j = 0; j < reportsArray.GetLength(0); j++)
                         {
-                            if (r.ReportID == ara.reportsArray[j, 0])
-                                r.Title = ara.reportsArray[j, 1];
+                            if (r.ReportID == reportsArray[j, 0])
+                                r.Title = reportsArray[j, 1];
                         }   //  end for j loop
                         break;
                 }   //  end switch on report number
             }   //  end foreach loop
             //  add any reports not selected
-            if (rList.Count < ara.reportsArray.GetLength(0))
-                rList = addReports(rList, ara);
+            if (rList.Count < reportsArray.GetLength(0))
+                rList = addReports(rList, reportsArray);
 
             return rList;
         }   //  end updateReportsList
 
 
-        public static List<ReportsDO> addReports(List<ReportsDO> rList, allReportsArray ara)
+        public static List<ReportsDO> addReports(List<ReportsDO> rList, string[,] reportsArray)
         {
             //  check current reports list for each report and add if not there
             //  hoping this catches new reports as they are added to the reports 
             //  March 2014
-            for (int k = 0; k < ara.reportsArray.GetLength(0); k++)
+            for (int k = 0; k < reportsArray.GetLength(0); k++)
             {
                 int nthRow = rList.FindIndex(
                     delegate(ReportsDO r)
                     {
-                        return r.ReportID == ara.reportsArray[k, 0];
+                        return r.ReportID == reportsArray[k, 0];
                     });
                 if (nthRow < 0)
                 {
                     //  add report to list
                     ReportsDO rr = new ReportsDO();
-                    rr.ReportID = ara.reportsArray[k, 0];
-                    rr.Title = ara.reportsArray[k, 1];
+                    rr.ReportID = reportsArray[k, 0];
+                    rr.Title = reportsArray[k, 1];
                     rr.Selected = false;
                     rList.Add(rr);
                 }   //  endif nthRow

@@ -36,11 +36,11 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public VolumeEquations(CPbusinessLayer dataLayer, IDialogService dialogService)
+        public VolumeEquations(CPbusinessLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-            Veq = new VolumeEqMethods(new ErrorLogMethods(dataLayer, dialogService), dataLayer);
+            Veq = new VolumeEqMethods(new ErrorLogMethods(dataLayer), dataLayer);
         }
 
         public int setupDialog()

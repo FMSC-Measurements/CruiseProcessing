@@ -1,5 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,26 +7,25 @@ using System.Linq;
 
 namespace CruiseProcessing
 {
-    public class OutputUnitSummary : CreateTextFile
+    public class OutputUnitSummary : ReportGeneratorBase
     {
-        public string currentReport;
         private List<RegionalReports> areaBasedOutput = new List<RegionalReports>();
         private List<RegionalReports> treeBasedBySpecies = new List<RegionalReports>();
         private List<RegionalReports> treeBaseBySampleGroup = new List<RegionalReports>();
         private List<string> prtFields = new List<string>();
         private int[] fieldLengths;
 
-        public OutputUnitSummary(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputUnitSummary(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void createUnitSummary(StreamWriter strWriteOut, ref int pageNum, reportHeaders rh)
+        public void createUnitSummary(StreamWriter strWriteOut, ref int pageNum)
         {
             //  fill current title
             string currentTitle = fillReportTitle(currentReport);
             //  field lengths is the same for each section
             fieldLengths = new int[] { 1, 6, 5, 4, 8, 3, 5, 9, 6 };
-            rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, reportConstants.FPPO);
+            SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, reportConstants.FPPO);
             //  there are three sections to this report and they each have a different format.
             //  but all are by unit, stratum, sample group and species
             //  load each group as needed
@@ -35,13 +34,13 @@ namespace CruiseProcessing
             //  write output lists as needed
             numOlines = 0;
             if (areaBasedOutput.Count > 0)
-                writeAreaBased(strWriteOut, ref pageNum, rh);
+                writeAreaBased(strWriteOut, ref pageNum);
             if (treeBasedBySpecies.Count > 0)
-                writeTreeBasedBySpecies(strWriteOut, ref pageNum, rh);
+                writeTreeBasedBySpecies(strWriteOut, ref pageNum);
             if (treeBaseBySampleGroup.Count > 0)
             {
                 fieldLengths = new int[] { 6, 6, 4, 8, 3, 5, 9, 6 };
-                writeTreeBasedBySampleGroup(strWriteOut, ref pageNum, rh);
+                writeTreeBasedBySampleGroup(strWriteOut, ref pageNum);
             }   //  endif
             return;
         }   //  end createUnitSummary
@@ -363,14 +362,14 @@ namespace CruiseProcessing
             return;
         }   //  end loadTreeBased
 
-        private void writeAreaBased(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void writeAreaBased(StreamWriter strWriteOut, ref int pageNumb)
         {
             double calcValue = 0;
             int firstLine = 1;
             foreach (RegionalReports abo in areaBasedOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.A14columns, 16, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.A14columns, 16, ref pageNumb, "");
                 if (firstLine == 1)
                 {
                     //  write section header
@@ -408,13 +407,13 @@ namespace CruiseProcessing
             return;
         }   //  end writeAreaBased
 
-        private void writeTreeBasedBySpecies(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void writeTreeBasedBySpecies(StreamWriter strWriteOut, ref int pageNumb)
         {
             int firstLine = 1;
             foreach (RegionalReports tbo in treeBasedBySpecies)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.A14columns, 16, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.A14columns, 16, ref pageNumb, "");
                 if (firstLine == 1)
                 {
                     //  write section header
@@ -437,13 +436,13 @@ namespace CruiseProcessing
             return;
         }   //  end writeTreeBasedBySpecies
 
-        private void writeTreeBasedBySampleGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void writeTreeBasedBySampleGroup(StreamWriter strWriteOut, ref int pageNumb)
         {
             int firstLine = 1;
             foreach (RegionalReports tbo in treeBaseBySampleGroup)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.A14columns, 16, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.A14columns, 16, ref pageNumb, "");
                 if (firstLine == 1)
                 {
                     //  write section header

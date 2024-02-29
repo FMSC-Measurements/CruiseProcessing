@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
@@ -7,27 +8,26 @@ using System.Linq;
 
 namespace CruiseProcessing
 {
-    public class OutputR5 : CreateTextFile
+    public class OutputR5 : ReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
-        private regionalReportHeaders rRH = new regionalReportHeaders();
         private string[] completeHeader = new string[6];
+        // TODO this should be pretty easy to remove as class field
         private int tableCounter = 0;
 
-        public OutputR5(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputR5(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateR5report(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        public void CreateR5report(StreamWriter strWriteOut, ref int pageNumb)
         {
             numOlines = 0;
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
-            rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
+            SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
             fieldLengths = new int[] { 2, 12, 14, 16, 16, 16, 11 };
             //  This report prints a page for each species/product combination and log DIB classes
             //  pull species/product combinations from LCD to ultimately pull log data
@@ -47,7 +47,7 @@ namespace CruiseProcessing
                 AccumulateVolumes(justLogs);
                 //  output group
                 if (listToOutput.Count > 0)
-                    WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb);
             }   //  end foreach loop
             return;
         }   //  end CreateR5report
@@ -81,11 +81,11 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateVolumes
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
         {
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 12, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
@@ -131,15 +131,15 @@ namespace CruiseProcessing
         private string[] createCompleteHeader(string currSP, string currPP)
         {
             string[] finnishHeader = new string[6];
-            finnishHeader[0] = rRH.R501columns[0];
+            finnishHeader[0] = regionalReportHeaders.R501columns[0];
             finnishHeader[0] = finnishHeader[0].Replace("XX", tableCounter.ToString());
             finnishHeader[0] = finnishHeader[0].Replace("ZZZZZZ", currSP.PadRight(6, ' '));
-            finnishHeader[1] = rRH.R501columns[1];
+            finnishHeader[1] = regionalReportHeaders.R501columns[1];
             finnishHeader[1] = finnishHeader[1].Replace("TT", currPP);
-            finnishHeader[2] = rRH.R501columns[2];
-            finnishHeader[3] = rRH.R501columns[3];
-            finnishHeader[4] = rRH.R501columns[4];
-            finnishHeader[5] = rRH.R501columns[5];
+            finnishHeader[2] = regionalReportHeaders.R501columns[2];
+            finnishHeader[3] = regionalReportHeaders.R501columns[3];
+            finnishHeader[4] = regionalReportHeaders.R501columns[4];
+            finnishHeader[5] = regionalReportHeaders.R501columns[5];
 
             return finnishHeader;
         }   //  end createCompleteHeader

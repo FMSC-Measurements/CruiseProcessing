@@ -1,5 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,16 +9,14 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    internal class OutputR9 : CreateTextFile
+    internal class OutputR9 : ReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
 
-        private regionalReportHeaders rRH = new regionalReportHeaders();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private double sumEstTrees, sumTipwood;
 
-        public string currCL = "C";
+        private string currCL = "C";
         private List<string> prtFields = new List<string>();
         private List<StratumDO> sList = new List<StratumDO>();
         private List<TreeCalculatedValuesDO> tcvList = new List<TreeCalculatedValuesDO>();
@@ -39,12 +37,12 @@ namespace CruiseProcessing
         private long currSTcn;
         private long currCUcn;
 
-        public OutputR9(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputR9(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public void OutputTipwoodReport(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void OutputTipwoodReport(StreamWriter strWriteOut, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
             sList = DataLayer.getStratum();
@@ -69,17 +67,17 @@ namespace CruiseProcessing
                 c.Strata.Populate();
                 currCUcn = (long)c.CuttingUnit_CN;
                 //  Create report title
-                rh.createReportTitle(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
 
                 //  Load and print data for current cutting unit
-                LoadAndPrintProrated(strWriteOut, c, rh, ref pageNumb, summaryList);
+                LoadAndPrintProrated(strWriteOut, c, ref pageNumb, summaryList);
                 if (unitSubtotal.Count > 0)
-                    OutputUnitSubtotal(strWriteOut, ref pageNumb, rh, currentReport);
+                    OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
                 unitSubtotal.Clear();
             }   //  end foreach loop
                 //  output Subtotal Summary and grand total for the report
-            OutputSubtotalSummary(strWriteOut, rh, ref pageNumb, summaryList);
-            OutputGrandTotal(strWriteOut, rh, currentReport, ref pageNumb);
+            OutputSubtotalSummary(strWriteOut, ref pageNumb, summaryList);
+            OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
 
             return;
         }   //  end OutputUnitReports
@@ -97,12 +95,12 @@ namespace CruiseProcessing
         }   //  end findMethods
 
         private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb,
-                                     reportHeaders rh, string currRPT)
+                                     string currRPT)
         {
-            //  WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                     completeHeader, 13, ref pageNumb, "");
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                               rRH.R902columns, 10, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                               regionalReportHeaders.R902columns, 10, ref pageNumb, "");
             strWriteOut.Write("                  ");
             strWriteOut.WriteLine(reportConstants.subtotalLine1);
             strWriteOut.Write("  UNIT ");
@@ -116,12 +114,12 @@ namespace CruiseProcessing
             return;
         }   //  end OutputUnitSubtotal
 
-        private void OutputGrandTotal(StreamWriter strWriteOut, reportHeaders rh, string currRPT, ref int pageNumb)
+        private void OutputGrandTotal(StreamWriter strWriteOut, string currRPT, ref int pageNumb)
         {
-            //WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            //WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                        completeHeader, 13, ref pageNumb, "");
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rRH.R902columns, 10, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
             //  works for UC reports
             strWriteOut.WriteLine("");
             strWriteOut.WriteLine("");
@@ -136,9 +134,9 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("");
 
             grandTotal.Clear();
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                    rRH.R902columns, 10, ref pageNumb, "");
-            //WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                    regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+            //WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                        completeHeader, 13, ref pageNumb, "");
             //  also output the footer
             // for (int k = 0; k < 5; k++)
@@ -146,14 +144,13 @@ namespace CruiseProcessing
             return;
         }   //  end OutputGrandTotal
 
-        private void OutputSubtotalSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
-                                            List<ReportSubtotal> summaryList)
+        private void OutputSubtotalSummary(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  output summary headers
-            //  WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                      completeHeader, 13, ref pageNumb, "");
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rRH.R902columns, 10, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
             strWriteOut.WriteLine("                  _________________________________________________________________________________________________________________");
             strWriteOut.WriteLine("");
             strWriteOut.WriteLine("");
@@ -196,8 +193,7 @@ namespace CruiseProcessing
         }   //  end finishColumnHeaders
 
         //////////////////////////////////////////////////////////////////////////
-        private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, reportHeaders rh, ref int pageNumb,
-                                            List<ReportSubtotal> summaryList)
+        private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
@@ -242,7 +238,7 @@ namespace CruiseProcessing
                     prtFields.Add(cdo.Code.PadLeft(3, ' '));
                     prtFields.Add(gtp.PadRight(6, ' '));
 
-                    WriteCurrentGroup(strWriteOut, rh, ref pageNumb);
+                    WriteCurrentGroup(strWriteOut, ref pageNumb);
                     UpdateSubtotalSummary(gtp, summaryList);
                     UpdateUnitTotal(currentReport);
                     unitSubtotal[0].Value1 = cdo.Code;
@@ -357,14 +353,14 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotalSummary
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  overloaded for UC reports
             string fieldFormat3 = "{0,9:F0}";
             string fieldFormat5 = "{0,7:F0}";
 
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rRH.R902columns, 10, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
 
             //  Expansion factor is first
             prtFields.Add(String.Format(fieldFormat5, numTrees));
@@ -602,7 +598,7 @@ namespace CruiseProcessing
                //  works for R902
                foreach (RegionalReports lto in listToOutput)
                {
-                   WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                   WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                        rRH.R902columns, 10, ref pageNum, "");
 
                    prtFields.Clear();
@@ -620,7 +616,7 @@ namespace CruiseProcessing
 
            private void WriteSummaryGroup(StreamWriter strWriteOut, ref int pageNum, reportHeaders rh)
            {
-               WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+               WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                    rRH.R902columns, 10, ref pageNum, "");
                // print solid line
                // print group summary

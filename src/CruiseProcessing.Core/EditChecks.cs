@@ -2,6 +2,7 @@
 using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CruiseProcessing
 {
@@ -25,7 +26,7 @@ namespace CruiseProcessing
         {
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-            elm = new ErrorLogMethods(dataLayer, dialogService);
+            elm = new ErrorLogMethods(dataLayer);
 
             // previously several classes would just instantiate their own
             // instance of ErrorLogMethods, but elm instance would never get
@@ -34,7 +35,7 @@ namespace CruiseProcessing
             // those errors without doing a bit of testing but by creating a second
             // elm that those classes can use and put all there errors into we can
             // track all the errors they are creating.
-            var ghostElm = GhostElm = new ErrorLogMethods(dataLayer, dialogService);
+            var ghostElm = GhostElm = new ErrorLogMethods(dataLayer);
             Lms = new LogMethods(ghostElm);
             Tlm = new TreeListMethods(ghostElm);
             Veq = new VolumeEqMethods(ghostElm, dataLayer);
@@ -50,9 +51,9 @@ namespace CruiseProcessing
             //  generate an error report
             //  June 2013
             List<ErrorLogDO> fscList = DataLayer.getErrorMessages("E", "FScruiser");
-            if (fscList.Count > 0)
+            if (fscList.Any())
             {
-                ErrorReport eRpt = new ErrorReport(DataLayer, DialogService);
+                ErrorReport eRpt = new ErrorReport(DataLayer);
                 outputFileName = eRpt.PrintFScruiserErrors(fscList);
                 string outputMessage = "ERRORS FROM FSCRUISER FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
                 DialogService.ShowError(outputMessage);
@@ -81,7 +82,7 @@ namespace CruiseProcessing
             List<ErrorLogDO> errList = DataLayer.getErrorMessages("E", "CruiseProcessing");
             if (errList.Count > 0)
             {
-                ErrorReport er = new ErrorReport(DataLayer, DialogService);
+                ErrorReport er = new ErrorReport(DataLayer);
                 outputFileName = er.PrintErrorReport(errList);
                 string outputMessage = "ERRORS FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
                 DialogService.ShowError(outputMessage);
@@ -288,7 +289,7 @@ namespace CruiseProcessing
         {
             List<StratumDO> strList = DataLayer.getStratum();
             List<TreeDO> tList = DataLayer.getTrees();
-            errorValue = elm.CheckCruiseMethods(strList, tList);
+            errorValue = elm.CheckCruiseMethods(strList, tList, DialogService);
             errList = elm.errList;
             if (errList.Count > 0) DataLayer.SaveErrorMessages(errList);
             return errorValue;

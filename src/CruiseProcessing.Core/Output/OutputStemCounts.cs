@@ -5,27 +5,26 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
+using System.Collections.ObjectModel;
 
 namespace CruiseProcessing
 {
-    public class OutputStemCounts : CreateTextFile
+    public class OutputStemCounts : ReportGeneratorBase
     {
-        public string currentReport;
         private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[3];
         private List<StandTables> countsToOutput = new List<StandTables>();
-        private string oneHeader = "CUTTING UNIT:  ";
-        private string[] twoHeader = new string[] { "CUTTING UNIT:  ", "STRATUM:  ", "NUMBER OF PLOTS --" };
+        private readonly string oneHeader = "CUTTING UNIT:  ";
+        private readonly IReadOnlyList<string> twoHeader = new[] { "CUTTING UNIT:  ", "STRATUM:  ", "NUMBER OF PLOTS --" };
         private string threeHeader = "STRATUM:  ";
         private int footFlag = 0;
 
-        public OutputStemCounts(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputStemCounts(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void createStemCountReports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        public void createStemCountReports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -35,7 +34,7 @@ namespace CruiseProcessing
             //  any stratum matches?
             if (justFIXCNT.Count == 0)
             {
-                noDataForReport(strWriteOut, currentReport, " cannot produce report.  No FIXCNT strtaum in the cruise.");
+                noDataForReport(strWriteOut, currentReport, " cannot produce report.  No FIXCNT stratum in the cruise.");
                 return;
             }   //  endif no data
 
@@ -52,14 +51,14 @@ namespace CruiseProcessing
                 string secondLine = reportConstants.FPPO;
                 secondLine += " -- ";
                 secondLine += reportConstants.B1DC;
-                rh.createReportTitle(currentTitle, 6, 0, 0, secondLine, reportConstants.oneInchDC);
+                SetReportTitles(currentTitle, 6, 0, 0, secondLine, reportConstants.oneInchDC);
                 switch (currentReport)
                 {
                     case "SC1":         case "SC2":
-                        createByUnit(jf, justSpecies, justTrees, strWriteOut, ref pageNumb, rh);
+                        createByUnit(jf, justSpecies, justTrees, strWriteOut, ref pageNumb);
                         break;
                     case "SC3":
-                        createByStratum(jf, justSpecies, justTrees, strWriteOut, ref pageNumb, rh);
+                        createByStratum(jf, justSpecies, justTrees, strWriteOut, ref pageNumb);
                         break;
                 }   //  end switch on report
                 numOlines = 0;
@@ -70,7 +69,7 @@ namespace CruiseProcessing
 
 
         private void createByUnit(StratumDO currST, List<LCDDO> justSpecies, List<TreeDO> justTrees,
-                                StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+                                StreamWriter strWriteOut, ref int pageNumb)
         {
             int numOplots = 0;
             //  SC1 and SC2 reports by units
@@ -139,7 +138,7 @@ namespace CruiseProcessing
                 double calcValue = countsToOutput.Sum(c => c.lineTotal);
                 if (calcValue > 0)
                 {
-                    WriteCurrentPage(strWriteOut, ref pageNumb, rh, justSpecies);
+                    WriteCurrentPage(strWriteOut, ref pageNumb, justSpecies);
                     numOlines = 0;
                 }   //  endif
             }   //  end foreach loop on cutting unit
@@ -148,7 +147,7 @@ namespace CruiseProcessing
 
 
         private void createByStratum(StratumDO currST, List<LCDDO> justSpecies, List<TreeDO> justTrees,
-                                StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+                                StreamWriter strWriteOut, ref int pageNumb)
         {
             //  SC3 reports by stratum
                 completeHeader = createCompleteHeader(justSpecies, "", currST.Code, 0);
@@ -195,7 +194,7 @@ namespace CruiseProcessing
                 double calcValue = countsToOutput.Sum(c => c.lineTotal);
                 if (calcValue > 0)
                 {
-                    WriteCurrentPage(strWriteOut, ref pageNumb, rh, justSpecies);
+                    WriteCurrentPage(strWriteOut, ref pageNumb, justSpecies);
                     numOlines = 0;
                 }   //  endif
             return;
@@ -242,14 +241,13 @@ namespace CruiseProcessing
         }   //  end loadCountsToOutput
 
 
-        private void WriteCurrentPage(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        List<LCDDO> justSpecies)
+        private void WriteCurrentPage(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> justSpecies)
         {
             //  should work for every report
             string verticalLine = " |";
             foreach (StandTables cto in countsToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 11, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add(cto.dibClass.PadLeft(4, ' '));
@@ -306,7 +304,7 @@ namespace CruiseProcessing
                 printOneRecord(strWriteOut, prtFields);
             }   //  end foreach loop
             // output total line
-            outputTotalLine(strWriteOut, ref pageNumb, rh, justSpecies);
+            outputTotalLine(strWriteOut, ref pageNumb, justSpecies);
 
             //  output footer line if needed
             if (footFlag == 1)
@@ -318,13 +316,12 @@ namespace CruiseProcessing
         }   //  end WriteCurrentPage
 
 
-        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh, 
-                                        List<LCDDO> justSpecies)
+        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> justSpecies)
         {
             //  output headers if needed
             string verticalLine = " |";
             double calcValue = 0;
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2], 
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 11, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(" TOTALS |");

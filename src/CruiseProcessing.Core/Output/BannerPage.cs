@@ -12,7 +12,6 @@ namespace CruiseProcessing
     public class BannerPage
     {
         #region
-            reportHeaders rh = new reportHeaders();
             StringBuilder sb = new StringBuilder();
             public string saleName = "";
             public string cruiseName = "";
