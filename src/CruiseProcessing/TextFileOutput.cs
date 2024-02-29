@@ -72,13 +72,13 @@ namespace CruiseProcessing
             fileStatus.Refresh();
 
             //  calls routine to create text output file
-            CreateTextFile ctf = new CreateTextFile(DataLayer, DialogService);
+            CreateTextFile ctf = new CreateTextFile(DataLayer);
             ctf.currentRegion = currRegion;
-            ctf.selectedReports = selectedReports;
+            //ctf.selectedReports = selectedReports;
 
             try
             {
-                ctf.createTextFile();
+                ctf.createTextFile(DialogService, selectedReports);
             }
             catch(InvalidOperationException ex)
             {

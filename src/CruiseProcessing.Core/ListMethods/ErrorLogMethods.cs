@@ -10,12 +10,10 @@ namespace CruiseProcessing
     {
         public List<ErrorLogDO> errList { get; } = new List<ErrorLogDO>();
         protected CPbusinessLayer DataLayer { get; }
-        public IDialogService DialogService { get; }
 
-        public ErrorLogMethods(CPbusinessLayer dataLayer, IDialogService dialogService)
+        public ErrorLogMethods(CPbusinessLayer dataLayer)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         public void LoadError(string nameOfTable, string errorLevel,
@@ -34,7 +32,7 @@ namespace CruiseProcessing
         }   //  end LoadError
 
         //  Method checks here since not specific to one particular table
-        public int CheckCruiseMethods(List<StratumDO> strList, List<TreeDO> tList)
+        public int CheckCruiseMethods(List<StratumDO> strList, List<TreeDO> tList, IDialogService dialogService)
         {
             int errsFound = 0;
             //  pull trees by stratum for cruise method checks
@@ -49,7 +47,7 @@ namespace CruiseProcessing
                     warnMsg += str.Code;
                     warnMsg += " has no trees recorded.  Some reports may not be complete.\nContinue?";
 
-                    if (!DialogService.ShowWarningAskYesNo(warnMsg))
+                    if (!dialogService.ShowWarningAskYesNo(warnMsg))
                         return -1;
                 }   //  endif no trees
 
@@ -245,7 +243,7 @@ namespace CruiseProcessing
         {
             var dataLayer = DataLayer;
             int numErrs = 0;
-            ErrorLogMethods elm = new ErrorLogMethods(dataLayer, DialogService); // TODO fix this instantiating a new elm. I think we can just use the current instance. We may need to create a class level accumulator to count errors. 
+            ErrorLogMethods elm = new ErrorLogMethods(dataLayer); // TODO fix this instantiating a new elm. I think we can just use the current instance. We may need to create a class level accumulator to count errors. 
             //  if the tree list is empty, could be the strata just doesn't have any trees.
             //  this is probably a cruise in process so return no errors on this stratum.
             //  October 2014

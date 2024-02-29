@@ -118,7 +118,7 @@ namespace CruiseProcessing
             }
         }   //  end CurrentDLLversion
 
-        public static StringBuilder GetIdentifier(string tableName, long CNtoFind, CPbusinessLayer bslyr)
+        public static string GetIdentifier(string tableName, long CNtoFind, CPbusinessLayer bslyr)
         {
             StringBuilder ident = new StringBuilder();
             int ithRow = -1;
@@ -260,7 +260,7 @@ namespace CruiseProcessing
                     else ident.Append("Sample Group not found");
                     break;
             }   //  end switch
-            return ident;
+            return ident.ToString();
         }   //  end GetIdentifier
 
 

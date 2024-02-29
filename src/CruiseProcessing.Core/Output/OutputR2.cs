@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
@@ -8,24 +9,25 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputR2 : CreateTextFile
+    public class OutputR2 : ReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
         private List<ReportSubtotal> subtotalList = new List<ReportSubtotal>();
         private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
-        private regionalReportHeaders rRH = new regionalReportHeaders();
         private List<StandTables> defectData = new List<StandTables>();
         private string[] columnHeader = new string[] { "" };
         private double weightFraction = 0;
 
-        public OutputR2(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public IDialogService DialogService { get; }
+
+        public OutputR2(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void CreateR2Reports(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        public void CreateR2Reports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -62,7 +64,7 @@ namespace CruiseProcessing
                 case "R201":
                     //  process by stratum for this report
                     numOlines = 0;
-                    rh.createReportTitle(currentTitle, 6, 0, 0, "BY SPECIES AND STRATA", reportConstants.FCTO);
+                    SetReportTitles(currentTitle, 6, 0, 0, "BY SPECIES AND STRATA", reportConstants.FCTO);
                     fieldLengths = new int[] { 3, 7, 12, 9, 9, 14, 11, 10, 13, 11, 15, 7 };
                     List<StratumDO> sList = DataLayer.getStratum();
                     foreach (StratumDO s in sList)
@@ -71,17 +73,17 @@ namespace CruiseProcessing
                         double STRacres = Utilities.AcresLookup((long)s.Stratum_CN, DataLayer, s.Code);
                         //  Accumulate by species, primary and secondary product
                         AccumulateStratum(s.Code, STRacres, lcdList, s.Method);
-                        WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
+                        WriteCurrentGroup(strWriteOut, ref pageNumb);
                         //  update subtotal and print
                         updateSubtotal(s.Code, STRacres, "");
-                        outputSubtotal(strWriteOut, ref pageNumb, rh);
+                        outputSubtotal(strWriteOut, ref pageNumb);
                         subtotalList.Clear();
                         //  update total
                         updateTotal(STRacres);
                         listToOutput.Clear();
                     }   //  end foreach loop on stratum
                     //  output total line
-                    outputTotal(strWriteOut, ref pageNumb, rh);
+                    outputTotal(strWriteOut, ref pageNumb);
                     break;
 
                 case "R202":
@@ -94,7 +96,7 @@ namespace CruiseProcessing
                     List<LCDDO> justSpecies = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ",
                                                             "GROUP BY Species", "C", "");
                     //  setup main header based on report
-                    rh.createReportTitle(currentTitle, 4, 31, 32, reportConstants.FCTO_PPO, "");
+                    SetReportTitles(currentTitle, 4, 31, 32, reportConstants.FCTO_PPO, "");
                     //  create column headers for the species pulled
                     LoadColumnHeader(justSpecies);
                     //  accumulate defect by diameter class, volume type and species
@@ -117,13 +119,13 @@ namespace CruiseProcessing
                             break;
                     }   //  end switch on report
                     //  Write report
-                    WriteDefectGroups(strWriteOut, ref pageNumb, rh, justSpecies.Count);
+                    WriteDefectGroups(strWriteOut, ref pageNumb, justSpecies.Count);
                     break;
 
                 case "R206":
                     //  process by contract species in LCD
                     numOlines = 0;
-                    rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FPPO, reportConstants.FCTO);
+                    SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FPPO, reportConstants.FCTO);
                     fieldLengths = new int[] { 3, 10, 19, 13, 14, 16, 5 };
                     List<LCDDO> justCS = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "ContractSpecies", "C", "");
                     foreach (LCDDO jc in justCS)
@@ -131,9 +133,9 @@ namespace CruiseProcessing
                         //  find all species for current contract species
                         List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE ContractSpecies = @p1 GROUP BY ", "Species", jc.ContractSpecies, "");
                         AccumulateByContractSpecies(justGroups, lcdList);
-                        WriteSpeciesGroups(strWriteOut, ref pageNumb, rh);
+                        WriteSpeciesGroups(strWriteOut, ref pageNumb);
                         updateSubtotal("", 0, "");
-                        outputCSsubtotal(strWriteOut, ref pageNumb, rh);
+                        outputCSsubtotal(strWriteOut, ref pageNumb);
                         listToOutput.Clear();
                         subtotalList.Clear();
                     }   //  end foreach loop
@@ -142,29 +144,29 @@ namespace CruiseProcessing
                 case "R207":
                     //  process by cutting unit for this report
                     numOlines = 0;
-                    rh.createReportTitle(currentTitle, 6, 0, 0, "BY CUTTING UNIT BY STRATUM", reportConstants.FCTO);
+                    SetReportTitles(currentTitle, 6, 0, 0, "BY CUTTING UNIT BY STRATUM", reportConstants.FCTO);
                     fieldLengths = new int[] { 2, 11, 9, 8, 7, 13, 9, 11, 10, 5 };
                     List<TreeDO> tList = DataLayer.getTrees();
                     List<CuttingUnitDO> cutList = DataLayer.getCuttingUnits();
                     foreach (CuttingUnitDO c in cutList)
                     {
                         int somethingToPrint = AccumulateGroups(c, tList);
-                        if (somethingToPrint == 1) WriteUnitGroup(strWriteOut, ref pageNumb, rh);
+                        if (somethingToPrint == 1) WriteUnitGroup(strWriteOut, ref pageNumb);
                     }   //  end foreach loop on cutList
                     break;
 
                 case "R208":
                     //  stewardship report
                     numOlines = 0;
-                    rh.createReportTitle(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
+                    SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, "");
                     fieldLengths = new int[] { 11, 13, 13, 14, 16, 14, 12, 8 };
-                    CreateR208(strWriteOut, ref pageNumb, rh);
+                    CreateR208(strWriteOut, ref pageNumb);
                     break;
             }   //  end switch
             return;
         }   //  end CreateR2Reports
 
-        private void CreateR208(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void CreateR208(StreamWriter strWriteOut, ref int pageNumb)
         {
             IEnumerable<StewProductCosts> stewList = new List<StewProductCosts>();
             int numRows = 0;
@@ -176,15 +178,16 @@ namespace CruiseProcessing
                 stewList = DataLayer.getStewCosts();
                 numRows = stewList.Count();
             }
-            else if (!bResult)
+            else
             {
                 DataLayer.CreateNewTable("StewProductCosts");
                 numRows = 0;
-            }   //  endif
+            } 
+
             if (numRows == 0)
             {
                 stewList = DialogService.GetStewardshipProductCosts();
-            }   //  endif
+            }
 
             //  find all species groups to include in the report
             List<StewProductCosts> justGroups = stewList.Where(x => x.includeInReport == "True").ToList();
@@ -204,9 +207,9 @@ namespace CruiseProcessing
                     SumExpandedNetVolume(jg.costUnit, jg.costSpecies, jg.costProduct, justTrees, jg.costPounds);
                 }   //  end foreach loop
 
-                WriteStewardshipGroups(strWriteOut, ref pageNumb, rh);
+                WriteStewardshipGroups(strWriteOut, ref pageNumb);
                 //  write summary portion
-                WriteStewardshipSummary(strWriteOut, ref pageNumb, rh, justGroups);
+                WriteStewardshipSummary(strWriteOut, ref pageNumb, justGroups);
             }   //  endif no groups
 
             return;
@@ -727,14 +730,14 @@ namespace CruiseProcessing
             return;
         }   //  end updateAverages
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R201
             int firstLine = 1;
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rRH.R201columns, 13, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    regionalReportHeaders.R201columns, 13, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add(" ");
                 if (firstLine == 1)
@@ -782,13 +785,13 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-        private void WriteUnitGroup(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void WriteUnitGroup(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R207
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rRH.R207columns, 13, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        regionalReportHeaders.R207columns, 13, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add(" ");
                 prtFields.Add(lto.value1.PadLeft(3, ' '));
@@ -808,20 +811,20 @@ namespace CruiseProcessing
             }   //  end foreach loop on listToOutput
             //  update subtotal here
             updateSubtotal("", 0, listToOutput[0].value4);
-            outputProductSubtotal(strWriteOut, ref pageNumb, rh);
+            outputProductSubtotal(strWriteOut, ref pageNumb);
             listToOutput.Clear();
             subtotalList.Clear();
             return;
         }   //  end WriteUnitGroup
 
-        private void WriteSpeciesGroups(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void WriteSpeciesGroups(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R206
             double calcValue = 0;
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rRH.R206columns, 13, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    regionalReportHeaders.R206columns, 13, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add(" ");
                 prtFields.Add(lto.value1.PadRight(4, ' '));
@@ -850,11 +853,11 @@ namespace CruiseProcessing
         }   //  end WriteSpeciesGroups
 
         private void WriteDefectGroups(StreamWriter strWriteOut, ref int pageNumb,
-                                        reportHeaders rh, int numberSpecies)
+                                        int numberSpecies)
         {
             //  R202, R203, R204, R205
             string verticalLine = " |";
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     columnHeader, 9, ref pageNumb, "");
             foreach (StandTables dd in defectData)
             {
@@ -913,19 +916,19 @@ namespace CruiseProcessing
             return;
         }   //  end WriteDefectGroups
 
-        private void WriteStewardshipGroups(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void WriteStewardshipGroups(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R208
             // outputs top portion of the report
             string[] headerPortion = new string[2];
-            headerPortion[0] = rRH.R208columns[0];
-            headerPortion[1] = rRH.R208columns[1];
+            headerPortion[0] = regionalReportHeaders.R208columns[0];
+            headerPortion[1] = regionalReportHeaders.R208columns[1];
             double totalVolume = listToOutput.Sum(l => l.value7);
             double percentNet = 0;
             double calcValue = 0;
             foreach (RegionalReports lto in listToOutput)
             {
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     headerPortion, 10, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
@@ -957,15 +960,14 @@ namespace CruiseProcessing
             return;
         }   //  end WriteStewardshipGroups
 
-        private void WriteStewardshipSummary(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh,
-                                                List<StewProductCosts> justGroups)
+        private void WriteStewardshipSummary(StreamWriter strWriteOut, ref int pageNumb, List<StewProductCosts> justGroups)
         {
             //  R208 summary portion
             double calcValue = 0;
             fieldLengths = new int[] { 8, 15, 10, 15, 17, 9, 12, 10, 5 };
             //  write header
-            strWriteOut.WriteLine(rRH.R208columns[2]);
-            strWriteOut.WriteLine(rRH.R208columns[3]);
+            strWriteOut.WriteLine(regionalReportHeaders.R208columns[2]);
+            strWriteOut.WriteLine(regionalReportHeaders.R208columns[3]);
             strWriteOut.WriteLine(reportConstants.longLine);
             foreach (StewProductCosts jg in justGroups)
             {
@@ -1065,11 +1067,11 @@ namespace CruiseProcessing
             return;
         }   //  end updateSubtotal
 
-        private void outputSubtotal(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void outputSubtotal(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R201
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rRH.R201columns, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R201columns, 13, ref pageNumb, "");
             strWriteOut.WriteLine("                                      _____________________________________________________________________________________");
             strWriteOut.Write(subtotalList[0].Value1.PadLeft(7, ' '));
             strWriteOut.Write(subtotalList[0].Value2.PadLeft(7, ' '));
@@ -1096,11 +1098,11 @@ namespace CruiseProcessing
             return;
         }   //  end outputSubtotal
 
-        private void outputProductSubtotal(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void outputProductSubtotal(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R207
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                            rRH.R207columns, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                            regionalReportHeaders.R207columns, 13, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(subtotalList[0].Value1);
             strWriteOut.Write(subtotalList[0].Value2);
@@ -1111,12 +1113,12 @@ namespace CruiseProcessing
             return;
         }   //  end outputProductSubtotal
 
-        private void outputCSsubtotal(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void outputCSsubtotal(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R206 - contract species
             double calcValue = 0;
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rRH.R206columns, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        regionalReportHeaders.R206columns, 13, ref pageNumb, "");
             strWriteOut.WriteLine(" ");
             strWriteOut.Write(" CONTRACT SPECIES ");
             strWriteOut.Write(subtotalList[0].Value1.PadRight(4, ' '));
@@ -1176,11 +1178,11 @@ namespace CruiseProcessing
             }   //  endif
         }   //  end updateTotal
 
-        private void outputTotal(StreamWriter strWriteOut, ref int pageNumb, reportHeaders rh)
+        private void outputTotal(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  R201
-            WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rRH.R201columns, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        regionalReportHeaders.R201columns, 13, ref pageNumb, "");
             strWriteOut.Write("                      ");
             strWriteOut.Write(totalToOutput[0].Value1);
             strWriteOut.Write("             ");

@@ -5,22 +5,22 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    class OutputTIM : CreateTextFile
+    class OutputTIM : ReportGeneratorBase
     {
         #region
-        public string cruiseNum;
+        private string cruiseNum { get; }
         private string regionNumber;
         private string[] productTypes = new string[3];
         private List<SumFields> sumList = new List<SumFields>();
         #endregion
 
-        public OutputTIM(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputTIM(CPbusinessLayer dataLayer, HeaderFieldData headerData) : base(dataLayer, headerData) // no report id
         {
+            cruiseNum = headerData.CruiseName;
         }
 
         public void CreateSUMfile()

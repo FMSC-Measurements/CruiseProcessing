@@ -5,14 +5,12 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
-using CruiseProcessing.Services;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    public class OutputUnitStandTables : CreateTextFile
+    public class OutputUnitStandTables : ReportGeneratorBase
     {
-        public string currentReport;
         private List<string> prtFields = new List<string>();
         private double unitPF = 0;
         private string[] columnHeader = new string[3];
@@ -32,11 +30,11 @@ namespace CruiseProcessing
         private double grNonSawTotal = 0;
         private List<PRODO> proList = new List<PRODO>();
 
-        public OutputUnitStandTables(CPbusinessLayer dataLayer, IDialogService dialogService) : base(dataLayer, dialogService)
+        public OutputUnitStandTables(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
-        public void CreateUnitStandTables(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+        public void CreateUnitStandTables(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  June 2017 need all LCD records
             //List<LCDDO> lcdList = bslyr.getLCD();
@@ -124,7 +122,7 @@ namespace CruiseProcessing
                     secondLine = reportConstants.BCUFS;
                     break;
             }   //  end switch
-            rh.createReportTitle(currentTitle, 6, 0, 0, secondLine, reportConstants.FCTO);
+            SetReportTitles(currentTitle, 6, 0, 0, secondLine, reportConstants.FCTO);
 
             //  need cutting unit numbers
             List<CuttingUnitDO> cList = DataLayer.getCuttingUnits();
@@ -166,8 +164,8 @@ namespace CruiseProcessing
 
             if (currentReport == "UC25" || currentReport == "UC26")
             {
-                VolumeSummary(strWriteOut, rh, ref pageNumb, speciesGroups, lcdList, proList, cList, 
-                                secondLine, currentTitle);
+                VolumeSummary(strWriteOut, ref pageNumb, speciesGroups, lcdList, proList, cList, secondLine,
+                                currentTitle);
                 return;
             }   //  endif report UC25 or UC26
             //  how many pages?
@@ -494,7 +492,7 @@ namespace CruiseProcessing
                 numOlines = 0;
                 if (endGroup == speciesGroups.Count) lastPage = true;
                 LoadColumnHeader(speciesGroups, lastPage);
-                writeCurrentPage(strWriteOut, rh, ref pageNumb, endGroup, lastPage);
+                writeCurrentPage(strWriteOut, ref pageNumb, endGroup, lastPage);
                 clearOutputList(reportData);
             }   //  end for n loop on number of pages
 
@@ -757,8 +755,8 @@ namespace CruiseProcessing
         }   //  end LoadColumnHeader
 
 
-        private void writeCurrentPage(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                                        int lastGroup, bool lastPage)
+        private void writeCurrentPage(StreamWriter strWriteOut, ref int pageNumb, int lastGroup,
+                                        bool lastPage)
         {
             string verticalBar = " | ";
             prtFields.Clear();
@@ -790,7 +788,7 @@ namespace CruiseProcessing
             foreach (StandTables rd in reportData)
             {
                 prtFields.Clear();
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     columnHeader, 10, ref pageNumb, "");
                 prtFields.Add("  ");
                 prtFields.Add(rd.dibClass.PadLeft(5, ' '));
@@ -979,16 +977,16 @@ namespace CruiseProcessing
         }   //  end FindUnitIndex
 
         
-        private void VolumeSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                            List<LCDDO> speciesGroups, List<LCDDO> lcdList, List<PRODO> proList,
-                            List<CuttingUnitDO> cList, string secondLine, string currentTitle)
+        private void VolumeSummary(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> speciesGroups,
+                            List<LCDDO> lcdList, List<PRODO> proList, List<CuttingUnitDO> cList,
+                            string secondLine, string currentTitle)
         {
             //  Primarily for UC25/UC26
             double totalAcres = 0;
             double puAcres = 0;
             List<ReportSubtotal> csSummary = new List<ReportSubtotal>();
             //  finish header
-            rh.createReportTitle(currentTitle, 6, 0, 0, secondLine, reportConstants.FCTO);
+            SetReportTitles(currentTitle, 6, 0, 0, secondLine, reportConstants.FCTO);
             List<CuttingUnitDO> paymentGroups = new List<CuttingUnitDO>();
             if (currentReport == "UC25")
             {
@@ -1084,8 +1082,8 @@ namespace CruiseProcessing
                             }   //  end for j loop on stratum
                         }   //  end foreach cutting unit
                         // output contract species group
-                        writeContractSpeciesGroup(strWriteOut, rh, ref pageNumb, firstFlag, sawVolume,
-                                                nonSawVolume, sg.ContractSpecies, pg.PaymentUnit, puAcres);
+                        writeContractSpeciesGroup(strWriteOut, ref pageNumb, firstFlag, sawVolume, nonSawVolume,
+                                                sg.ContractSpecies, pg.PaymentUnit, puAcres);
                         //  update contract species summary
                         UpdateContractSpeciesSummary(csSummary, sg.ContractSpecies, sawVolume, nonSawVolume);
                         
@@ -1094,8 +1092,8 @@ namespace CruiseProcessing
                         firstFlag = 0;
                     }   //  end foreach species group
                     //  output payment unit subtotal
-                    writePaymentGroup(strWriteOut, rh, ref pageNumb, pg.PaymentUnit, puAcres, 
-                                    puSawTotal, puNonSawTotal);
+                    writePaymentGroup(strWriteOut, ref pageNumb, pg.PaymentUnit, puAcres, puSawTotal,
+                                    puNonSawTotal);
                     puSawTotal = 0;
                     puNonSawTotal = 0;
                     firstFlag = 1;
@@ -1174,8 +1172,8 @@ namespace CruiseProcessing
                             currCS = " ";
                         else currCS = sg.ContractSpecies;
                     //  write cutting unit group -- no subtotals printed
-                    writeContractSpeciesGroup(strWriteOut, rh, ref pageNumb, firstFlag, sawVolume,
-                                            nonSawVolume, currCS, pg.Code, puAcres);
+                    writeContractSpeciesGroup(strWriteOut, ref pageNumb, firstFlag, sawVolume, nonSawVolume,
+                                            currCS, pg.Code, puAcres);
                     //  update contract species summary
                     UpdateContractSpeciesSummary(csSummary, currCS, sawVolume, nonSawVolume);
                         
@@ -1188,8 +1186,8 @@ namespace CruiseProcessing
                 }   //  end foreach loop on cutting unit
             }   //  endif
             //  write contract species summary here and then grand total
-            writeSummary(strWriteOut, rh, ref pageNumb, csSummary);
-            writeGrandTotal(strWriteOut, rh, ref pageNumb, totalAcres, grSawTotal, grNonSawTotal);
+            writeSummary(strWriteOut, ref pageNumb, csSummary);
+            writeGrandTotal(strWriteOut, ref pageNumb, totalAcres, grSawTotal, grNonSawTotal);
             return;
         }   //  end VolumeSummary
 
@@ -1212,9 +1210,9 @@ namespace CruiseProcessing
         }   //  end UpdateContractSpeciesSummary
 
 
-        private void writeContractSpeciesGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb,
-                                        int firstFlag, double sawVol, double nonsawVol, string currCS,
-                                        string currPU, double currAcres)
+        private void writeContractSpeciesGroup(StreamWriter strWriteOut, ref int pageNumb, int firstFlag,
+                                        double sawVol, double nonsawVol, string currCS, string currPU,
+                                        double currAcres)
         {
             //  UC25 or UC26
             prtFields.Clear();
@@ -1222,8 +1220,8 @@ namespace CruiseProcessing
             switch(currentReport)
             {
                 case "UC25":
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                        rh.UC25columns, 11, ref pageNumb, "");
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                        reportHeaders.UC25columns, 11, ref pageNumb, "");
                     prtFields.Add("                                 ");
                     if (firstFlag == 1)
                         prtFields.Add(currPU.PadLeft(4, ' '));
@@ -1238,8 +1236,8 @@ namespace CruiseProcessing
                     printOneRecord(strWriteOut, prtFields);
                     break;
                 case "UC26":
-                    WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                    rh.UC26columns, 12, ref pageNumb, "");
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                    reportHeaders.UC26columns, 12, ref pageNumb, "");
                     prtFields.Add("                                 ");
                     if(firstFlag == 1)
                     {
@@ -1261,8 +1259,8 @@ namespace CruiseProcessing
         }   //  end writeContractSpeciesGroup
 
 
-        private void writePaymentGroup(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                                    string currPU, double currAcres, double sawVol, double NSawVol)
+        private void writePaymentGroup(StreamWriter strWriteOut, ref int pageNumb, string currPU,
+                                    double currAcres, double sawVol, double NSawVol)
         {
             //  UC25 or UC26
             string groupLine = "                                                   ________________________________________";
@@ -1271,8 +1269,8 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(groupLine);
             numOlines++;
             if(currentReport == "UC25")
-                WriteReportHeading(strWriteOut, rh.reportTitles[0], rh.reportTitles[1], rh.reportTitles[2],
-                                rh.UC25columns, 12, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                reportHeaders.UC25columns, 12, ref pageNumb, "");
 
             prtFields.Add("             ");
             prtFields.Add(totalText[0]);
@@ -1302,8 +1300,7 @@ namespace CruiseProcessing
         }   //  end writePaymentGroup
 
 
-        private void writeSummary(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                                    List<ReportSubtotal> csSummary)
+        private void writeSummary(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> csSummary)
         {
             // UC25 or UC26
             double totalNonSaw = 0;
@@ -1336,8 +1333,8 @@ namespace CruiseProcessing
         }   //  end writeSummary
 
 
-        private void writeGrandTotal(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb, 
-                                     double totAcres, double gSawVol, double gNonSawVol)
+        private void writeGrandTotal(StreamWriter strWriteOut, ref int pageNumb, double totAcres,
+                                     double gSawVol, double gNonSawVol)
         {
             //  UC25 or uC26
             strWriteOut.WriteLine(reportConstants.longLine);
