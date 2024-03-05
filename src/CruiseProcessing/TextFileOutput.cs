@@ -73,8 +73,6 @@ namespace CruiseProcessing
 
             //  calls routine to create text output file
             CreateTextFile ctf = new CreateTextFile(DataLayer);
-            ctf.currentRegion = currRegion;
-            //ctf.selectedReports = selectedReports;
 
             try
             {
