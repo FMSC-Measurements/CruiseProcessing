@@ -24,14 +24,14 @@ namespace CruiseProcessing.Output
             HeaderData = headerData;
         }
 
-        protected void printOneRecord(int[] fieldLengths, IEnumerable<string> prtFields, StreamWriter strWriteOut)
+        protected void printOneRecord(int[] fieldLengths, IEnumerable<string> prtFields, TextWriter strWriteOut)
         {
             var oneRecord = buildPrintLine(fieldLengths, prtFields);
             strWriteOut.WriteLine(oneRecord);
             numOlines++;
         }
 
-        protected void printOneRecord(StreamWriter strWriteOut, IEnumerable<string> prtFields)
+        protected void printOneRecord(TextWriter strWriteOut, IEnumerable<string> prtFields)
         {
             StringBuilder oneRecord = new StringBuilder();
             foreach (var str in prtFields)
@@ -42,7 +42,7 @@ namespace CruiseProcessing.Output
             numOlines++;
         }
 
-        protected void WriteReportHeading(StreamWriter strWriteOut, string TitleOne, string TitleTwo,
+        protected void WriteReportHeading(TextWriter strWriteOut, string TitleOne, string TitleTwo,
                                         string TitleThree, string[] headerToPrint, int lineIncrement,
                                         ref int pageNumber, string extraHeader)
         {
@@ -50,7 +50,7 @@ namespace CruiseProcessing.Output
                 headerToPrint, lineIncrement, ref pageNumber, extraHeader, HeaderData, numOlines);
         }
 
-        public static int WriteReportHeading(StreamWriter strWriteOut, string TitleOne, string TitleTwo,
+        public static int WriteReportHeading(TextWriter strWriteOut, string TitleOne, string TitleTwo,
                                 string TitleThree, string[] headerToPrint, int lineIncrement,
                                 ref int pageNumber, string extraHeader, HeaderFieldData headerData, int numOlines, IReadOnlyList<string> reportTitles = null)
         {
@@ -88,13 +88,13 @@ namespace CruiseProcessing.Output
         }
 
         // TODO we can remove mainHeaderData as a pram now that this method is in our report generator class
-        public void outputReportHeader(StreamWriter strWriteOut, IReadOnlyList<string> mainHeaderData, string titleOne,
+        public void outputReportHeader(TextWriter strWriteOut, IReadOnlyList<string> mainHeaderData, string titleOne,
                                 string titleTwo, string titleThree, int pageNum)
         {
             outputReportHeader(strWriteOut, HeaderData, titleOne, titleTwo, titleThree, pageNum, reportTitles);
         }
 
-        public static void outputReportHeader(StreamWriter strWriteOut, IReadOnlyList<string> mainHeaderData, string titleOne,
+        public static void outputReportHeader(TextWriter strWriteOut, IReadOnlyList<string> mainHeaderData, string titleOne,
                                 string titleTwo, string titleThree, int pageNum, IReadOnlyList<string> reportTitles)
         {
 
@@ -324,7 +324,7 @@ namespace CruiseProcessing.Output
             return currTitle;
         }
 
-        public static void noDataForReport(StreamWriter strWriteOut, string reportToPrint, string reportMessage)
+        public static void noDataForReport(TextWriter strWriteOut, string reportToPrint, string reportMessage)
         {
             //  output message that the report has no data so report could not be generated
             strWriteOut.WriteLine("\f");

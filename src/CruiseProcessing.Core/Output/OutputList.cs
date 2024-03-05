@@ -24,7 +24,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void OutputListReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void OutputListReports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -268,7 +268,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputListReports
 
-        private void WriteUnit(int whichPage, StreamWriter strWriteOut, List<CuttingUnitDO> cList,
+        private void WriteUnit(int whichPage, TextWriter strWriteOut, List<CuttingUnitDO> cList,
                                 ref int pageNumb)
         {
             switch (whichPage)
@@ -318,7 +318,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteUnit
 
-        private void WriteStratum(StreamWriter strWriteOut, List<StratumDO> sList, ref int pageNumb)
+        private void WriteStratum(TextWriter strWriteOut, List<StratumDO> sList, ref int pageNumb)
         {
             foreach (StratumDO sdo in sList)
             {
@@ -338,7 +338,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteStratum
 
-        private void WriteCountTrees(StreamWriter strWriteOut, List<CountTreeDO> ctList, ref int pageNumb)
+        private void WriteCountTrees(TextWriter strWriteOut, List<CountTreeDO> ctList, ref int pageNumb)
         {
             //  output count table (was originally in the old A2 report as a separate page)
             foreach (CountTreeDO cdo in ctList)
@@ -349,7 +349,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
         }   //  end WriteCountTrees
 
-        private void WriteTreeCalcValues(string volType, StreamWriter strWriteOut, List<TreeCalculatedValuesDO> cvList,
+        private void WriteTreeCalcValues(string volType, TextWriter strWriteOut, List<TreeCalculatedValuesDO> cvList,
                                         List<TreeDO> tList, ref int pageNumb)
         {
 
@@ -401,7 +401,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteTreeCalcValues
 
-        private void WritePlot(StreamWriter strWriteOut, ref int pageNumb)
+        private void WritePlot(TextWriter strWriteOut, ref int pageNumb)
         {
             if (currentReport == "A13")
             {
@@ -461,7 +461,7 @@ namespace CruiseProcessing
             }   //  endif currentReport
         }   //  end WritePlot
 
-        private void WriteTree(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteTree(TextWriter strWriteOut, ref int pageNumb)
         {
             if (currentReport == "A13")
             {
@@ -498,7 +498,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteTree
 
-        private void WriteLogList(StreamWriter strWriteOut, List<LogDO> logList, List<TreeDO> tList, ref int pageNumb)
+        private void WriteLogList(TextWriter strWriteOut, List<LogDO> logList, List<TreeDO> tList, ref int pageNumb)
         {
             //  output log data (not logstock)
             //  printing is for 5 logs per line; positions 1-4 are the same until a new tree
@@ -552,7 +552,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteLogList
 
-        private void WriteFallBuckScale(StreamWriter strWriteOut, List<TreeDO> justFBS, ref int pageNumb)
+        private void WriteFallBuckScale(TextWriter strWriteOut, List<TreeDO> justFBS, ref int pageNumb)
         {
             //LogMethods Lms = new LogMethods();
             foreach (TreeDO tdo in justFBS)
@@ -579,7 +579,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteFallBuckScale
 
-        private void WriteLogStock(StreamWriter strWriteOut, List<LogStockDO> lsList, ref int pageNumb)
+        private void WriteLogStock(TextWriter strWriteOut, List<LogStockDO> lsList, ref int pageNumb)
         {
             //  outputs data from the logstock table -- primarily the L1 report
             foreach (LogStockDO lsdo in lsList)
@@ -597,7 +597,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteLogStock
 
-        private void WriteSampleGroup(StreamWriter strWriteOut, List<SampleGroupDO> sgList, ref int pageNumb)
+        private void WriteSampleGroup(TextWriter strWriteOut, List<SampleGroupDO> sgList, ref int pageNumb)
         {
             //  outputs data from the sample group table
             foreach (SampleGroupDO sg in sgList)
@@ -611,7 +611,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteSampleGroup
 
-        private void WriteMerchRules(StreamWriter strWriteOut, List<VolumeEquationDO> currEQ, ref int pageNum)
+        private void WriteMerchRules(TextWriter strWriteOut, List<VolumeEquationDO> currEQ, ref int pageNum)
         {
             //  output merch rules
             foreach (VolumeEquationDO ce in currEQ)
