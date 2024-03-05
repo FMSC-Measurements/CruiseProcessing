@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputEquationTables : ReportGeneratorBase
+    public class OutputEquationTables : OutputFileReportGeneratorBase
     {
         public OutputEquationTables(CPbusinessLayer dataLayer, HeaderFieldData headerData) : base(dataLayer, headerData)
         {

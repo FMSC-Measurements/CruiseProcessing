@@ -12,27 +12,29 @@ namespace CruiseProcessing
     class OutputTIM : ReportGeneratorBase
     {
         #region
+        private string currentVersion { get; }
         private string cruiseNum { get; }
         private string regionNumber;
         private string[] productTypes = new string[3];
         private List<SumFields> sumList = new List<SumFields>();
         #endregion
 
-        public OutputTIM(CPbusinessLayer dataLayer, HeaderFieldData headerData) : base(dataLayer, headerData) // no report id
+        public OutputTIM(CPbusinessLayer dataLayer, HeaderFieldData headerData) : base(dataLayer) // no report id
         {
+            currentVersion = headerData.Version;
             cruiseNum = headerData.CruiseName;
         }
 
         public void CreateSUMfile()
         {
             //  pull tables needed initially
-            List<SaleDO> sList = DataLayer.getSale();
+            var sale = DataLayer.GetSale();
             List<CuttingUnitDO> cuList = DataLayer.getCuttingUnits();
             List<StratumDO> strList = DataLayer.getStratum();
             List<POPDO> popList = DataLayer.getPOP();
             List<PRODO> proList = DataLayer.getPRO();
             //  need to pull constant values from sale list
-            regionNumber = sList[0].Region;
+            regionNumber = sale.Region;
             //  already have "cruise" number through CreateTextFile (saleName)
 
             //  setup filename for SUM file
@@ -59,7 +61,7 @@ namespace CruiseProcessing
                     {
                         //  load 1A records
                         sumList.Clear();
-                        Load1A(strSumOut, saleErr, sList);
+                        Load1A(strSumOut, saleErr, sale);
                         //  Load 2A records
                         sumList.Clear();
                         Load2A(strSumOut, cuList);
@@ -106,29 +108,29 @@ namespace CruiseProcessing
         }   //  end CreateSUMfile
 
 
-        private void Load1A(StreamWriter strSumOut, double saleErr, List<SaleDO> sList)
+        private void Load1A(StreamWriter strSumOut, double saleErr, SaleDO sale)
         {
             //  Never more than one sale record so just load and print
             SumFields sf = new SumFields();
             sf.recType = "1A";
-            sf.saleNum = sList[0].SaleNumber;
-            sf.currRG = sList[0].Region;
-            sf.alpha1 = sList[0].Forest;
-            sf.alpha2 = sList[0].District;
+            sf.saleNum = sale.SaleNumber;
+            sf.currRG = sale.Region;
+            sf.alpha1 = sale.Forest;
+            sf.alpha2 = sale.District;
 
             //  calendar year is system year
             sf.alpha3 = DateTime.Today.Year.ToString();
 
             //  if sale purpose is blank, default to timber sale (TS)
-            if (sList[0].Purpose == "" || sList[0].Purpose == " " || sList[0].Purpose == null)
+            if (sale.Purpose == "" || sale.Purpose == " " || sale.Purpose == null)
                 sf.alpha4 = "TS  ";
-            else if (sList[0].Purpose.Length <= 4)
-                sf.alpha4 = sList[0].Purpose.PadRight(4, ' ');
+            else if (sale.Purpose.Length <= 4)
+                sf.alpha4 = sale.Purpose.PadRight(4, ' ');
             else
             {
                 //  seems FScruiser is not putting in the two character code anymore
                 //  need to fix that as follows -- August 2014
-                switch (sList[0].Purpose)
+                switch (sale.Purpose)
                 {
                     case "Timber Sale":
                         sf.alpha4 = "TS  ";

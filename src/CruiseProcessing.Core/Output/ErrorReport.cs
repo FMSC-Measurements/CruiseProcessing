@@ -1,14 +1,16 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseDAL.Schema;
 using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
 namespace CruiseProcessing
 {
-    public class ErrorReport : ReportGeneratorBase
+    public class ErrorReport : OutputFileReportGeneratorBase
     {
         private int pageNumber = 0;
         private string outFile;
@@ -56,12 +58,16 @@ namespace CruiseProcessing
                                                        " TABLE                                                                                   IDENTIFICATION",
                                                        " NAME               ERROR                                                                ST CU  PL   TR   LG  SP     SG PR EQ"};
 
-        public ErrorReport(CPbusinessLayer dataLayer) 
-            : base(dataLayer, new HeaderFieldData { Date = DateTime.Now.ToString()}) // this report has its own writeHeaders method so it doesn't use HeaderFieldData
+        public ErrorReport(CPbusinessLayer dataLayer, HeaderFieldData headerData) 
+            : base(dataLayer, headerData) // this report has its own writeHeaders method so it doesn't use HeaderFieldData
         {
+            Sale = DataLayer.GetSale();
         }
 
         protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
+
+        public SaleDO Sale { get; }
+        public HeaderFieldData HeaderData { get; }
 
         public string PrintErrorReport(List<ErrorLogDO> errList)
         {
@@ -76,8 +82,10 @@ namespace CruiseProcessing
                 //  Output banner page except for BLM
                 if (currRegion != "07" && currRegion != "7" && currRegion != "BLM")
                 {
-                    BannerPage bp = new BannerPage();
-                    bp.outputBannerPage(FilePath, strWriteOut, currentDate, currentVersion, DLLversion, DataLayer);
+                    var reports = DataLayer.GetReports();
+
+                    var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
+                    strWriteOut.Write(bannerPage);
                 }   //  endif
 
                 //  output errors only -- warnings printed in regular output file
@@ -165,8 +173,10 @@ namespace CruiseProcessing
                 //  Output banner page except for BLM
                 if (currRegion != "07" && currRegion != "7" && currRegion != "BLM")
                 {
-                    BannerPage bp = new BannerPage();
-                    bp.outputBannerPage(FilePath, strWriteOut, currentDate, currentVersion, DLLversion, DataLayer);
+                    var reports = DataLayer.GetReports();
+
+                    var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
+                    strWriteOut.Write(bannerPage);
                 }
                 //  setup field lengths and write headers
                 var fieldLengths = new int[] { 1, 18, 70, 43 };

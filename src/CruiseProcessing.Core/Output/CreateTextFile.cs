@@ -13,31 +13,24 @@ namespace CruiseProcessing
 {
     public class CreateTextFile
     {
-        public string currentRegion;
-        public List<string> mainHeaderFields = new List<string>();
-        private int numOlines = 0;
-
+        public string currentRegion { get; }
+        public string textFile { get; }
         protected CPbusinessLayer DataLayer { get; }
         protected string FilePath => DataLayer.FilePath;
         protected string currentDate { get; }
         protected string currentVersion { get; }
+        protected SaleDO Sale { get; }
         protected string DLLversion { get; }
-        public string textFile { get; }
+        private int numOlines = 0;
+
 
         public CreateTextFile(CPbusinessLayer dataLayer)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-            DLLversion = Utilities.CurrentDLLversion();
-            var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
-
             textFile = System.IO.Path.ChangeExtension(FilePath, "out");
 
-            //  Get current date and time for run time
-            currentDate = DateTime.Now.ToString();
-
-            //  Set version numbers
-            //currentVersion = "DRAFT.2018";
-            currentVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");//"12.02.2021";
+            Sale = DataLayer.GetSale();
+            currentRegion = Sale.Region;
         }
 
         public void createTextFile(IDialogService dialogService, IEnumerable<ReportsDO> selectedReports)
@@ -48,28 +41,14 @@ namespace CruiseProcessing
             //  open up file and start writing
             using (StreamWriter strWriteOut = new StreamWriter(textFile))
             {
+                var headerData = DataLayer.GetReportHeaderData();
+                var reports = DataLayer.GetReports();
+                var volumeEquations = DataLayer.getVolumeEquations();
+
                 //  Output banner page
-                BannerPage bp = new BannerPage();
-                bp.outputBannerPage(FilePath, strWriteOut, currentDate, currentVersion, DLLversion, DataLayer);
+                strWriteOut.Write(BannerPage.GenerateBannerPage(FilePath, headerData, Sale, reports, volumeEquations));
+
                 int pageNumber = 2;
-                var cruiseName = bp.cruiseName;
-                var saleName = bp.saleName;
-
-                //  fill header fields
-                mainHeaderFields.Add(currentDate);
-                mainHeaderFields.Add(currentVersion);
-                mainHeaderFields.Add(DLLversion);
-                mainHeaderFields.Add(cruiseName);
-                mainHeaderFields.Add(saleName);
-
-                var headerData = new HeaderFieldData()
-                {
-                    Date = currentDate,
-                    Version = currentVersion,
-                    DllVersion = DLLversion,
-                    CruiseName = cruiseName,
-                    SaleName = saleName,
-                };
 
                 //  Output equation tables as needed
                 OutputEquationTables oet = new OutputEquationTables(DataLayer, headerData);
@@ -77,9 +56,6 @@ namespace CruiseProcessing
 
                 //  Output selected reports
                 //  create objects for each report category and assign header fields as needed
-                
-                
-                
                 foreach (ReportsDO rdo in selectedReports)
                 {
                     try
@@ -436,7 +412,7 @@ namespace CruiseProcessing
             {
                 StringBuilder sb = new StringBuilder();
 
-                numOlines = ReportGeneratorBase.WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "", headerData, numOlines, null);
+                numOlines = OutputFileReportGeneratorBase.WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "", headerData, numOlines, null);
                 //  build identifier
                 if (eld.TableName == "SUM file")
                 {
@@ -495,7 +471,7 @@ namespace CruiseProcessing
             foreach (ErrorLogDO elt in errListToo)
             {
                 StringBuilder sb = new StringBuilder();
-                numOlines = ReportGeneratorBase.WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "", headerData, numOlines, null);
+                numOlines = OutputFileReportGeneratorBase.WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "", headerData, numOlines, null);
                 //  build identifier
                 sb.Append(Utilities.GetIdentifier(elt.TableName, elt.CN_Number, DataLayer));
                 sb.Append("   ");

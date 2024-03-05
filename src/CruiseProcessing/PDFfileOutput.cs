@@ -53,8 +53,8 @@ namespace CruiseProcessing
             //  are there any graph files to add to the PDF file?
             if (CheckForGraphReports() == true)
             {
-                List<SaleDO> saleList = DataLayer.getSale();
-                string currSaleName = saleList[0].Name;
+                var sale = DataLayer.GetSale();
+                string currSaleName = sale.Name;
                 string dirPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
                 dirPath += "\\Graphs\\";
                 dirPath += currSaleName;

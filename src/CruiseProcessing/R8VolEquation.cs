@@ -99,18 +99,13 @@ namespace CruiseProcessing
             volList.Clear();
 
             //  Need to build volume equation and store in table, so goes into VolumeEqList
-            string currentForest = "";
-            string currentDistrict = "";
             string currGeoCode = "";
             string currGrpCode = "";
-            List<SaleDO> saleList = DataLayer.getSale();
-            foreach (SaleDO sd in saleList)
-            {
-                currentForest = sd.Forest;
-                if (sd.District == null)
-                    currentDistrict = "";
-                else currentDistrict = sd.District;
-            }   //  end foreach
+
+            var sale = DataLayer.GetSale();
+            string currentForest = sale.Forest;
+            string currentDistrict = sale.District ?? "";
+
 
             //  Look up geo code and group code for this forest and district (if any)
             //  First look in defaults

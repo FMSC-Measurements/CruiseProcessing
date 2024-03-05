@@ -10,7 +10,7 @@ using System.Collections.ObjectModel;
 
 namespace CruiseProcessing
 {
-    public class OutputStemCounts : ReportGeneratorBase
+    public class OutputStemCounts : OutputFileReportGeneratorBase
     {
         private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[3];

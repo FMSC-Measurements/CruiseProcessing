@@ -31,11 +31,11 @@ namespace CruiseProcessing
             List<LCDDO> justSpecies = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
             //  pull salename and number to put in graph title
             //  also need it to create subfolder for graphs
-            List<SaleDO> saleList = DataLayer.getSale();
-            string currSaleName = saleList[0].Name;
+            var sale = DataLayer.GetSale();
+            string currSaleName = sale.Name;
             if (currSaleName.Length > 25)
                 currSaleName = currSaleName.Remove(25, currSaleName.Length);
-            string currSaleNumber = saleList[0].SaleNumber;
+            string currSaleNumber = sale.SaleNumber;
             // pull data needed and call appropriate graph routine for report
             switch (currentReport)
             {

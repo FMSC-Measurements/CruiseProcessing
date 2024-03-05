@@ -9,7 +9,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputR10 : ReportGeneratorBase
+    public class OutputR10 : OutputFileReportGeneratorBase
     {
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -1651,9 +1651,9 @@ namespace CruiseProcessing
                     return lm.ReportNumber == currentReport;
                 });
             //  pull salename and cruise number
-            List<SaleDO> sList = DataLayer.getSale();
-            string currSN = sList[0].Name;
-            string currCN = sList[0].SaleNumber;
+            var sale = DataLayer.GetSale();
+            string currSN = sale.Name;
+            string currCN = sale.SaleNumber;
             //  load output matrix
             List<LogMatrix> matrixToOutput = new List<LogMatrix>();
             StringBuilder sb = new StringBuilder();

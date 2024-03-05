@@ -9,7 +9,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    internal class OutputWeight : ReportGeneratorBase
+    internal class OutputWeight : OutputFileReportGeneratorBase
     {
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
 

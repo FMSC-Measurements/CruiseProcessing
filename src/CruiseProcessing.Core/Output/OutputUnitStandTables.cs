@@ -9,7 +9,7 @@ using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    public class OutputUnitStandTables : ReportGeneratorBase
+    public class OutputUnitStandTables : OutputFileReportGeneratorBase
     {
         private List<string> prtFields = new List<string>();
         private double unitPF = 0;

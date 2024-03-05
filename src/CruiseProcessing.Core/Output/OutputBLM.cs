@@ -10,7 +10,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputBLM : ReportGeneratorBase
+    public class OutputBLM : OutputFileReportGeneratorBase
     {
         #region
         public string currentReport;
@@ -1546,7 +1546,7 @@ namespace CruiseProcessing
         {
             string CSVoutfile = System.IO.Path.ChangeExtension(FilePath, currentReport);
             CSVoutfile += ".csv";
-            OutputCSV oc = new OutputCSV(DataLayer, DialogService, HeaderData, currentReport);
+            //OutputCSV oc = new OutputCSV();
             //  first need to load CSVlist with first few fields and then finish based on specific report
             List<CSVlist> CSVoutputList = new List<CSVlist>();
             switch (currentReport)
@@ -1626,7 +1626,7 @@ namespace CruiseProcessing
             // does CSV file for just BLM07 and BLM08
             string CSVoutfile = System.IO.Path.ChangeExtension(FilePath, currentReport);
             CSVoutfile += ".csv";
-            OutputCSV oc = new OutputCSV(DataLayer, DialogService, HeaderData, currentReport);
+            //OutputCSV oc = new OutputCSV();
             //  first need to load CSVlist with first few fields and then finish based on specific report
             List<CSVlist> CSVoutputList = new List<CSVlist>();
             foreach (CSVlist c in CSV7and8)

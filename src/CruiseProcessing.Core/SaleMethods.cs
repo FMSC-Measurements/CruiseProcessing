@@ -1,9 +1,6 @@
-﻿using System;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
@@ -20,12 +17,11 @@ namespace CruiseProcessing
             else return 1;
         }   //  end MoreThanOne
 
-
-        public static int BlankSaleNum(List<SaleDO> saleList)
+        public static int BlankSaleNum(SaleDO sale)
         {
-            if (saleList[0].SaleNumber == "" || saleList[0].SaleNumber == null)
-                return 8;       //  returns error number for blank field
-            else return -1;
+            if (String.IsNullOrEmpty(sale.SaleNumber)) { return 8; }
+
+            return -1;
         }   //  end BlankSaleNum
     }   //  end SaleMethods
 }

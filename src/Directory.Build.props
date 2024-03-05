@@ -1,0 +1,35 @@
+<Project>
+	<PropertyGroup Label="Assembily Info">
+		<Copyright>CC0 Public Domain</Copyright>
+		<Company>USDA Forest Service</Company>
+		<Authors>Barbara Menzel;Benjamin Campbell</Authors>
+		<Version>11.21.2023</Version>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Build Config">
+		<TargetFramework>net472</TargetFramework>
+		<LangVersion>8.0</LangVersion>
+	</PropertyGroup>
+
+
+	<!-- Test Project Config -->
+	<PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Test')) == true">
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Test')) == true">
+		<PackageReference Include="Bogus" Version="24.3.0" />
+		<PackageReference Include="FluentAssertions" Version="5.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+		<PackageReference Include="Moq" Version="4.8.2" />
+		<PackageReference Include="xunit" Version="2.4.0" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+		<DotNetCliToolReference Include="dotnet-xunit" Version="2.4.0" />
+	</ItemGroup>
+
+</Project>

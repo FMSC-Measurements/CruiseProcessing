@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    internal class OutputLiveDead : ReportGeneratorBase
+    internal class OutputLiveDead : OutputFileReportGeneratorBase
     {
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();

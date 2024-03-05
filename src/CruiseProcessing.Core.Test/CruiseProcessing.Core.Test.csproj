@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <RootNamespace>CruiseProcessing.Test</RootNamespace>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -9,7 +9,7 @@ using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    class OutputSummary : ReportGeneratorBase
+    class OutputSummary : OutputFileReportGeneratorBase
     {
         private string currCL { get; }
         private double totalPerAcres;

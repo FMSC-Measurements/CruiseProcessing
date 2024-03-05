@@ -9,7 +9,7 @@ using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    public class OutputStandTables : ReportGeneratorBase
+    public class OutputStandTables : OutputFileReportGeneratorBase
     {
         private List<string> prtFields = new List<string>();
         private double strAcres = 0;
@@ -41,8 +41,8 @@ namespace CruiseProcessing
             //  This will change depending on the stand table report
             string currentTitle = fillReportTitle(currentReport);
             //  get current sale number for those reports by sale
-            List<SaleDO> sList = DataLayer.getSale();
-            currSale = sList[0].SaleNumber;
+            var sale = DataLayer.GetSale();
+            currSale = sale.SaleNumber;
             //  what is the cut/leave code?
             if (currentReport.Substring(0, 2) == "TC")
                 whatCutCode = "C";

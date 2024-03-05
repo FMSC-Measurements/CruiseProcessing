@@ -25,7 +25,7 @@ namespace CruiseProcessing
 
         public IDialogService DialogService { get; }
 
-        public OutputCSV(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputCSV(CPbusinessLayer dataLayer, IDialogService dialogService, string reportID) : base(dataLayer, reportID)
         {
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
@@ -1095,16 +1095,16 @@ namespace CruiseProcessing
             //  otherwise, it would be cut trees only.
             //  So this needs to loop through both and create separate lists to output
             //  open tables needed
-            List<SaleDO> sList = DataLayer.getSale();
+            var sale = DataLayer.GetSale();
             List<LogStockDO> logList = DataLayer.getCutOrLeaveLogs(currCL);
             List<CSVlist> lsList = new List<CSVlist>();
             List<LogDO> origLogs = DataLayer.getLogs();
 
             //  Load list to return
-            string currentCruise = sList[0].SaleNumber;
-            string currentForest = sList[0].Forest;
-            string currentDistrict = sList[0].District;
-            string currentSalename = sList[0].Name;
+            string currentCruise = sale.SaleNumber;
+            string currentForest = sale.Forest;
+            string currentDistrict = sale.District;
+            string currentSalename = sale.Name;
             double strAcres = 0.0;
 
             foreach (LogStockDO ll in logList)

@@ -126,7 +126,7 @@ namespace CruiseProcessing
             switch(tableName)
             {
                 case "Sale":
-                    List<SaleDO> sList = bslyr.getSale();
+                    List<SaleDO> sList = bslyr.GetAllSaleRecords();
                     ithRow = sList.FindIndex(
                         delegate(SaleDO sd)
                         {

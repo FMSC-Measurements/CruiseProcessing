@@ -53,7 +53,7 @@ namespace CruiseProcessing
             List<ErrorLogDO> fscList = DataLayer.getErrorMessages("E", "FScruiser");
             if (fscList.Any())
             {
-                ErrorReport eRpt = new ErrorReport(DataLayer);
+                ErrorReport eRpt = new ErrorReport(DataLayer, DataLayer.GetReportHeaderData());
                 outputFileName = eRpt.PrintFScruiserErrors(fscList);
                 string outputMessage = "ERRORS FROM FSCRUISER FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
                 DialogService.ShowError(outputMessage);
@@ -82,7 +82,7 @@ namespace CruiseProcessing
             List<ErrorLogDO> errList = DataLayer.getErrorMessages("E", "CruiseProcessing");
             if (errList.Count > 0)
             {
-                ErrorReport er = new ErrorReport(DataLayer);
+                ErrorReport er = new ErrorReport(DataLayer, DataLayer.GetReportHeaderData());
                 outputFileName = er.PrintErrorReport(errList);
                 string outputMessage = "ERRORS FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
                 DialogService.ShowError(outputMessage);
@@ -103,7 +103,7 @@ namespace CruiseProcessing
 
             //  edit checks for each table
             //  sale table
-            List<SaleDO> saleList = DataLayer.getSale();
+            List<SaleDO> saleList = DataLayer.GetAllSaleRecords();
             //  empty or more than one record?
             errorValue = SaleMethods.MoreThanOne(saleList);
             if (errorValue == 0)
@@ -113,7 +113,7 @@ namespace CruiseProcessing
             if (errorValue == 1)
             {
                 //  and blank sale number
-                errorValue = SaleMethods.BlankSaleNum(saleList);
+                errorValue = SaleMethods.BlankSaleNum(saleList.FirstOrDefault());
                 if (errorValue != -1) elm.LoadError("Sale", "E", " 8Sale Number", errorValue, "SaleNumber");
             }   //  endif
                 //  end sale table edit checks

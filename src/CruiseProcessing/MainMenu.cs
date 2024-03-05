@@ -411,9 +411,8 @@ namespace CruiseProcessing
                 menuButton5.Enabled = true;
 
                 //  need region number in order to hide volume button as well as region 9 button
-                List<SaleDO> saleList = new List<SaleDO>();
-                saleList = dal.From<SaleDO>().Read().ToList();
-                currentRegion = saleList[0].Region;
+                var sale = datalayer.GetSale();
+                currentRegion = sale.Region;
 
                 if (datalayer.saleWithNullSpecies())
                 {
@@ -471,7 +470,6 @@ namespace CruiseProcessing
                 //  get all reports
                 currentReports = DataLayer.GetReports();
                 //  and get the all reports array
-                allReportsArray ara = new allReportsArray();
                 //  then check for various conditions to know what to do with the reports list
                 if (currentReports.Count == 0)
                 {
@@ -480,19 +478,19 @@ namespace CruiseProcessing
 
 
                 }//end if
-                else if (currentReports.Count < ara.reportsArray.GetLength(0))
+                else if (currentReports.Count < allReportsArray.reportsArray.GetLength(0))
                 {
                     //  old or new list?  Check title
                     if (currentReports[0].Title == "" || currentReports[0].Title == null)
                     {
                         //  old reports -- update list
-                        currentReports = ReportMethods.updateReportsList(currentReports, ara);
+                        currentReports = ReportMethods.updateReportsList(currentReports, allReportsArray.reportsArray);
                         DataLayer.SaveReports(currentReports);
                     }
                     else
                     {
                         //  new reports -- just add
-                        currentReports = ReportMethods.addReports(currentReports, ara);
+                        currentReports = ReportMethods.addReports(currentReports, allReportsArray.reportsArray);
                         DataLayer.SaveReports(currentReports);
                     }   //  endif
 
@@ -541,7 +539,6 @@ namespace CruiseProcessing
                 //  Show dialog creating text file
                 TextFileOutput tfo = new TextFileOutput(DataLayer, DialogService);
                 tfo.selectedReports = selectedReports;
-                tfo.currRegion = currentRegion;
                 tfo.setupDialog();
                 tfo.ShowDialog();
                 string outFile = tfo.outFile;
