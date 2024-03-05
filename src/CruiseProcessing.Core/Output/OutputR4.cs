@@ -12,7 +12,7 @@ using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    public class OutputR4 : ReportGeneratorBase
+    public class OutputR4 : OutputFileReportGeneratorBase
     {
         public string currentReport;
         private int[] fieldLengths;

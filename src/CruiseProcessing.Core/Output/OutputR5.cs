@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace CruiseProcessing
 {
-    public class OutputR5 : ReportGeneratorBase
+    public class OutputR5 : OutputFileReportGeneratorBase
     {
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();

@@ -9,7 +9,7 @@ using System.Linq;
 namespace CruiseProcessing
 {
     // TODO unused class, remove?
-    public class OutputExport : ReportGeneratorBase
+    public class OutputExport : OutputFileReportGeneratorBase
     {
         private List<exportToOutput> exToOutput = new List<exportToOutput>();
         private int[] fieldLengths;
@@ -32,9 +32,9 @@ namespace CruiseProcessing
         public void CreateExportReports(StreamWriter strWriteOut, ref int pageNumb)
         {
             //  is this a variable log length cruise?  And are there log records?
-            List<SaleDO> sList = DataLayer.getSale();
+            var sale = DataLayer.GetSale();
             //  not sure where cruise type has disappeared to
-            if (sList[0].Purpose != "V")
+            if (sale.Purpose != "V")
             {
                 DialogService.ShowError("This is not a Variable Log Length cruise.\nCannot produce Export Reports.");
                 return;

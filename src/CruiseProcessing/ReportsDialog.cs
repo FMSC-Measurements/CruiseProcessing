@@ -99,7 +99,6 @@ namespace CruiseProcessing
         private void onSelectedIndexChanged(object sender, EventArgs e)
         {
             StringBuilder sb = new StringBuilder();
-            allReportsArray ara = new allReportsArray();
             //  pull all reports for the group and display in available reports
             string selectedGroup = reportGroups.SelectedItem.ToString();
             if (selectedGroup.Substring(1, 1) == "-")
@@ -145,14 +144,16 @@ namespace CruiseProcessing
                 }   //  end for j loop
                 return;
             }   //  endif group is log level reports
-            for (int k = 0; k < ara.reportsArray.GetLength(0); k++)
+
+            var reportsArray = allReportsArray.reportsArray;
+            for (int k = 0; k < reportsArray.GetLength(0); k++)
             {
-                if (ara.reportsArray[k, 0].StartsWith(selectedGroup))
+                if (reportsArray[k, 0].StartsWith(selectedGroup))
                 {
                     sb.Clear();
-                    sb.Append(ara.reportsArray[k, 0]);
+                    sb.Append(reportsArray[k, 0]);
                     sb.Append("--");
-                    sb.Append(ara.reportsArray[k, 1]);
+                    sb.Append(reportsArray[k, 1]);
                     availableReports.Items.Add(sb.ToString());
                 }   //  endif
             }   //  end for k loop
@@ -245,9 +246,9 @@ namespace CruiseProcessing
                 string currentSaleNum = " ";
                 if (templateFlag != 1)
                 {
-                    List<SaleDO> sList = DataLayer.getSale();
-                    currentSale = sList[0].Name;
-                    currentSaleNum = sList[0].SaleNumber;
+                    var sale = DataLayer.GetSale();
+                    currentSale = sale.Name;
+                    currentSaleNum = sale.SaleNumber;
                 }   //  endif
                 List<LogMatrixDO> checkMatrix = new List<LogMatrixDO>();
                 try

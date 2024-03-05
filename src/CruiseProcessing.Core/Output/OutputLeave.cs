@@ -9,9 +9,12 @@ namespace CruiseProcessing
     {
         public List<string> mainHeaderFields;
 
-        public OutputLeave(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputLeave(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, reportID)
         {
+            HeaderData = headerData;
         }
+
+        public HeaderFieldData HeaderData { get; }
 
         public void createLeaveTreeReports(StreamWriter strWriteout, ref int pageNumb)
         {

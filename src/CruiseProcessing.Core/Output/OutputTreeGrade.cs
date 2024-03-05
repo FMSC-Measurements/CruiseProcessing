@@ -9,7 +9,7 @@ using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
-    class OutputTreeGrade : ReportGeneratorBase
+    class OutputTreeGrade : OutputFileReportGeneratorBase
     {
         private int[] fieldLengths;
         private List<string> prtFields;

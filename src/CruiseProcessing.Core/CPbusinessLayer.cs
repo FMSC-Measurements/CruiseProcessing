@@ -5,6 +5,8 @@ using System.Text;
 using CruiseDAL.DataObjects;
 using CruiseDAL;
 using System;
+using CruiseProcessing.Output;
+using System.Reflection;
 
 namespace CruiseProcessing
 {
@@ -14,7 +16,8 @@ namespace CruiseProcessing
         public string FilePath { get; }
         public DAL DAL { get; }
         public CruiseDatastore_V3 DAL_V3 { get; }
-
+        public string CPVersion { get; }
+        public string VolLibVersion { get; }
 
         public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID)
         {
@@ -24,6 +27,26 @@ namespace CruiseProcessing
             DAL_V3 = dal_V3;
             CruiseID = cruiseID; 
             FilePath = DAL.Path;
+
+
+            var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
+            CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");
+            VolLibVersion = Utilities.CurrentDLLversion();
+        }
+
+        public HeaderFieldData GetReportHeaderData()
+        {
+            var sale = GetSale();
+
+
+            return new HeaderFieldData()
+            {
+                Date = DateTime.Now.ToString(),
+                Version = CPVersion,
+                DllVersion = VolLibVersion,
+                CruiseName = sale.SaleNumber,
+                SaleName = sale.Name.Trim(' '),
+            };
         }
 
         // *******************************************************************************************
@@ -159,10 +182,15 @@ namespace CruiseProcessing
         */
         // *******************************************************************************************
         //  Gets on each table -- pulls all data from specified table
-        public List<SaleDO> getSale()
+        public List<SaleDO> GetAllSaleRecords()
         {
             return DAL.From<SaleDO>().Read().ToList();
         }   //  end getSale
+
+        public SaleDO GetSale()
+        {
+            return DAL.From<SaleDO>().Query().FirstOrDefault();
+        }
 
         public List<StratumDO> getStratum()
         {
@@ -607,39 +635,39 @@ namespace CruiseProcessing
         public string getRegion()
         {
             //  retrieve sale record
-            List<SaleDO> saleList = getSale();
-            return saleList[0].Region;
-        }   //  end getRegion
+            var sale = GetSale();
+            return sale.Region;
+        }
 
         //  forest
         public string getForest()
         {
-            List<SaleDO> saleList = getSale();
-            return saleList[0].Forest;
-        }   //  end getForest
+            var sale = GetSale();
+            return sale.Forest;
+        }
 
         //  district
         public string getDistrict()
         {
-            List<SaleDO> saleList = getSale();
-            return saleList[0].District;
-        }   //  end getDistrict
+            var sale = GetSale();
+            return sale.District;
+        }
 
         public string getCruiseNumber()
-        {
-            List<SaleDO> saleList = getSale();
-            return saleList[0].SaleNumber;
-        }   //  end getCruiseNumber
+        { 
+            var sale = GetSale();
+            return sale.SaleNumber;
+        }
 
         public string getUOM(int currStratumCN)
         {
-            List<SampleGroupDO> sgList = DAL.From<SampleGroupDO>()
+            var sg = DAL.From<SampleGroupDO>()
                 .Where("Stratum_CN = @p1")
                 .Read(currStratumCN)
-                .ToList();
+                .FirstOrDefault();
 
-            return sgList[0].UOM;
-        }   //  end getUOM
+            return sg.UOM;
+        }
 
         //  Sample Groups
         // *******************************************************************************************

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputLogStock : ReportGeneratorBase
+    public class OutputLogStock : OutputFileReportGeneratorBase
     {
         public List<ReportSubtotal> ListToOutput = new List<ReportSubtotal>();
         public List<ReportSubtotal> ListToOutputCCF = new List<ReportSubtotal>();

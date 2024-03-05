@@ -6,7 +6,6 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
@@ -51,9 +50,9 @@ namespace CruiseProcessing
             // Initialize report title
             ReportTitle.Append("LOCAL VOLUME TABLE REPORT - ");
             //  need sale info to complete the heading
-            List<SaleDO> sList = DataLayer.getSale();
-            currSale = sList[0].SaleNumber;
-            currSaleName = sList[0].Name;
+            var sale = DataLayer.GetSale();
+            currSale = sale.SaleNumber;
+            currSaleName = sale.Name;
             currDate = DateTime.Now.ToString();
 
             

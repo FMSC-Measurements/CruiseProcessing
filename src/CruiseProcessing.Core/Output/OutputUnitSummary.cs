@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace CruiseProcessing
 {
-    public class OutputUnitSummary : ReportGeneratorBase
+    public class OutputUnitSummary : OutputFileReportGeneratorBase
     {
         private List<RegionalReports> areaBasedOutput = new List<RegionalReports>();
         private List<RegionalReports> treeBasedBySpecies = new List<RegionalReports>();
