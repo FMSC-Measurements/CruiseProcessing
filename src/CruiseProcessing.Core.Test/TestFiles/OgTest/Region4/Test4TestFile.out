@@ -1,0 +1,1525 @@
+CRUISE REPORT HEADER & CERTIFICATION
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                 
+RUN DATE & TIME: 06-28-2016   14:52:06
+
+Year: 2009    Region: 04   Forest: 03   District: 2
+Remarks:  
+FILENAME: C:\WorkSpace\NewNatCRS\NewTestingProtocol\Region4\Test4TestFile.crz
+REPORTS: A1,A2,B1,B2,CS2,DP1,DS1,R401,R402,R403,R404,UC10,
+         
+
+
+
+
+
+
+
+                            **************************** CRUISE CERTIFICATION ****************************
+
+                                I certify that the timber for the McDougal timber sale
+                                has been designated and cruised by the procedures and standards in
+                                FSH 2409.12, Timber Cruising Handbook.  Records of checks are on file
+                                at the District Ranger Office,
+
+
+
+                                ___________________                 ___________________________________
+                                RANGER DISTRICT                     (name of headquarters town)
+
+
+                                ___________________                 ______________
+                                DISTRICT RANGER                     DATE
+
+                            *****************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+Developed and Maintained By:
+USDA FOREST SERVICE                                                                                            VERSION: 03.16.2015
+WASHINGTON OFFICE TIMBER MANAGEMENT                                                              VOLUME LIBRARY VERSION: 02.13.2015
+FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM
+VOLUME EQUATION TABLE                                                                                                       PAGE   2
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                                               PRIMARY                     SECONDARY
+                                                       ******* PRODUCT ********      ****** PRODUCT ******
+                                            TOTAL       MIN                             MIN
+                     VOLUME       STUMP     CUBIC       TOP                             TOP
+     SPECIES  PROD   EQUATION     HEIGHT    VOLUME      DIB   BDFT  CUFT  CORDS         DIB   BDFT  CUFT  CORDS   Z SCORE
+____________________________________________________________________________________________________________________________________
+     LP        01    400MATW108    1.0        YES       6.0    YES   YES   NO           0.0    NO    NO    NO        0.000
+     LD        01    400MATW108    1.0        YES       6.0    YES   YES   NO           0.0    NO    NO    NO        0.000
+     AF        01    400MATW019    1.0        YES       6.0    YES   YES   NO           0.0    NO    NO    NO        0.000
+     ES        01    400MATW093    1.0        YES       6.0    YES   YES   NO           0.0    NO    NO    NO        0.000
+     ED        01    400MATW093    1.0        YES       6.0    YES   YES   NO           0.0    NO    NO    NO        0.000
+     DF        01    400MATW202    1.0        YES       6.0    YES   YES   NO           0.0    NO    NO    NO        0.000
+     DD        01    400MATW202    1.0        YES       6.0    YES   YES   NO           0.0    NO    NO    NO        0.000
+A1: STRATA, UNIT AND PLOT REPORT                                                                                            PAGE   3
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                              CUTTING   CUTTING
+     CRUISE       CUTTING     UNIT      UNIT                        LOG      PAYMENT
+     NO.          UNIT NO.    ACRES     DESCRIPTION                 METHOD   UNIT NO.
+____________________________________________________________________________________________________________________________________
+     09211              1       20.00   clearcut                    421          1
+     09211              2       14.30   clearcut                    421          2
+     09211              3       10.20   shelterwood                 421          3
+     09211              4        9.60   shelterwood                 421          4
+     09211              5       17.70   clearcut with reserves      421          5
+     09211              6        9.80   shelterwood                 421          6
+     09211              7       10.90   sanitation salvage          421          7
+     09211              8       11.50   sanitation salvage          421          8
+     09211              9       11.60   thinning                    421          9
+
+        TOTAL SALE ACRES:      115.60
+A1: STRATA, UNIT AND PLOT REPORT                                                                                            PAGE   4
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+     CRUISE   STRATA   CRUISE   STRATA          PLOT  NO. OF STRATA                     DATE
+     NO.      NO.      METHOD   ACRES   BAF     SIZE  PLOTS  DESCRIPTION                MMYYYY
+____________________________________________________________________________________________________________________________________
+     09211       1     PNT       52.00    20.00    0.   39   clearcut                    72009
+     09211       2     STR       41.20     0.00    0.    0   shelterwood and thinning    72009
+     09211       3     STR       22.40     0.00    0.    0   sanitation salvage          72009
+A1: STRATA, UNIT AND PLOT REPORT                                                                                            PAGE   5
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+     CRUISE   PLOT     CUTTING  STRATA    SLOPE           NULL
+     NO.      NO.      UNIT NO. NO.         %     ASPECT  PLOT?
+____________________________________________________________________________________________________________________________________
+     09211       1         1        1         0     0     
+     09211       1         2        1         0     0     
+     09211       1         5        1         0     0     
+     09211       2         1        1         0     0     
+     09211       2         2        1         0     0     
+     09211       2         5        1         0     0     
+     09211       3         1        1         0     0     
+     09211       3         2        1         0     0     
+     09211       3         5        1         0     0     
+     09211       4         1        1         0     0     
+     09211       4         2        1         0     0     
+     09211       4         5        1         0     0     
+     09211       5         1        1         0     0     
+     09211       5         2        1         0     0     
+     09211       5         5        1         0     0     
+     09211       6         1        1         0     0     
+     09211       6         2        1         0     0     
+     09211       6         5        1         0     0     
+     09211       7         1        1         0     0     
+     09211       7         2        1         0     0     
+     09211       7         5        1         0     0     
+     09211       8         1        1         0     0     
+     09211       8         2        1         0     0     
+     09211       8         5        1         0     0     
+     09211       9         1        1         0     0     
+     09211       9         2        1         0     0     
+     09211       9         5        1         0     0     
+     09211      10         1        1         0     0     
+     09211      10         2        1         0     0     
+     09211      10         5        1         0     0     
+     09211      11         1        1         0     0     
+     09211      11         2        1         0     0     
+     09211      11         5        1         0     0     
+     09211      12         1        1         0     0     
+     09211      12         5        1         0     0     
+     09211      13         1        1         0     0     
+     09211      13         5        1         0     0     
+     09211      14         1        1         0     0     
+     09211      15         1        1         0     0     
+A1: STRATA, UNIT AND PLOT REPORT                                                                                            PAGE   6
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+     CRUISE     CUTTING             PAYMENT
+     NO.        UNIT     STRATUM    UNIT
+____________________________________________________________________________________________________________________________________
+     09211          1       1         1
+     09211          2       1         2
+     09211          3       2         3
+     09211          4       2         4
+     09211          5       1         5
+     09211          6       2         6
+     09211          7       3         7
+     09211          8       3         8
+     09211          9       2         9
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE   7
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 1   1    1    1 AF     01 02 AF C M       1 03   3   3  12 NW KS PC DE L   8.6  47 
+ 1   1    1    2 AF     01 02 AF C M       1 03   3   3  12 NW KS PC DE L  11.1  58 
+ 1   1    1    3 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   8.2  49 
+ 1   1    1    4 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  12.1  58 
+ 1   1    1    5 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L  10.0  59 
+ 1   1    1    6 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  10.3  46 
+ 1   1    2    1 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L   9.6  64 
+ 1   1    2    2 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L   8.0  54 
+ 1   1    3    1 LP     01 02 LP C M       1 03   2   2  13 NW KS PC DE L  11.7  76 
+ 1   1    3    2 LP     01 02 LP C M       1 03   2   2   9 NW KS PC DE L  10.4  75 
+ 1   1    3    3 AF     01 02 AF C M       1 03   3   3   8 NW KS PC DE L  16.2  85 
+ 1   1    3    4 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L   8.4  60 
+ 1   1    3    5 LP     01 02 LP C M       1 03   2   2  15 NW KS PC DE L  18.8  88 
+ 1   1    3    6 LP     01 02 LP C M       1 03   2   2  12 NW KS PC DE L  11.2  75 
+ 1   1    3    7 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   8.3  52 
+ 1   1    3    8 LP     01 02 LP C M       1 03   2   2  10 NW KS PC DE L  14.3  82 
+ 1   1    3    9 LD     01 02 LD C M       1 03   3   2   8 NW KS PC DE D  18.7  90 
+ 1   1    3   10 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   9.4  64 
+ 1   1    4    1 LP     01 02 LP C M       1 03   2   2  16 NW KS PC DE L  13.8  66 
+ 1   1    4    2 LP     01 02 LP C M       1 03   2   2  16 NW KS PC DE L  13.0  70 
+ 1   1    4    3 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   8.4  61 
+ 1   1    4    4 AF     01 02 AF C M       1 03   3   3   2 NW KS PC DE L   9.3  62 
+ 1   1    5    1 LP     01 02 LP C M       1 03   2   2  28 NW KS PC DE L  22.0  76 
+ 1   1    5    2 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L   9.5  57 
+ 1   1    5    3 AF     01 02 AF C M       1 03   3   3   5 NW KS PC DE L  15.0  81 
+ 1   1    5    4 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  13.9  72 
+ 1   1    5    5 LP     01 02 LP C M       1 03   2   2   4 NW KS PC DE L  11.9  67 
+ 1   1    5    6 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  14.1  78 
+ 1   1    5    7 AF     01 02 AF C M       1 03   3   3  10 NW KS PC DE L  13.2  77 
+ 1   1    6    1 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  13.8  68 
+ 1   1    6    2 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  10.1  49 
+ 1   1    6    3 AF     01 02 AF C M       1 03   3   3   9 NW KS PC DE L  11.7  70 
+ 1   1    6    4 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   8.6  44 
+ 1   1    7    1 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   8.8  48 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE   8
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 1   1    7    2 LP     01 02 LP C M       1 03   2   2  13 NW KS PC DE L  17.2  80 
+ 1   1    7    3 LP     01 02 LP C M       1 03   2   2  15 NW KS PC DE L  16.2  73 
+ 1   1    7    4 AF     01 02 AF C M       1 03   3   3   5 NW KS PC DE L  15.2  76 
+ 1   1    7    5 LP     01 02 LP C M       1 03   2   2  15 NW KS PC DE L  38.5 102 
+ 1   1    7    6 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   9.7  53 
+ 1   1    8    1 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L  14.8  80 
+ 1   1    8    2 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  10.5  70 
+ 1   1    8    3 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  15.6  85 
+ 1   1    8    4 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  12.4  73 
+ 1   1    8    5 AF     01 02 AF C M       1 03   3   3   6 NW KS PC DE L  14.4  81 
+ 1   1    8    6 AF     01 02 AF C M       1 03   3   3   6 NW KS PC DE L   9.7  59 
+ 1   1    8    7 LP     01 02 LP C M       1 03   2   2   6 NW KS PC DE L  19.8  89 
+ 1   1    9    1 LP     01 02 LP C M       1 03   2   2   5 NW KS PC DE L  12.0  73 
+ 1   1    9    2 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  18.3  63 
+ 1   1    9    3 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L   8.3  58 
+ 1   1   10    1 LP     01 02 LP C M       1 03   2   2  12 NW KS PC DE L   8.4  43 
+ 1   1   10    2 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L   9.7  47 
+ 1   1   10    3 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L  13.6  62 
+ 1   1   10    4 AF     01 02 AF C M       1 03   3   3  35 NW KS PC DE L  10.2  52 
+ 1   1   11    1 LP     01 02 LP C M       1 03   2   2   5 NW KS PC DE L  15.7  70 
+ 1   1   11    2 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  10.5  68 
+ 1   1   11    3 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L  14.8  57 
+ 1   1   11    4 AF     01 02 AF C M       1 03   3   3  15 NW KS PC DE L  14.6  76 
+ 1   1   11    5 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L  12.2  74 
+ 1   1   12    1 LP     01 02 LP C M       1 03   2   2   4 NW KS PC DE L  15.8  80 
+ 1   1   12    2 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  16.1  80 
+ 1   1   12    3 LP     01 02 LP C M       1 03   2   2   7 NW KS PC DE L  21.2  89 
+ 1   1   12    4 LP     01 02 LP C M       1 03   2   2  13 NW KS PC DE L  18.5  81 
+ 1   1   13    1 LP     01 02 LP C M       1 03   2   2   0 NW KS PC DE L  20.0  79 
+ 1   1   13    2 LP     01 02 LP C M       1 03   2   2   4 NW KS PC DE L  12.6  67 
+ 1   1   13    3 AF     01 02 AF C M       1 03   3   3   7 NW KS PC DE L  10.6  54 
+ 1   1   13    4 ES     01 02 ES C M       1 03   2   2   7 NW KS PC DE L  15.3  82 
+ 1   1   13    5 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L   9.4  67 
+ 1   1   13    6 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   9.2  48 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE   9
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 1   1   13    7 LP     01 02 LP C M       1 03   2   2   9 NW KS PC DE L  11.9  74 
+ 1   1   13    8 AF     01 02 AF C M       1 03   3   3   8 NW KS PC DE L  11.9  51 
+ 1   1   14    1 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L  11.3  65 
+ 1   1   14    2 AF     01 02 AF C M       1 03   3   3  10 NW KS PC DE L   9.7  52 
+ 1   1   14    3 AF     01 02 AF C M       1 03   3   3  12 NW KS PC DE L  11.3  70 
+ 1   1   14    4 LP     01 02 LP C M       1 03   2   2   4 NW KS PC DE L  10.4  77 
+ 1   1   14    5 AF     01 02 AF C M       1 03   3   3   9 NW KS PC DE L  11.6  67 
+ 1   1   14    6 LP     01 02 LP C M       1 03   2   2   3 NW KS PC DE L  12.8  72 
+ 1   1   15    1 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   8.4  57 
+ 1   1   15    2 LD     01 02 LD C M       1 03   3   2  12 NW KS PC DE D  16.7  94 
+ 1   1   15    3 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L   9.1  40 
+ 1   1   15    4 AF     01 02 AF C M       1 03   3   3   8 NW KS PC DE L   9.7  45 
+ 1   1   15    5 LP     01 02 LP C M       1 03   2   2   9 NW KS PC DE L  12.5  52 
+ 1   2    1    1 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  15.0  76 
+ 1   2    1    2 AF     01 02 AF C M       1 03   3   3  10 NW KS PC DE L  11.1  59 
+ 1   2    1    3 AF     01 02 AF C M       1 03   3   3   6 NW KS PC DE L  13.2  61 
+ 1   2    1    4 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L  12.0  56 
+ 1   2    1    5 LP     01 02 LP C M       1 03   2   2  14 NW KS PC DE L  22.0  90 
+ 1   2    2    1 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  16.4  79 
+ 1   2    2    2 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  10.1  57 
+ 1   2    2    3 LP     01 02 LP C M       1 03   2   2   6 NW KS PC DE L  13.1  76 
+ 1   2    2    4 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  11.9  62 
+ 1   2    2    5 AF     01 02 AF C M       1 03   3   3   3 NW KS PC DE L  11.1  68 
+ 1   2    3    1 LP     01 02 LP C M       1 03   2   2  18 NW KS PC DE L  10.6  70 
+ 1   2    3    2 LP     01 02 LP C M       1 03   2   2   9 NW KS PC DE L  19.8  80 
+ 1   2    3    3 AF     01 02 AF C M       1 03   3   3  12 NW KS PC DE L   9.0  68 
+ 1   2    3    4 AF     01 02 AF C M       1 03   3   3   6 NW KS PC DE L  14.0  70 
+ 1   2    3    5 LP     01 02 LP C M       1 03   2   2  10 NW KS PC DE L  11.5  84 
+ 1   2    3    6 LP     01 02 LP C M       1 03   2   2  20 NW KS PC DE L  12.6  68 
+ 1   2    3    7 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L   8.4  55 
+ 1   2    4    1 LD     01 02 LD C M       1 03   3   2  10 NW KS PC DE D  13.6  75 
+ 1   2    4    2 LD     01 02 LD C M       1 03   3   2   6 NW KS PC DE D  12.8  85 
+ 1   2    4    3 LD     01 02 LD C M       1 03   3   2   6 NW KS PC DE D  15.3  82 
+ 1   2    4    4 LD     01 02 LD C M       1 03   3   2   8 NW KS PC DE D  12.7  72 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  10
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 1   2    5    1 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L  12.6  67 
+ 1   2    5    2 LP     01 02 LP C M       1 03   2   2  11 NW KS PC DE L  18.9  90 
+ 1   2    5    3 LP     01 02 LP C M       1 03   2   2   0 NW KS PC DE L  12.1  80 
+ 1   2    5    4 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L   9.0  60 
+ 1   2    6    1 LP     01 02 LP C M       1 03   2   2  15 NW KS PC DE L  12.5  63 
+ 1   2    6    2 LP     01 02 LP C M       1 03   2   2   7 NW KS PC DE L  15.2  84 
+ 1   2    6    3 LP     01 02 LP C M       1 03   2   2   2 NW KS PC DE L  14.6  82 
+ 1   2    6    4 LP     01 02 LP C M       1 03   2   2  10 NW KS PC DE L   9.7  64 
+ 1   2    6    5 LP     01 02 LP C M       1 03   2   2  16 NW KS PC DE L  19.0  81 
+ 1   2    6    6 LP     01 02 LP C M       1 03   2   2   9 NW KS PC DE L  25.0  83 
+ 1   2    6    7 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  12.1  69 
+ 1   2    6    8 LP     01 02 LP C M       1 03   2   2  10 NW KS PC DE L  11.3  73 
+ 1   2    7    1 LP     01 02 LP C M       1 03   2   2   9 NW KS PC DE L  20.2  83 
+ 1   2    7    2 AF     01 02 AF C M       1 03   3   3   4 NW KS PC DE L   9.8  64 
+ 1   2    7    3 LP     01 02 LP C M       1 03   2   2  12 NW KS PC DE L  12.0  63 
+ 1   2    7    4 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  12.7  70 
+ 1   2    7    5 LP     01 02 LP C M       1 03   2   2  12 NW KS PC DE L  10.8  59 
+ 1   2    7    6 LP     01 02 LP C M       1 03   2   2   6 NW KS PC DE L  14.4  71 
+ 1   2    7    7 LP     01 02 LP C M       1 03   2   2  15 NW KS PC DE L  15.3  84 
+ 1   2    8    1 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L  10.3  59 
+ 1   2    8    2 LP     01 02 LP C M       1 03   2   2   4 NW KS PC DE L  14.0  79 
+ 1   2    8    3 ES     01 02 ES C M       1 03   2   2   4 NW KS PC DE L   9.3  53 
+ 1   2    8    4 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  15.9  61 
+ 1   2    9    1 LP     01 02 LP C M       1 03   2   2   4 NW KS PC DE L  11.5  86 
+ 1   2    9    2 LP     01 02 LP C M       1 03   2   2  16 NW KS PC DE L  17.6  85 
+ 1   2    9    3 LP     01 02 LP C M       1 03   2   2  15 NW KS PC DE L  13.9  85 
+ 1   2    9    4 LP     01 02 LP C M       1 03   2   2  18 NW KS PC DE L  12.2  51 
+ 1   2    9    5 LD     01 02 LD C M       1 03   3   2  17 NW KS PC DE D  20.0  91 
+ 1   2    9    6 LP     01 02 LP C M       1 03   2   2   5 NW KS PC DE L  10.9  66 
+ 1   2    9    7 LP     01 02 LP C M       1 03   2   2   3 NW KS PC DE L  12.0  77 
+ 1   2    9    8 LP     01 02 LP C M       1 03   2   2   8 NW KS PC DE L  13.5  81 
+ 1   2   10    1 AF     01 02 AF C M       1 03   3   3   6 NW KS PC DE L  17.7  66 
+ 1   2   10    2 ES     01 02 ES C M       1 03   2   2   0 NW KS PC DE L  22.2  82 
+ 1   2   10    3 AF     01 02 AF C M       1 03   3   3  12 NW KS PC DE L  14.4  70 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  11
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 1   2   10    4 LP     01 02 LP C M       1 03   2   2  30 NW KS PC DE L   9.1  44 
+ 1   2   10    5 AF     01 02 AF C M       1 03   3   3   8 NW KS PC DE L  12.5  60 
+ 1   2   10    6 AF     01 02 AF C M       1 03   3   3   6 NW KS PC DE L   9.5  50 
+ 1   2   11    1 LP     01 02 LP C M       1 03   2   2   6 NW KS PC DE L  13.5  52 
+ 1   2   11    2 LP     01 02 LP C M       1 03   2   2   5 NW KS PC DE L  10.5  52 
+ 1   2   11    3 LP     01 02 LP C M       1 03   2   2  16 NW KS PC DE L  13.0  48 
+ 1   2   11    4 AF     01 02 AF C M       1 03   3   3   0 NW KS PC DE L   8.8  48 
+ 1   5    1    1 LP     01 02 LP C M       1 03   2   2   7 NW KS DE L  11.9  68 
+ 1   5    1    2 AF     01 02 AF C M       1 03   3   3   4 NW KS DE L  12.0  70 
+ 1   5    2    1 LP     01 02 LP C M       1 03   2   2   6 NW KS DE L  10.4  73 
+ 1   5    2    2 LP     01 02 LP C M       1 03   2   2   3 NW KS DE L  11.5  61 
+ 1   5    2    3 LP     01 02 LP C M       1 03   2   2   9 NW KS DE L  11.5  78 
+ 1   5    2    4 LP     01 02 LP C M       1 03   2   2   5 NW KS DE L  11.3  74 
+ 1   5    2    5 LP     01 02 LP C M       1 03   2   2  15 NW KS DE L   9.7  79 
+ 1   5    2    6 LP     01 02 LP C M       1 03   2   2  21 NW KS DE L  14.8  71 
+ 1   5    2    7 LP     01 02 LP C M       1 03   2   2   6 NW KS DE L  13.1  77 
+ 1   5    2    8 LP     01 02 LP C M       1 03   2   2   9 NW KS DE L  14.0  76 
+ 1   5    2    9 LP     01 02 LP C M       1 03   2   2  11 NW KS DE L  11.5  68 
+ 1   5    2   10 LP     01 02 LP C M       1 03   2   2  44 NW KS DE L   7.1  61 
+ 1   5    3    1 AF     01 02 AF C M       1 03   3   3   9 NW KS DE L  20.2  80 
+ 1   5    3    2 LP     01 02 LP C M       1 03   2   2   4 NW KS DE L  11.5  66 
+ 1   5    3    3 LP     01 02 LP C M       1 03   2   2   6 NW KS DE L  14.8  72 
+ 1   5    3    4 LP     01 02 LP C M       1 03   2   2   7 NW KS DE L  14.6  72 
+ 1   5    3    5 AF     01 02 AF C M       1 03   3   3   8 NW KS DE L  14.5  82 
+ 1   5    4    1 AF     01 02 AF C M       1 03   3   3   8 NW KS DE L  11.1  61 
+ 1   5    4    2 AF     01 02 AF C M       1 03   3   3   7 NW KS DE L  14.3  66 
+ 1   5    5    1 AF     01 02 AF C M       1 03   3   3  14 NW KS DE L  20.1  79 
+ 1   5    5    2 AF     01 02 AF C M       1 03   3   3   6 NW KS DE L  17.4  72 
+ 1   5    5    3 LP     01 02 LP C M       1 03   2   2   3 NW KS DE L  11.4  64 
+ 1   5    6    1 LP     01 02 LP C M       1 03   2   2  22 NW KS DE L  10.4  56 
+ 1   5    6    2 AF     01 02 AF C M       1 03   3   3   6 NW KS DE L  15.9  81 
+ 1   5    6    3 AF     01 02 AF C M       1 03   3   3   6 NW KS DE L  13.1  96 
+ 1   5    6    4 LP     01 02 LP C M       1 03   2   2   4 NW KS DE L   8.6  59 
+ 1   5    6    5 LP     01 02 LP C M       1 03   2   2   4 NW KS DE L   8.9  62 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  12
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 1   5    6    6 LP     01 02 LP C M       1 03   2   2  12 NW KS DE L  12.8  66 
+ 1   5    6    7 LP     01 02 LP C M       1 03   2   2   0 NW KS DE L  13.1  69 
+ 1   5    7    1 AF     01 02 AF C M       1 03   3   3   6 NW KS DE L  13.0  72 
+ 1   5    7    2 AF     01 02 AF C M       1 03   3   3   6 NW KS DE L   8.7  53 
+ 1   5    7    3 LP     01 02 LP C M       1 03   2   2  16 NW KS DE L  21.2  84 
+ 1   5    8    2 AF     01 02 AF C M       1 03   3   3   2 NW KS DE L  14.1  76 
+ 1   5    8    3 LP     01 02 LP C M       1 03   2   2   3 NW KS DE L  10.3  71 
+ 1   5    8    4 AF     01 02 AF C M       1 03   3   3   4 NW KS DE L  10.0  69 
+ 1   5    9    1 LP     01 02 LP C M       1 03   2   2   3 NW KS DE L  10.1  67 
+ 1   5    9    2 LP     01 02 LP C M       1 03   2   2   0 NW KS DE L  17.3  68 
+ 1   5    9    3 LP     01 02 LP C M       1 03   2   2  12 NW KS DE L  12.8  71 
+ 1   5    9    4 AF     01 02 AF C M       1 03   3   3   9 NW KS DE L  12.2  68 
+ 1   5   10    1 LP     01 02 LP C M       1 03   2   2   0 NW KS DE L   7.9  54 
+ 1   5   10    2 AF     01 02 AF C M       1 03   3   3  12 NW KS DE L  15.6  80 
+ 1   5   10    3 AF     01 02 AF C M       1 03   3   3   5 NW KS DE L  12.9  67 
+ 1   5   10    4 LP     01 02 LP C M       1 03   2   2   3 NW KS DE L  10.6  68 
+ 1   5   11    1 AF     01 02 AF C M       1 03   3   3   4 NW KS DE L  13.4  64 
+ 1   5   11    2 LP     01 02 LP C M       1 03   2   2  25 NW KS DE L  15.3  79 
+ 1   5   11    3 AF     01 02 AF C M       1 03   3   3   1 NW KS DE L  13.9  75 
+ 1   5   11    4 AF     01 02 AF C M       1 03   3   3   6 NW KS DE L  14.9  61 
+ 1   5   11    5 AF     01 02 AF C M       1 03   3   3  15 NW KS DE L   9.9  55 
+ 1   5   12    1 AF     01 02 AF C M       1 03   3   3   3 NW KS DE L  17.8  73 
+ 1   5   12    2 AF     01 02 AF C M       1 03   3   3  14 NW KS DE L  11.2  50 
+ 1   5   12    3 AF     01 02 AF C M       1 03   3   3   9 NW KS DE L  11.6  57 
+ 1   5   12    4 LP     01 02 LP C M       1 03   2   2   7 NW KS DE L  11.5  67 
+ 1   5   12    5 LP     01 02 LP C M       1 03   2   2  16 NW KS DE L  12.5  65 
+ 1   5   12    6 LP     01 02 LP C M       1 03   2   2   3 NW KS DE L  13.2  62 
+ 1   5   12    7 LP     01 02 LP C M       1 03   2   2   9 NW KS DE L  13.7  77 
+ 1   5   12    8 LP     01 02 LP C M       1 03   2   2   2 NW KS DE L   9.3  64 
+ 1   5   13    1 LP     01 02 LP C M       1 03   2   2  31 NW KS DE L   7.0  49 
+ 1   5   13    2 LP     01 02 LP C M       1 03   2   2  25 NW KS DE L   7.1  59 
+ 2   3         1 LP     01 02 LP C M       1 03   2   2   0  KS L  10.8  68 
+ 2   3         2 AF     01 02 AF C M       1 03   3   3   8  NW L  12.3  84 
+ 2   3         3 LP     01 02 LP C M       1 03   2   2  22  PC L  12.3  73 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  13
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 2   3         4 LP     01 02 LP C M       1 03   2   2   4  DE L  14.6  82 
+ 2   3         5 LP     01 02 LP C M       1 03   2   2   4  PC L  10.2  68 
+ 2   3         6 AF     01 02 AF C M       1 03   3   3  10  NW L  14.9  77 
+ 2   3         7 LD     01 02 LD C M       1 03   3   2  10  PC D  19.2  82 
+ 2   3         8 LD     01 02 LD C M       1 03   3   2  18  PC D  15.1  76 
+ 2   3         9 ES     01 02 ES C M       1 03   2   2   0  NW L  17.0  90 
+ 2   3        10 LP     01 02 LP C M       1 03   2   2  17  PC L  23.1  70 
+ 2   3        11 LP     01 02 LP C M       1 03   2   2   5  NW L  16.5  91 
+ 2   3        12 LP     01 02 LP C M       1 03   2   2   4  PC L   9.6  68 
+ 2   3        13 LP     01 02 LP C M       1 03   2   2   3  NW L  11.8  71 
+ 2   3        14 LP     01 02 LP C M       1 03   2   2   0  DE L  16.2  86 
+ 2   3        15 LP     01 02 LP C M       1 03   2   2   9  KS L  10.4  68 
+ 2   3        16 AF     01 02 AF C M       1 03   3   3  10  PC L   8.7  50 
+ 2   4         1 LP     01 02 LP C M       1 03   2   2   0  PC L  10.0  62 
+ 2   4         2 AF     01 02 AF C M       1 03   3   3  11  KS L  10.8  55 
+ 2   4         3 AF     01 02 AF C M       1 03   3   3   8  PC L  10.8  53 
+ 2   4         4 LP     01 02 LP C M       1 03   2   2   0  KS L   8.6  60 
+ 2   4         5 LP     01 02 LP C M       1 03   2   2   0  PC L  12.8  69 
+ 2   4         6 LP     01 02 LP C M       1 03   2   2   4  PC L   8.4  57 
+ 2   4         7 AF     01 02 AF C M       1 03   3   3  33  KS L  15.4  80 
+ 2   4         8 AF     01 02 AF C M       1 03   3   3   9  NW L  11.3  75 
+ 2   4         9 AF     01 02 AF C M       1 03   3   3   7  DE L  13.7  71 
+ 2   4        10 AF     01 02 AF C M       1 03   3   3   4  DE L  12.4  71 
+ 2   4        11 AF     01 02 AF C M       1 03   3   3   3  KS L  11.2  58 
+ 2   4        12 LP     01 02 LP C M       1 03   2   2  10  PC L  11.6  60 
+ 2   4        13 AF     01 02 AF C M       1 03   3   3  10  PC L  10.3  63 
+ 2   4        14 AF     01 02 AF C M       1 03   3   3   3  DE L  18.0  82 
+ 2   4        15 AF     01 02 AF C M       1 03   3   3  14  NW L  13.0  71 
+ 2   4        16 LD     01 02 LD C M       1 03   3   2   5  NW D  16.5  74 
+ 2   4        17 LD     01 02 LD C M       1 03   3   2  17  DE D  18.7  88 
+ 2   6         1 LP     01 02 LP C M       1 03   2   2   4  NW L   9.7  67 
+ 2   6         2 ES     01 02 ES C M       1 03   2   2   0  PC L  23.0  98 
+ 2   6         3 AF     01 02 AF C M       1 03   3   3   3  DE L  14.8  82 
+ 2   6         4 LP     01 02 LP C M       1 03   2   2   3  KS L   9.8  69 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  14
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 2   6         5 LP     01 02 LP C M       1 03   2   2   6  DE L  14.1  83 
+ 2   6         6 LP     01 02 LP C M       1 03   2   2   0  DE L  11.2  78 
+ 2   6         7 ES     01 02 ES C M       1 03   2   2   0  KS L   9.3  57 
+ 2   6         8 AF     01 02 AF C M       1 03   3   3   6  PC L  13.1  73 
+ 2   6         9 AF     01 02 AF C M       1 03   3   3  20  KS L  17.7  68 
+ 2   6        10 ES     01 02 ES C M       1 03   2   2   0  DE L  16.3  79 
+ 2   6        11 AF     01 02 AF C M       1 03   3   3   5  NW L  15.9  87 
+ 2   6        12 AF     01 02 AF C M       1 03   3   3   3  NW L  10.9  67 
+ 2   6        13 AF     01 02 AF C M       1 03   3   3  10  NW L  13.3  74 
+ 2   6        14 LP     01 02 LP C M       1 03   2   2  10  PC L  10.5  69 
+ 2   6        15 AF     01 02 AF C M       1 03   3   3   4  KS L   9.3  48 
+ 2   6        16 LD     01 02 LD C M       1 03   3   2   8  KS D  14.2  85 
+ 2   6        17 LD     01 02 LD C M       1 03   3   2  30  PC D  13.7  75 
+ 2   9         1 LP     01 02 LP C M       1 03   2   2  10  DE L  11.9  45 
+ 2   9         2 LP     01 02 LP C M       1 03   2   2   5  NW L  12.8  71 
+ 2   9         3 LP     01 02 LP C M       1 03   2   2   3  KS L  11.3  71 
+ 2   9         4 LP     01 02 LP C M       1 03   2   2   6  PC L  10.9  71 
+ 2   9         5 LP     01 02 LP C M       1 03   2   2  12  NW L  14.7  68 
+ 2   9         6 AF     01 02 AF C M       1 03   3   3   8  KS L  10.6  58 
+ 2   9         7 AF     01 02 AF C M       1 03   3   3   8  PC L   8.5  58 
+ 2   9         8 AF     01 02 AF C M       1 03   3   3   4  pc L   8.8  53 
+ 2   9         9 AF     01 02 AF C M       1 03   3   3  18  KS L  17.8  85 
+ 2   9        10 AF     01 02 AF C M       1 03   3   3   5  KS L  11.0  58 
+ 2   9        11 LP     01 02 LP C M       1 03   2   2   8  KS L  17.5  78 
+ 2   9        12 LP     01 02 LP C M       1 03   2   2  15  PC L  19.4  74 
+ 2   9        13 LP     01 02 LP C M       1 03   2   2  14  DE L  12.1  55 
+ 2   9        14 LP     01 02 LP C M       1 03   2   2  10  NW L  10.1  66 
+ 2   9        15 LD     01 02 LD C M       1 03   3   2  17  DE D  15.8  82 
+ 2   9        16 LP     01 02 LP C M       1 03   2   2   0  KS L  10.2  73 
+ 3   7         1 LP     01 02 LP C M       1 03   2   2  10  DE L  15.1  75 
+ 3   7         2 LP     01 02 LP C M       1 03   2   2  12  KS L  12.6  71 
+ 3   7         3 LP     01 02 LP C M       1 03   2   2   6  KS L  12.7  64 
+ 3   7         4 LP     01 02 LP C M       1 03   2   2  18  PC L  13.6  74 
+ 3   7         5 AF     01 02 AF C M       1 03   3   3   8  NW L   9.9  56 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  15
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 3   7         6 LP     01 02 LP C M       1 03   2   2   9  DE L  10.7  74 
+ 3   7         7 LP     01 02 LP C M       1 03   2   2   5  NW L  15.9  92 
+ 3   7         8 LP     01 02 LP C M       1 03   2   2   8  KS L  11.3  72 
+ 3   7         9 LP     01 02 LP C M       1 03   2   2   0  KS L  10.0  73 
+ 3   7        10 LP     01 02 LP C M       1 03   2   2   3  NW L  13.3  83 
+ 3   7        11 LP     01 02 LP C M       1 03   2   2   4  PC L  11.3  69 
+ 3   7        12 LD     01 02 LD C M       1 03   3   2   7  DE D  10.1  71 
+ 3   7        13 LP     01 02 LP C M       1 03   2   2   2  NW L  13.7  74 
+ 3   7        14 LP     01 02 LP C M       1 03   2   2   4  PC L   9.5  74 
+ 3   7        15 LP     01 02 LP C M       1 03   2   2   2  PC L   9.1  73 
+ 3   7        16 LD     01 02 LD C M       1 03   3   2  12  PC D  15.6  86 
+ 3   7        17 LP     01 02 LP C M       1 03   2   2   8  DE L  14.0  84 
+ 3   7        18 LP     01 02 LP C M       1 03   2   2   0  NW L  16.6  80 
+ 3   7        19 LP     01 02 LP C M       1 03   2   2  11  NW L  14.9  82 
+ 3   7        20 LP     01 02 LP C M       1 03   2   2   4  PC L  14.0  77 
+ 3   7        21 LD     01 02 LD C M       1 03   3   2   7  DE D  18.0  89 
+ 3   7        22 AF     01 02 AF C M       1 03   3   3   0  KS L   9.7  70 
+ 3   7        23 LP     01 02 LP C M       1 03   2   2   3  NW L  16.0  78 
+ 3   7        24 LP     01 02 LP C M       1 03   2   2   8  PC L  11.5  79 
+ 3   7        25 LP     01 02 LP C M       1 03   2   2   2  NW L  16.6  89 
+ 3   7        26 AF     01 02 AF C M       1 03   3   3   0  PC L  11.8  71 
+ 3   7        27 LP     01 02 LP C M       1 03   2   2  11  NW L  12.6  79 
+ 3   8         1 LP     01 02 LP C M       1 03   2   2   0  PC L   8.6  78 
+ 3   8         2 LD     01 02 LD C M       1 03   3   2  17  KS D  13.8  84 
+ 3   8         3 LP     01 02 LP C M       1 03   2   2   4  PC L  17.5  89 
+ 3   8         4 LD     01 02 LD C M       1 03   3   2   6  DE D  19.1  79 
+ 3   8         5 LP     01 02 LP C M       1 03   2   2   4  PC L  12.1  87 
+ 3   8         6 LP     01 02 LP C M       1 03   2   2   3  NW L  13.8  87 
+ 3   8         7 LD     01 02 LD C M       1 03   3   2   9  DE D  15.7  89 
+ 3   8         8 LP     01 02 LP C M       1 03   2   2   8  KS L  12.0  78 
+ 3   8         9 LP     01 02 LP C M       1 03   2   2  13  KS L  10.8  66 
+ 3   8        10 LP     01 02 LP C M       1 03   2   2   2  DE L  15.5  85 
+ 3   8        11 LP     01 02 LP C M       1 03   2   2  14  NW L  14.6  78 
+ 3   8        12 LP     01 02 LP C M       1 03   2   2  11  DE L  12.8  78 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  16
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                    T          P       P   M               
+                                C   R       U      P       R   L           
+                       P  P     U C E          C       S   K   I           
+                S      R  R  S  T N E       O  U   H   E   R   V           
+ S              P      O  O  M  / T         F  L   I   E       E D     T   
+ T              E      D  D  P  L / C          L   D   N   I   / B     O   
+ R U   P    T   C               E M O       M  &           N   D H     T   
+ A N   L    R   I      P  S  G  A E U       E  B   D   D   I   E -         
+ T I   O    E   E      R  E  R  V A N       A  R   E   E   T   A O     H   
+ A T   T    E   S      I  C  P  E S T       S  K   F   F   L   D B     T   
+
+____________________________________________________________________________________________________________________________________
+ 3   8        13 AF     01 02 AF C M       1 03   3   3   0  PC L   9.1  56 
+ 3   8        14 LP     01 02 LP C M       1 03   2   2  20  KS L  11.5  81 
+ 3   8        15 LP     01 02 LP C M       1 03   2   2   0  NW L  14.9  86 
+ 3   8        16 LP     01 02 LP C M       1 03   2   2   4  PC L  18.9  87 
+ 3   8        18 LP     01 02 LP C M       1 03   2   2   4  KS L  13.0  72 
+ 3   8        19 LP     01 02 LP C M       1 03   2   2   0  NW L  10.7  78 
+ 3   8        20 LP     01 02 LP C M       1 03   2   2   0  KS L  13.1  70 
+ 3   8        21 LP     01 02 LP C M       1 03   2   2   6  PC L  13.7  87 
+ 3   8        22 LP     01 02 LP C M       1 03   2   2  10  DE L  13.1  80 
+ 3   8        23 LP     01 02 LP C M       1 03   2   2   8  PC L  11.9  76 
+ 3   8        24 LP     01 02 LP C M       1 03   2   2   9  DE L  10.3  73 
+ 3   8        25 LP     01 02 LP C M       1 03   2   2   5  NW L  16.1  88 
+ 3   8        26 AF     01 02 AF C M       1 03   3   3   4  NW L   9.2  61 
+ 3   8        27 LP     01 02 LP C M       1 03   2   2  21  DE L  13.3  66 
+ 3   8        28 LP     01 02 LP C M       1 03   2   2   5  KS L   9.4  82 
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  17
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+           CUTTING
+   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK
+____________________________________________________________________________________________________________________________________
+       1         1       1       1    AF       
+       1         1       1       2    AF       
+       1         1       1       3    AF       
+       1         1       1       4    ES       
+       1         1       1       5    AF       
+       1         1       1       6    ES       
+       1         1       2       1    AF       
+       1         1       2       2    AF       
+       1         1       3       1    LP       DBH EST
+       1         1       3       2    LP       DBH EST
+       1         1       3       3    AF       DBH AT 5FT
+       1         1       3       4    AF       
+       1         1       3       5    LP       
+       1         1       3       6    LP       
+       1         1       3       7    AF       
+       1         1       3       8    LP       
+       1         1       3       9    LD       
+       1         1       3      10    AF       
+       1         1       4       1    LP       
+       1         1       4       2    LP       
+       1         1       4       3    AF       
+       1         1       4       4    AF       
+       1         1       5       1    LP       DBH EST
+       1         1       5       2    LP       DBH EST
+       1         1       5       3    AF       
+       1         1       5       4    AF       
+       1         1       5       5    LP       
+       1         1       5       6    AF       
+       1         1       5       7    AF       
+       1         1       6       1    AF       
+       1         1       6       2    AF       
+       1         1       6       3    AF       
+       1         1       6       4    AF       
+       1         1       7       1    AF       
+       1         1       7       2    LP       DBH EST AT 4.3FT
+       1         1       7       3    LP       
+       1         1       7       4    AF       
+       1         1       7       5    LP       
+       1         1       7       6    AF       
+       1         1       8       1    LP       
+       1         1       8       2    AF       DBH EST
+       1         1       8       3    ES       
+       1         1       8       4    AF       
+       1         1       8       5    AF       
+       1         1       8       6    AF       
+       1         1       8       7    LP       
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  18
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+           CUTTING
+   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK
+____________________________________________________________________________________________________________________________________
+       1         1       9       1    LP       
+       1         1       9       2    ES       
+       1         1       9       3    AF       
+       1         1      10       1    LP       
+       1         1      10       2    AF       
+       1         1      10       3    AF       DBH AT 4.8FT
+       1         1      10       4    AF       
+       1         1      11       1    LP       
+       1         1      11       2    AF       
+       1         1      11       3    AF       
+       1         1      11       4    AF       
+       1         1      11       5    AF       
+       1         1      12       1    LP       
+       1         1      12       2    ES       
+       1         1      12       3    LP       DBH AT 5 FT
+       1         1      12       4    LP       
+       1         1      13       1    LP       
+       1         1      13       2    LP       
+       1         1      13       3    AF       
+       1         1      13       4    ES       
+       1         1      13       5    LP       
+       1         1      13       6    AF       
+       1         1      13       7    LP       
+       1         1      13       8    AF       
+       1         1      14       1    LP       
+       1         1      14       2    AF       
+       1         1      14       3    AF       DBH AT 5.5 FT
+       1         1      14       4    LP       
+       1         1      14       5    AF       DBH EST
+       1         1      14       6    LP       
+       1         1      15       1    AF       
+       1         1      15       2    LD       
+       1         1      15       3    LP       
+       1         1      15       4    AF       
+       1         1      15       5    LP       
+       1         2       1       1    ES       
+       1         2       1       2    AF       DBH EST
+       1         2       1       3    AF       
+       1         2       1       4    LP       
+       1         2       1       5    LP       
+       1         2       2       1    ES       
+       1         2       2       2    ES       
+       1         2       2       3    LP       
+       1         2       2       4    ES       
+       1         2       2       5    AF       
+       1         2       3       1    LP       DBH EST
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  19
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+           CUTTING
+   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK
+____________________________________________________________________________________________________________________________________
+       1         2       3       2    LP       
+       1         2       3       3    AF       
+       1         2       3       4    AF       
+       1         2       3       5    LP       
+       1         2       3       6    LP       
+       1         2       3       7    ES       
+       1         2       4       1    LD       
+       1         2       4       2    LD       
+       1         2       4       3    LD       DBH EST
+       1         2       4       4    LD       
+       1         2       5       1    LP       
+       1         2       5       2    LP       
+       1         2       5       3    LP       
+       1         2       5       4    AF       
+       1         2       6       1    LP       
+       1         2       6       2    LP       
+       1         2       6       3    LP       DBH EST
+       1         2       6       4    LP       
+       1         2       6       5    LP       DBH EST
+       1         2       6       6    LP       DBH EST
+       1         2       6       7    ES       
+       1         2       6       8    LP       
+       1         2       7       1    LP       
+       1         2       7       2    AF       
+       1         2       7       3    LP       
+       1         2       7       4    ES       
+       1         2       7       5    LP       
+       1         2       7       6    LP       
+       1         2       7       7    LP       
+       1         2       8       1    AF       
+       1         2       8       2    LP       
+       1         2       8       3    ES       
+       1         2       8       4    ES       
+       1         2       9       1    LP       
+       1         2       9       2    LP       
+       1         2       9       3    LP       
+       1         2       9       4    LP       
+       1         2       9       5    LD       
+       1         2       9       6    LP       
+       1         2       9       7    LP       
+       1         2       9       8    LP       
+       1         2      10       1    AF       
+       1         2      10       2    ES       
+       1         2      10       3    AF       
+       1         2      10       4    LP       DBH EST
+       1         2      10       5    AF       
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  20
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+           CUTTING
+   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK
+____________________________________________________________________________________________________________________________________
+       1         2      10       6    AF       
+       1         2      11       1    LP       
+       1         2      11       2    LP       
+       1         2      11       3    LP       
+       1         2      11       4    AF       
+       1         5       1       1    LP       
+       1         5       1       2    AF       
+       1         5       2       1    LP       DBH EST
+       1         5       2       2    LP       
+       1         5       2       3    LP       DBH EST
+       1         5       2       4    LP       
+       1         5       2       5    LP       
+       1         5       2       6    LP       
+       1         5       2       7    LP       
+       1         5       2       8    LP       
+       1         5       2       9    LP       
+       1         5       2      10    LP       
+       1         5       3       1    AF       
+       1         5       3       2    LP       
+       1         5       3       3    LP       
+       1         5       3       4    LP       
+       1         5       3       5    AF       DBH EST
+       1         5       4       1    AF       
+       1         5       4       2    AF       
+       1         5       5       1    AF       
+       1         5       5       2    AF       
+       1         5       5       3    LP       
+       1         5       6       1    LP       
+       1         5       6       2    AF       
+       1         5       6       3    AF       
+       1         5       6       4    LP       
+       1         5       6       5    LP       
+       1         5       6       6    LP       
+       1         5       6       7    LP       
+       1         5       7       1    AF       
+       1         5       7       2    AF       
+       1         5       7       3    LP       DBH EST
+       1         5       8       2    AF       
+       1         5       8       3    LP       
+       1         5       8       4    AF       
+       1         5       9       1    LP       
+       1         5       9       2    LP       
+       1         5       9       3    LP       
+       1         5       9       4    AF       
+       1         5      10       1    LP       
+       1         5      10       2    AF       
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  21
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+           CUTTING
+   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK
+____________________________________________________________________________________________________________________________________
+       1         5      10       3    AF       
+       1         5      10       4    LP       
+       1         5      11       1    AF       
+       1         5      11       2    LP       BROKEN TOP HGT EST
+       1         5      11       3    AF       
+       1         5      11       4    AF       
+       1         5      11       5    AF       
+       1         5      12       1    AF       
+       1         5      12       2    AF       
+       1         5      12       3    AF       
+       1         5      12       4    LP       
+       1         5      12       5    LP       
+       1         5      12       6    LP       
+       1         5      12       7    LP       
+       1         5      12       8    LP       
+       1         5      13       1    LP       
+       1         5      13       2    LP       
+       2         3               1    LP       
+       2         3               2    AF       
+       2         3               3    LP       
+       2         3               4    LP       
+       2         3               5    LP       
+       2         3               6    AF       
+       2         3               7    LD       
+       2         3               8    LD       
+       2         3               9    ES       
+       2         3              10    LP       
+       2         3              11    LP       
+       2         3              12    LP       
+       2         3              13    LP       
+       2         3              14    LP       
+       2         3              15    LP       DBH AVG. BETWEEN 4.0FT AND 5.1FT
+       2         3              16    AF       
+       2         4               1    LP       
+       2         4               2    AF       
+       2         4               3    AF       
+       2         4               4    LP       
+       2         4               5    LP       
+       2         4               6    LP       
+       2         4               7    AF       
+       2         4               8    AF       
+       2         4               9    AF       
+       2         4              10    AF       
+       2         4              11    AF       
+       2         4              12    LP       
+       2         4              13    AF       
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  22
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+           CUTTING
+   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK
+____________________________________________________________________________________________________________________________________
+       2         4              14    AF       
+       2         4              15    AF       HEIGHT EST. BROKEN TOP
+       2         4              16    LD       
+       2         4              17    LD       DBH EST.
+       2         6               1    LP       DBH TAKEN AT 4.8FT
+       2         6               2    ES       
+       2         6               3    AF       
+       2         6               4    LP       
+       2         6               5    LP       
+       2         6               6    LP       
+       2         6               7    ES       
+       2         6               8    AF       
+       2         6               9    AF       
+       2         6              10    ES       
+       2         6              11    AF       
+       2         6              12    AF       DBH TAKEN AT 4.3 FT
+       2         6              13    AF       
+       2         6              14    LP       
+       2         6              15    AF       
+       2         6              16    LD       
+       2         6              17    LD       
+       2         9               1    LP       
+       2         9               2    LP       
+       2         9               3    LP       DBH @ 4.2'
+       2         9               4    LP       
+       2         9               5    LP       
+       2         9               6    AF       
+       2         9               7    AF       
+       2         9               8    AF       
+       2         9               9    AF       
+       2         9              10    AF       
+       2         9              11    LP       
+       2         9              12    LP       DBH EST.
+       2         9              13    LP       
+       2         9              14    LP       
+       2         9              15    LD       
+       2         9              16    LP       
+       3         7               1    LP       
+       3         7               2    LP       
+       3         7               3    LP       
+       3         7               4    LP       
+       3         7               5    AF       
+       3         7               6    LP       DBH @ 5.2'
+       3         7               7    LP       
+       3         7               8    LP       
+       3         7               9    LP       
+A2: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS                                                                        PAGE  23
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+           CUTTING
+   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK
+____________________________________________________________________________________________________________________________________
+       3         7              10    LP       
+       3         7              11    LP       
+       3         7              12    LD       
+       3         7              13    LP       
+       3         7              14    LP       
+       3         7              15    LP       
+       3         7              16    LD       
+       3         7              17    LP       
+       3         7              18    LP       
+       3         7              19    LP       
+       3         7              20    LP       
+       3         7              21    LD       
+       3         7              22    AF       
+       3         7              23    LP       DBH EST.
+       3         7              24    LP       
+       3         7              25    LP       
+       3         7              26    AF       
+       3         7              27    LP       
+       3         8               1    LP       
+       3         8               2    LD       
+       3         8               3    LP       
+       3         8               4    LD       
+       3         8               5    LP       
+       3         8               6    LP       
+       3         8               7    LD       
+       3         8               8    LP       DBH EST.
+       3         8               9    LP       
+       3         8              10    LP       
+       3         8              11    LP       
+       3         8              12    LP       
+       3         8              13    AF       
+       3         8              14    LP       
+       3         8              15    LP       
+       3         8              16    LP       
+       3         8              18    LP       
+       3         8              19    LP       
+       3         8              20    LP       
+       3         8              21    LP       
+       3         8              22    LP       
+       3         8              23    LP       
+       3         8              24    LP       
+       3         8              25    LP       
+       3         8              26    AF       
+       3         8              27    LP       
+       3         8              28    LP       
+A2: COUNT TABLE INFORMATION                                                                                                 PAGE  24
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+THE FOLLOWING INFORMATION IS PROVIDED FOR SELECT METHODS AND REPRESENTS WHAT ONCE WERE COUNT RECORDS
+ 
+ CUTTING            SAMPLE                        KZ      TALLY
+   UNIT   STRATUM   GROUP   SPECIES   FREQUENCY   VALUE   COUNT   KPI      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+     3       2       AF      AF            50          0     184            AF
+     4       2       AF      AF            50          0     469            AF
+     6       2       AF      AF            50          0     295            AF
+     9       2       AF      AF            50          0     255            AF
+     3       2       ES      ES            25          0      29            ES
+     6       2       ES      ES            25          0      41            ES
+     9       2       ES      ES            25          0       6            ES
+     3       2       LD      LD            30          0      20            LD
+     4       2       LD      LD            30          0       2            LD
+     6       2       LD      LD            30          0       9            LD
+     9       2       LD      LD            30          0      25            LD
+     3       2       LP      LP            50          0     451            LP
+     4       2       LP      LP            50          0     189            LP
+     6       2       LP      LP            50          0     239            LP
+     9       2       LP      LP            50          0     378            LP
+     7       3       AF      AF            20          0      37            AF
+     8       3       AF      AF            20          0      21            AF
+     7       3       LD      LD            30          0      76            LD
+     8       3       LD      LD            30          0      40            LD
+     7       3       LP      LP            40          0     871            LP
+     8       3       LP      LP            40          0     796            LP
+     3       2       DD      DD             3          0                    DD
+     4       2       DD      DD             3          0                    DD
+     6       2       DD      DD             3          0                    DD
+     9       2       DD      DD             3          0                    DD
+     3       2       DF      DF             3          0                    DF
+     4       2       DF      DF             3          0                    DF
+     6       2       DF      DF             3          0                    DF
+     9       2       DF      DF             3          0                    DF
+     3       2       ED      ED             5          0                    ED
+     4       2       ED      ED             5          0                    ED
+     6       2       ED      ED             5          0                    ED
+     9       2       ED      ED             5          0                    ED
+     4       2       ES      ES            25          0                    ES
+     7       3       DD      DD             3          0                    DD
+     8       3       DD      DD             3          0                    DD
+     7       3       DF      DF             3          0                    DF
+     8       3       DF      DF             3          0                    DF
+     7       3       ED      ED             5          0                    ED
+     8       3       ED      ED             5          0                    ED
+A2: COUNT TABLE INFORMATION                                                                                                 PAGE  25
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+THE FOLLOWING INFORMATION IS PROVIDED FOR SELECT METHODS AND REPRESENTS WHAT ONCE WERE COUNT RECORDS
+ 
+ CUTTING            SAMPLE                        KZ      TALLY
+   UNIT   STRATUM   GROUP   SPECIES   FREQUENCY   VALUE   COUNT   KPI      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+     7       3       ES      ES             5          0                    ES
+     8       3       ES      ES             5          0                    ES
+B1: LOW LEVEL VOLUME SUMMARY                                                                                                PAGE  26
+CUT AND LEAVE TREES
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                                                
+                                                                
+                                                                
+              P                                          M      
+              R                  C                       E      
+              O                  O                       A      
+              D        Y       T N                  M    N          AVG
+      S    P           L  S    R T                  E               DEFT  GRSS  NET
+ S    P    R  S U      D  A    E R                  A    T          %  %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF    QUAD  N    O                BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                       T          B  C                         ********** VOLUME **********
+ A    I    U  R F  I A O  G  S G P    MEAS    MEAN  D               D  U  CUFT  CUFT   NO OF
+ T    E    C  C    V V M  R  T R E                  B    H          F  F                         *** GROSS **     **** NET ***
+ A    S    T  E M  E E P  P  M D C    TREES   DBH   H    T          T  T  RAT.  RAT.   TREES     BDFT    CUFT     BDFT    CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+  1 AF     01 P 03 L C    AF N           79  11.0 10.8  60.7        11  11  4.81  4.82   3174   192914   40069   170376   35379    0.0
+  1 ES     01 P 03 L C    ES N           16  12.6 12.2  62.8         4   4  5.00  5.00    495    46820    9356    44580    8916    0.0
+  1 LD     01 P 03 D C    LD N            7  15.0 14.8  82.2        14  14  5.39  5.38    151    34545    6407    29601    5497    0.0
+  1 LP     01 P 03 L C    LP N           99  12.0 11.6  66.9        13  13  5.19  5.19   3353   375920   72489   326116   62879    0.0
+____________________________________________________________________________________________________________________________________
+  2 AF     01 P 03 L C    AF N           25  12.9 12.6  68.0        15  15  4.76  4.75   1228   119853   25199   100942   21269    0.0
+  2 ES     01 P 03 L C    ES N            4  17.1 16.4  81.0         4   4  5.48  5.48     80    21000    3834    20160    3680    0.0
+  2 LD     01 P 03 D C    LD N            7  16.3 16.2  80.3        18  18  5.34  5.33     63    15930    2983    12942    2426    0.0
+  2 LP     01 P 03 L C    LP N           30  12.9 12.4  69.7        11  11  5.23  5.23   1287   171600   32819   152166   29116    0.0
+____________________________________________________________________________________________________________________________________
+  3 AF     01 P 03 L C    AF N            5  10.0  9.9  62.8         7   7  5.19  5.20     63     3150     607     2911     559    0.0
+  3 LD     01 P 03 D C    LD N            6  15.7 15.4  83.0        13  13  5.45  5.46    122    30703    5630    26514    4858    0.0
+  3 LP     01 P 03 L C    LP N           43  13.3 13.1  78.3         9   9  5.26  5.26   1710   273995   52099   246874   46933    0.0
+ TOTALS ---          PRODUCT     EST. NO                   *** GROSS VOLUME ***          *** NET VOLUME ***
+            PRODUCT  SOURCE      OF TREES                  BDFT            CUFT          BDFT          CUFT           CORDS
+____________________________________________________________________________________________________________________________________
+              01        P             11726             1286430          251490       1133181        221514             0.0
+____________________________________________________________________________________________________________________________________
+                                      11726             1286430          251490       1133181        221514             0.0
+____________________________________________________________________________________________________________________________________
+PRODUCT SOURCE KEY:
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+B1: LOW LEVEL VOLUME SUMMARY                                                                                                PAGE  27
+CUT AND LEAVE TREES
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                                                                
+                                                                
+                                                                
+              P                                          M      
+              R                  C                       E      
+              O                  O                       A      
+              D        Y       T N                  M    N          AVG
+      S    P           L  S    R T                  E               DEFT  GRSS  NET
+ S    P    R  S U      D  A    E R                  A    T          %  %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF    QUAD  N    O                BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                       T          B  C                         ********** VOLUME **********
+ A    I    U  R F  I A O  G  S G P    MEAS    MEAN  D               D  U  CUFT  CUFT   NO OF
+ T    E    C  C    V V M  R  T R E                  B    H          F  F                         *** GROSS **     **** NET ***
+ A    S    T  E M  E E P  P  M D C    TREES   DBH   H    T          T  T  RAT.  RAT.   TREES     BDFT    CUFT     BDFT    CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+B2: LOW LEVEL VOLUME PER ACRE SUMMARY                                                                                       PAGE  28
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                  P                       
+                  R                  C    
+                  O                  O    
+                  D                  N    
+         S     P           Y  S      T    
+    S    P     R  S U      L  A    T R     ************************************PER ACRE ************************************
+    T    E     O  O      L D  M    R      EST.
+    R    C     D  U O  L E           S      
+    A    I     U  R F  I A C  G  S G P    NO. OF
+    T    E     C  C    V V M  R  T R E                *******GROSS*******       *******NET********
+    A    S     T  E M  E E P  P  M D C    TREES        BDFT        CUFT           BDFT       CUFT        CORDS
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+     1  AF     01 P 03 L C    AF N               61        3710          771        3276        680          0.0
+     1  ES     01 P 03 L C    ES N               10         900          180         857        171          0.0
+     1  LD     01 P 03 D C    LD N                3         664          123         569        106          0.0
+     1  LP     01 P 03 L C    LP N               64        7229         1394        6271       1209          0.0
+____________________________________________________________________________________________________________________________________
+     2  AF     01 P 03 L C    AF N               30        2909          612        2450        516          0.0
+     2  DD     01 P 03 L C CL DD N               <1           0            0           0          0          0.0
+     2  DF     01 P 03 L C CL DF N               <1           0            0           0          0          0.0
+     2  ED     01 P 03 L C CL ED N               <1           0            0           0          0          0.0
+     2  ES     01 P 03 L C    ES N                2         510           93         489         89          0.0
+     2  LD     01 P 03 D C    LD N                2         387           72         314         59          0.0
+     2  LP     01 P 03 L C    LP N               31        4165          797        3693        707          0.0
+____________________________________________________________________________________________________________________________________
+     3  AF     01 P 03 L C    AF N                3         141           27         130         25          0.0
+     3  DD     01 P 03 L C CL DD N               <1           0            0           0          0          0.0
+     3  DF     01 P 03 L C CL DF N               <1           0            0           0          0          0.0
+     3  ED     01 P 03 L C CL ED N               <1           0            0           0          0          0.0
+     3  ES     01 P 03 L C CL ES N               <1           0            0           0          0          0.0
+     3  LD     01 P 03 D C    LD N                5        1371          251        1184        217          0.0
+     3  LP     01 P 03 L C    LP N               76       12232         2326       11021       2095          0.0
+PRODUCT SOURCE KEY:
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+CS2: VOLUME PER ACRE SUMMARY BY STRATA                                                                                      PAGE  29
+FOR CUT TREES ONLY
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+              P             
+              R             
+              O             
+              D             
+         P                  
+   S     R    S    U         ************************************PER ACRE ************************************
+   T     O    O             EST.
+   R     D    U    O          
+   A     U    R    F        NO. OF
+   T     C    C                         *******GROSS*******       *******NET********
+   A     T    E    M        TREES        BDFT        CUFT           BDFT       CUFT        CORDS
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+    1    01   P    03          138       12504        2468         10974       2167          0.0
+____________________________________________________________________________________________________________________________________
+    2    01   P    03           65        7970        1574          6947       1371          0.0
+____________________________________________________________________________________________________________________________________
+    3    01   P    03           85       13743        2604         12335       2337          0.0
+PRODUCT SOURCE KEY:
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+DP1: STATISTICS FOR SAMPLE GROUP                                                                                            PAGE  30
+FOR CUT TREES ONLY
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+                  S
+                  T
+    P      S      G   *************************************** PRIMARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N   VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+  1 01 03  AF  N  1    79     0    39   2.000    680.3    26533.25    26831882.76    480.6864   70.6539   76.971   22.6273    22.627
+  1 01 03  ES  N  1    16     0    39   2.000    171.4     6685.39     4337951.34    289.8247  169.0725   46.409   54.1465    54.147
+  1 01 03  LD  N  1     7     0    39   2.000    105.7     4123.01     6250322.39    391.1671  370.0096   62.637  118.4979   118.498
+  1 01 03  LP  N  1    99     0    39   2.000   1209.5    47169.55   103723440.39   1108.2586   91.6313  177.463   29.3455    29.346
+  2 01 03  AF  N  1    25  1228    25   2.064     17.3      433.00       10241.46     10.6886   61.7124    2.116   25.2142    25.214
+  2 01 03  ES  N  1     4    80     4   3.182     46.0      184.00       12079.74     34.7167   75.4710   16.919  117.0340   117.034
+  2 01 03  LD  N  1     7    63     7   2.447     38.5      269.60       11396.08     12.9912   33.7309    4.629   29.4128    29.413
+  2 01 03  LP  N  1    30  1287    30   2.045     22.6      678.70       22085.95     15.2355   67.3442    2.749   24.8491    24.849
+  3 01 03  AF  N  1     5    63     5   2.776      8.9       44.40         458.80      4.0165   45.2305    1.723   53.8777    53.878
+  3 01 03  LD  N  1     6   122     6   2.571     39.8      238.90       10963.91     17.0394   42.7947    6.783   43.7991    43.799
+  3 01 03  LP  N  1    43  1710    43   2.000     27.4     1180.20       39562.76     13.0661   47.6058    1.967   14.3359    14.336
+DS1: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL                                                                             PAGE  31
+PRIMARY PRODUCT VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+     P         ********** PRIMARY PRODUCT GROSS VOLUME **********       ********* PRIMARY PRODUCT NET VOLUME ********
+  S  R   U
+  T  O                              ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+  1   01  03    128320.4     19.39       103436.        153205.           112672.0    19.25       90985.       134359.
+  2   01  03     64833.7     18.04        53136.         76531.            56491.6    17.72       46483.        66500.
+  3   01  03     58336.3     12.90        50809.         65864.            52350.0    13.49       45287.        59413.
+
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03    251490.4     11.34       222982.        279999.           221513.6    11.24      196606.       246421.
+
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03    251490.4     11.34       222982.        279999.           221513.6    11.24      196606.       246421. 
+
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+  1       03    128320.4     19.39       103436.        153205.           112672.0    19.25       90985.       134359.
+  2       03     64833.7     18.04        53136.         76531.            56491.6    17.72       46483.        66500.
+  3       03     58336.3     12.90        50809.         65864.            52350.0    13.49       45287.        59413.
+ 
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+ 
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+ 
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+DS1: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL                                                                             PAGE  32
+TOTAL VOLUME AGGREGATED BY PRODUCT
+FOR PRIMARY, SECONDARY AND RECOVERED PRODUCTS
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+     P         ******************** TOTAL GROSS VOLUME **********       ******************* TOTAL NET VOLUME ********
+  S  R   U
+  T  O                              ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03    251490.4     11.34       222982.        279999.           221513.6    11.24      196606.       246421.
+
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03    251490.4     11.34       222982.        279999.           221513.6    11.24      196606.       246421. 
+
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+  1       03    128320.4     19.39       103436.        153205.           112672.0    19.25       90985.       134359.
+  2       03     64833.7     18.04        53136.         76531.            56491.6    17.72       46483.        66500.
+  3       03     58336.3     12.90        50809.         65864.            52350.0    13.49       45287.        59413.
+ 
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+R401: SALE APPRAISAL SUMMARY BY SPECIES                                                                                     PAGE  33
+-- BOARD FOOT --
+FOR CUT TREES ONLY - PRIMARY PRODUCT ONLY
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+   S     P
+   P     R
+   E     O
+   C     D                                                                                                                  NET LOG
+   I     U                                                  GROSS      NET                QUAD              NET   16'LOGS/  SCALE
+   E     C      GROSS     TOTAL        NET       ESTIM      BF/        BF/     TREES/     MEAN     MEAN     BF/   GROSS     VALUE/
+   S     T      BF        DEF%         BF        TREES      ACRE       ACRE    ACRE       DBH      HT1      TREE  MBF       MBF
+____________________________________________________________________________________________________________________________________
+ AF      01     315917    13.2      274228        4465       2733      2372      38.6     11.6     62.8       61    34.5         
+ DD      01          0     0.0           0           0          0         0       0.0      0.0      0.0        0     0.0         
+ DF      01          0     0.0           0           0          0         0       0.0      0.0      0.0        0     0.0         
+ ED      01          0     0.0           0           0          0         0       0.0      0.0      0.0        0     0.0         
+ ES      01      67820     4.5       64740         575        587       560       5.0     13.3     65.3      113    24.7         
+ LD      01      81177    14.9       69057         336        702       597       2.9     15.5     82.1      205    17.8         
+ LP      01     821515    11.7      725156        6350       7107      6273      54.9     12.5     70.5      114    25.0         
+____________________________________________________________________________________________________________________________________
+ TOTALS/AVE    1286430    11.9     1133181       11726      11128      9803     101.4     12.3     67.7       97    26.9      N/A
+ 
+R402: SALE APPRAISAL SUMMARY BY SPECIES                                                                                     PAGE  34
+-- CUBIC FOOT --
+FOR CUT TREES ONLY - PRIMARY PRODUCT ONLY
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+   S     P
+   P     R
+   E     O
+   C     D                                                                                                                  NET LOG
+   I     U                                                  GROSS      NET                QUAD              NET   16'LOGS/  SCALE
+   E     C      GROSS     TOTAL        NET       ESTIM      CF/        CF/     TREES/     MEAN     MEAN     CF/   GROSS     VALUE/
+   S     T      CF        DEF%         CF        TREES      ACRE       ACRE    ACRE       DBH      HT1      TREE  CCF       CCF
+____________________________________________________________________________________________________________________________________
+ AF      01      65874    13.2       57207        4465        570       495      38.6     11.6     62.8       13    16.5         
+ DD      01          0     0.0           0           0          0         0       0.0      0.0      0.0        0     0.0         
+ DF      01          0     0.0           0           0          0         0       0.0      0.0      0.0        0     0.0         
+ ED      01          0     0.0           0           0          0         0       0.0      0.0      0.0        0     0.0         
+ ES      01      13190     4.5       12596         575        114       109       5.0     13.3     65.3       22    12.7         
+ LD      01      15020    14.9       12781         336        130       111       2.9     15.5     82.1       38     9.6         
+ LP      01     157406    11.7      138929        6350       1362      1202      54.9     12.5     70.5       22    13.1         
+____________________________________________________________________________________________________________________________________
+ TOTALS/AVE     251490    11.9      221514       11726       2176      1916     101.4     12.3     67.7       19    13.8      N/A
+ 
+R403: SALE APPRAISAL SUMMARY BY LOGGING METHOD                                                                              PAGE  35
+-- BOARD FOOT --
+FOR CUT TREES ONLY - PRIMARY PRODUCT ONLY
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+   L    P
+   O    R
+   G    O
+        D
+   M    U                                                   GROSS      NET                QUAD            NET    16'LOGS/
+   T    C       GROSS     TOTAL        NET       ESTIM      BF/        BF/     TREES/     MEAN     MEAN   BF/    GROSS
+   H    T       BF        DEF%         BF        TREES      ACRE       ACRE    ACRE       DBH      HT1    TREE   MBF       ACRES
+____________________________________________________________________________________________________________________________________
+ 421   01        1286430   11.9       1133181    11726      11128       9803    101.4     12.3     67.7       97   26.9    115.6
+____________________________________________________________________________________________________________________________________
+ TOTALS/AVE      1286430   11.9       1133181    11726      11128       9803    101.4     12.3     67.7       97   26.9    115.6
+R404: SALE APPRAISAL SUMMARY BY LOGGING METHOD                                                                              PAGE  36
+-- CUBIC FOOT --
+FOR CUT TREES ONLY - PRIMARY PRODUCT ONLY
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+   L    P
+   O    R
+   G    O
+        D
+   M    U                                                   GROSS      NET                QUAD            NET    16'LOGS/
+   T    C       GROSS     TOTAL        NET       ESTIM      CF/        CF/     TREES/     MEAN     MEAN   CF/    GROSS
+   H    T       CF        DEF%         CF        TREES      ACRE       ACRE    ACRE       DBH      HT1    TREE   CCF       ACRES
+____________________________________________________________________________________________________________________________________
+ 421   01         251490   11.9        221514    11726       2176       1916    101.4     12.3     67.7       19   13.8    115.6
+____________________________________________________________________________________________________________________________________
+ TOTALS/AVE       251490   11.9        221514    11726       2176       1916    101.4     12.3     67.7       19   13.8    115.6
+UC10: NET CUFT VOLUME (FOR SAWTIMBER ONLY : PROD = 01)                                                                      PAGE  37
+BY SPECIES WITHIN CUTTING UNIT ACROSS ALL STRATA
+
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:07                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+  SPEC--- |    AF    |    ES    |    LD    |    LP    |   TOTALS
+__________________________________________________________________
+      1   |    13607 |     3429 |     2114 |    24184 |     43335
+      2   |     9729 |     2452 |     1512 |    17292 |     30985
+      3   |     3239 |     1380 |      847 |    10429 |     15896
+      4   |     8296 |        0 |      154 |     4389 |     12839
+      5   |    12042 |     3035 |     1871 |    21403 |     38352
+      6   |     5231 |     2024 |      424 |     5520 |     13198
+      7   |      355 |        0 |     3145 |    24482 |     27983
+      8   |      204 |        0 |     1712 |    22451 |     24367
+      9   |     4503 |      276 |     1001 |     8778 |     14558
+  TOTALS  |    57207 |    12596 |    12781 |   138929 |    221514
+EDIT MESSAGES                                                                                                               PAGE  38
+CRUISE#: 09211      SALE#: 09211
+SALENAME: McDougal                                                                                               VERSION: 03.16.2015
+RUN DATE & TIME: 06-28-2016   14:52:06                                                            VOLUME LIBRARY VERSION: 02.13.2015
+   
+
+            IDENTIFIER        EDIT MESSAGE
+____________________________________________________________________________________________________________________________________
+           1   DD             - Sample Group does not have at least one measured tree 
+           1   DF             - Sample Group does not have at least one measured tree 
+           1   ED             - Sample Group does not have at least one measured tree 
+           2   DD             - Sample Group does not have at least one measured tree 
+           2   DF             - Sample Group does not have at least one measured tree 
+           2   ED             - Sample Group does not have at least one measured tree 
+           2     3     DD      - Sample Group does not have at least one measured tree 
+           2     4     DD      - Sample Group does not have at least one measured tree 
+           2     6     DD      - Sample Group does not have at least one measured tree 
+           2     9     DD      - Sample Group does not have at least one measured tree 
+           2     3     DF      - Sample Group does not have at least one measured tree 
+           2     4     DF      - Sample Group does not have at least one measured tree 
+           2     6     DF      - Sample Group does not have at least one measured tree 
+           2     9     DF      - Sample Group does not have at least one measured tree 
+           2     3     ED      - Sample Group does not have at least one measured tree 
+           2     4     ED      - Sample Group does not have at least one measured tree 
+           2     6     ED      - Sample Group does not have at least one measured tree 
+           2     9     ED      - Sample Group does not have at least one measured tree 
+           3   DD             - Sample Group does not have at least one measured tree 
+           3   DF             - Sample Group does not have at least one measured tree 
+           3   ED             - Sample Group does not have at least one measured tree 
+           3   ES             - Sample Group does not have at least one measured tree 
+           3     7     DD      - Sample Group does not have at least one measured tree 
+           3     8     DD      - Sample Group does not have at least one measured tree 
+           3     7     DF      - Sample Group does not have at least one measured tree 
+           3     8     DF      - Sample Group does not have at least one measured tree 
+           3     7     ED      - Sample Group does not have at least one measured tree 
+           3     8     ED      - Sample Group does not have at least one measured tree 
+           3     7     ES      - Sample Group does not have at least one measured tree 
+           3     8     ES      - Sample Group does not have at least one measured tree 

@@ -20,12 +20,9 @@ public class TestBase
     {
         Output = output;
         Output.WriteLine($"CodeBase: {System.Reflection.Assembly.GetExecutingAssembly().CodeBase}");
+        Rand = new Randomizer(this.GetType().Name.GetHashCode()); // make the randomizer fixed based on the test class
 
-        var testTempPath = TestTempPath;
-        if (!Directory.Exists(testTempPath))
-        {
-            Directory.CreateDirectory(testTempPath);
-        }
+
     }
 
     ~TestBase()
@@ -92,6 +89,11 @@ public class TestBase
         if (File.Exists(sourcePath) == false) { throw new FileNotFoundException(sourcePath); }
 
         var targetPath = Path.Combine(TestTempPath, fileName);
+        var targetDir = Path.GetDirectoryName(targetPath);
+        if (!Directory.Exists(targetDir))
+        {
+            Directory.CreateDirectory(targetDir);
+        }
 
         RegesterFileForCleanUp(targetPath);
         File.Copy(sourcePath, targetPath, true);
