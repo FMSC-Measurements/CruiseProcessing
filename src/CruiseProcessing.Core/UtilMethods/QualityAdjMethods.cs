@@ -6,8 +6,6 @@ namespace CruiseProcessing
 {
     public class QualityAdjMethods
     {
-
-
         public static List<string> buildPrintArray(QualityAdjEquationDO qae)
         {
             string fieldFormat = "{0,8:F4}";

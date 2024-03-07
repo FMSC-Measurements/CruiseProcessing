@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using System.Runtime.InteropServices;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
@@ -43,16 +44,18 @@ namespace CruiseProcessing
         
 
         protected CPbusinessLayer DataLayer {get;}
+        public IDialogService DialogService { get; }
 
         protected LocalVolume()
         {
             InitializeComponent();
         }
 
-        public LocalVolume(CPbusinessLayer dataLayer)
+        public LocalVolume(CPbusinessLayer dataLayer, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         public void setupDialog()
@@ -332,7 +335,7 @@ namespace CruiseProcessing
         private void onFinished(object sender, EventArgs e)
         {
             //  call class to generate reports
-            LocalVolumeReports lvr = new LocalVolumeReports(DataLayer);
+            LocalVolumeReports lvr = new LocalVolumeReports(DataLayer, DialogService);
 
             int nResult = lvr.OutputLocalVolume(DataLayer.FilePath);
             if (nResult == 0)

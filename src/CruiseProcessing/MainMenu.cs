@@ -682,7 +682,7 @@ namespace CruiseProcessing
                 //  calls local volume routine
                 //MessageBox.Show("Under Construction", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
            
-                LocalVolume lv = new LocalVolume(DataLayer);
+                LocalVolume lv = new LocalVolume(DataLayer, DialogService);
 
                 lv.setupDialog();
                 lv.ShowDialog();

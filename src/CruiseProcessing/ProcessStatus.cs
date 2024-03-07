@@ -106,19 +106,18 @@ namespace CruiseProcessing
 
 
             var errors = EditChecks.CheckErrors(DataLayer);
-            var errList = errors.errList;
-            if (errList.Count > 0)
+            if (errors.Any())
             {
-                DataLayer.SaveErrorMessages(errList);
+                DataLayer.SaveErrorMessages(errors);
             }
 
             //  just check the ErrorLog table for entries
             // TODO can we just use errList from CheckErrors?
-            List<ErrorLogDO> errList2 = DataLayer.getErrorMessages("E", "CruiseProcessing");
-            if (errList2.Count > 0)
+            List<ErrorLogDO> errList = DataLayer.getErrorMessages("E", "CruiseProcessing");
+            if (errList.Count > 0)
             {
                 ErrorReport er = new ErrorReport(DataLayer, DataLayer.GetReportHeaderData());
-                var outputFileName = er.PrintErrorReport(errList2);
+                var outputFileName = er.PrintErrorReport(errList);
                 string outputMessage = "ERRORS FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
                 DialogService.ShowError(outputMessage);
                 //  request made to open error report in preview -- May 2015
@@ -409,7 +408,7 @@ namespace CruiseProcessing
 
         private void DefaultSecondaryProduct()
         {
-            ErrorLogMethods elm = new ErrorLogMethods(DataLayer);
+            ErrorLogCollection errors = new ErrorLogCollection();
             var currRegion = DataLayer.getRegion();
 
             List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
@@ -423,22 +422,25 @@ namespace CruiseProcessing
                         case "06":
                         case "6":
                             sgd.SecondaryProduct = "08";
-                            elm.LoadError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
+                            errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
                             break;
                         case "05":
                         case "5":
                             sgd.SecondaryProduct = "20";
-                            elm.LoadError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
+                            errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
                             break;
                         default:
                             sgd.SecondaryProduct = "02";
-                            elm.LoadError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
+                            errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
                             break;
                     }   //  end switch
                 }   //  endif
             }   //  end foreach loop
             DataLayer.SaveSampleGroups(sgList);
-            return;
+            if(errors.Any())
+            {
+                DataLayer.SaveErrorMessages(errors);
+            }
         }
     }
 }

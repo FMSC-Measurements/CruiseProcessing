@@ -40,7 +40,7 @@ namespace CruiseProcessing
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-            Veq = new VolumeEqMethods(dataLayer);
+            Veq = new VolumeEqMethods();
         }
 
         public int setupDialog()
