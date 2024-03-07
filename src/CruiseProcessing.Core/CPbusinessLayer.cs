@@ -219,15 +219,9 @@ namespace CruiseProcessing
         }   //  end getCuttingUnitStratum
 
 
-        public List<PlotDO> getPlots()
-        {
-            return DAL.From<PlotDO>().OrderBy("PlotNumber").Read().ToList();
-        }   //  end getPlots
 
-        public List<SampleGroupDO> getSampleGroups()
-        {
-            return DAL.From<SampleGroupDO>().Read().ToList();
-        }   //  end getSampleGroups
+
+
 
         public List<TreeDefaultValueDO> getTreeDefaults()
         {
@@ -239,18 +233,7 @@ namespace CruiseProcessing
             return DAL.From<CountTreeDO>().Read().ToList();
         }   //  end getCountTrees
 
-        public List<TreeDO> getTrees()
-        {
-            return DAL.From<TreeDO>().Read().ToList();
-        }   //  end getTrees
 
-        public IEnumerable<TreeDO> GetTreesByStratum(string stratumCode)
-        {
-            return DAL.From<TreeDO>()
-                .Join("Stratum", "USING (Stratum_CN)")
-                .Where("Stratum.Code = @p1")
-                .Query(stratumCode).ToArray();
-        }
 
         public List<LogDO> getLogs()
         {
@@ -679,7 +662,13 @@ namespace CruiseProcessing
 
         //  Sample Groups
         // *******************************************************************************************
-        public List<SampleGroupDO> getSampleGroups(int currStratumCN)
+
+        public List<SampleGroupDO> getSampleGroups()
+        {
+            return DAL.From<SampleGroupDO>().Read().ToList();
+        }   //  end getSampleGroups
+
+        public List<SampleGroupDO> getSampleGroups(long currStratumCN)
         {
             return DAL.From<SampleGroupDO>()
                 .Where("Stratum_CN = @p1")
@@ -727,6 +716,12 @@ namespace CruiseProcessing
 
         //  Plot table
         // *******************************************************************************************
+        public List<PlotDO> getPlots()
+        {
+            return DAL.From<PlotDO>().OrderBy("PlotNumber").Read().ToList();
+        }   //  end getPlots
+
+
         public List<PlotDO> GetStrataPlots(string currStratum)
         {
             return DAL.From<PlotDO>()
@@ -956,6 +951,19 @@ namespace CruiseProcessing
 
         //  Tree table
         // *******************************************************************************************
+        public List<TreeDO> getTrees()
+        {
+            return DAL.From<TreeDO>().Read().ToList();
+        }   //  end getTrees
+
+        public IEnumerable<TreeDO> GetTreesByStratum(string stratumCode)
+        {
+            return DAL.From<TreeDO>()
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1")
+                .Query(stratumCode).ToArray();
+        }
+
         public List<TreeDO> getTreesOrdered(string searchString, string orderBy, string[] searchValues)
         {
             return DAL.Read<TreeDO>("SELECT * FROM Tree " + searchString + orderBy + ";", searchValues).ToList();

@@ -32,30 +32,6 @@ namespace CruiseProcessing
             return rtrnList;
         }   //  end GetSingleValue
 
-        public static int check3Pcounts(List<CountTreeDO> countList, CPbusinessLayer bslyr, StratumDO currStratum)
-        {
-            int checkResult = 0;
-            //  is this a 3P stratum?
-            if (currStratum.Method == "3P")
-            {
-                //  find stratum in CountTree by finding cutting unit first
-                List<CuttingUnitStratumDO> uList = bslyr.getCuttingUnitStratum((long)currStratum.Stratum_CN);
-                foreach (CuttingUnitStratumDO ul in uList)
-                {
-                    List<CountTreeDO> justCounts = countList.FindAll(
-                        delegate(CountTreeDO ctd)
-                        {
-                            return ctd.CuttingUnit_CN == ul.CuttingUnit_CN && ctd.SampleGroup.Stratum.Code == currStratum.Code;
-                        });   //  end
-                    foreach (CountTreeDO jc in justCounts)
-                        if (jc.TreeDefaultValue_CN == null)
-                            checkResult++;
-                }   //  end foreach on cutting unit
-            }   //  endif 3P stratum
-            return checkResult;
-        }   //  end check3Pcounts
-
-
         public static List<string> buildPrintArray(CountTreeDO cdo, string stratumCode)
         {
             var countList = new List<string>();
