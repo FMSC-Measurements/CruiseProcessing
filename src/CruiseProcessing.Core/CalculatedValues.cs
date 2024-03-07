@@ -17,23 +17,10 @@ namespace CruiseProcessing
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
-    #region
-        private double firstSum = 0.0;
-        private double talliedSum = 0.0;
-        private double totalKPI = 0.0;
-        private double totalMeasuredKPI = 0.0;
-    #endregion
         public void CalcValues()
         {
-
-            List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
-            List<TreeDefaultValueDO> tdvList = DataLayer.getTreeDefaults();
-            List<CountTreeDO> ctList = DataLayer.getCountTrees();
-            List<PlotDO> pList = DataLayer.getPlots();
-
             ClearCalculatedTables();
-            MakePopulationIDs(sgList, tdvList);
-
+            MakePopulationIDs();
         }
         //  this will contain methods for any calculated values
         public void ClearCalculatedTables()
@@ -73,8 +60,11 @@ namespace CruiseProcessing
             return;
         }   //  end ClearCalculatedTables
 
-        public void MakePopulationIDs(List<SampleGroupDO> sgList, List<TreeDefaultValueDO> tdvList)
+        public void MakePopulationIDs()
         {
+            List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
+            List<TreeDefaultValueDO> tdvList = DataLayer.getTreeDefaults();
+
             //  Load ID info into tables
             List<LCDDO> lcdList = new List<LCDDO>();
             List<POPDO> popList = new List<POPDO>();
@@ -230,10 +220,10 @@ namespace CruiseProcessing
             //  Sums trees and counts from either the CountTree table or tree count records
             foreach (LCDDO lcd in justCurrentLCD)
             {
-                firstSum = 0.0;
-                talliedSum = 0.0;
-                totalMeasuredKPI = 0.0;
-                totalKPI = 0.0;
+                double firstSum = 0.0;
+                double talliedSum = 0.0;
+                double totalMeasuredKPI = 0.0;
+                double totalKPI = 0.0;
                 //  find measured trees for current LCD group
                 List<TreeDO> lcdTrees = DataLayer.getLCDtrees(lcd, "M");
                 //  measured trees is just a count of the trees for current LCD group
@@ -402,10 +392,10 @@ namespace CruiseProcessing
             //  Sums trees and counts from either the Count Tree table or tree count records
             foreach (POPDO pop in justCurrentPOP)
             {
-                firstSum = 0.0;
-                talliedSum = 0.0;
-                totalKPI = 0.0;
-                totalMeasuredKPI = 0.0;
+                double firstSum = 0.0;
+                double talliedSum = 0.0;
+                double totalKPI = 0.0;
+                double totalMeasuredKPI = 0.0;
                 //  find measured trees for current POP group
                 List<TreeDO> popTrees = DataLayer.getPOPtrees(pop, "M");
                 //  measured tree is just a count of the trees for the current group
@@ -581,10 +571,10 @@ namespace CruiseProcessing
             //  Sums tree counts from either the Count Tree table or tree count records
             foreach (PRODO pro in justCurrentPRO)
             {
-                firstSum = 0.0;
-                talliedSum = 0.0;
-                totalKPI = 0.0;
-                totalMeasuredKPI = 0.0;
+                double firstSum = 0.0;
+                double talliedSum = 0.0;
+                double totalKPI = 0.0;
+                double totalMeasuredKPI = 0.0;
                 //  find measured trees for current PRO group
                 List<TreeDO> proTrees = DataLayer.getPROtrees(pro, "M");
                 //  measured trees is just a count of the trees for current PRO group
@@ -860,7 +850,6 @@ namespace CruiseProcessing
 
             return;
         }   //  end CalcExpFac
-
 
     }   //  end CalculatedValues
 }
