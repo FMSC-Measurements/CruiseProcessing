@@ -1,11 +1,12 @@
 ﻿using CruiseDAL.DataObjects;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CruiseProcessing
 {
-    public class SumAll
+    public static class SumAll
     {
         public class TempPOPvalues
         {
@@ -36,23 +37,13 @@ namespace CruiseProcessing
             public double tpValSqRP { get; set; }
         }   //  end class TempPOPvalues
 
-        private double theGrossNumer;
-        private double theNetNumer;
-        private double theValNumer;
-        private double theDenom;
-        private double theExpanFac;
-        private List<TempPOPvalues> tpopList = new List<TempPOPvalues>();
-
-        protected CPbusinessLayer DataLayer { get; }
-
-        public SumAll(CPbusinessLayer dataLayer)
-        {
-            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
-        }
-
-        public void SumAllValues(string currST, string currMeth, int currST_CN, List<StratumDO> sList, List<PlotDO> pList,
+        public static void SumAllValues(CPbusinessLayer dataLayer, StratumDO st, List<PlotDO> pList,
                                         List<LCDDO> justCurrentLCD, List<POPDO> justCurrentPOP, List<PRODO> justCurrentPRO)
         {
+            var currMeth = st.Method;
+            var currST = st.Code;
+            var currST_CN = (int)st.Stratum_CN.Value;
+
             string[] listOfields = new string[36] {"GBDFTP","NBDFTP","GBDFTS","NBDFTS","GCUFTP","NCUFTP",
                                                     "GCUFTS","NCUFTS","TIP","CORDP","CORDS","BDFTR","CUFTR",
                                                     "CORDR","BDFTREMP","CUFTREMP","TOTCUFT",
@@ -61,7 +52,7 @@ namespace CruiseProcessing
                                                     "EXPFAC","TOTHTSUM","MHPSUM","MHSSUM","HUSDSUM","LOGSTOP"};
             //  loops through current LCD for groups to sum
             //  need all tree calculated values too for this stratum
-            List<TreeCalculatedValuesDO> tcvList = DataLayer.getTreeCalculatedValues(currST_CN);
+            List<TreeCalculatedValuesDO> tcvList = dataLayer.getTreeCalculatedValues(currST_CN);
             List<TreeCalculatedValuesDO> justThisGroup = new List<TreeCalculatedValuesDO>();
             foreach (LCDDO ldo in justCurrentLCD)
             {
@@ -74,7 +65,7 @@ namespace CruiseProcessing
                 else
                 {
                     //  get just trees for current LCD group
-                    justThisGroup = DataLayer.GetLCDtrees(currST, ldo, "M");
+                    justThisGroup = dataLayer.GetLCDtrees(currST, ldo, "M");
                     //  loop through list of fields to sum
                     for (int k = 0; k < 35; k++)
                     {
@@ -83,13 +74,15 @@ namespace CruiseProcessing
                 }   //  endif
             }   //  end foreach loop
 
-            DataLayer.SaveLCD(justCurrentLCD);
+            dataLayer.SaveLCD(justCurrentLCD);
 
             //  Calculate ratio, plot values, etc. for statistics in POP table
             foreach (POPDO pdo in justCurrentPOP)
             {
+                var tpopList = new List<TempPOPvalues>();
+
                 //  Get all trees for this group
-                List<TreeCalculatedValuesDO> currPOPtrees = DataLayer.GetPOPtrees(pdo, currST, "M");
+                List<TreeCalculatedValuesDO> currPOPtrees = dataLayer.GetPOPtrees(pdo, currST, "M");
                 //  Determine if there is recoverable product to accumulate
                 double sumRecover = currPOPtrees.Sum(tcv => tcv.Tree.RecoverablePrimary);
                 //  Also for POP make sure there is secondary to accumulate
@@ -98,11 +91,11 @@ namespace CruiseProcessing
                 if (currMeth == "3P" || currMeth == "S3P" || currMeth == "F3P" ||
                     currMeth == "P3P" || currMeth == "PCM" || currMeth == "PCMTRE")
                 {
-                    CalculateRatios(currPOPtrees, currMeth, pdo, sumRecover);
+                    CalculateRatios(tpopList, dataLayer, currPOPtrees, currMeth, pdo, sumRecover);
                     //  accumulate stage 2 here
                     if (currMeth == "S3P" || currMeth == "F3P" || currMeth == "P3P" ||
                         currMeth == "PCM" || currMeth == "PCMTRE")
-                        AccumulateStage2(currPOPtrees, currMeth, pdo, sumRecover);
+                        AccumulateStage2(tpopList, currPOPtrees, currMeth, pdo, sumRecover);
                 }   //  endif for stage 2 values
 
                 if (currMeth != "3P")
@@ -112,17 +105,18 @@ namespace CruiseProcessing
                     currMeth == "FCM" || currMeth == "3PPNT")
                 {
                     //  get fixed plot size for current stratum if FIX or F3P
-                    if (currMeth == "FIX" || currMeth == "F3P")
-                        theExpanFac = StratumMethods.CheckMethod(sList, currST);
+                    double theExpanFac = (currMeth == "FIX" || currMeth == "F3P")
+                        ? StratumMethods.GetBafOrFps(st) : 0.0;
+
                     List<PlotDO> justPlots = pList.FindAll(
                         delegate (PlotDO plt)
                         {
                             return plt.Stratum_CN == currST_CN;
                         });
-                    CalculatePlotValues(currMeth, pdo, sumRecover, currPOPtrees, justPlots);
+                    CalculatePlotValues(tpopList, dataLayer, currMeth, pdo, sumRecover, currPOPtrees, justPlots, theExpanFac);
                     if (currMeth == "FCM")
                         //  accumulate stage2
-                        AccumulateStage2(currPOPtrees, currMeth, pdo, sumRecover);
+                        AccumulateStage2(tpopList, currPOPtrees, currMeth, pdo, sumRecover);
                 }   //  endif
 
                 //  accumulate stage 1 here
@@ -135,35 +129,31 @@ namespace CruiseProcessing
                 {
                     //  stage 1 is sum of all plot KPIs so pull stratum from plot table
                     //  and the method will need a separate function since table to sum will be a PlotDO
-                    List<PlotDO> currentPlots = DataLayer.GetStrataPlots(pdo.Stratum);
+                    List<PlotDO> currentPlots = dataLayer.GetStrataPlots(pdo.Stratum);
                     Accumulate3PPNTstage1(currentPlots, pdo, sumRecover, sumSecondary);
                     //  stage 2 also needs to be summed for this method
-                    AccumulateStage2(currPOPtrees, currMeth, pdo, sumRecover);
+                    AccumulateStage2(tpopList, currPOPtrees, currMeth, pdo, sumRecover);
                 }
-                else AccumulateStage1(pdo, sumRecover);
+                else AccumulateStage1(tpopList, pdo, sumRecover);
 
-                //  clear pop list for next group
-                tpopList.Clear();
             }   //  end foreach loop
 
-            DataLayer.SavePOP(justCurrentPOP);
+            dataLayer.SavePOP(justCurrentPOP);
 
             //  Calculate proration factors for this stratum
             double unitAcres = 0;
             foreach (PRODO prdo in justCurrentPRO)
             {
                 //  get unit acres
-                List<CuttingUnitDO> cutList = DataLayer.getCuttingUnits();
+                List<CuttingUnitDO> cutList = dataLayer.getCuttingUnits();
                 unitAcres = CuttingUnitMethods.GetUnitAcres(cutList, prdo.CuttingUnit);
                 CalculateProration(prdo, justCurrentLCD, justCurrentPOP, unitAcres, currMeth);
             }   //  end foreach loop
 
-            DataLayer.SavePRO(justCurrentPRO);
+            dataLayer.SavePRO(justCurrentPRO);
+        }
 
-            return;
-        }   //  end SumAllValues
-
-        private void SumUpValues(LCDDO ldo, string fieldToSum, List<TreeCalculatedValuesDO> tcvList)
+        private static void SumUpValues(LCDDO ldo, string fieldToSum, List<TreeCalculatedValuesDO> tcvList)
         {
             //  sums up field to sum and stores in current object
             //  for merch height primary and secondary, need to find by height type
@@ -341,7 +331,7 @@ namespace CruiseProcessing
             return;
         }   //  end SumUpValues
 
-        private void SumUpJustFixcnt(long currST_CN, LCDDO ldo, List<TreeCalculatedValuesDO> stratumTrees)
+        private static void SumUpJustFixcnt(long currST_CN, LCDDO ldo, List<TreeCalculatedValuesDO> stratumTrees)
         {
             //  FIXCNT has no volume calculated so it doesn't show up in the TreeCalculatedValues table
             //  And basically the summed value is the expansion factor, DBH, DBH squared and maybe heights
@@ -381,7 +371,7 @@ namespace CruiseProcessing
             return;
         }   //  end SumUpJustFixcnt
 
-        private void CalculateRatios(List<TreeCalculatedValuesDO> tcvList, string currMethod,
+        private static void CalculateRatios(IList<TempPOPvalues> tpopList, CPbusinessLayer dataLayer, List<TreeCalculatedValuesDO> tcvList, string currMethod,
                                                 POPDO pdo, double recvSum)
         {
             //  need to capture plot number as methods such as 3P will have a plot_cn of zero instead a blank plot number
@@ -396,6 +386,8 @@ namespace CruiseProcessing
                 if (tcv.Tree.Plot_CN == 0 || tcv.Tree.Plot == null)
                     currPlot = 0;
                 else currPlot = (int)tcv.Tree.Plot.PlotNumber;
+
+                double theDenom = 0.0;
 
                 //  what is denominator?
                 switch (currMethod)
@@ -420,6 +412,10 @@ namespace CruiseProcessing
                         break;
                 }   //  end switch
 
+                double theGrossNumer = 0.0;
+                double theNetNumer = 0.0;
+                double theValNumer = 0.0;
+
                 //  what volume to use?
                 switch (tcv.Tree.SampleGroup.UOM)
                 {
@@ -428,13 +424,13 @@ namespace CruiseProcessing
                         theGrossNumer = tcv.GrossBDFTPP;
                         theNetNumer = tcv.NetBDFTPP;
                         theValNumer = tcv.ValuePP;
-                        CalcAndStorePrimary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStorePrimary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  Secondary product
                         theGrossNumer = tcv.GrossBDFTSP;
                         theNetNumer = tcv.NetBDFTSP;
                         theValNumer = tcv.ValueSP;
-                        CalcAndStoreSecondary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStoreSecondary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  Recovered product
                         if (recvSum > 0)
@@ -442,7 +438,7 @@ namespace CruiseProcessing
                             theGrossNumer = tcv.GrossBDFTRP;
                             theNetNumer = theGrossNumer;
                             theValNumer = tcv.ValueRP;
-                            CalcAndStoreRecovered(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                            CalcAndStoreRecovered(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         }   //  endif recovered
                         break;
@@ -452,13 +448,13 @@ namespace CruiseProcessing
                         theGrossNumer = tcv.CordsPP;
                         theNetNumer = theGrossNumer;
                         theValNumer = tcv.ValuePP;
-                        CalcAndStorePrimary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStorePrimary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  secondary product
                         theGrossNumer = tcv.CordsSP;
                         theNetNumer = theGrossNumer;
                         theValNumer = tcv.ValueSP;
-                        CalcAndStoreSecondary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStoreSecondary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  recovered product
                         if (recvSum > 0)
@@ -466,7 +462,7 @@ namespace CruiseProcessing
                             theGrossNumer = tcv.CordsRP;
                             theNetNumer = theGrossNumer;
                             theValNumer = tcv.ValueRP;
-                            CalcAndStoreRecovered(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                            CalcAndStoreRecovered(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         }   //  endif recovered
                         break;
@@ -476,13 +472,13 @@ namespace CruiseProcessing
                         theGrossNumer = tcv.GrossCUFTPP;
                         theNetNumer = tcv.NetCUFTPP;
                         theValNumer = tcv.ValuePP;
-                        CalcAndStorePrimary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStorePrimary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  secondary product
                         theGrossNumer = tcv.GrossCUFTSP;
                         theNetNumer = tcv.NetCUFTSP;
                         theValNumer = tcv.ValueSP;
-                        CalcAndStoreSecondary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStoreSecondary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  recovered product
                         if (recvSum > 0)
@@ -490,7 +486,7 @@ namespace CruiseProcessing
                             theGrossNumer = tcv.GrossCUFTRP;
                             theNetNumer = theGrossNumer;
                             theValNumer = tcv.ValueRP;
-                            CalcAndStoreRecovered(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                            CalcAndStoreRecovered(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         }   //  endif recovered
                         break;
@@ -500,25 +496,25 @@ namespace CruiseProcessing
                         theGrossNumer = tcv.BiomassMainStemPrimary;
                         theNetNumer = theGrossNumer;
                         theValNumer = 0;
-                        CalcAndStorePrimary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStorePrimary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  secondary product
                         theGrossNumer = tcv.BiomassMainStemSecondary;
                         theNetNumer = theGrossNumer;
                         theValNumer = 0;
-                        CalcAndStoreSecondary(theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
+                        CalcAndStoreSecondary(tpopList, theGrossNumer, theNetNumer, theValNumer, theDenom, pdo,
                                                 currPlot);
                         //  no recovered for weight
                         //  log a warning if theGrossNumer is zero--means flag not checked
                         if (theGrossNumer == 0)
-                            DataLayer.LogError("TreeCalculatedValues", (int)tcv.Tree_CN, "W", "21");
+                            dataLayer.LogError("TreeCalculatedValues", (int)tcv.Tree_CN, "W", "21");
                         break;
                 }   //  end switch
             }   //  end foreach loop
             return;
         }   //  end CalculateRatios
 
-        private void CalcAndStorePrimary(double theGrossNumer, double theNetNumer, double theValNumer,
+        private static void CalcAndStorePrimary(IList<TempPOPvalues> tpopList, double theGrossNumer, double theNetNumer, double theValNumer,
                                                 double theDenom, POPDO pdo, long currPlot)
         {
             TempPOPvalues tpop = new TempPOPvalues();
@@ -550,10 +546,9 @@ namespace CruiseProcessing
             tpop.tpUOM = pdo.UOM;
 
             tpopList.Add(tpop);
-            return;
-        }   //  end CalcAndStorePrimary
+        }
 
-        private void CalcAndStoreSecondary(double theGrossNumer, double theNetNumer, double theValNumer,
+        private static void CalcAndStoreSecondary(IList<TempPOPvalues> tpopList, double theGrossNumer, double theNetNumer, double theValNumer,
                                                     double theDenom, POPDO pdo, long currPlot)
         {
             TempPOPvalues tpop = new TempPOPvalues();
@@ -587,7 +582,7 @@ namespace CruiseProcessing
             return;
         }   //  end CalcAndStoreSecondary
 
-        private void CalcAndStoreRecovered(double theGrossNumer, double theNetNumer, double theValNumer, double theDenom,
+        private static void CalcAndStoreRecovered(IList<TempPOPvalues> tpopList, double theGrossNumer, double theNetNumer, double theValNumer, double theDenom,
                                                     POPDO pdo, long currPlot)
         {
             TempPOPvalues tpop = new TempPOPvalues();
@@ -621,23 +616,26 @@ namespace CruiseProcessing
             return;
         }   //  end CalcAndStoreRecovered
 
-        private void CalculatePlotValues(string currMethod, POPDO pdo, double recvSum,
-                                            List<TreeCalculatedValuesDO> tcvList, List<PlotDO> justPlots)
+        private static void CalculatePlotValues(IList<TempPOPvalues> tpopList, CPbusinessLayer dataLayer,
+            string currMethod, POPDO pdo, double recvSum, List<TreeCalculatedValuesDO> tcvList, List<PlotDO> justPlots, double theExpanFac)
         {
-            double grossSumPP = 0;
-            double grossSumSP = 0;
-            double grossSumRP = 0;
-            double netSumPP = 0;
-            double netSumSP = 0;
-            double netSumRP = 0;
-            double valSumPP = 0;
-            double valSumSP = 0;
-            double valSumRP = 0;
+
             string currPlot;
 
             //  process by plots
             foreach (PlotDO plt in justPlots)
             {
+                double grossSumPP = 0;
+                double grossSumSP = 0;
+                double grossSumRP = 0;
+                double netSumPP = 0;
+                double netSumSP = 0;
+                double netSumRP = 0;
+                double valSumPP = 0;
+                double valSumSP = 0;
+                double valSumRP = 0;
+
+
                 //  find plot data in current group
                 // Save plot number
                 currPlot = plt.PlotNumber.ToString();
@@ -647,7 +645,7 @@ namespace CruiseProcessing
                 {
                     //  since this totals plot values using tree count, find all trees in Tree for this plot
                     string[] valuesArray = new string[3] { plt.Plot_CN.ToString(), plt.Stratum_CN.ToString(), pdo.SampleGroup };
-                    List<TreeDO> justTrees = DataLayer.getTreesOrdered("WHERE Plot_CN = @p1 AND Stratum_CN = @p2 ORDER BY ",
+                    List<TreeDO> justTrees = dataLayer.getTreesOrdered("WHERE Plot_CN = @p1 AND Stratum_CN = @p2 ORDER BY ",
                                                                 "TreeNumber", valuesArray);
                     List<TreeDO> currentSampleGroup = justTrees.FindAll(
                         delegate (TreeDO t)
@@ -841,7 +839,7 @@ namespace CruiseProcessing
                                     //  no recovered product for weight
                                     //  log warning messages if values equal zero - means biomass flag not checked
                                     if (grossSumPP == 0 && netSumPP == 0)
-                                        DataLayer.LogError("TreeCalculatedValues", (int)pt.Tree_CN, "W", "21");
+                                        dataLayer.LogError("TreeCalculatedValues", (int)pt.Tree_CN, "W", "21");
                                     break;
                             }   //  end switch on unit of measure
                         }   //  endif on method
@@ -882,21 +880,11 @@ namespace CruiseProcessing
 
                 tpopList.Add(tpop);
 
-                //  reset sum variables
-                grossSumPP = 0;
-                netSumPP = 0;
-                valSumPP = 0;
-                grossSumSP = 0;
-                netSumSP = 0;
-                valSumSP = 0;
-                grossSumRP = 0;
-                netSumRP = 0;
-                valSumRP = 0;
             }   //  end foreach loop
             return;
         }   //  end CalculatePlotValues
 
-        private void AccumulateStage1(List<TreeCalculatedValuesDO> tcvList, string currMeth,
+        private static void AccumulateStage1(List<TreeCalculatedValuesDO> tcvList, string currMeth,
                                             POPDO pdo, double recvSum)
         {
             //  uses current trees to accumulate
@@ -1028,7 +1016,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateStage1
 
-        private void AccumulateStage1(POPDO pdo, double recvSum)
+        private static void AccumulateStage1(IList<TempPOPvalues> tpopList, POPDO pdo, double recvSum)
         {
             //  overloaded method to store temporary list in POP object
             //  for methods 3P FIX PCM PNT F3P P3P FCM AND FIXCNT
@@ -1064,7 +1052,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateStage1
 
-        public void Accumulate3PPNTstage1(List<PlotDO> currPlots, POPDO pdo, double recvSum, double secSum)
+        public static void Accumulate3PPNTstage1(List<PlotDO> currPlots, POPDO pdo, double recvSum, double secSum)
         {
             //  function sums plot KPIs for 3PPNT stage 1 values
             double sumValue = 0;
@@ -1117,7 +1105,7 @@ namespace CruiseProcessing
             return;
         }   //  end Accumulate3PPNTstage1
 
-        private void UpdateStage1(POPDO pdo, double sValue, double sqValue, string fieldToUpdate)
+        private static void UpdateStage1(POPDO pdo, double sValue, double sqValue, string fieldToUpdate)
         {
             switch (fieldToUpdate)
             {
@@ -1191,7 +1179,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateStage1
 
-        private void AccumulateStage2(List<TreeCalculatedValuesDO> justThisGroup, string currMeth,
+        private static void AccumulateStage2(IList<TempPOPvalues> tpopList, List<TreeCalculatedValuesDO> justThisGroup, string currMeth,
                                                     POPDO pdo, double recvSum)
         {
             //  accumulates values for stage 2 and the following methods
@@ -1354,7 +1342,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateStage2
 
-        private void UpdateStage2(POPDO pdo, double sValue, double sqValue, string fieldToUpdate)
+        private static void UpdateStage2(POPDO pdo, double sValue, double sqValue, string fieldToUpdate)
         {
             switch (fieldToUpdate)
             {
@@ -1428,7 +1416,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateStage2
 
-        private void CalculateProration(PRODO prdo, List<LCDDO> currentLCD, List<POPDO> currentPOP,
+        private static void CalculateProration(PRODO prdo, List<LCDDO> currentLCD, List<POPDO> currentPOP,
                                                 double unitAcres, string currMethod)
         {
             double proFac = 0;
