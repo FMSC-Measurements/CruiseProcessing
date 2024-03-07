@@ -157,7 +157,7 @@ namespace CruiseProcessing
                                             ref int pageNumb)
         {
             //  header and column headers are stratum dependent so loop by stratum
-            List<StratumDO> strList = DataLayer.getStratum();
+            List<StratumDO> strList = DataLayer.GetStrata();
             foreach (StratumDO s in strList)
             {
                 reportData.Clear();

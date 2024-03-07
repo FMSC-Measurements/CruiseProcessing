@@ -122,7 +122,7 @@ namespace CruiseProcessing
                     SetReportTitles(currentTitle, 6, 0, 0, "", "");
                     completeHeader = createCompleteHeader();
                     fieldLengths = new int[] { 2, 6, 6, 10, 6, 6, 10, 9, 9, 8, 8, 11, 4 };
-                    List<StratumDO> stList = DataLayer.getStratum();
+                    List<StratumDO> stList = DataLayer.GetStrata();
                     foreach (StratumDO s in stList)
                     {
                         s.CuttingUnits.Populate();

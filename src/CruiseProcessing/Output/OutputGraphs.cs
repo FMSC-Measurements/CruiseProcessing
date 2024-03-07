@@ -27,7 +27,7 @@ namespace CruiseProcessing
         {
             List<TreeDO> tList = DataLayer.getTrees();
             List<LCDDO> lcdList = DataLayer.getLCD();
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             List<LCDDO> justSpecies = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
             //  pull salename and number to put in graph title
             //  also need it to create subfolder for graphs

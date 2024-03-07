@@ -66,7 +66,7 @@ namespace CruiseProcessing
                     numOlines = 0;
                     SetReportTitles(currentTitle, 6, 0, 0, "BY SPECIES AND STRATA", reportConstants.FCTO);
                     fieldLengths = new int[] { 3, 7, 12, 9, 9, 14, 11, 10, 13, 11, 15, 7 };
-                    List<StratumDO> sList = DataLayer.getStratum();
+                    List<StratumDO> sList = DataLayer.GetStrata();
                     foreach (StratumDO s in sList)
                     {
                         //  need stratum acres
@@ -440,7 +440,7 @@ namespace CruiseProcessing
             double NBDFTsum = 0;
             double NCUFTsum = 0;
             double currAC = 0;
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             foreach (LCDDO jg in justGroups)
             {
                 List<LCDDO> justSpecies = lcdList.FindAll(

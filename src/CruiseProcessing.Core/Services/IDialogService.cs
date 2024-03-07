@@ -14,6 +14,8 @@ namespace CruiseProcessing.Services
 
         void ShowError(string message);
 
+        void ShowWarning(string message);
+
         bool ShowWarningAskYesNo(string message);
 
         void ShowGraphOutputDialog(IEnumerable<string> graphReports);

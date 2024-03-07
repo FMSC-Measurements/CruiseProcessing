@@ -99,7 +99,7 @@ namespace CruiseProcessing
                 case "BLM01":
                 case "BLM02":        //  reports by stratum
                     //  pull tables to be used
-                    List<StratumDO> sList = DataLayer.getStratum();
+                    List<StratumDO> sList = DataLayer.GetStrata();
                     List<LCDDO> lcdList = DataLayer.getLCD();
                     numOlines = 0;
                     AccumulateByStrata(sList, lcdList);
@@ -765,7 +765,7 @@ namespace CruiseProcessing
             string[] logGrades = new string[] { "", " ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
             double minDIB = 0;
             double maxDIB = 0;
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             //  Accumulate by DIB class and log grade
             foreach (ReportSubtotal lto in listToOutput)
             {

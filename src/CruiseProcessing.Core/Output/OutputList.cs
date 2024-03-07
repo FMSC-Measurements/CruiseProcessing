@@ -48,7 +48,7 @@ namespace CruiseProcessing
                                      //  stratum page
                     {
                         numOlines = 0;
-                        List<StratumDO> sList = DataLayer.getStratum();
+                        List<StratumDO> sList = DataLayer.GetStrata();
                         fieldLengths = new int[] { 5, 11, 7, 9, 8, 9, 6, 6, 27, 2, 4 };
                         prtFields.Clear();
                         WriteStratum(strWriteOut, sList, ref pageNumb);

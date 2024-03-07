@@ -69,7 +69,7 @@ namespace CruiseProcessing
         {
             //  Accumulate values for R301
             double currSTacres = 0;
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             RegionalReports rr = new RegionalReports();
             rr.value1 = jg.Species;
             rr.value2 = jg.PrimaryProduct;

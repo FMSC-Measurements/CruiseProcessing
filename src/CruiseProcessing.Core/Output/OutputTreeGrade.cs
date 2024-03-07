@@ -178,7 +178,7 @@ namespace CruiseProcessing
             else if (volType == "CUFT")
                 currentValue = lcd.SumNCUFT;
             //  also need strata acres to expand volume
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             long currStrCN = StratumMethods.GetStratumCN(lcd.Stratum, sList);
             double currAcres = Utilities.ReturnCorrectAcres(lcd.Stratum, DataLayer, currStrCN);
             switch (lcd.TreeGrade)

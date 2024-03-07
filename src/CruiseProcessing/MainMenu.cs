@@ -594,7 +594,7 @@ namespace CruiseProcessing
             else if(whichProcess == 4)  // output
             {
                 //  calls routine to create an html output file
-                HTMLoutput ho = new HTMLoutput(DataLayer);
+                HTMLoutput ho = new HTMLoutput(DataLayer, DialogService);
                 ho.CreateHTMLfile();
                 return;
             }   //  endif whichProcess

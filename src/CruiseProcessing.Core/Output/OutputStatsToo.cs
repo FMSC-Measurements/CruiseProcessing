@@ -204,7 +204,7 @@ namespace CruiseProcessing
         {
             double strataAcres = 0.0;
             string currMeth;
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             //  process by groups
             foreach (LCDDO js in justGroups)
             {

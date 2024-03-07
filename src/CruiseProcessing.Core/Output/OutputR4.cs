@@ -68,7 +68,7 @@ namespace CruiseProcessing
             List<CuttingUnitDO> cList = DataLayer.getCuttingUnits();
             double totalSaleAcres = cList.Sum(c => c.Area);
             //  and stratum list to get expansion acres later
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
 
             //  determine which heights to use for mean height calculation
             List<TreeDO> tList = DataLayer.getTrees();
@@ -152,7 +152,7 @@ namespace CruiseProcessing
                 });
 
             //  need stratum table to get acres
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             currAC = 0;
             currDBH2 = 0;
             currHGT = 0;

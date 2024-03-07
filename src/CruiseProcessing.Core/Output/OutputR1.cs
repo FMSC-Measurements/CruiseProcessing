@@ -141,7 +141,7 @@ namespace CruiseProcessing
                     fieldLengths = new[] { 3, 8, 12, 12, 11, 11, 8, 9, 5 };
                     SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCLT, "");
                     //  This report will be by stratum and cutting unit so get all stratum first
-                    List<StratumDO> orderedStrata = DataLayer.getStratum();
+                    List<StratumDO> orderedStrata = DataLayer.GetStrata();
                     createR104(orderedStrata, strWriteOut, ref pageNum);
                     break;
 
@@ -294,7 +294,7 @@ namespace CruiseProcessing
             currLOGS = 0;
             currDBH = 0;
             currEF = 0;
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             //  pull current group from LCD
             List<LCDDO> justCurrentGroup = lcdList.FindAll(
                 delegate (LCDDO l)
@@ -1423,7 +1423,7 @@ namespace CruiseProcessing
                     {
                         //  What method is the stratum on this tree?
                         //  And what is the strata acres for plot based methods
-                        List<StratumDO> sList = DataLayer.getStratum();
+                        List<StratumDO> sList = DataLayer.GetStrata();
                         int mthRow = sList.FindIndex(
                             delegate (StratumDO s)
                             {
@@ -1523,7 +1523,7 @@ namespace CruiseProcessing
                     {
                         //  What method is the stratum on this tree?
                         //  And what is the strata acres for plot based methods
-                        List<StratumDO> sList = DataLayer.getStratum();
+                        List<StratumDO> sList = DataLayer.GetStrata();
                         int mthRow = sList.FindIndex(
                             delegate (StratumDO s)
                             {

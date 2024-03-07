@@ -419,7 +419,7 @@ namespace CruiseProcessing
                 //  accumulate data by species
                 string prevST = "*";
                 double currAC = 0;
-                List<StratumDO> sList = DataLayer.getStratum();
+                List<StratumDO> sList = DataLayer.GetStrata();
                 foreach (LCDDO js in justSpecies)
                 {
                     //  find species in listToOutput or add it
@@ -536,7 +536,7 @@ namespace CruiseProcessing
                     //  accumulate data by species
                     string prevST = "*";
                     double currAC = 0;
-                    List<StratumDO> sList = DataLayer.getStratum();
+                    List<StratumDO> sList = DataLayer.GetStrata();
                     foreach (LCDDO js in justSpecies)
                     {
                         //  find species in listToOutput or add it
@@ -656,7 +656,7 @@ namespace CruiseProcessing
                     //  accumulate data by species
                     string prevST = "*";
                     double currAC = 0;
-                    List<StratumDO> sList = DataLayer.getStratum();
+                    List<StratumDO> sList = DataLayer.GetStrata();
                     foreach (LCDDO js in justSpecies)
                     {
                         //  find species in listToOutput or add it

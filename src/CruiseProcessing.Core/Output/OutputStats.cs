@@ -115,7 +115,7 @@ namespace CruiseProcessing
         private void ProcessPrimary(StreamWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
 
             foreach (StratumDO s in sList)
             {
@@ -188,7 +188,7 @@ namespace CruiseProcessing
         private void ProcessSecondary(StreamWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
 
             foreach (StratumDO s in sList)
             {
@@ -264,7 +264,7 @@ namespace CruiseProcessing
         private void ProcessRecovered(StreamWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
 
             foreach (StratumDO s in sList)
             {
