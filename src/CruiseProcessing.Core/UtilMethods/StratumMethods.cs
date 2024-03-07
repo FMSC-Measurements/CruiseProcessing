@@ -11,39 +11,24 @@ namespace CruiseProcessing
 {
     public static class StratumMethods
     {
-        //  edit check functions
-        public static int IsEmpty(List<StratumDO> strList)
+        public static double GetBafOrFps(StratumDO st)
         {
-            //  checks for empty table
-            if (strList.Count == 0)
-                return 25;
-            else return 0;
-        }   //  end IsEmpty
+            var method = st.Method;
+            if (method == "F3P"
+                || method == "FIX"
+                || method == "FIXCNT"
+                || method == "FCM")
+            { return Convert.ToDouble(st.FixedPlotSize); }
+            else if (method == "P3P"
+                || method == "PNT"
+                || method == "PCMTRE"
+                || method == "PCM"
+                || method == "3PPNT")
+            { return Convert.ToDouble(st.BasalAreaFactor); }
 
+            return 1;
 
-
-        //  methods pertaining to stratum table
-        public static double CheckMethod(List<StratumDO> sList, string currST)
-        {
-            //  returns fixed plot size or basal area factor for the current stratum
-            List<StratumDO> rtrnList = sList.FindAll(
-                delegate(StratumDO st)
-                {
-                    return st.Code == currST;
-                });
-            if (rtrnList != null)
-            {
-                if (rtrnList[0].Method == "F3P" || rtrnList[0].Method == "FIX" || 
-                    rtrnList[0].Method == "FIXCNT" || rtrnList[0].Method == "FCM")
-                    return Convert.ToDouble(rtrnList[0].FixedPlotSize);
-                else if (rtrnList[0].Method == "P3P" || rtrnList[0].Method == "PNT" ||
-                         rtrnList[0].Method == "PCMTRE" || rtrnList[0].Method == "PCM" ||
-                          rtrnList[0].Method == "3PPNT")
-                    return Convert.ToDouble(rtrnList[0].BasalAreaFactor);
-                else return 1;
-            }   //  endif rtrnList not null
-            return 0;
-        }   //  end CheckMethod
+        }
 
 
         public static int GetStratumCN(string currST, List<StratumDO> sList)

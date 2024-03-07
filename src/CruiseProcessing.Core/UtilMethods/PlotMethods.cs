@@ -23,22 +23,6 @@ namespace CruiseProcessing
         }   //  end GetStrata
 
 
-        public static int FindDuplicatePlots(List<PlotDO> pList, string currST, string currCU, long currPL)
-        {
-            List<PlotDO> rtrnList = pList.FindAll(
-                delegate(PlotDO pd)
-                {
-                    return pd.PlotNumber == currPL && pd.CuttingUnit.Code == currCU && pd.Stratum.Code == currST;
-                });
-            if (rtrnList.Count > 1)
-                return 7;
-            else if (rtrnList.Count <= 0)
-                return 0;
-
-            return 0;
-        }   //  end FindDuplicatePlots
-
-
         public static List<string> buildPrintArray(PlotDO pl, string cruiseName, string stratumCode, 
                                                     string unitCode)
         {

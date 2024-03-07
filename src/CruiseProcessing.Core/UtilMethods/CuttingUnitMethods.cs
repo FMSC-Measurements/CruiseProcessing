@@ -10,13 +10,6 @@ namespace CruiseProcessing
 {
     public static class CuttingUnitMethods
     {
-        //  edit checks
-        public static int IsEmpty(List<CuttingUnitDO> cuList)
-        {
-            if (cuList.Count == 0)
-                return 25;
-            else return 0;
-        }   //  end IsEmpty
 
         public static int ValidLogMethod(CuttingUnitDO cudo)
         {
