@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using System.IO;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
@@ -21,10 +21,12 @@ namespace CruiseProcessing
         private string currDate;
         private StringBuilder ReportTitle = new StringBuilder();
         public CPbusinessLayer DataLayer { get; }
+        public IDialogService DialogService { get; }
 
-        public LocalVolumeReports(CPbusinessLayer dataLayer)
+        public LocalVolumeReports(CPbusinessLayer dataLayer, IDialogService dialogService)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
 
@@ -34,8 +36,7 @@ namespace CruiseProcessing
             string outFile = System.IO.Path.ChangeExtension(fileName, "out");
             if(!File.Exists(outFile))
             {
-                MessageBox.Show("Local Volume Reports are added to the text output file.\nThat file does not exist.  Please create the output file and rerun Local Volume.",
-                                "WARNING",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                DialogService.ShowWarning("Local Volume Reports are added to the text output file.\nThat file does not exist.  Please create the output file and rerun Local Volume.");
                 return -1;
             }   //  endif file doesn't exists
 
@@ -44,7 +45,7 @@ namespace CruiseProcessing
 
             if (resultsList.Count == 0)
             {
-                MessageBox.Show("No regression results.\nCannot produce reports.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogService.ShowWarning("No regression results.\nCannot produce reports.");
                 return -1;
             }   //  endif
             // Initialize report title
