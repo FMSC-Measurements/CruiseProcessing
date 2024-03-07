@@ -10,9 +10,9 @@ namespace CruiseProcessing
     public class EditChecks
     {
 
-        public static ErrorLogMethods CheckErrors(CPbusinessLayer dataLayer)
+        public static ErrorLogCollection CheckErrors(CPbusinessLayer dataLayer)
         {
-            var errors = new ErrorLogMethods(dataLayer);
+            var errors = new ErrorLogCollection();
 
             //  clear out error log table for just CruiseProcessing before performing checks
             dataLayer.DeleteCruiseProcessingErrorMessages();
@@ -45,30 +45,30 @@ namespace CruiseProcessing
             return errors;
         }
 
-        private static void ValidateSale(CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateSale(CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<SaleDO> saleList = dataLayer.GetAllSaleRecords();
             var saleCount = saleList.Count;
             if (saleCount == 0)
-                errors.LoadError("Sale", "E", "25", 0, "NoName");       //  error 25 -- table cannot be empty
+                errors.AddError("Sale", "E", "25", 0, "NoName");       //  error 25 -- table cannot be empty
             else if (saleCount > 1)
-                errors.LoadError("Sale", "E", "28", 28, "SaleNumber");       //  error 28 -- more than one sale record not allowed
+                errors.AddError("Sale", "E", "28", 28, "SaleNumber");       //  error 28 -- more than one sale record not allowed
             if (saleCount == 1)
             {
                 //  and blank sale number
                 if (String.IsNullOrWhiteSpace(saleList.Single().SaleNumber))
-                { errors.LoadError("Sale", "E", " 8Sale Number", 8, "SaleNumber"); }
+                { errors.AddError("Sale", "E", " 8Sale Number", 8, "SaleNumber"); }
             }
         }
 
-        private static void ValidateCountTrees(CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateCountTrees(CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strList = dataLayer.GetStrata();
 
             foreach (StratumDO st in strList)
             {
                 if (Has3PcountsMissingTDV(dataLayer, st))
-                    errors.LoadError("CountTree", "E", "Cannot tally by sample group for 3P strata.", (long)st.Stratum_CN, "TreeDefaultValue");
+                    errors.AddError("CountTree", "E", "Cannot tally by sample group for 3P strata.", (long)st.Stratum_CN, "TreeDefaultValue");
             }
 
             bool Has3PcountsMissingTDV(CPbusinessLayer dataLayer, StratumDO currStratum)
@@ -95,18 +95,18 @@ namespace CruiseProcessing
             }
         }
 
-        private static void ValidateUnits(CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateUnits(CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<CuttingUnitDO> cuList = dataLayer.getCuttingUnits();
             if (cuList.Count == 0)
-                errors.LoadError("Cutting Unit", "E", "25", 0, "NoName"); // cruise has no units
+                errors.AddError("Cutting Unit", "E", "25", 0, "NoName"); // cruise has no units
         }
 
-        private static void ValidateStrata(CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateStrata(CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strList = dataLayer.GetStrata();
             if (strList.Count == 0)
-            { errors.LoadError("Stratum", "E", "25", 25, "NoName"); } // cruise has no strata 
+            { errors.AddError("Stratum", "E", "25", 25, "NoName"); } // cruise has no strata 
 
             else
             {
@@ -117,36 +117,36 @@ namespace CruiseProcessing
             }
         }
 
-        private static void ValidateStratum(StratumDO sdo, CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateStratum(StratumDO sdo, CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             //  check for valid fixed plot size or BAF for each stratum
             double BAForFPSvalue = StratumMethods.GetBafOrFps(sdo);
             if ((sdo.Method == "PNT" || sdo.Method == "P3P" || sdo.Method == "PCM" ||
                  sdo.Method == "PCMTRE" || sdo.Method == "3PPNT") && BAForFPSvalue == 0)
-                errors.LoadError("Stratum", "E", "22", (long)sdo.Stratum_CN, "BasalAreaFactor");
+                errors.AddError("Stratum", "E", "22", (long)sdo.Stratum_CN, "BasalAreaFactor");
             else if ((sdo.Method == "FIX" || sdo.Method == "F3P" || sdo.Method == "FIXCNT" ||
                       sdo.Method == "FCM") && BAForFPSvalue == 0)
-                errors.LoadError("Stratum", "E", "23", (long)sdo.Stratum_CN, "FixedPlotSize");
+                errors.AddError("Stratum", "E", "23", (long)sdo.Stratum_CN, "FixedPlotSize");
 
             //  check for acres on area based methods
             double currAcres = Utilities.AcresLookup((long)sdo.Stratum_CN, dataLayer, sdo.Code);
             if ((sdo.Method == "PNT" || sdo.Method == "FIX" || sdo.Method == "P3P" ||
                 sdo.Method == "F3P" || sdo.Method == "PCM" || sdo.Method == "3PPNT" ||
                 sdo.Method == "FCM" || sdo.Method == "PCMTRE") && currAcres == 0)
-                errors.LoadError("Stratum", "E", "24", (long)sdo.Stratum_CN, "NoName");
+                errors.AddError("Stratum", "E", "24", (long)sdo.Stratum_CN, "NoName");
             else if ((sdo.Method == "100" || sdo.Method == "3P" ||
                 sdo.Method == "S3P" || sdo.Method == "STR") && currAcres == 0)
-                errors.LoadError("Stratum", "W", "Stratum has no acres", (long)sdo.Stratum_CN, "NoName");
+                errors.AddError("Stratum", "W", "Stratum has no acres", (long)sdo.Stratum_CN, "NoName");
 
             //  August 2017 -- added check for valid yield component code
             if (sdo.YieldComponent != "CL" && sdo.YieldComponent != "CD" &&
                sdo.YieldComponent != "ND" && sdo.YieldComponent != "NL" &&
                sdo.YieldComponent != "" && sdo.YieldComponent != " " &&
                sdo.YieldComponent != null)
-                errors.LoadError("Stratum", "W", "Yield Component has invalid code", (long)sdo.Stratum_CN, "YieldComponent");
+                errors.AddError("Stratum", "W", "Yield Component has invalid code", (long)sdo.Stratum_CN, "YieldComponent");
         }
 
-        private static void ValidateSampleGroups(CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateSampleGroups(CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strList = dataLayer.GetStrata();
             List<SampleGroupDO> sampGroups = dataLayer.getSampleGroups();
@@ -155,17 +155,17 @@ namespace CruiseProcessing
             {
                 if (String.IsNullOrWhiteSpace(sg.PrimaryProduct))
                 {
-                    errors.LoadError("SampleGroup", "E", $"Sg: {sg.Code} Missing Primary Product", sg.SampleGroup_CN.Value, nameof(SampleGroupDO.PrimaryProduct));
+                    errors.AddError("SampleGroup", "E", $"Sg: {sg.Code} Missing Primary Product", sg.SampleGroup_CN.Value, nameof(SampleGroupDO.PrimaryProduct));
                 }
 
                 if (String.IsNullOrWhiteSpace(sg.UOM))
                 {
-                    errors.LoadError("SampleGroup", "E", $"Sg: {sg.Code} Missing UOM", sg.SampleGroup_CN.Value, nameof(SampleGroupDO.UOM));
+                    errors.AddError("SampleGroup", "E", $"Sg: {sg.Code} Missing UOM", sg.SampleGroup_CN.Value, nameof(SampleGroupDO.UOM));
                 }
 
                 if (sg.CutLeave != "C" && sg.CutLeave != "L")
                 {
-                    errors.LoadError("SampleGroup", "E", $"Sg: {sg.Code} Invalid CutLeave Value", sg.SampleGroup_CN.Value, nameof(SampleGroupDO.CutLeave));
+                    errors.AddError("SampleGroup", "E", $"Sg: {sg.Code} Invalid CutLeave Value", sg.SampleGroup_CN.Value, nameof(SampleGroupDO.CutLeave));
                 }
 
 
@@ -175,14 +175,14 @@ namespace CruiseProcessing
             }   //  end foreach loop
         }
 
-        private static bool ValidateTrees(CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static bool ValidateTrees(CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             var currRegion = dataLayer.getRegion();
             var trees = dataLayer.getTrees().ToArray();
 
             if (trees.Length == 0)
             {
-                errors.LoadError("Tree", "E", "25", 0, "NoName");
+                errors.AddError("Tree", "E", "25", 0, "NoName");
             }
 
             var allMeasureTrees = dataLayer.JustMeasuredTrees();
@@ -209,18 +209,18 @@ namespace CruiseProcessing
                 {
                     if (String.IsNullOrEmpty(tree.Species) && (tree.TreeCount > 0 || tree.DBH > 0))
                     {
-                        errors.LoadError("Tree", "E", "21", tree.Tree_CN.Value, "Species");
+                        errors.AddError("Tree", "E", "21", tree.Tree_CN.Value, "Species");
                     }
 
                     if (tree.TreeDefaultValue_CN == null)
                     {
-                        errors.LoadError("Tree", "E", "31", tree.Tree_CN.Value, "TreeDefaultValue");
+                        errors.AddError("Tree", "E", "31", tree.Tree_CN.Value, "TreeDefaultValue");
                     }
 
 
                     if (tree.UpperStemDiameter > tree.DBH)
                     {
-                        errors.LoadError("Tree", "E", "18", tree.Tree_CN.Value, "UpperStemDiameter");
+                        errors.AddError("Tree", "E", "18", tree.Tree_CN.Value, "UpperStemDiameter");
                     }
 
                     //  check for recoverable greater than seen defect
@@ -229,7 +229,7 @@ namespace CruiseProcessing
                     {
                         if (tree.RecoverablePrimary > tree.SeenDefectPrimary)
                         {
-                            errors.LoadError("Tree", "E", "29", tree.Tree_CN.Value, "RecoverablePrimary");
+                            errors.AddError("Tree", "E", "29", tree.Tree_CN.Value, "RecoverablePrimary");
                         }
                     }
 
@@ -238,7 +238,7 @@ namespace CruiseProcessing
                     {
                         if (tree.TopDIBSecondary > tree.TopDIBPrimary)
                         {
-                            errors.LoadError("Tree", "E", "4", tree.Tree_CN.Value, "TopDIBSecondary");
+                            errors.AddError("Tree", "E", "4", tree.Tree_CN.Value, "TopDIBSecondary");
                         }
                     }
 
@@ -248,7 +248,7 @@ namespace CruiseProcessing
                             tree.MerchHeightSecondary == 0 &&
                             tree.UpperStemHeight == 0)
                     {
-                        errors.LoadError("Tree", "E", "32", tree.Tree_CN.Value, "Height");
+                        errors.AddError("Tree", "E", "32", tree.Tree_CN.Value, "Height");
                     }
 
                     //  check for blank or null tree grade
@@ -256,7 +256,7 @@ namespace CruiseProcessing
                     //  can impact certain reports
                     if (String.IsNullOrWhiteSpace(tree.Grade))
                     {
-                        errors.LoadError("Tree", "E", "8", tree.Tree_CN.Value, "Tree Grade");
+                        errors.AddError("Tree", "E", "8", tree.Tree_CN.Value, "Tree Grade");
                     }
                 }
 
@@ -265,7 +265,7 @@ namespace CruiseProcessing
             return true;
         }
 
-        private static void ValidateLogs(string currentRegion, string isVLL, CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateLogs(string currentRegion, string isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<LogDO> logList = dataLayer.getLogs();
             if (logList.Count > 0) { return; }
@@ -279,7 +279,7 @@ namespace CruiseProcessing
 
                 if (treeLogs.Count > 20)
                 {
-                    errors.LoadError("Tree", "E", "13", tree.Tree_CN.Value, "NoName");
+                    errors.AddError("Tree", "E", "13", tree.Tree_CN.Value, "NoName");
                 }
 
                 if (tree.IsFallBuckScale == 1)
@@ -287,9 +287,9 @@ namespace CruiseProcessing
                     foreach (var log in treeLogs)
                     {
                         if (log.NetBoardFoot > log.GrossBoardFoot)
-                            errors.LoadError("Log", "E", "20", log.Log_CN.Value, "GrossVolume");
+                            errors.AddError("Log", "E", "20", log.Log_CN.Value, "GrossVolume");
                         if (log.NetCubicFoot > log.GrossCubicFoot)
-                            errors.LoadError("Log", "E", "20", log.Log_CN.Value, "GrossVolume");
+                            errors.AddError("Log", "E", "20", log.Log_CN.Value, "GrossVolume");
                     }
                 }
 
@@ -300,19 +300,19 @@ namespace CruiseProcessing
                     {
                         if (String.IsNullOrWhiteSpace(ld.LogNumber))
                         {
-                            errors.LoadError("Log", "E", "19", (long)ld.Log_CN, "LogNumber");
+                            errors.AddError("Log", "E", "19", (long)ld.Log_CN, "LogNumber");
                         }   //  endif log number missing
                         if (String.IsNullOrWhiteSpace(ld.Grade))
                         {
-                            errors.LoadError("Log", "E", "19", (long)ld.Log_CN, "Grade");
+                            errors.AddError("Log", "E", "19", (long)ld.Log_CN, "Grade");
                         }   //  endif log grade missing
                         if (String.IsNullOrWhiteSpace(ld.ExportGrade))
                         {
-                            errors.LoadError("Log", "E", "19", (long)ld.Log_CN, "ExportGrade");
+                            errors.AddError("Log", "E", "19", (long)ld.Log_CN, "ExportGrade");
                         }   //  endif export grade (log sort) missing
                         if (ld.Length == 0)
                         {
-                            errors.LoadError("Log", "E", "19", (long)ld.Log_CN, "Length");
+                            errors.AddError("Log", "E", "19", (long)ld.Log_CN, "Length");
                         }   //  endif log length missing
                     }
                 }
@@ -322,25 +322,25 @@ namespace CruiseProcessing
                     // Check Defect
                     if (ld.PercentRecoverable > ld.SeenDefect)
                     {
-                        errors.LoadError("Log", "E", "29", (long)ld.Log_CN, "PercentRecoverable");
+                        errors.AddError("Log", "E", "29", (long)ld.Log_CN, "PercentRecoverable");
                     }
 
                     if (currentRegion != "05" && String.IsNullOrWhiteSpace(ld.Grade))
                     {
-                        errors.LoadError("Log", "E", "9", (long)ld.Log_CN, "Grade");
+                        errors.AddError("Log", "E", "9", (long)ld.Log_CN, "Grade");
                     }
                 }
             }
         }
 
-        private static void ValidateVolumeEqs(string isVLL, CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static void ValidateVolumeEqs(string isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             
 
             List<VolumeEquationDO> volList = dataLayer.getVolumeEquations();
             //  pull region
             if (volList.Count == 0)
-                errors.LoadError("VolumeEquation", "E", "25", 0, "NoName");
+                errors.AddError("VolumeEquation", "E", "25", 0, "NoName");
             else //  means the table is not empty and checks can proceed
             {
 
@@ -355,7 +355,7 @@ namespace CruiseProcessing
                 {
                     if (!volList.Any(x => x.Species == tree.Species && x.PrimaryProduct == tree.PrimaryProduct))
                     {
-                        errors.LoadError("Tree", "E", $"12 {tree.Species} {tree.PrimaryProduct}", tree.RecID, "Species");
+                        errors.AddError("Tree", "E", $"12 {tree.Species} {tree.PrimaryProduct}", tree.RecID, "Species");
                     }
                 }
 
@@ -363,7 +363,7 @@ namespace CruiseProcessing
                 {
                     if (volEq.VolumeEquationNumber.Length > 10)
                     {
-                        errors.LoadError("VolumeEquation", "E", "1", volEq.rowID.Value, "VolumeEquationNumber");
+                        errors.AddError("VolumeEquation", "E", "1", volEq.rowID.Value, "VolumeEquationNumber");
                     }
 
                     if (volEq.VolumeEquationNumber.Contains("DVE"))
@@ -371,7 +371,7 @@ namespace CruiseProcessing
                         if (volEq.CalcTopwood == 1
                             && (volEq.CalcBoard == 0 && volEq.CalcCubic == 0 && volEq.CalcCord == 0))
                         {
-                            errors.LoadError("VolumeEquation", "E", "3", volEq.rowID.Value, "VolumeFlags");
+                            errors.AddError("VolumeEquation", "E", "3", volEq.rowID.Value, "VolumeFlags");
                         }
 
                         if (volList.Any(x =>
@@ -380,13 +380,13 @@ namespace CruiseProcessing
                             && x.PrimaryProduct == volEq.PrimaryProduct
                             && x.TopDIBPrimary == volEq.TopDIBPrimary))
                         {
-                            errors.LoadError("VolumeEquation", "E", "6", volEq.rowID.Value, "TopDIBPrimary");
+                            errors.AddError("VolumeEquation", "E", "6", volEq.rowID.Value, "TopDIBPrimary");
                         }
                     }
 
                     if (volEq.TopDIBSecondary > volEq.TopDIBPrimary)
                     {
-                        errors.LoadError("VolumeEquation", "E", "4", volEq.rowID.Value, "TopDIBSecondary");
+                        errors.AddError("VolumeEquation", "E", "4", volEq.rowID.Value, "TopDIBSecondary");
                     }
 
                     // check for duplicate volEqs
@@ -398,7 +398,7 @@ namespace CruiseProcessing
                         && x.PrimaryProduct == volEq.PrimaryProduct;
                     }))
                     {
-                        errors.LoadError("VolumeEquation", "E", "5", volEq.rowID.Value, "VolumeEquationNumber");
+                        errors.AddError("VolumeEquation", "E", "5", volEq.rowID.Value, "VolumeEquationNumber");
                     }
 
 
@@ -410,19 +410,19 @@ namespace CruiseProcessing
                     {
                         if (ved.VolumeEquationNumber.Contains("BEH"))
                         {
-                            errors.LoadError("VolumeEquation", "W", "Variable log length diameters cannot be computed with BEH equations", (long)ved.rowID, "NoName");
+                            errors.AddError("VolumeEquation", "W", "Variable log length diameters cannot be computed with BEH equations", (long)ved.rowID, "NoName");
                         }
                         else if (ved.VolumeEquationNumber.Contains("MAT"))
                         {
-                            errors.LoadError("VolumeEquation", "W", "Variable log length diameters cannot be computed with MAT equations", (long)ved.rowID, "NoName");
+                            errors.AddError("VolumeEquation", "W", "Variable log length diameters cannot be computed with MAT equations", (long)ved.rowID, "NoName");
                         }
                         else if (ved.VolumeEquationNumber.Contains("DVE"))
                         {
-                            errors.LoadError("VolumeEquation", "W", "Variable log length diameters cannot be computed with DVE equations", (long)ved.rowID, "NoName");
+                            errors.AddError("VolumeEquation", "W", "Variable log length diameters cannot be computed with DVE equations", (long)ved.rowID, "NoName");
                         }
                         else if (ved.VolumeEquationNumber.Contains("CLK"))
                         {
-                            errors.LoadError("VolumeEquation", "W", "Variable log length diameters cannot be computed with CLK equations", (long)ved.rowID, "NoName");
+                            errors.AddError("VolumeEquation", "W", "Variable log length diameters cannot be computed with CLK equations", (long)ved.rowID, "NoName");
                         }   //  endif on equation number
                     }   //  end foreach loop
                 }
@@ -437,7 +437,7 @@ namespace CruiseProcessing
         }
 
 
-        public static int CheckCruiseMethods(CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        public static int CheckCruiseMethods(CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strata = dataLayer.GetStrata();
             
@@ -458,7 +458,7 @@ namespace CruiseProcessing
                         {
                             if (tree.TreeCount > 1)
                             {
-                                errors.LoadError("Tree", "E", "10", tree.Tree_CN.Value, "TreeCount");
+                                errors.AddError("Tree", "E", "10", tree.Tree_CN.Value, "TreeCount");
                                 errsFound++;
                             }   //  endif tree count greater than 1
                         }   //  end foreach loop
@@ -504,7 +504,7 @@ namespace CruiseProcessing
                         var sampleGroups = dataLayer.getSampleGroups(st.Stratum_CN.Value);
                         if(sampleGroups.Count > 1)
                         {
-                            errors.LoadError("Stratum", "E", "17", st.Stratum_CN.Value, "NoName");
+                            errors.AddError("Stratum", "E", "17", st.Stratum_CN.Value, "NoName");
                         }
 
                         // Check for plot only has Count or Measure trees
@@ -514,7 +514,7 @@ namespace CruiseProcessing
                             var plotCMcodes = stratumTrees.Where(x => x.Plot_CN == plot.Plot_CN).Select(x => x.CountOrMeasure).Distinct();
                             if(plotCMcodes.Count() > 1)
                             {
-                                errors.LoadError("Plot", "E", "15", plot.Plot_CN.Value, "NoName");
+                                errors.AddError("Plot", "E", "15", plot.Plot_CN.Value, "NoName");
                             }
                         }
 
@@ -526,7 +526,7 @@ namespace CruiseProcessing
                         //  no measured trees allowed
                         if (stratumTrees.Any(t => t.CountOrMeasure == "M"))
                         {
-                            errors.LoadError("Stratum", "E", "FixCNT Stratum Can Not Have Measure Trees", st.Stratum_CN.Value, "NoName");
+                            errors.AddError("Stratum", "E", "FixCNT Stratum Can Not Have Measure Trees", st.Stratum_CN.Value, "NoName");
                             errsFound++;
                         }   //  endif nthRow
                         //  UOM must be 04
@@ -534,7 +534,7 @@ namespace CruiseProcessing
 
                         foreach (var sg in stSampleGroups.Where(x => x.UOM != "04"))
                         {
-                            errors.LoadError("SampleGroup", "E", "7", (long)st.Stratum_CN, "UOM");
+                            errors.AddError("SampleGroup", "E", "7", (long)st.Stratum_CN, "UOM");
                             errsFound++;
                         }
 
@@ -550,19 +550,19 @@ namespace CruiseProcessing
             return errsFound;
         }   //  end CheckCruiseMethods
 
-        private static int CheckMethodHasNoCountTrees(IEnumerable<TreeDO> treeList, ErrorLogMethods errors)
+        private static int CheckMethodHasNoCountTrees(IEnumerable<TreeDO> treeList, ErrorLogCollection errors)
         {
             var errsFound = 0;
             foreach (var tree in treeList
                 .Where(x => x.CountOrMeasure == "C"))
             {
-                errors.LoadError("Tree", "E", "11", tree.Tree_CN.Value, "NoName");
+                errors.AddError("Tree", "E", "11", tree.Tree_CN.Value, "NoName");
                 errsFound++;
             }
             return errsFound;
         }
 
-        private static int CheckForNoKPI(IEnumerable<TreeDO> treeList, ErrorLogMethods errors)
+        private static int CheckForNoKPI(IEnumerable<TreeDO> treeList, ErrorLogCollection errors)
         {
             int totalErrs = 0;
             var noKPI = treeList.Where(nk => nk.CountOrMeasure == "M" && nk.KPI == 0.0 && nk.STM == "N");
@@ -570,14 +570,14 @@ namespace CruiseProcessing
             {
                 foreach (TreeDO nok in noKPI)
                 {
-                    errors.LoadError("Tree", "E", "27", (long)nok.Tree_CN, "NoName");
+                    errors.AddError("Tree", "E", "27", (long)nok.Tree_CN, "NoName");
                     totalErrs++;
                 }
             }
             return totalErrs;
         }
 
-        private static int CheckForNoDBH(IEnumerable<TreeDO> treeList, ErrorLogMethods errors)
+        private static int CheckForNoDBH(IEnumerable<TreeDO> treeList, ErrorLogCollection errors)
         {
             int totalErrs = 0;
             var noDBH = treeList.Where(nd => nd.CountOrMeasure == "M" && nd.DBH == 0.0 && nd.DRC == 0.0);
@@ -585,14 +585,14 @@ namespace CruiseProcessing
             {
                 foreach (TreeDO nod in noDBH)
                 {
-                    errors.LoadError("Tree", "E", "11", (long)nod.Tree_CN, "NoName");
+                    errors.AddError("Tree", "E", "11", (long)nod.Tree_CN, "NoName");
                     totalErrs++;
                 }
             }
             return totalErrs;
         }
 
-        private static int CheckForMeasuredTrees(IEnumerable<TreeDO> treeList, long currST_CN, string currMeth, CPbusinessLayer dataLayer, ErrorLogMethods errors)
+        private static int CheckForMeasuredTrees(IEnumerable<TreeDO> treeList, long currST_CN, string currMeth, CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             int numErrs = 0;
             //ErrorLogMethods elm = new ErrorLogMethods(dataLayer); // TODO fix this instantiating a new elm. I think we can just use the current instance. We may need to create a class level accumulator to count errors. 
@@ -622,7 +622,7 @@ namespace CruiseProcessing
                             if (!treeList.Any(t => t.CountOrMeasure == "M" && t.SampleGroup_CN == sg.SampleGroup_CN && t.Stratum_CN == currST_CN))
                             {
                                 //  this is the error
-                                errors.LoadError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN, "NoName");
+                                errors.AddError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN, "NoName");
                                 numErrs++;
                             }   //  endif
                         }   //  endif totalCount
@@ -642,7 +642,7 @@ namespace CruiseProcessing
                             if (!sgTrees.Any(t => t.CountOrMeasure == "M"))
                             {
                                 // here's the error
-                                errors.LoadError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN, "NoName");
+                                errors.AddError("SampleGroup", "W", "30", (long)sg.SampleGroup_CN, "NoName");
                                 numErrs++;
                             }
                         }

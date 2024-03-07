@@ -9,7 +9,7 @@ using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
-    class LocalVolumeReports
+    public class LocalVolumeReports
     {
         
         private ArrayList DBHclass = new ArrayList();
