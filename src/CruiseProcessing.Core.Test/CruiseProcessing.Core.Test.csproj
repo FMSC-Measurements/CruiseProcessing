@@ -9,4 +9,16 @@
     <ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Content Include=".\TestFiles\**\*.crz3" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include=".\TestFiles\**\*.cruise" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include=".\TestFiles\**\*.out" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include=".\TestFiles\**\*.process" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include=".\TestFiles\**\*.out.*" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" /> 
+	</ItemGroup>
+
 </Project>

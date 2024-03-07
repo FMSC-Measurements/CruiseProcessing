@@ -32,4 +32,10 @@
 		<DotNetCliToolReference Include="dotnet-xunit" Version="2.4.0" />
 	</ItemGroup>
 
+		<!-- when targeting net461 SqlitePCL.Raw cant find e_sqlite3 because of xunit's shadow copy feature
+  see https://github.com/reactiveui/Akavache/pull/496 and https://github.com/xunit/xunit/issues/1198 -->
+	<ItemGroup Condition="$(IsTestProject) == 'true' AND $(TargetFramework) == 'net472'">
+		<Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>
