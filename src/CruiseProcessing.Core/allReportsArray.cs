@@ -199,8 +199,10 @@ namespace CruiseProcessing
                                                  {"WT5","Biomass Sale Summary"},
                                                  {"IDL1","Idaho Dept of Lands Summary of Cruise Data"}};
 
-        //  Functions
-        public static string findReportTitle(string currentReport)
+        public static readonly string[] GRAPH_REPORTS = new[] { "GR01", "GR02", "GR03", "GR04", "GR05", "GR06", "GR07", "GR08", "GR09", "GR10", "GR11"  };
+
+    //  Functions
+    public static string findReportTitle(string currentReport)
         {
             // TODO since this method only searches up to index 186, it will not find the last item in the array
             // not sure if this is intentional, as that is a state report (IDL1)
