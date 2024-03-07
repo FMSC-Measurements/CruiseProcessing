@@ -30,7 +30,7 @@ namespace CruiseProcessing
             //  pull tables needed initially
             var sale = DataLayer.GetSale();
             List<CuttingUnitDO> cuList = DataLayer.getCuttingUnits();
-            List<StratumDO> strList = DataLayer.getStratum();
+            List<StratumDO> strList = DataLayer.GetStrata();
             List<POPDO> popList = DataLayer.getPOP();
             List<PRODO> proList = DataLayer.getPRO();
             //  need to pull constant values from sale list

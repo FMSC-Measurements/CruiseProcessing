@@ -192,7 +192,7 @@ namespace CruiseProcessing
             return DAL.From<SaleDO>().Query().FirstOrDefault();
         }
 
-        public List<StratumDO> getStratum()
+        public List<StratumDO> GetStrata()
         {
             return DAL.From<StratumDO>().OrderBy("Code").Read().ToList();
         }   //  end getStratum
@@ -243,6 +243,14 @@ namespace CruiseProcessing
         {
             return DAL.From<TreeDO>().Read().ToList();
         }   //  end getTrees
+
+        public IEnumerable<TreeDO> GetTreesByStratum(string stratumCode)
+        {
+            return DAL.From<TreeDO>()
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1")
+                .Query(stratumCode).ToArray();
+        }
 
         public List<LogDO> getLogs()
         {
@@ -1881,95 +1889,31 @@ namespace CruiseProcessing
 
         public void DeletePRO()
         {
-            ////  see note above concerning this code
-            ////List<PRODO> proList = getPRO();
-            ////foreach (PRODO prdo in proList)
-            ////    prdo.Delete();
-            ////  make sure filename is complete
-            //fileName = checkFileName(fileName);
-
-            ////   open connection and delete data
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            //{
-            //    //  open connection
-            //    sqlconn.Open();
-            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-
-            //    //  delete all rows
-            //    sqlcmd.CommandText = "DELETE FROM PRO WHERE PRO_CN>0";
-            //    sqlcmd.ExecuteNonQuery();
-            //    sqlconn.Close();
-            //}   //  end using
-            //return;
-
             DAL.Execute("DELETE FROM PRO WHERE PRO_CN>0");
-        }   //  end deletePRO
+        }
 
 
-        public void DeleteErrorMessages()
+        public void DeleteCruiseProcessingErrorMessages()
         {
             //  deletes warnings and errors messages just for CruiseProcessing
-            //  make sure filename is complete
-            /*            fileName = checkFileName(fileName);
-
-                        //   open connection and delete data
-                        using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-                        {
-                            //  open connection
-                            sqlconn.Open();
-                            SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-
-                            //  delete all rows
-                            sqlcmd.CommandText = "DELETE FROM ErrorLog WHERE Program = 'CruiseProcessing'";
-                            sqlcmd.ExecuteNonQuery();
-                            sqlconn.Close();
-                        }   //  end using
-                        */
             DAL.Execute("DELETE FROM ErrorLog WHERE Program = 'CruiseProcessing'");
-            return;
         }   //  end deleteErrorMessages
 
 
         public void deleteVolumeEquations()
         {
-            //  used mostly in region 8 volume equations
-            //  make sure filename is complete
-            //fileName = checkFileName(fileName);
+            //  used only in region 8 volume equations to reset volEqs
 
-            //  open connection and delete data
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            // {
-            //    sqlconn.Open();
-            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-            //    //  delete all rows
-            //    sqlcmd.CommandText = ("DELETE FROM VolumeEquation");
-            //    sqlcmd.ExecuteNonQuery();
-            //    sqlconn.Close();
             DAL.Execute("DELETE FROM VolumeEquation");
-            //}   //  end using
-            //return;
-        }   //  end deleteVolumeEquations
+
+        }
 
 
         //  Regression table
         public void DeleteRegressions()
         {
-            //  fix filename
-            //string tempFileName = checkFileName(fileName);
-
-            //  open connection and delete data
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(tempFileName))
-            //{
-            //    sqlconn.Open();
-            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-            //    //  delete all rows
-            //    sqlcmd.CommandText = "DELETE FROM Regression";
-            //    sqlcmd.ExecuteNonQuery();
-            //    sqlconn.Close();
-            //}   //  end using
             DAL.Execute("DELETE FROM Regression");
-            return;
-        }   //  end deleteRegressiosn
+        }
 
 
         public void SaveRegress(List<RegressionDO> resultsList)

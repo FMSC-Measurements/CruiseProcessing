@@ -55,7 +55,7 @@ namespace CruiseProcessing
             string currentTitle = fillReportTitle(currentReport);
 
             numOlines = 0;
-            sList = DataLayer.getStratum();
+            sList = DataLayer.GetStrata();
             cList = DataLayer.getCuttingUnits();
             //  pull biomass equations to process reports (except WT2/WT3)
             if (currentReport != "WT2" && currentReport != "WT3" && currentReport != "WT5")
@@ -119,7 +119,7 @@ namespace CruiseProcessing
                     break;
 
                 case "WT5":
-                    sList = DataLayer.getStratum();
+                    sList = DataLayer.GetStrata();
                     fieldLengths = new int[] { 1, 10, 4, 3, 11, 12, 12, 12, 11, 2, 11, 8 };
                     SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
                     processSaleSummaryWT5(strWriteOut, ref pageNumb);
@@ -977,7 +977,7 @@ namespace CruiseProcessing
             double currSTacres = 1;
             string currMeth = "";
             int jthRow;
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             List<PRODO> proList = DataLayer.getPRO();
             List<BiomassData> unitList = new List<BiomassData>();
 

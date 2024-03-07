@@ -48,7 +48,7 @@ namespace CruiseProcessing
                 loadDIBclasses(justCutLogs, ListToOutputMBF);
             }   //  endif currentReport
 
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             //  Then load and print ListToOutput based on report
             numOlines = 0;
             switch (currentReport)

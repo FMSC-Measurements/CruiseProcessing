@@ -140,7 +140,7 @@ namespace CruiseProcessing
                     else ident.Append("Sale number not found");
                     break;
                 case "Stratum":
-                    List<StratumDO> stList = bslyr.getStratum();
+                    List<StratumDO> stList = bslyr.GetStrata();
                     ithRow = stList.FindIndex(
                         delegate(StratumDO sdo)
                         {

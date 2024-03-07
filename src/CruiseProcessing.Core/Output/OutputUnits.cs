@@ -50,7 +50,7 @@ namespace CruiseProcessing
         {
             //  This generates VSM4 as well as UC reports 1-6 -- remaining UC reports are stand table format
             string currentTitle = fillReportTitle(currentReport);
-            var sList = DataLayer.getStratum();
+            var sList = DataLayer.GetStrata();
             var cList = DataLayer.getCuttingUnits();
             proList = DataLayer.getPRO();
             string orderBy = "";

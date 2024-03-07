@@ -35,7 +35,7 @@ namespace CruiseProcessing
         {
             //  generates LD1-LD8 live/dead reports
             string currentTitle = fillReportTitle(currentReport);
-            sList = DataLayer.getStratum();
+            sList = DataLayer.GetStrata();
             proList = DataLayer.getPRO();
             List<LCDDO> lcdList = DataLayer.getLCD();
 

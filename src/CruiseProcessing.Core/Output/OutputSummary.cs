@@ -36,7 +36,7 @@ namespace CruiseProcessing
             numOlines = 0;
             List<LCDDO> currentGroup = new List<LCDDO>();
             //  pull stratum table to process reports
-            var sList = DataLayer.getStratum();
+            var sList = DataLayer.GetStrata();
             //  Need tree list to finish height headers
             List<TreeDO> tList = DataLayer.getTrees();
             //  check for data before continuing

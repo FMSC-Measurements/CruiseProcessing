@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
-    class HTMLoutput
+    public class HTMLoutput
     {
         private string[] HTMLcommands = new string[7] {"<H2><A name=Index>Index</A></H2>",
 	                                                   "<H2><A href=\"#XXXX\">XXX Report</A></H2>",
@@ -20,10 +20,12 @@ namespace CruiseProcessing
 	                                                   "<H2><A href=\"#Index\">Back to Index</A></H2>",
 	                                                   "</pre>"};
         protected CPbusinessLayer DataLayer { get; }
+        public IDialogService DialogService { get; }
 
-        public HTMLoutput(CPbusinessLayer dataLayer)
+        public HTMLoutput(CPbusinessLayer dataLayer, IDialogService dialogService)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         public void CreateHTMLfile()
@@ -51,7 +53,7 @@ namespace CruiseProcessing
             //  does it exist?
             if (!File.Exists(outputFileName))
             {
-                MessageBox.Show("Cannot create HTML file because the output file cannot be found.\nMake sure the output file has been created\nfor the current cruise file.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogService.ShowError("Cannot create HTML file because the output file cannot be found.\nMake sure the output file has been created\nfor the current cruise file.");
                 return;
             }   //  endif if does not exist
 
@@ -200,7 +202,7 @@ namespace CruiseProcessing
             StringBuilder sb = new StringBuilder();
             sb.Append("HTML File has been created.\nIt can be found at:\n");
             sb.Append(HTMLoutFile);
-            MessageBox.Show(sb.ToString(), "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            DialogService.ShowInformation(sb.ToString());
 
             return;
         }   //  end CreateHTMLfile

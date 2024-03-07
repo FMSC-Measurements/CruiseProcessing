@@ -45,7 +45,7 @@ namespace CruiseProcessing
         public void OutputTipwoodReport(StreamWriter strWriteOut, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
-            sList = DataLayer.getStratum();
+            sList = DataLayer.GetStrata();
             cList = DataLayer.getCuttingUnits();
             proList = DataLayer.getPRO();
             // string orderBy = "";

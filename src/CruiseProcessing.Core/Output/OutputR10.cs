@@ -67,7 +67,7 @@ namespace CruiseProcessing
             }   //  end switch
 
             //  process reports
-            List<StratumDO> sList = DataLayer.getStratum();
+            List<StratumDO> sList = DataLayer.GetStrata();
             List<LogStockDO> logList = DataLayer.getCutLogs();
             //  group LCD by species as many reports run by species
             List<LCDDO> speciesList = DataLayer.getLCDOrdered("WHERE CutLeave = @p1", "GROUP BY Species", "C", "");

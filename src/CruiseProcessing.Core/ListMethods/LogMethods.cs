@@ -22,8 +22,8 @@ namespace CruiseProcessing
             {
                 if (prevTree_CN != ld.Tree_CN)
                 {
-                    prevTree_CN = Convert.ToInt64(ld.Tree_CN);
-                    List<LogDO> justLogs = GetLogRecords(logList, Convert.ToInt64(ld.Tree_CN));
+                    prevTree_CN = ld.Tree_CN.Value;
+                    List<LogDO> justLogs = GetLogRecords(logList, ld.Tree_CN.Value);
                     if (justLogs.Count > 20)
                     {
                         elm.LoadError("Log", "E", "13", (long)ld.Log_CN, "NoName");
