@@ -65,12 +65,12 @@ namespace CruiseProcessing.Test
 
             var errors = EditChecks.CheckErrors(dataLayer);
 
-            foreach (var error in errors.errList)
+            foreach (var error in errors)
             {
                 Output.WriteLine($"{error.TableName} msg:{error.Message} col:{error.ColumnName} cn:{error.CN_Number}");
             }
 
-            errors.errList.Should().HaveCount(0);
+            errors.Should().HaveCount(0);
             //errors.errList.Should().BeEmpty();
         }
 
