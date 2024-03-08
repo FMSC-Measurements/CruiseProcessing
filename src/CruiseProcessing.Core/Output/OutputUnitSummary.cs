@@ -19,7 +19,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void createUnitSummary(StreamWriter strWriteOut, ref int pageNum)
+        public void createUnitSummary(TextWriter strWriteOut, ref int pageNum)
         {
             //  fill current title
             string currentTitle = fillReportTitle(currentReport);
@@ -362,7 +362,7 @@ namespace CruiseProcessing
             return;
         }   //  end loadTreeBased
 
-        private void writeAreaBased(StreamWriter strWriteOut, ref int pageNumb)
+        private void writeAreaBased(TextWriter strWriteOut, ref int pageNumb)
         {
             double calcValue = 0;
             int firstLine = 1;
@@ -407,7 +407,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeAreaBased
 
-        private void writeTreeBasedBySpecies(StreamWriter strWriteOut, ref int pageNumb)
+        private void writeTreeBasedBySpecies(TextWriter strWriteOut, ref int pageNumb)
         {
             int firstLine = 1;
             foreach (RegionalReports tbo in treeBasedBySpecies)
@@ -436,7 +436,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeTreeBasedBySpecies
 
-        private void writeTreeBasedBySampleGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void writeTreeBasedBySampleGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             int firstLine = 1;
             foreach (RegionalReports tbo in treeBaseBySampleGroup)

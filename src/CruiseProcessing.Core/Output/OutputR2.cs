@@ -20,14 +20,11 @@ namespace CruiseProcessing
         private string[] columnHeader = new string[] { "" };
         private double weightFraction = 0;
 
-        public IDialogService DialogService { get; }
-
-        public OutputR2(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR2(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
-            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void CreateR2Reports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateR2Reports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -166,36 +163,16 @@ namespace CruiseProcessing
             return;
         }   //  end CreateR2Reports
 
-        private void CreateR208(StreamWriter strWriteOut, ref int pageNumb)
+        private void CreateR208(TextWriter strWriteOut, ref int pageNumb)
         {
-            IEnumerable<StewProductCosts> stewList = new List<StewProductCosts>();
-            int numRows = 0;
-            //  first need to determine if StewProductCost exists in the file or is empty
-            bool bResult = DataLayer.doesTableExist("StewProductCosts");
-            if (bResult)
-            {
-                //  table exists so try to get data
-                stewList = DataLayer.getStewCosts();
-                numRows = stewList.Count();
-            }
-            else
-            {
-                DataLayer.CreateNewTable("StewProductCosts");
-                numRows = 0;
-            } 
-
-            if (numRows == 0)
-            {
-                stewList = DialogService.GetStewardshipProductCosts();
-            }
+            var stewList = DataLayer.getStewCosts();
 
             //  find all species groups to include in the report
             List<StewProductCosts> justGroups = stewList.Where(x => x.includeInReport == "True").ToList();
 
             if (justGroups.Count == 0)
             {
-                DialogService.ShowError("No species groups selected to include in the report.");
-                return;
+                throw new InvalidOperationException("R208 Report: No species groups selected to include in the report.");
             }
             else if (justGroups.Count > 0)
             {
@@ -730,7 +707,7 @@ namespace CruiseProcessing
             return;
         }   //  end updateAverages
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R201
             int firstLine = 1;
@@ -785,7 +762,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-        private void WriteUnitGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteUnitGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R207
             foreach (RegionalReports lto in listToOutput)
@@ -817,7 +794,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteUnitGroup
 
-        private void WriteSpeciesGroups(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteSpeciesGroups(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R206
             double calcValue = 0;
@@ -852,7 +829,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteSpeciesGroups
 
-        private void WriteDefectGroups(StreamWriter strWriteOut, ref int pageNumb,
+        private void WriteDefectGroups(TextWriter strWriteOut, ref int pageNumb,
                                         int numberSpecies)
         {
             //  R202, R203, R204, R205
@@ -916,7 +893,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteDefectGroups
 
-        private void WriteStewardshipGroups(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteStewardshipGroups(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R208
             // outputs top portion of the report
@@ -960,7 +937,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteStewardshipGroups
 
-        private void WriteStewardshipSummary(StreamWriter strWriteOut, ref int pageNumb, List<StewProductCosts> justGroups)
+        private void WriteStewardshipSummary(TextWriter strWriteOut, ref int pageNumb, List<StewProductCosts> justGroups)
         {
             //  R208 summary portion
             double calcValue = 0;
@@ -1067,7 +1044,7 @@ namespace CruiseProcessing
             return;
         }   //  end updateSubtotal
 
-        private void outputSubtotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void outputSubtotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R201
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -1098,7 +1075,7 @@ namespace CruiseProcessing
             return;
         }   //  end outputSubtotal
 
-        private void outputProductSubtotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void outputProductSubtotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R207
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -1113,7 +1090,7 @@ namespace CruiseProcessing
             return;
         }   //  end outputProductSubtotal
 
-        private void outputCSsubtotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void outputCSsubtotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R206 - contract species
             double calcValue = 0;
@@ -1178,7 +1155,7 @@ namespace CruiseProcessing
             }   //  endif
         }   //  end updateTotal
 
-        private void outputTotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void outputTotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R201
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],

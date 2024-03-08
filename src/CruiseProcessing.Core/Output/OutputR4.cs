@@ -34,7 +34,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateR4Reports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateR4Reports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -382,7 +382,7 @@ namespace CruiseProcessing
 
 
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, double totAC)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb, double totAC)
         {
             //  R401/R402
             double calcValue = 0;
@@ -455,7 +455,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void WriteCurrentGroup2(StreamWriter strWriteOut, ref int pageNumb, double totAC)
+        private void WriteCurrentGroup2(TextWriter strWriteOut, ref int pageNumb, double totAC)
         {
             //  R403/R404
             double calcValue = 0;
@@ -568,7 +568,7 @@ namespace CruiseProcessing
         }   //  end updateTotal
 
 
-        private void writeTotalLine(StreamWriter strWriteOut, ref int pageNumb, double totAC)
+        private void writeTotalLine(TextWriter strWriteOut, ref int pageNumb, double totAC)
         {
             //  R401/R402
             double calcValue = 0;
@@ -637,7 +637,7 @@ namespace CruiseProcessing
 
 
 
-        private void writeTotalLine(StreamWriter strWriteOut, ref int pageNumb)
+        private void writeTotalLine(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R403/R404
             //  May 2016 -- total line not picking up all groups -- fixed by summing up totalToOutput

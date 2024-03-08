@@ -51,6 +51,8 @@ namespace CruiseProcessing
                                                         {"31","Invalid tree default value key code on tree; Contact FMSC for help"},
                                                         {"32","No height recorded for this tree"}};
 
+        // see CreateTextFile.WriteWarnings for additional messages
+
         private static readonly string[] errorHeading = new string[6] {"                                                      ****  ERROR REPORT  ****",
                                                        "                                                          FOR CRUISE NUMBER",
                                                        "",
@@ -464,14 +466,14 @@ namespace CruiseProcessing
             return "OOPS";
         }   //  end getErrorMessage
 
-        private void WriteCurrentError(StreamWriter strWriteOut, ref int pageNumber, string line)
+        private void WriteCurrentError(TextWriter strWriteOut, ref int pageNumber, string line)
         {
             writeHeaders(strWriteOut);
             strWriteOut.WriteLine(line);
             numOlines++;
         }   //  end WriteCurrentError
 
-        private void writeHeaders(StreamWriter strWriteOut)
+        private void writeHeaders(TextWriter strWriteOut)
         {
             StringBuilder headerLine = new StringBuilder();
             if (numOlines >= 54 || numOlines == 0)
@@ -498,7 +500,7 @@ namespace CruiseProcessing
             }   //  end numOlines
         }   //  end writeHeaders
 
-        private void OutputIdKey(StreamWriter strWriteOut)
+        private void OutputIdKey(TextWriter strWriteOut)
         {
             strWriteOut.WriteLine("\n");
             strWriteOut.WriteLine("Order of Identification Elements");

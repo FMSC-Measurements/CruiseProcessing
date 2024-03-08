@@ -507,7 +507,7 @@ namespace CruiseProcessing
         public static readonly string[] WT5footer = new string[2] {" * WHOLE TREE (ABOVE GROUND) BIOMASS AS CALCULATED USING THE TOT TREE EQN SPECIFIED IN DEFAULTS (REGIONAL).",
                                                    " ** TOTAL IS THE ADDITION OF PRIMARY PRODUCT, SECONDARY PRODUCT, TIP, BRANCHES AND FOLIAGE."};
 
-        public static void outputColumnHeadings(StreamWriter strWriteOut, string[] columnHeaders)
+        public static void outputColumnHeadings(TextWriter strWriteOut, string[] columnHeaders)
         {
             //  output column headers and dividing line
             for (int m = 0; m < columnHeaders.Count(); m++)

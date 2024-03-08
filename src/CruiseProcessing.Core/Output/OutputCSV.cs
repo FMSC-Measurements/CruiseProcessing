@@ -560,7 +560,7 @@ namespace CruiseProcessing
             return 1;
         }   //  end writeCSV11
 
-        private void writeHeaderLine(string[] currHeader, StreamWriter strCSVout, int numFields)
+        private void writeHeaderLine(string[] currHeader, TextWriter strCSVout, int numFields)
         {
             for (int k = 0; k < numFields - 1; k++)
             {
@@ -572,7 +572,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeHeaderLine
 
-        private void writeLine(StreamWriter strCSVout, string currLine)
+        private void writeLine(TextWriter strCSVout, string currLine)
         {
             //  writes each field on the current line to the CSV file with a comma
             StringBuilder currField = new StringBuilder();
@@ -695,7 +695,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCSV6
 
-        private void writeCSV8(StreamWriter strCSVout, string currLine)
+        private void writeCSV8(TextWriter strCSVout, string currLine)
         {
             //  writes each field on the current line to the CSV* file with a comma
             StringBuilder currField = new StringBuilder();

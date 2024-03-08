@@ -25,7 +25,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateLogReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateLogReports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -77,7 +77,7 @@ namespace CruiseProcessing
         }   //  end CreateLogReports
 
         private void LoadAndPrintByGrade(List<LogStockDO> listToLoad, List<StratumDO> sList,
-                                        StreamWriter strWriteOut, ref int pageNumb)
+                                        TextWriter strWriteOut, ref int pageNumb)
         {
             //  load list for each species
             double calcGross = 0;
@@ -169,7 +169,7 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintByGrade
 
         private void LoadAndPrintByProduct(List<LogStockDO> listToLoad, List<StratumDO> sList,
-                                            StreamWriter strWriteOut, ref int pageNumb)
+                                            TextWriter strWriteOut, ref int pageNumb)
         {
             //  load list by product
             tableNum = 1;
@@ -230,7 +230,7 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintByProduct
 
         private void LoadAndPrintByLength(List<LogStockDO> listToLoad, List<StratumDO> sList,
-                                            StreamWriter strWriteOut, ref int pageNumb)
+                                            TextWriter strWriteOut, ref int pageNumb)
         {
             //  load lists for each species
             foreach (LogStockDO ls in listToLoad)
@@ -408,7 +408,7 @@ namespace CruiseProcessing
             return;
         }   //  end LoadAndPrintByLength
 
-        private void writeCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, string formatOne,
+        private void writeCurrentGroup(TextWriter strWriteOut, ref int pageNumb, string formatOne,
                                         string formatTwo, List<ReportSubtotal> outputList, float convFactor)
         {
             //  print lines for each report
@@ -502,7 +502,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroup
 
-        private void UpdateAndOutputTotal(List<ReportSubtotal> outputList, StreamWriter strWriteOut,
+        private void UpdateAndOutputTotal(List<ReportSubtotal> outputList, TextWriter strWriteOut,
                                             ref int pageNumb, float convFactor, string formatOne, string formatTwo)
         {
             string verticalBar = "|";

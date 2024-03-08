@@ -34,7 +34,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateStandTables(StreamWriter strWriteOut, ref int pageNumb,
+        public void CreateStandTables(TextWriter strWriteOut, ref int pageNumb,
                                         int classInterval)
         {
             //  fill report title array
@@ -153,7 +153,7 @@ namespace CruiseProcessing
 
 
         private void CalculateAndPrintStratum(int classInterval,
-                                            string currentTitle, StreamWriter strWriteOut,
+                                            string currentTitle, TextWriter strWriteOut,
                                             ref int pageNumb)
         {
             //  header and column headers are stratum dependent so loop by stratum
@@ -219,7 +219,7 @@ namespace CruiseProcessing
         }   //  end CalculateAndPrintStratum
 
 
-        private void CalculateAndPrintSale(int classInterval, string currentTitle, StreamWriter strWriteOut,
+        private void CalculateAndPrintSale(int classInterval, string currentTitle, TextWriter strWriteOut,
                                             ref int pageNumb)
         {
             //  Header and colums are sale dependent
@@ -275,7 +275,7 @@ namespace CruiseProcessing
         }   //  end CalculateAndPrintSale
 
 
-        private void processGroups(List<LCDDO> groupsToPrint, StreamWriter strWriteout, ref int pageNumb,
+        private void processGroups(List<LCDDO> groupsToPrint, TextWriter strWriteout, ref int pageNumb,
                                     List<TreeCalculatedValuesDO> currentData, int classInterval,
                                     string currST)
         {
@@ -523,7 +523,7 @@ namespace CruiseProcessing
         }   //  end LoadProperColumn
 
 
-        private void writeCurrentGroup(StreamWriter strWriteOut, ref int pageNumb,
+        private void writeCurrentGroup(TextWriter strWriteOut, ref int pageNumb,
                                         List<StandTables> listToPrint, int lastGroup, string[] headerToPrint,
                                         bool lastPage)
         {

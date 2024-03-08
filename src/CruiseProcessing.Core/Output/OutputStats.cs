@@ -24,7 +24,7 @@ namespace CruiseProcessing
             this.currCL = currCL;
         }
 
-        public void CreateStatReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateStatReports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  For ST1/ST2 (DP1,DP2) LV03/LV04
             string currentTitle = fillReportTitle(currentReport);
@@ -112,7 +112,7 @@ namespace CruiseProcessing
         }   //  end CreateStatReports
 
 
-        private void ProcessPrimary(StreamWriter strWriteOut, ref int pageNumb, string volType)
+        private void ProcessPrimary(TextWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
             List<StratumDO> sList = DataLayer.GetStrata();
@@ -185,7 +185,7 @@ namespace CruiseProcessing
         }   //  end ProcessPrimary
 
 
-        private void ProcessSecondary(StreamWriter strWriteOut, ref int pageNumb, string volType)
+        private void ProcessSecondary(TextWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
             List<StratumDO> sList = DataLayer.GetStrata();
@@ -261,7 +261,7 @@ namespace CruiseProcessing
         }   //  end ProcessSecondary
 
 
-        private void ProcessRecovered(StreamWriter strWriteOut, ref int pageNumb, string volType)
+        private void ProcessRecovered(TextWriter strWriteOut, ref int pageNumb, string volType)
         {
             //  Reports ST1/ST2
             List<StratumDO> sList = DataLayer.GetStrata();
@@ -390,7 +390,7 @@ namespace CruiseProcessing
         }   //  end CalcCombinedError
 
 
-        private void WriteCurrentGroup(POPDO p, StreamWriter strWriteOut, ref int pageNumb, int whichStage,
+        private void WriteCurrentGroup(POPDO p, TextWriter strWriteOut, ref int pageNumb, int whichStage,
                                             int whichProd, string currMeth)
         {
             //  ST1/ST2     (DP1/DP2)

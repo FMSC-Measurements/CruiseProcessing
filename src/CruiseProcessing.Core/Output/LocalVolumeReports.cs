@@ -621,7 +621,7 @@ namespace CruiseProcessing
         }   // end writePageTwo
 
 
-        private void outputHeader(StreamWriter strWriteOut, int whichPage, int numOlines)
+        private void outputHeader(TextWriter strWriteOut, int whichPage, int numOlines)
         {
             if (numOlines == 0 || numOlines >= 50)
             {

@@ -108,7 +108,7 @@ namespace CruiseProcessing
         }   //  end CreateSUMfile
 
 
-        private void Load1A(StreamWriter strSumOut, double saleErr, SaleDO sale)
+        private void Load1A(TextWriter strSumOut, double saleErr, SaleDO sale)
         {
             //  Never more than one sale record so just load and print
             SumFields sf = new SumFields();
@@ -162,7 +162,7 @@ namespace CruiseProcessing
             return;
         }   //  end Load1A
 
-        private void Load2A(StreamWriter strSumOut, List<CuttingUnitDO> cutList)
+        private void Load2A(TextWriter strSumOut, List<CuttingUnitDO> cutList)
         {
             foreach (CuttingUnitDO cu in cutList)
             {
@@ -195,7 +195,7 @@ namespace CruiseProcessing
         }   //  end Load2A
 
 
-        private void Load3A(StreamWriter strSumOut, List<StratumDO> strList)
+        private void Load3A(TextWriter strSumOut, List<StratumDO> strList)
         {
             foreach(StratumDO sd in strList)
             {
@@ -224,7 +224,7 @@ namespace CruiseProcessing
         }   //  end Load3A
 
 
-        private void Load1V(StreamWriter strSumOut, POPDO pop, List<POPDO> popList, List<PRODO> proList)
+        private void Load1V(TextWriter strSumOut, POPDO pop, List<POPDO> popList, List<PRODO> proList)
         {
             List<LCDDO> lcdList = DataLayer.getLCD();
             //  need just cut trees from pop list
@@ -333,7 +333,7 @@ namespace CruiseProcessing
         }   //  end Load1V
 
 
-        private void Load2V(StreamWriter strSumOut, List<CuttingUnitDO> cuList, List<PRODO> proList,List<StratumDO> strList)
+        private void Load2V(TextWriter strSumOut, List<CuttingUnitDO> cuList, List<PRODO> proList,List<StratumDO> strList)
         {
             double PCPOPSTG = 0.0;
             List<LCDDO> lcdList = DataLayer.getLCD();
@@ -450,7 +450,7 @@ namespace CruiseProcessing
         }   //  end Load2V
 
 
-        private void Load3V(StreamWriter strSumOut, List<StratumDO> strList, List<PRODO> proList)
+        private void Load3V(TextWriter strSumOut, List<StratumDO> strList, List<PRODO> proList)
         {
             double STacres;
             ArrayList justUnits = new ArrayList();
@@ -929,7 +929,7 @@ namespace CruiseProcessing
         }   //  end CreateOthers
 
 
-        private void WriteCurrentRecords(StreamWriter strSumOut, string recToPrint)
+        private void WriteCurrentRecords(TextWriter strSumOut, string recToPrint)
         {
             StringBuilder prtLine = new StringBuilder();
 

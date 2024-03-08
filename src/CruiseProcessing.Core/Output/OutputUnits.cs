@@ -46,7 +46,7 @@ namespace CruiseProcessing
             this.currCL = currCL;
         }
 
-        public void OutputUnitReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void OutputUnitReports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  This generates VSM4 as well as UC reports 1-6 -- remaining UC reports are stand table format
             string currentTitle = fillReportTitle(currentReport);
@@ -280,7 +280,7 @@ namespace CruiseProcessing
 
 
         private void WriteCurrentGroup(string currST, List<TreeCalculatedValuesDO> currData, string currUOM,
-                                        string currCU, StreamWriter strWriteOut, ref int pageNumb, string currSG,
+                                        string currCU, TextWriter strWriteOut, ref int pageNumb, string currSG,
                                         List<TreeDO> justUnits, string currMeth)
         {
             //  for VSM4 (CP4)
@@ -445,7 +445,7 @@ namespace CruiseProcessing
 
 
 
-        private void OutputSubtotal(StreamWriter strWriteOut, string currRPT)
+        private void OutputSubtotal(TextWriter strWriteOut, string currRPT)
         {
             //  Works for VSM4 (CP4)
             //  July 2017 and VSM5 report
@@ -489,7 +489,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputSubtotal
 
-        private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb,
+        private void OutputUnitSubtotal(TextWriter strWriteOut, ref int pageNumb,
                                         string currRPT)
         {
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -552,7 +552,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputUnitSubtotal
 
-        private void OutputStrataSubtotal(StreamWriter strWriteOut, ref int pageNumb, string currST,
+        private void OutputStrataSubtotal(TextWriter strWriteOut, ref int pageNumb, string currST,
                                             string currRPT)
         {
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -620,7 +620,7 @@ namespace CruiseProcessing
         }   //  end OutputSubtotal
 
 
-        private void OutputGrandTotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void OutputGrandTotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  works for VSM5 only
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -637,7 +637,7 @@ namespace CruiseProcessing
         }   //  end OutputGrandTotal
 
 
-        private void OutputGrandTotal(StreamWriter strWriteOut, string currRPT, ref int pageNumb)
+        private void OutputGrandTotal(TextWriter strWriteOut, string currRPT, ref int pageNumb)
         {
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 13, ref pageNumb, "");
@@ -735,7 +735,7 @@ namespace CruiseProcessing
         }   //  end OutputGrandTotal
 
 
-        private void OutputSubtotalSummary(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> summaryList)
+        private void OutputSubtotalSummary(TextWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  output summary headers
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -782,7 +782,7 @@ namespace CruiseProcessing
         }   //  end OutputSubtotalSummary
 
 
-        private void OutputSummaryList(StreamWriter strWriteOut, ref int pageNumb,
+        private void OutputSummaryList(TextWriter strWriteOut, ref int pageNumb,
                                         List<ReportSubtotal> summaryList)
         {
             //  works for VSM5 only
@@ -850,7 +850,7 @@ namespace CruiseProcessing
         }   //  end finishColumnHeaders
 
 
-        private void LoadAndPrintProrated(StreamWriter strWriteOut, StratumDO sdo, string currRPT,
+        private void LoadAndPrintProrated(TextWriter strWriteOut, StratumDO sdo, string currRPT,
                                             ref int pageNumb)
         {
             //  loads based on cruise method for UC reports (UC1-UC4)
@@ -920,7 +920,7 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintProrated
 
 
-        private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
+        private void LoadAndPrintProrated(TextWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
@@ -1020,7 +1020,7 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintProrated (just UC5-UC6)
 
 
-        private void LoadAndPrintProrated(List<ReportSubtotal> speciesList, StreamWriter strWriteOut,
+        private void LoadAndPrintProrated(List<ReportSubtotal> speciesList, TextWriter strWriteOut,
                                             CuttingUnitDO cdo, ref int pageNumb)
         {
             //  overloaded method for VSM5 report -- summary by cutting unit
@@ -1387,7 +1387,7 @@ namespace CruiseProcessing
         }   //  end UpdateSummaryList
 
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             //  overloaded for UC reports
             string fieldFormat1 = "{0,3:F0}";
@@ -1448,7 +1448,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void WriteCurrentGroup(string currCU, StreamWriter strWriteOut,
+        private void WriteCurrentGroup(string currCU, TextWriter strWriteOut,
                                         ref int pageNumb, List<string> prtFields,
                                         string currPP)
         {
@@ -1489,7 +1489,7 @@ namespace CruiseProcessing
 
 
         private void SumUpGroups(List<TreeCalculatedValuesDO> currentGroup, string currRPT,
-                                    StreamWriter strWriteOut, ref int pageNumb)
+                                    TextWriter strWriteOut, ref int pageNumb)
         {
             //  This uses the tree data to sum up values for UC reports (100% method)
             string prevSP = "**";
@@ -1668,7 +1668,7 @@ namespace CruiseProcessing
         }   //  end SumUpGroups for 100% method
 
 
-        private void SumUpGroups(string currRPT, string currCU, StreamWriter strWriteOut, ref int pageNumb)
+        private void SumUpGroups(string currRPT, string currCU, TextWriter strWriteOut, ref int pageNumb)
         {
             //  This sums the current group from the LCD data for the UC reports
             string prevSP = "**";

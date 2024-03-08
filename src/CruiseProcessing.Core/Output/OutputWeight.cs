@@ -50,7 +50,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void OutputWeightReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void OutputWeightReports(TextWriter strWriteOut, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
 
@@ -128,7 +128,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputWeightReports
 
-        private void processLCDgroups(StreamWriter strWriteOut, List<LCDDO> justGroups, ref int pageNumb)
+        private void processLCDgroups(TextWriter strWriteOut, List<LCDDO> justGroups, ref int pageNumb)
         {
             //  loop through groups list and print each species, product, contract species combination
             double currGRS = 0.0;
@@ -179,7 +179,7 @@ namespace CruiseProcessing
             return;
         }   //  end processLCDgroups
 
-        private void processUnits(StreamWriter strWriteOut, List<CuttingUnitDO> cList, ref int pageNumb)
+        private void processUnits(TextWriter strWriteOut, List<CuttingUnitDO> cList, ref int pageNumb)
         {
             //  WT4
             int firstLine = 1;
@@ -304,7 +304,7 @@ namespace CruiseProcessing
             return;
         }   //  end processUnits
 
-        private void processSaleSummaryWT5(StreamWriter strWriteOut, ref int pageNumb)
+        private void processSaleSummaryWT5(TextWriter strWriteOut, ref int pageNumb)
         {
             //  WT5
             List<LCDDO> lcdList = DataLayer.getLCD();
@@ -372,7 +372,7 @@ namespace CruiseProcessing
             return;
         }   //  end finishColumnHeaders
 
-        private void WriteCurrentGroupWT1(StreamWriter strWriteOut, LCDDO jg, double currGRS, double currGRST,
+        private void WriteCurrentGroupWT1(TextWriter strWriteOut, LCDDO jg, double currGRS, double currGRST,
                                         ref double poundsPP, ref double poundsSP, ref int pageNumb)
         {
             //  WT1 only
@@ -427,7 +427,7 @@ namespace CruiseProcessing
             return;
         }   //  end Write CurrentGroup
 
-        private void WriteCurrentGroupWT4(StreamWriter strWriteOut, ref int pageNumb, ref int firstLine, double unitSaw,
+        private void WriteCurrentGroupWT4(TextWriter strWriteOut, ref int pageNumb, ref int firstLine, double unitSaw,
                                         double unitNonsawPP, double unitNonsawSP, double unitAcres,
                                         string unitCode, string currSP)
         {
@@ -453,7 +453,7 @@ namespace CruiseProcessing
             printOneRecord(fieldLengths, prtFields, strWriteOut);
         }   //  end WriteCurrentGroup
 
-        private void WriteCurrentGroupWT5(StreamWriter strWriteOut, ref int pageNumb, string currSP, string currBP,
+        private void WriteCurrentGroupWT5(TextWriter strWriteOut, ref int pageNumb, string currSP, string currBP,
                                         double MSprim, double MSsecd, double bioTip, double bioBran, double bioFol,
                                         double bioTot, string[] completeHeader)
         {
@@ -528,7 +528,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotal
 
-        private void WriteSubtotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteSubtotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  WT1
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.WT1columns, 3, ref pageNumb, "");
@@ -591,7 +591,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteSubtotal
 
-        private void OutputTotalLine(StreamWriter strWriteOut, ref int pageNumb, double totalValue1, double totalValue2,
+        private void OutputTotalLine(TextWriter strWriteOut, ref int pageNumb, double totalValue1, double totalValue2,
                                     double totalValue3, int whichTotal)
         {
             //  WT4
@@ -621,7 +621,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputTotalLine
 
-        private void OutputSubtotal(StreamWriter strWriteOut, ref int pageNumb, double subValue1,
+        private void OutputSubtotal(TextWriter strWriteOut, ref int pageNumb, double subValue1,
                                     double subValue2, double subValue3, double subValue4,
                                     double subValue5, double subValue6, string[] completeHeader)
         {
@@ -651,7 +651,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputSubtotal
 
-        private void OverallSummary(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> lcdList)
+        private void OverallSummary(TextWriter strWriteOut, ref int pageNumb, List<LCDDO> lcdList)
         {
             //  WT5 only
             double STacres;
@@ -701,7 +701,7 @@ namespace CruiseProcessing
             return;
         }   //  end OverallSummary
 
-        private void processSlashLoad(StreamWriter strWriteOut, ref int pageNumb)
+        private void processSlashLoad(TextWriter strWriteOut, ref int pageNumb)
         {
             //  First, need region, forest and district
             string currReg = DataLayer.getRegion();
@@ -967,7 +967,7 @@ namespace CruiseProcessing
             return 1;
         }   //  end CalculateComponentValues
 
-        private List<BiomassData> SumUpUnitList(StreamWriter strWriteOut, ref int pageNumb, List<BiomassData> bList,
+        private List<BiomassData> SumUpUnitList(TextWriter strWriteOut, ref int pageNumb, List<BiomassData> bList,
                                         string currCU, float unitAcres)
         {
             //  WT3 report
@@ -1076,7 +1076,7 @@ namespace CruiseProcessing
             return unitList;
         }   //  end SumUpUnitList
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, string currST,
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb, string currST,
                                         List<BiomassData> bList, string currCU)
         {
             //  output WT2/WT3

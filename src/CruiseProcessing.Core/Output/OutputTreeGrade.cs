@@ -22,7 +22,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateTreeGradeReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateTreeGradeReports(TextWriter strWriteOut, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
 
@@ -224,7 +224,7 @@ namespace CruiseProcessing
             return;
         }   //  end LoadEachLine
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, int whichLine,
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb, int whichLine,
                                         List<ReportSubtotal> listToPrint)
         {
             fieldLengths = new int[] { 1, 3, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 8 };
