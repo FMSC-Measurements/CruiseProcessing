@@ -38,8 +38,6 @@ namespace CruiseProcessing
 
             ValidateVolumeEqs(isVLL, dataLayer, errors);
 
-            
-
             CheckCruiseMethods(dataLayer, errors);
 
             return errors;
