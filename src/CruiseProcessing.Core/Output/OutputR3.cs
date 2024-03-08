@@ -20,7 +20,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateR3Reports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateR3Reports(TextWriter strWriteOut, ref int pageNumb)
         {
             // fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -102,7 +102,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateValues
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             //  writes current contract species group for R301
             double calcValue = 0;
@@ -190,7 +190,7 @@ namespace CruiseProcessing
             }   //  endif
         }   //  end updateTotalLine
 
-        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb)
+        private void outputTotalLine(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R301
             double calcValue = 0;

@@ -29,7 +29,7 @@ namespace CruiseProcessing
             this.currCL = currCL;
         }
 
-        public void OutputSummaryReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void OutputSummaryReports(TextWriter strWriteOut, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
 
@@ -300,7 +300,7 @@ namespace CruiseProcessing
         }   //  end OutputSummaryReports
 
 
-        private void WriteCurrentGroup(List<LCDDO> currData, LCDDO currGrp, StreamWriter strWriteOut, double STacres,
+        private void WriteCurrentGroup(List<LCDDO> currData, LCDDO currGrp, TextWriter strWriteOut, double STacres,
                                         ref int pageNumb, string currRpt, string currMethod)
         {
             //  Outputs current group by product
@@ -617,7 +617,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotals
 
-        private void PrintTotals(StreamWriter strWriteOut, ref int pageNum)
+        private void PrintTotals(TextWriter strWriteOut, ref int pageNum)
         {
 
             string fieldFormat3 = "{0,7:F0}";
@@ -644,7 +644,7 @@ namespace CruiseProcessing
             return;
         }   //  end PrintTotals
 
-        private void PrintSubtotals(string currRPT, StreamWriter strWriteOut, ref int pageNumb)
+        private void PrintSubtotals(string currRPT, TextWriter strWriteOut, ref int pageNumb)
         {
             string fieldFormat1 = "{0,9:F0}";
             string fieldFormat2 = "{0,9:F1}";
@@ -1109,7 +1109,7 @@ namespace CruiseProcessing
         }
 
 
-        private void PrintSubtotals(StreamWriter strWriteOut)
+        private void PrintSubtotals(TextWriter strWriteOut)
         {
             //  overloaded to print totals for value, weight and total cubic reports
             strWriteOut.WriteLine("                                        _________                  _________                  _________");

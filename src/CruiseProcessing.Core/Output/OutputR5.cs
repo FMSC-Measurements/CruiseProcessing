@@ -22,7 +22,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateR5report(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateR5report(TextWriter strWriteOut, ref int pageNumb)
         {
             numOlines = 0;
             //  fill report title array
@@ -81,7 +81,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateVolumes
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             foreach (RegionalReports lto in listToOutput)
             {

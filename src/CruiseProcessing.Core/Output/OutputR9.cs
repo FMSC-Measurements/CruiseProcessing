@@ -42,7 +42,7 @@ namespace CruiseProcessing
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public void OutputTipwoodReport(StreamWriter strWriteOut, ref int pageNumb)
+        public void OutputTipwoodReport(TextWriter strWriteOut, ref int pageNumb)
         {
             string currentTitle = fillReportTitle(currentReport);
             sList = DataLayer.GetStrata();
@@ -94,7 +94,7 @@ namespace CruiseProcessing
             return nthRow;
         }   //  end findMethods
 
-        private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb,
+        private void OutputUnitSubtotal(TextWriter strWriteOut, ref int pageNumb,
                                      string currRPT)
         {
             //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -114,7 +114,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputUnitSubtotal
 
-        private void OutputGrandTotal(StreamWriter strWriteOut, string currRPT, ref int pageNumb)
+        private void OutputGrandTotal(TextWriter strWriteOut, string currRPT, ref int pageNumb)
         {
             //WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                        completeHeader, 13, ref pageNumb, "");
@@ -144,7 +144,7 @@ namespace CruiseProcessing
             return;
         }   //  end OutputGrandTotal
 
-        private void OutputSubtotalSummary(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> summaryList)
+        private void OutputSubtotalSummary(TextWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  output summary headers
             //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -193,7 +193,7 @@ namespace CruiseProcessing
         }   //  end finishColumnHeaders
 
         //////////////////////////////////////////////////////////////////////////
-        private void LoadAndPrintProrated(StreamWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
+        private void LoadAndPrintProrated(TextWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
@@ -353,7 +353,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotalSummary
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             //  overloaded for UC reports
             string fieldFormat3 = "{0,9:F0}";

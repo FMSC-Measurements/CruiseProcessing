@@ -29,7 +29,7 @@ namespace CruiseProcessing
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void CreateExportReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateExportReports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  is this a variable log length cruise?  And are there log records?
             var sale = DataLayer.GetSale();
@@ -162,7 +162,7 @@ namespace CruiseProcessing
             return;
         }   //  end CreateExportReports
 
-        private void CreateEX1(StreamWriter strWriteOut, ref int pageNumb)
+        private void CreateEX1(TextWriter strWriteOut, ref int pageNumb)
         {
             //  this is just a straight list
             //  everything needed to print is in logList
@@ -188,7 +188,7 @@ namespace CruiseProcessing
             return;
         }   //  end CreateEX1
 
-        private int CreateEX2(StreamWriter strWriteOut, ref int pageNumb)
+        private int CreateEX2(TextWriter strWriteOut, ref int pageNumb)
         {
             //  need export data for comparison and flags for the footer and errors
             bool errorFound = false;
@@ -282,7 +282,7 @@ namespace CruiseProcessing
             else return 1;
         }   //  end CreateEX2
 
-        private void CreateEX3(StreamWriter strWriteOut, ref int pageNumb)
+        private void CreateEX3(TextWriter strWriteOut, ref int pageNumb)
         {
             //  just a listing of the export grade default table
             List<exportGrades> exportList = DataLayer.GetExportGrade();
@@ -328,7 +328,7 @@ namespace CruiseProcessing
             return;
         }   //  end CreateEX3
 
-        private void CreateEX4and5(StreamWriter strWriteOut, ref int pageNumb, string currSP)
+        private void CreateEX4and5(TextWriter strWriteOut, ref int pageNumb, string currSP)
         {
             //  will use RegionalReports list for the list to output
             List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -557,7 +557,7 @@ namespace CruiseProcessing
             return;
         }   //  end LoadSortGradeData
 
-        private void writeExportList(StreamWriter strWriteOut, ref int pageNumb, int footerFlag)
+        private void writeExportList(TextWriter strWriteOut, ref int pageNumb, int footerFlag)
         {
             //  EX2
             foreach (exportToOutput eto in exToOutput)
@@ -600,7 +600,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeExportList
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, List<RegionalReports> listToOutput)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb, List<RegionalReports> listToOutput)
         {
             //  EX4 and EX5
             foreach (RegionalReports lto in listToOutput)
@@ -717,13 +717,13 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, List<RegionalReports> listToOutput)
+        private void outputTotalLine(TextWriter strWriteOut, ref int pageNumb, List<RegionalReports> listToOutput)
         {
             //  not sure what this is supposed to look like until I get some test data -- February 2014
             return;
         }   //  end outputTotalLine
 
-        private void outputSubtotals(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> totalToOutput,
+        private void outputSubtotals(TextWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> totalToOutput,
                                     string whichSubtotal)
         {
             //  EX6 and EX7
@@ -771,7 +771,7 @@ namespace CruiseProcessing
             return;
         }   //  end outputSubtotals
 
-        private void WriteUnitGroup(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteUnitGroup(TextWriter strWriteOut, ref int pageNumb)
         {
             //  EX6 or EX7
             foreach (exportToOutput eto in exToOutput)

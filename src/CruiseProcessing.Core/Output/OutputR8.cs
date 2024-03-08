@@ -26,7 +26,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateR8Reports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateR8Reports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -193,7 +193,7 @@ namespace CruiseProcessing
         }   //  end AccumulateVolume
 
 
-        private void WriteReport(StreamWriter strWriteOut, ref int pageNumb, double totalAcres)
+        private void WriteReport(TextWriter strWriteOut, ref int pageNumb, double totalAcres)
         {
             //  R801
             foreach (RegionalReports lto in listToOutput)
@@ -396,7 +396,7 @@ namespace CruiseProcessing
         }   //  end WriteReport
 
 
-        private void OutputSawtimber(StreamWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
+        private void OutputSawtimber(TextWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
                                         List<LCDDO> lcdList)
         {
             //  R802    --  sawtimber page
@@ -513,7 +513,7 @@ namespace CruiseProcessing
 
 
 
-        private void OutputProduct8(StreamWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
+        private void OutputProduct8(TextWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
                                         List<LCDDO> lcdList)
         {
             //  R802    --  product 8 
@@ -633,7 +633,7 @@ namespace CruiseProcessing
 
 
 
-        private void OutputPulpwood(StreamWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
+        private void OutputPulpwood(TextWriter strWriteOut, ref int pageNumb, List<SampleGroupDO> justGroups,
                                         List<LCDDO> lcdList)
         {
             //  R802    --  pulpwood page

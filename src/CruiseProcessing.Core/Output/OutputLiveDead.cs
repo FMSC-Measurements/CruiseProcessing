@@ -31,7 +31,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateLiveDead(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateLiveDead(TextWriter strWriteOut, ref int pageNumb)
         {
             //  generates LD1-LD8 live/dead reports
             string currentTitle = fillReportTitle(currentReport);
@@ -533,7 +533,7 @@ namespace CruiseProcessing
             return;
         }   //  end LoadList
 
-        private void OutputData(StreamWriter strWriteOut, ref int pageNumb, string reportType)
+        private void OutputData(TextWriter strWriteOut, ref int pageNumb, string reportType)
         {
             //  now write body of report with appropriate subtotals
             string currProd = "*";
@@ -729,7 +729,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotal
 
-        private void OutputSubtotal(string whichTotal, List<ReportSubtotal> subtotalToPrint, StreamWriter strWriteOut,
+        private void OutputSubtotal(string whichTotal, List<ReportSubtotal> subtotalToPrint, TextWriter strWriteOut,
                                     ref int pageNumb, string reportType)
         {
             prtFields.Clear();

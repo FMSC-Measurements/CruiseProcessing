@@ -25,14 +25,11 @@ namespace CruiseProcessing
         private int footFlag;
         private string[] completeHeader;
 
-        public IDialogService DialogService { get; }
-
-        public OutputR10(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR10(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
-            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void CreateR10reports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateR10reports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -370,7 +367,7 @@ namespace CruiseProcessing
         }   //  end AccumulateByLogGrade
 
         private void AccumulateMostlyLCD(List<LCDDO> lcdList, List<LCDDO> speciesList, List<StratumDO> sList,
-                                          StreamWriter strWriteOut, ref int pageNumb)
+                                          TextWriter strWriteOut, ref int pageNumb)
         {
             //  R005
             double currUnitAcres = 0;
@@ -571,8 +568,7 @@ namespace CruiseProcessing
             else if (reportMatrix.Count == 0)
             {
                 //  can't create these reports -- tell user
-                DialogService.ShowError("The log matrix is missing for the R008 or R009 reports.\nPlease go to Reports>Region reports>10>Additional Data to load the default log matrix.");
-                return;
+                throw new InvalidOperationException("The log matrix is missing for the R008 or R009 reports.\nPlease go to Reports>Region reports>10>Additional Data to load the default log matrix.");
             }   //  end
 
             //  Accumulate volumes for each category
@@ -773,7 +769,7 @@ namespace CruiseProcessing
             return diameterFlag;
         }   //  end SumLogData
 
-        private void outputLogSummary(StreamWriter strWriteOut, List<LCDDO> lcdList, List<StratumDO> sList)
+        private void outputLogSummary(TextWriter strWriteOut, List<LCDDO> lcdList, List<StratumDO> sList)
         {
             //  R001/R002
             double calcValue = 0;
@@ -976,7 +972,7 @@ namespace CruiseProcessing
             return;
         }   //  end outputLogSummary
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb,
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb,
                                         string[] completeHeader)
         {
             //  Works for R001/R002 and R003/R004
@@ -1102,7 +1098,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-        private void WriteCurrentGroup(double unitAcres, StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(double unitAcres, TextWriter strWriteOut, ref int pageNumb)
         {
             //  R005 only
             double calcValue = 0;
@@ -1245,7 +1241,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteOutputFile
 
-        private void OutputLogData(StreamWriter textFile)
+        private void OutputLogData(TextWriter textFile)
         {
             if (currentReport == "R006") convFactor = 1000.0;
             foreach (RegionalReports lto in listToOutput)
@@ -1344,7 +1340,7 @@ namespace CruiseProcessing
             return;
         }   //  end updateSubtotals
 
-        private void outputTotal(StreamWriter strWriteOut)
+        private void outputTotal(TextWriter strWriteOut)
         {
             switch (currentReport)
             {
@@ -1440,7 +1436,7 @@ namespace CruiseProcessing
         }   //  end outputTotal
 
         private void outputTotalSubtotal(List<ReportSubtotal> outputTotal, int totalToPrint,
-                                            StreamWriter strWriteOut, ref int pageNumb, double unitAcres)
+                                            TextWriter strWriteOut, ref int pageNumb, double unitAcres)
         {
             //  R005
             double calcValue = 0;

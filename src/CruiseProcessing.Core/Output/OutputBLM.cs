@@ -54,15 +54,13 @@ namespace CruiseProcessing
 
         private string[] completeHeader = new string[4];
 
-        public IDialogService DialogService { get; }
         #endregion
 
-        public OutputBLM(CPbusinessLayer dataLayer, IDialogService dialogService, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputBLM(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
-            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void CreateBLMreports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateBLMreports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  Fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -918,7 +916,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateBySpeciesDIB
 
-        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb)
+        private void writeCurrentGroups(TextWriter strWriteOut, ref int pageNumb)
         {
             //  This works for BLM01, BLM02, BLM03, BLM04
             double calcValue = 0;
@@ -981,7 +979,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroups
 
-        private void writeCurrentGroups(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> PerCentList)
+        private void writeCurrentGroups(TextWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> PerCentList)
         {
             //  Works for BLM05 and BLM06
             double calcValue = 0;
@@ -1038,7 +1036,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroups
 
-        private void writeCurrentGroups(List<ReportSubtotal> unitTotals, StreamWriter strWriteOut,
+        private void writeCurrentGroups(List<ReportSubtotal> unitTotals, TextWriter strWriteOut,
                                                     ref int pageNumb)
         {
             //  Works for BLM07 and BLM08
@@ -1089,7 +1087,7 @@ namespace CruiseProcessing
             return;
         }   //  end writeCurrentGroups
 
-        private void writeCurrentGroups(ref int pageNumb, StreamWriter strWriteOut)
+        private void writeCurrentGroups(ref int pageNumb, TextWriter strWriteOut)
         {
             //  for BLM09 and BLM10
             //  build print array for each class line in output list
@@ -1125,7 +1123,7 @@ namespace CruiseProcessing
         }   //  end writeCurrentGroups
 
         private void outputUnitTotal(string currUnit, List<ReportSubtotal> unitTotal,
-                                    StreamWriter strWriteOut, ref int pageNumb)
+                                    TextWriter strWriteOut, ref int pageNumb)
         {
             double calcValue = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
@@ -1231,7 +1229,7 @@ namespace CruiseProcessing
             return;
         }   //  end updateTotalLine
 
-        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb)
+        private void outputTotalLine(TextWriter strWriteOut, ref int pageNumb)
         {
             double calcValue = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],

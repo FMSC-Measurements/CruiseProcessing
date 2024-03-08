@@ -34,7 +34,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateUnitStandTables(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateUnitStandTables(TextWriter strWriteOut, ref int pageNumb)
         {
             //  June 2017 need all LCD records
             //List<LCDDO> lcdList = bslyr.getLCD();
@@ -755,7 +755,7 @@ namespace CruiseProcessing
         }   //  end LoadColumnHeader
 
 
-        private void writeCurrentPage(StreamWriter strWriteOut, ref int pageNumb, int lastGroup,
+        private void writeCurrentPage(TextWriter strWriteOut, ref int pageNumb, int lastGroup,
                                         bool lastPage)
         {
             string verticalBar = " | ";
@@ -977,7 +977,7 @@ namespace CruiseProcessing
         }   //  end FindUnitIndex
 
         
-        private void VolumeSummary(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> speciesGroups,
+        private void VolumeSummary(TextWriter strWriteOut, ref int pageNumb, List<LCDDO> speciesGroups,
                             List<LCDDO> lcdList, List<PRODO> proList, List<CuttingUnitDO> cList,
                             string secondLine, string currentTitle)
         {
@@ -1210,7 +1210,7 @@ namespace CruiseProcessing
         }   //  end UpdateContractSpeciesSummary
 
 
-        private void writeContractSpeciesGroup(StreamWriter strWriteOut, ref int pageNumb, int firstFlag,
+        private void writeContractSpeciesGroup(TextWriter strWriteOut, ref int pageNumb, int firstFlag,
                                         double sawVol, double nonsawVol, string currCS, string currPU,
                                         double currAcres)
         {
@@ -1259,7 +1259,7 @@ namespace CruiseProcessing
         }   //  end writeContractSpeciesGroup
 
 
-        private void writePaymentGroup(StreamWriter strWriteOut, ref int pageNumb, string currPU,
+        private void writePaymentGroup(TextWriter strWriteOut, ref int pageNumb, string currPU,
                                     double currAcres, double sawVol, double NSawVol)
         {
             //  UC25 or UC26
@@ -1300,7 +1300,7 @@ namespace CruiseProcessing
         }   //  end writePaymentGroup
 
 
-        private void writeSummary(StreamWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> csSummary)
+        private void writeSummary(TextWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> csSummary)
         {
             // UC25 or UC26
             double totalNonSaw = 0;
@@ -1333,7 +1333,7 @@ namespace CruiseProcessing
         }   //  end writeSummary
 
 
-        private void writeGrandTotal(StreamWriter strWriteOut, ref int pageNumb, double totAcres,
+        private void writeGrandTotal(TextWriter strWriteOut, ref int pageNumb, double totAcres,
                                      double gSawVol, double gNonSawVol)
         {
             //  UC25 or uC26

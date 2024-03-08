@@ -24,7 +24,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void createStemCountReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void createStemCountReports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -69,7 +69,7 @@ namespace CruiseProcessing
 
 
         private void createByUnit(StratumDO currST, List<LCDDO> justSpecies, List<TreeDO> justTrees,
-                                StreamWriter strWriteOut, ref int pageNumb)
+                                TextWriter strWriteOut, ref int pageNumb)
         {
             int numOplots = 0;
             //  SC1 and SC2 reports by units
@@ -147,7 +147,7 @@ namespace CruiseProcessing
 
 
         private void createByStratum(StratumDO currST, List<LCDDO> justSpecies, List<TreeDO> justTrees,
-                                StreamWriter strWriteOut, ref int pageNumb)
+                                TextWriter strWriteOut, ref int pageNumb)
         {
             //  SC3 reports by stratum
                 completeHeader = createCompleteHeader(justSpecies, "", currST.Code, 0);
@@ -241,7 +241,7 @@ namespace CruiseProcessing
         }   //  end loadCountsToOutput
 
 
-        private void WriteCurrentPage(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> justSpecies)
+        private void WriteCurrentPage(TextWriter strWriteOut, ref int pageNumb, List<LCDDO> justSpecies)
         {
             //  should work for every report
             string verticalLine = " |";
@@ -316,7 +316,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentPage
 
 
-        private void outputTotalLine(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> justSpecies)
+        private void outputTotalLine(TextWriter strWriteOut, ref int pageNumb, List<LCDDO> justSpecies)
         {
             //  output headers if needed
             string verticalLine = " |";

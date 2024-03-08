@@ -27,7 +27,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateR6reports(StreamWriter strWriteOut, ref int pageNumb)
+        public void CreateR6reports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -115,7 +115,7 @@ namespace CruiseProcessing
             return;
         }  //  end CreateR6reports
 
-        private void AccumulatePaymentUnits(List<CuttingUnitDO> justPaymentUnits, StreamWriter strWriteOut,
+        private void AccumulatePaymentUnits(List<CuttingUnitDO> justPaymentUnits, TextWriter strWriteOut,
                                                ref int pageNumb)
         {
             //  R602
@@ -456,7 +456,7 @@ namespace CruiseProcessing
             return;
         }  //  end UpdateSubtotal
 
-        private void OutputUnitSubtotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void OutputUnitSubtotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R602
             double calcValue = 0;
@@ -522,7 +522,7 @@ namespace CruiseProcessing
             return;
         }  //  end UpdateOverallTotal
 
-        private void outputOverallTotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void outputOverallTotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R602
             //  per Jeff Penman, he wants the products sorted like 01, 20 etc.
@@ -563,7 +563,7 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("PRODUCT 08 & 20=FS, PRODUCT 02=BLM");
         }  //  end outputOverallTotal
 
-        private void WriteCurrentUnit(StreamWriter strWriteout, ref int pageNumb, string prevUOM)
+        private void WriteCurrentUnit(TextWriter strWriteout, ref int pageNumb, string prevUOM)
         {
             //  R602
             double calcValue = 0;
@@ -598,7 +598,7 @@ namespace CruiseProcessing
             return;
         }  //  edn WriteCurrentUnit
 
-        private void WriteCurrentTable(StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentTable(TextWriter strWriteOut, ref int pageNumb)
         {
             // R604/R605
             double calcValue = 0;
@@ -635,7 +635,7 @@ namespace CruiseProcessing
             return;
         }  //  end WriteCurrentTable
 
-        private void PrintTotal(StreamWriter strWriteOut, ref int pageNumb)
+        private void PrintTotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  R604/R605
             double totalGRS = 0;
@@ -676,7 +676,7 @@ namespace CruiseProcessing
             return;
         }  //  PrintTotal
 
-        private void OutputFooter(StreamWriter strWriteOut, ref int pageNumb)
+        private void OutputFooter(TextWriter strWriteOut, ref int pageNumb)
         {
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                completeHeader, 16, ref pageNumb, "");

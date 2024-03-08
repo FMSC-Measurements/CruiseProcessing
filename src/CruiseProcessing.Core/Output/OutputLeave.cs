@@ -16,7 +16,7 @@ namespace CruiseProcessing
 
         public HeaderFieldData HeaderData { get; }
 
-        public void createLeaveTreeReports(StreamWriter strWriteout, ref int pageNumb)
+        public void createLeaveTreeReports(TextWriter strWriteout, ref int pageNumb)
         {
             switch (currentReport)
             {

@@ -30,7 +30,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void OutputStatReports(StreamWriter strWriteOut, ref int pageNumb)
+        public void OutputStatReports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  ST3 (DS1) and ST4 (DS2)
             string currentTitle = fillReportTitle(currentReport);
@@ -200,7 +200,7 @@ namespace CruiseProcessing
         }   //  end OutputStatReports
 
 
-        private void ProcessData(StreamWriter strWriteOut, ref int pageNumb, List<LCDDO> justGroups, string prodType)
+        private void ProcessData(TextWriter strWriteOut, ref int pageNumb, List<LCDDO> justGroups, string prodType)
         {
             double strataAcres = 0.0;
             string currMeth;
@@ -622,7 +622,7 @@ namespace CruiseProcessing
         }   //  end DetermineCombinedError
 
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNumb, string prodType)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb, string prodType)
         {
             double FinalGrossErr = 0;
             double FinalNetErr = 0;
@@ -694,7 +694,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void WriteCurrentGroup(string prodType, StreamWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup(string prodType, TextWriter strWriteOut, ref int pageNumb)
         {
             //  overloaded for ST4 report
             double FinalGrossErr = 0.0;
@@ -948,7 +948,7 @@ namespace CruiseProcessing
         }   //  end UpdateTotals
 
 
-        private void OutputSubtotal(StreamWriter strWriteOut, ref int pageNumb, int whichSubtotal, List<ReportSubtotal> subtotalToPrint,
+        private void OutputSubtotal(TextWriter strWriteOut, ref int pageNumb, int whichSubtotal, List<ReportSubtotal> subtotalToPrint,
                                         string prodType)
         {
             string fieldFormat1 = "{0,10:F1}";

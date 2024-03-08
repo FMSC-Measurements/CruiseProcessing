@@ -32,7 +32,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void CreateR1reports(StreamWriter strWriteOut, ref int pageNum)
+        public void CreateR1reports(TextWriter strWriteOut, ref int pageNum)
         {
             //  fill report title array
             string currentTitle = fillReportTitle(currentReport);
@@ -171,7 +171,7 @@ namespace CruiseProcessing
             return;
         }   //  end CreateR1reports
 
-        private void createR101(List<LCDDO> speciesList, StreamWriter strWriteOut, ref int pageNum,
+        private void createR101(List<LCDDO> speciesList, TextWriter strWriteOut, ref int pageNum,
                                 List<LCDDO> lcdList)
         {
             //  generates R101 report
@@ -218,7 +218,7 @@ namespace CruiseProcessing
             return;
         }   //  end createR101
 
-        private void createR104(List<StratumDO> orderedStrata, StreamWriter strWriteOut, ref int pageNum)
+        private void createR104(List<StratumDO> orderedStrata, TextWriter strWriteOut, ref int pageNum)
         {
             //  then process by stratum and cutting unit
             foreach (StratumDO os in orderedStrata)
@@ -634,7 +634,7 @@ namespace CruiseProcessing
             return;
         }   //  end AccumulateBasalArea
 
-        private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNum)
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNum)
         {
             //  works for R101
             double calcValue = 0;
@@ -689,7 +689,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-        private void WriteCurrentMethods(StreamWriter strWriteOut, ref int pageNum)
+        private void WriteCurrentMethods(TextWriter strWriteOut, ref int pageNum)
         {
             //  R102/R103
             //  print by method and product
@@ -857,7 +857,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentMethod
 
-        private void WriteCurrentUnit(StreamWriter strWriteOut, ref int pageNum)
+        private void WriteCurrentUnit(TextWriter strWriteOut, ref int pageNum)
         {
             //  R104
             double calcValue = 0;
@@ -1123,7 +1123,7 @@ namespace CruiseProcessing
         }   //  end updateUnitOrStrata
 
         private void outputTotal(int lineType, string currTotal, List<ReportSubtotal> totalsLine,
-                                StreamWriter strWriteOut, ref int pageNum)
+                                TextWriter strWriteOut, ref int pageNum)
         {
             //  writes subtotal line for any subtotal in R101
             double calcValue = 0;
@@ -1195,7 +1195,7 @@ namespace CruiseProcessing
             return;
         }   //  end outputTotal
 
-        private void outputTotal(StreamWriter strWriteOut, ref int pageNum, int lineType,
+        private void outputTotal(TextWriter strWriteOut, ref int pageNum, int lineType,
                                 string currTotal, List<ReportSubtotal> totalsLine)
         {
             //  write subtotal or total line for any subtotal in R102/R103
@@ -1280,7 +1280,7 @@ namespace CruiseProcessing
             return;
         }   //  end outputTotal
 
-        private void AccumulateValuesAndPrint(StreamWriter strWriteOut,
+        private void AccumulateValuesAndPrint(TextWriter strWriteOut,
                                         List<CuttingUnitDO> cList,
                                         List<LCDDO> lcdList)
         {
@@ -1394,7 +1394,7 @@ namespace CruiseProcessing
             return;
         }   //end AccumulateValueAndPRint
 
-        private void AccumulateSubtotalAndPrint(StreamWriter strWriteOut, List<CuttingUnitDO> cList,
+        private void AccumulateSubtotalAndPrint(TextWriter strWriteOut, List<CuttingUnitDO> cList,
                                                     List<LCDDO> lList)
         {
             //  R105
@@ -1592,7 +1592,7 @@ namespace CruiseProcessing
             return;
         }   // end  AccuulateSubtotals
 
-        private void AccumulateTotalsAndPrint(StreamWriter strWriteOut, List<LCDDO> lcdList,
+        private void AccumulateTotalsAndPrint(TextWriter strWriteOut, List<LCDDO> lcdList,
                                               List<TreeCalculatedValuesDO> tcvList)
         {
             listToOutput.Clear();
@@ -1642,7 +1642,7 @@ namespace CruiseProcessing
             return;
         }   // end Accumulate Totals
 
-        private void WriteSectionOne(StreamWriter strWriteOut, ref int pagenumber)
+        private void WriteSectionOne(TextWriter strWriteOut, ref int pagenumber)
         {
             //  R105
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1],
@@ -1669,7 +1669,7 @@ namespace CruiseProcessing
             return;
         }   //  end WriteSectionOne
 
-        private void WriteSectionTwo(StreamWriter strWriteOut)
+        private void WriteSectionTwo(TextWriter strWriteOut)
         {
             //  R105
             //  write section two headings only
@@ -1700,7 +1700,7 @@ namespace CruiseProcessing
             return;
         }   //  end WRite Section two
 
-        private void WriteSectionThree(StreamWriter strWriteOut)
+        private void WriteSectionThree(TextWriter strWriteOut)
         {
             //  R105
             double calcValue = 0;
@@ -1790,7 +1790,7 @@ namespace CruiseProcessing
             return;
         }   //  end Write Section Three
 
-        private void outputCutLeaveSubtotal(string currCL, StreamWriter strWriteOut, ref int pageNum)
+        private void outputCutLeaveSubtotal(string currCL, TextWriter strWriteOut, ref int pageNum)
         {
             //  R104
             double calcValue = 0;
@@ -1812,7 +1812,7 @@ namespace CruiseProcessing
             return;
         }   //  end outputCutLeaveSubtotal
 
-        private void outputUnitOrStrata(StreamWriter strWriteOut, ref int pageNum, string currCode,
+        private void outputUnitOrStrata(TextWriter strWriteOut, ref int pageNum, string currCode,
                                         int whichSubtotal, List<ReportSubtotal> subtotalList)
         {
             //  R104

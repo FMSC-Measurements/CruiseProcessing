@@ -13,7 +13,7 @@ namespace CruiseProcessing
         {
         }
 
-        public void outputEquationTable(StreamWriter strWriteOut, ref int pageNumb)
+        public void outputEquationTable(TextWriter strWriteOut, ref int pageNumb)
         {
             //  Define table lists
             List<VolumeEquationDO> veqList = new List<VolumeEquationDO>();
