@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,16 +31,18 @@ namespace CruiseProcessing
             int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
 
         public CPbusinessLayer DataLayer { get; }
+        public IServiceProvider Services { get; }
 
         protected VolumeEquations()
         {
             InitializeComponent();
         }
 
-        public VolumeEquations(CPbusinessLayer dataLayer)
+        public VolumeEquations(CPbusinessLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
             Veq = new VolumeEqMethods();
         }
 
@@ -421,7 +424,7 @@ namespace CruiseProcessing
                 //  before updating biomass.  March 2017
                 if (templateFlag == 1)
                 {
-                    TemplateRegionForest trf = new TemplateRegionForest();
+                    TemplateRegionForest trf = Services.GetRequiredService<TemplateRegionForest>();
                     trf.ShowDialog();
                     updateBiomass(equationList, trf.currentRegion, trf.currentForest);
                 }
