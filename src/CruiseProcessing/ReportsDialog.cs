@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
 {
@@ -18,6 +19,8 @@ namespace CruiseProcessing
         public int templateFlag;
         public List<ReportsDO> reportList = new List<ReportsDO>();
         private List<ReportsDO> allReports = new List<ReportsDO>();
+
+        public IServiceProvider Services { get; }
         protected CPbusinessLayer DataLayer { get; }
 
 
@@ -26,9 +29,10 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public ReportsDialog(CPbusinessLayer dataLayer)
-            :this()
+        public ReportsDialog(CPbusinessLayer dataLayer, IServiceProvider services)
+            : this()
         {
+            Services = services ?? throw new ArgumentNullException(nameof(services));
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
@@ -130,9 +134,9 @@ namespace CruiseProcessing
             {
                 // just log level reports -- the only report group with a one character category name
                 string[] logReptNum = new string[4] { "L1", "L2", "L8", "L10" };
-                string[] logReptTitle = new string[4] { "Log Grade File", 
-                                                        "Log Stock Table - MBF", 
-                                                        "Log Stock Table - Board and Cubic", 
+                string[] logReptTitle = new string[4] { "Log Grade File",
+                                                        "Log Stock Table - MBF",
+                                                        "Log Stock Table - Board and Cubic",
                                                         "Log Counts and Volume by Length and Species" };
                 for (int j = 0; j < 4; j++)
                 {
@@ -159,7 +163,7 @@ namespace CruiseProcessing
             }   //  end for k loop
             additionalData.Enabled = false;
             regionList.Enabled = false;
-            
+
             //  turn on additional data button for specific report groups
             if (selectedGroup == "EX")
             {
@@ -213,7 +217,7 @@ namespace CruiseProcessing
 
             allReports = DataLayer.GetReports();
             List<ReportsDO> groupList = allReports.FindAll(
-                delegate(ReportsDO rl)
+                delegate (ReportsDO rl)
                 {
                     return rl.ReportID.Contains(reportToSelect);
                 });
@@ -234,7 +238,7 @@ namespace CruiseProcessing
             if (regionList.SelectedItem.ToString() == "10")
             {
                 //  get correct password before continuing
-                PasswordProtect pp = new PasswordProtect();
+                PasswordProtect pp = Services.GetRequiredService<PasswordProtect>();
                 pp.ShowDialog();
                 if (pp.passwordResponse != "OK")
                 {
@@ -268,7 +272,7 @@ namespace CruiseProcessing
                 {
                     //   need to create the table and load the default
                     int iDone = DataLayer.CreateNewTable("LogMatrix");
-                    checkMatrix = loadDefaultMatrix(currentSale,currentSaleNum);
+                    checkMatrix = loadDefaultMatrix(currentSale, currentSaleNum);
                     //  save default matrix
                     DataLayer.SaveLogMatrix(checkMatrix, "");
                 }   //  endif
@@ -279,10 +283,10 @@ namespace CruiseProcessing
                 if (dr == DialogResult.Yes)
                 {
                     DialogResult d8 = MessageBox.Show("The log matrix is different for each report.\nUpdate R008?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if(d8 == DialogResult.Yes)
+                    if (d8 == DialogResult.Yes)
                     {
                         reportMatrix = DataLayer.getLogMatrix("R008");
-                        LogMatrixUpdate lmu = new LogMatrixUpdate();
+                        LogMatrixUpdate lmu = Services.GetRequiredService<LogMatrixUpdate>();
                         lmu.reportMatrix = reportMatrix;
                         lmu.currSaleName = currentSale;
                         lmu.currSaleNumber = currentSaleNum;
@@ -298,7 +302,7 @@ namespace CruiseProcessing
                         {
                             //  retrieve R009 matrix and update
                             reportMatrix = DataLayer.getLogMatrix("R009");
-                            LogMatrixUpdate lmx = new LogMatrixUpdate();
+                            LogMatrixUpdate lmx = Services.GetRequiredService<LogMatrixUpdate>();
                             lmx.reportMatrix = reportMatrix;
                             lmx.currSaleNumber = currentSale;
                             lmx.currSaleNumber = currentSaleNum;
@@ -313,14 +317,14 @@ namespace CruiseProcessing
                             }   //  endif
                         }       //  endif
                     }
-                    else if(d8 == DialogResult.No)
+                    else if (d8 == DialogResult.No)
                     {
-                        DialogResult d9 = MessageBox.Show("Update R009?","QUESTION",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
-                        if(d9 == DialogResult.Yes)
+                        DialogResult d9 = MessageBox.Show("Update R009?", "QUESTION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (d9 == DialogResult.Yes)
                         {
                             //  retrieve R009 matrix and update
                             reportMatrix = DataLayer.getLogMatrix("R009");
-                            LogMatrixUpdate lmx = new LogMatrixUpdate();
+                            LogMatrixUpdate lmx = Services.GetRequiredService<LogMatrixUpdate>();
                             lmx.reportMatrix = reportMatrix;
                             lmx.currSaleNumber = currentSale;
                             lmx.currSaleNumber = currentSaleNum;
@@ -345,41 +349,41 @@ namespace CruiseProcessing
                 additionalData.Enabled = false;
                 //additionalData.Enabled = true;
                 return;
-/*
-                //  display dialog for capturing export grade values
-                //  first need region number
-                string currentRegion = "";
-                currentRegion = bslyr.findSingleField("Region", "Sale");
+                /*
+                                //  display dialog for capturing export grade values
+                                //  first need region number
+                                string currentRegion = "";
+                                currentRegion = bslyr.findSingleField("Region", "Sale");
 
-                //  need dialog object
-                ExportDialog ed = new ExportDialog();
-                //  Then does the ExportValues table exist?  Need to fill list with defaults for all regions or Region 10
-                bool tableExists = bslyr.doesTableExist("ExportValues");
-                if (tableExists == false)
-                {
-                    //  need to create the table
-                    int nResult = bslyr.CreateNewTable("ExportValues");
-                    //  then get defaults to load into dialog for user to update
-                    exportGrades eg = new exportGrades();
-                    //  sort list first
-                    List<exportGrades> egSortList = eg.createDefaultList(currentRegion, "sort");
-                    List<exportGrades> egGradeList = eg.createDefaultList(currentRegion, "grade");
+                                //  need dialog object
+                                ExportDialog ed = new ExportDialog();
+                                //  Then does the ExportValues table exist?  Need to fill list with defaults for all regions or Region 10
+                                bool tableExists = bslyr.doesTableExist("ExportValues");
+                                if (tableExists == false)
+                                {
+                                    //  need to create the table
+                                    int nResult = bslyr.CreateNewTable("ExportValues");
+                                    //  then get defaults to load into dialog for user to update
+                                    exportGrades eg = new exportGrades();
+                                    //  sort list first
+                                    List<exportGrades> egSortList = eg.createDefaultList(currentRegion, "sort");
+                                    List<exportGrades> egGradeList = eg.createDefaultList(currentRegion, "grade");
 
-                    ed.setupDialog(egSortList, egGradeList);
-                }
-                else if (tableExists == true)
-                {
-                    //  just get data in the table for display
-                    List<exportGrades> egList = bslyr.GetExportGrade();
-                    List<exportGrades> dummyList = new List<exportGrades>();
-                    ed.setupDialog(egList,dummyList);
-                }   //  endif tableExists
-                ed.fileName = fileName;
-                ed.tableExists = tableExists;
-                ed.ShowDialog();
+                                    ed.setupDialog(egSortList, egGradeList);
+                                }
+                                else if (tableExists == true)
+                                {
+                                    //  just get data in the table for display
+                                    List<exportGrades> egList = bslyr.GetExportGrade();
+                                    List<exportGrades> dummyList = new List<exportGrades>();
+                                    ed.setupDialog(egList,dummyList);
+                                }   //  endif tableExists
+                                ed.fileName = fileName;
+                                ed.tableExists = tableExists;
+                                ed.ShowDialog();
 
-                additionalData.Enabled = false;
- */
+                                additionalData.Enabled = false;
+                 */
             }
 
         }   //  end onAdditional
@@ -414,16 +418,16 @@ namespace CruiseProcessing
                     Close();
                     return;
                 }
-                else if(dr == DialogResult.No)
+                else if (dr == DialogResult.No)
                     return;
-                
+
             }   //  endif no reports selected
 
-            for(int k=0;k<reportsSelected.Items.Count;k++)
+            for (int k = 0; k < reportsSelected.Items.Count; k++)
             {
                 string sReport = reportsSelected.Items[k].ToString();
                 int ithRow = reportList.FindIndex(
-                    delegate(ReportsDO rl)
+                    delegate (ReportsDO rl)
                     {
                         return rl.ReportID == sReport;
                     });
@@ -479,7 +483,7 @@ namespace CruiseProcessing
                 StoreDiameter(lmx, parsedList);
                 newLogMatrix.Add(lmx);
             }   //  end for j loop
-            
+
             return newLogMatrix;
         }   //  end loadDefaultMatrix
 

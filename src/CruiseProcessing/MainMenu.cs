@@ -8,6 +8,7 @@ using CruiseDAL.DataObjects;
 using CruiseDAL;
 using System.Reflection;
 using CruiseProcessing.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
 {
@@ -19,12 +20,17 @@ namespace CruiseProcessing
 
         protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
 
-        public CPbusinessLayer DataLayer { get; private set; }
-        public DialogService DialogService { get; }
+        public CPbusinessLayer DataLayer => DataLayerProvider.DataLayer;
+        public IDialogService DialogService { get; }
+        public IServiceProvider Services { get; }
+        public DataLayerContext DataLayerProvider { get; }
 
-        public MainMenu()
+        public MainMenu(IServiceProvider services, DataLayerContext dataLayerProvider)
         {
-            DialogService = new DialogService(this);
+            Services = services ?? throw new ArgumentNullException(nameof(services));
+            DataLayerProvider = dataLayerProvider ?? throw new ArgumentNullException(nameof(dataLayerProvider));
+            DialogService = services.GetRequiredService<IDialogService>();
+            
 
             InitializeComponent();
             //  initially hide all buttons and labels
@@ -130,11 +136,11 @@ namespace CruiseProcessing
             processButton3.Visible = false;
             processButton4.Visible = false;
             processButton5.Visible = false;
-            processButton6.Visible = false;            
-            
+            processButton6.Visible = false;
+
             // let user know it's happening
             //  replace this with the processing status window
-            ProcessStatus statusDlg = new ProcessStatus(DataLayer, DialogService);
+            ProcessStatus statusDlg = Services.GetRequiredService<ProcessStatus>();
             statusDlg.ShowDialog();   
             Cursor.Current = this.Cursor;
             modifyWeightFacts.Visible = false;
@@ -424,7 +430,7 @@ namespace CruiseProcessing
 
             templateFlag = (isTemplate) ? 1 : 0;
 
-            DataLayer = datalayer;
+            DataLayerProvider.DataLayer = datalayer;
             //  add file name to title line at top
             if (fileName.Length > 35)
             {
@@ -446,7 +452,7 @@ namespace CruiseProcessing
         {
             if (whichProcess == 1)       //  equations
             {
-                VolumeEquations volEqObj = new VolumeEquations(DataLayer);
+                VolumeEquations volEqObj = Services.GetRequiredService<VolumeEquations>();
 
                 if (templateFlag == 0)
                 {
@@ -501,7 +507,7 @@ namespace CruiseProcessing
                 currentReports = ReportMethods.deleteReports(currentReports, DataLayer);
                 currentReports = DataLayer.GetSelectedReports();
                 //  Get selected reports 
-                ReportsDialog rd = new ReportsDialog(DataLayer);
+                ReportsDialog rd = Services.GetRequiredService<ReportsDialog>();
 
 
                 rd.reportList = currentReports;
@@ -537,7 +543,7 @@ namespace CruiseProcessing
                 }   //  endif no reports
 
                 //  Show dialog creating text file
-                TextFileOutput tfo = new TextFileOutput(DataLayer, DialogService);
+                TextFileOutput tfo = Services.GetRequiredService<TextFileOutput>();
                 tfo.selectedReports = selectedReports;
                 tfo.setupDialog();
                 tfo.ShowDialog();
@@ -577,7 +583,7 @@ namespace CruiseProcessing
                     return;
                 }
 
-                ValueEquations valEqObj = new ValueEquations(DataLayer);
+                ValueEquations valEqObj = Services.GetRequiredService<ValueEquations>();
 
                 int nResult = valEqObj.setupDialog();
                 if(nResult == 1)
@@ -586,7 +592,7 @@ namespace CruiseProcessing
             else if(whichProcess == 2)  //  reports
             {
                 //  calls routine to add graphical reports
-                GraphReportsDialog grd = new GraphReportsDialog(DataLayer);
+                GraphReportsDialog grd = Services.GetRequiredService<GraphReportsDialog>();
                 grd.setupDialog();
                 grd.ShowDialog();
                 return;
@@ -620,7 +626,7 @@ namespace CruiseProcessing
             if (whichProcess == 4)  //  output
             {
                 //  calls routine to create pdf file
-                PDFfileOutput pfo = new PDFfileOutput(DataLayer);
+                PDFfileOutput pfo = Services.GetRequiredService<PDFfileOutput>();
                 int nResult = pfo.setupDialog();
                 if(nResult == 0)
                     pfo.ShowDialog();
@@ -636,14 +642,14 @@ namespace CruiseProcessing
             if (whichProcess == 1)   //  equations
             {
                 //  calls R8 volume equation entry
-                R8VolEquation r8vol = new R8VolEquation(DataLayer);
+                R8VolEquation r8vol = Services.GetRequiredService<R8VolEquation>();
                 r8vol.ShowDialog();
 
             }
             else if(whichProcess == 4)  //  output
             {
                 //  calls routine to create CSV output file
-                SelectCSV sc = new SelectCSV(DataLayer, DialogService);
+                SelectCSV sc = Services.GetRequiredService<SelectCSV>();
                 sc.setupDialog();
                 sc.ShowDialog();
             }   //  endif whichProcess
@@ -657,14 +663,14 @@ namespace CruiseProcessing
             if (whichProcess == 1)   //  equations
             {
                 //  calls R9 volume equation entry
-                R9VolEquation r9vol = new R9VolEquation(DataLayer);
+                R9VolEquation r9vol = Services.GetRequiredService<R9VolEquation>();
                 r9vol.setupDialog();
                 r9vol.ShowDialog();
             }
             else if (whichProcess == 4)      //  output
             {
                 //  calls routine to preview output file -- print preview
-                PrintPreview p = new PrintPreview(DataLayer);
+                PrintPreview p = Services.GetRequiredService<PrintPreview>();
                 p.setupDialog();
                 p.ShowDialog();
                 return;
@@ -681,9 +687,8 @@ namespace CruiseProcessing
             {
                 //  calls local volume routine
                 //MessageBox.Show("Under Construction", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
-           
-                LocalVolume lv = new LocalVolume(DataLayer, DialogService);
 
+                LocalVolume lv = Services.GetRequiredService<LocalVolume>();
                 lv.setupDialog();
                 lv.ShowDialog();
                 return;
@@ -701,7 +706,7 @@ namespace CruiseProcessing
         private void onModifyWeightFactors(object sender, EventArgs e)
         {
             int mResult = -1;
-            ModifyWeightFactors mwf = new ModifyWeightFactors(DataLayer);
+            ModifyWeightFactors mwf = Services.GetRequiredService<ModifyWeightFactors>();
             mResult = mwf.setupDialog();
             if(mResult == 1) mwf.ShowDialog();
             return;
@@ -709,7 +714,7 @@ namespace CruiseProcessing
         
         private void onModMerchRules(object sender, EventArgs e)
         {
-            ModifyMerchRules mmr = new ModifyMerchRules(DataLayer);
+            ModifyMerchRules mmr = Services.GetRequiredService<ModifyMerchRules>();
             mmr.setupDialog();
             mmr.ShowDialog();
             //MessageBox.Show("Under construction", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);

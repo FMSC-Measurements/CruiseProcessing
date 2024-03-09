@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,14 +10,14 @@ namespace CruiseProcessing.Services
 {
     public class DialogService : IDialogService
     {
-        public DialogService(MainMenu mainMenu)
+        public DialogService(IServiceProvider services)
         {
-            MainMenu = mainMenu;
+            // = mainMenu;
+            Services = services;
         }
 
-        private MainMenu MainMenu { get; }
-
-        private CPbusinessLayer DataLayer => MainMenu.DataLayer;
+        //private MainMenu MainMenu { get; }
+        public IServiceProvider Services { get; }
 
         public void ShowError(string message)
         {
@@ -36,7 +37,7 @@ namespace CruiseProcessing.Services
 
         public void ShowGraphOutputDialog(IEnumerable<string> graphReports)
         {
-            var dialog = new graphOutputDialog(DataLayer, graphReports);
+            var dialog = Services.GetRequiredService<graphOutputDialog>();
             dialog.ShowDialog();
         }
 
@@ -52,14 +53,14 @@ namespace CruiseProcessing.Services
 
         public IEnumerable<StewProductCosts> GetStewardshipProductCosts()
         {
-            var dialog = new StewardshipProductCosts(DataLayer);
+            var dialog = Services.GetRequiredService<StewardshipProductCosts>();
             dialog.ShowDialog();
             return dialog.StewList;
         }
 
         public void ShowPrintPreview()
         {
-            var dialog = new PrintPreview(DataLayer);
+            var dialog = Services.GetRequiredService<PrintPreview>();
             dialog.setupDialog();
             dialog.ShowDialog();
         }
