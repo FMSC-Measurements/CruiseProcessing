@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
 {
@@ -15,23 +16,25 @@ namespace CruiseProcessing
     {
         public List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
         protected CPbusinessLayer DataLayer { get; }
+        public IServiceProvider Services { get; }
 
         protected ModifyWeightFactors()
         {
             InitializeComponent();
         }
 
-        public ModifyWeightFactors(CPbusinessLayer dataLayer)
+        public ModifyWeightFactors(CPbusinessLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
 
         public int setupDialog()
         {
             //  first, ask the security question and only allow correct answer to proceed
-            SecurityQuestion sq = new SecurityQuestion();
+            SecurityQuestion sq = Services.GetRequiredService<SecurityQuestion>();
             sq.ShowDialog();
             if (sq.securityResponse != "OK")
             {

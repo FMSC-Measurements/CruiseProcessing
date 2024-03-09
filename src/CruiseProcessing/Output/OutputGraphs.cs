@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace CruiseProcessing
         private List<TreeDO> treesByDBH = new List<TreeDO>();
         private List<TreeDO> justMeasured = new List<TreeDO>();
         protected CPbusinessLayer DataLayer { get; }
+        public IServiceProvider Services { get; }
 
-        public OutputGraphs(CPbusinessLayer dataLayer)
+        public OutputGraphs(CPbusinessLayer dataLayer, IServiceProvider services)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         public void createGraphs()
@@ -171,7 +174,7 @@ namespace CruiseProcessing
                     //  per request from Region 10, give option to use 16 or 32 foot logs
                     //  for this graph --  July 2017
                     int whichLength = 16;
-                    selectLength getLength = new selectLength();
+                    selectLength getLength = Services.GetRequiredService<selectLength>();
                     getLength.ShowDialog();
                     if (getLength.lengthSelected == 0)
                         whichLength = 16;

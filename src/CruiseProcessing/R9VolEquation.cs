@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace CruiseProcessing
@@ -12,6 +13,7 @@ namespace CruiseProcessing
     public partial class R9VolEquation : Form 
     {
         public CPbusinessLayer DataLayer { get; }
+        public IServiceProvider Services { get; }
 
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         ArrayList topwoodSpecies = new ArrayList();
@@ -26,10 +28,11 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R9VolEquation(CPbusinessLayer dataLayer)
+        public R9VolEquation(CPbusinessLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
 
@@ -81,7 +84,7 @@ namespace CruiseProcessing
 
         private void onTopwoodCalculation(object sender, EventArgs e)
         {
-            R9Topwood r9top = new R9Topwood(DataLayer);
+            R9Topwood r9top = Services.GetRequiredService<R9Topwood>();
             r9top.speciesList = topwoodSpecies;
             r9top.flagList = topwoodFlags;
             r9top.setupDialog();
@@ -105,7 +108,7 @@ namespace CruiseProcessing
 
             //  Save equations
             DataLayer.SaveVolumeEquations(volList);
-            R9TopDIB r9DIB = new R9TopDIB(DataLayer);
+            R9TopDIB r9DIB = Services.GetRequiredService<R9TopDIB>();
             r9DIB.setupDialog();
             r9DIB.Show();
             jstDIBs = r9DIB.jstDIB;
@@ -138,7 +141,7 @@ namespace CruiseProcessing
             DataLayer.SaveVolumeEquations(volList);
             if(calcBiomass.Checked == true)
             {
-                VolumeEquations ve = new VolumeEquations(DataLayer);
+                VolumeEquations ve = Services.GetRequiredService<VolumeEquations>();
                 ve.updateBiomass(volList);
             }   //  endif calculate biomass
             Close();

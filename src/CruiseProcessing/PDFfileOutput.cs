@@ -12,6 +12,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
 {
@@ -22,16 +23,18 @@ namespace CruiseProcessing
         private ArrayList graphReports = new ArrayList();
         private string[] graphFlag = new string[9];
         protected CPbusinessLayer DataLayer { get; }
+        public IServiceProvider Services { get; }
 
         protected PDFfileOutput()
         {
             InitializeComponent();
         }
 
-        public PDFfileOutput(CPbusinessLayer dataLayer)
+        public PDFfileOutput(CPbusinessLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         public int setupDialog()
@@ -206,7 +209,7 @@ namespace CruiseProcessing
             }   //  endif output file exists
 
             //  add watermark
-            PDFwatermarkDlg pwd = new PDFwatermarkDlg();
+            PDFwatermarkDlg pwd = Services.GetRequiredService<PDFwatermarkDlg>();
             pwd.ShowDialog();
             if (pwd.H2OmarkSelection == 2 || pwd.H2OmarkSelection == 3 || pwd.H2OmarkSelection == 4)
             {
