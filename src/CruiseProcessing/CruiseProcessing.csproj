@@ -30,18 +30,6 @@
     <Compile Update="CapturePercentRemoved.Designer.cs">
       <DependentUpon>CapturePercentRemoved.cs</DependentUpon>
     </Compile>
-    <Compile Update="EnterNewFilename.cs" />
-    <Compile Update="EnterNewFilename.Designer.cs">
-      <DependentUpon>EnterNewFilename.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ExportDialog.cs" />
-    <Compile Update="ExportDialog.Designer.cs">
-      <DependentUpon>ExportDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Update="FLIWdlg.cs" />
-    <Compile Update="FLIWdlg.Designer.cs">
-      <DependentUpon>FLIWdlg.cs</DependentUpon>
-    </Compile>
     <Compile Update="GraphForm.cs" />
     <Compile Update="GraphForm.Designer.cs">
       <DependentUpon>GraphForm.cs</DependentUpon>
@@ -96,18 +84,6 @@
     </Compile>
     <EmbeddedResource Update="CapturePercentRemoved.resx">
       <DependentUpon>CapturePercentRemoved.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="EnterNewFilename.resx">
-      <DependentUpon>EnterNewFilename.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ExportDialog.resx">
-      <DependentUpon>ExportDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="FLIWdlg.resx">
-      <DependentUpon>FLIWdlg.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="GraphForm.resx">
@@ -165,14 +141,6 @@
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="QualityAdjEquations.resx">
-      <DependentUpon>QualityAdjEquations.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R8product08.resx">
-      <DependentUpon>R8product08.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="R8PulpwoodMeasurement.resx">
@@ -248,14 +216,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Update="QualityAdjEquations.cs" />
-    <Compile Update="QualityAdjEquations.Designer.cs">
-      <DependentUpon>QualityAdjEquations.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R8product08.cs" />
-    <Compile Update="R8product08.Designer.cs">
-      <DependentUpon>R8product08.cs</DependentUpon>
     </Compile>
     <Compile Update="R8PulpwoodMeasurement.cs" />
     <Compile Update="R8PulpwoodMeasurement.Designer.cs">
@@ -407,20 +367,6 @@
     <None Include="Resources\CSVfile.jpg" />
     <Content Include="Resources\equation.bmp" />
     <Content Include="Resources\Final.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Biomass.cs" />
-    <Compile Remove="BiomassEquations.cs" />
-    <Compile Remove="BiomassEquations.Designer.cs" />
-    <Compile Remove="BiomassList.cs" />
-    <Compile Remove="CalculateTreeValues!.cs" />
-    <Compile Remove="Form1.cs" />
-    <Compile Remove="Form1.Designer.cs" />
-    <Compile Remove="SpeciesAssociations.cs" />
-    <Compile Remove="SpeciesAssociations.Designer.cs" />
-    <Compile Remove="WeightEqMethods.cs" />
-    <Compile Remove="WeightEquations.cs" />
-    <Compile Remove="WeightEquations.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="NBEL.dll" />
