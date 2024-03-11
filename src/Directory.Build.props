@@ -38,4 +38,12 @@
 		<Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
+	<ItemGroup  Condition="$(IsTestProject) == 'true'">
+		<Content Include="..\..\TestFiles\**\*.crz3" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\TestFiles\**\*.cruise" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\TestFiles\**\*.out" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\TestFiles\**\*.process" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\..\TestFiles\**\*.out.*" LinkBase="TestFiles" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>
