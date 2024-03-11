@@ -66,10 +66,7 @@ namespace CruiseProcessing
             Sale = DataLayer.GetSale();
         }
 
-        protected string AppVerson => Assembly.GetExecutingAssembly().GetName().Version.ToString().TrimEnd('0').TrimEnd('.');
-
         public SaleDO Sale { get; }
-        public HeaderFieldData HeaderData { get; }
 
         public string PrintErrorReport(List<ErrorLogDO> errList)
         {
