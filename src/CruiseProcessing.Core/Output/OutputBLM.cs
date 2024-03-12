@@ -13,7 +13,6 @@ namespace CruiseProcessing
     public class OutputBLM : OutputFileReportGeneratorBase
     {
         #region
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private string extraLine = "VOLUMES BASED ON XX FOOT EQUATIONS";

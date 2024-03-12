@@ -14,7 +14,6 @@ namespace CruiseProcessing
 {
     public class OutputR4 : OutputFileReportGeneratorBase
     {
-        public string currentReport;
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
