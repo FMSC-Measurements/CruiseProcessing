@@ -1,0 +1,17 @@
+<Project>
+
+	<UsingTask	TaskName="ProcessCodeTemplate"
+				TaskFactory="CodeTaskFactory" 
+				AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+		<ParameterGroup>
+			<TemplateFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+		</ParameterGroup>
+
+		<Task>
+			<Reference Include="$(MSBuildToolsPath)\Microsoft.Build.dll" />
+			<Reference Include="System.Xml" />
+			<Code Source="$(MSBuildThisFileDirectory)/buildTasks/ProcessCodeTemplate.cs" />
+		</Task>
+	</UsingTask>
+	
+</Project>
