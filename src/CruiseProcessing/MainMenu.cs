@@ -9,6 +9,9 @@ using CruiseDAL;
 using System.Reflection;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Security;
+using FMSC.ORM.Core;
 
 namespace CruiseProcessing
 {
@@ -24,14 +27,10 @@ namespace CruiseProcessing
         public IDialogService DialogService { get; }
         public IServiceProvider Services { get; }
         public DataLayerContext DataLayerProvider { get; }
+        protected ILogger Logger { get; }
 
-        public MainMenu(IServiceProvider services, DataLayerContext dataLayerProvider)
+        protected MainMenu()
         {
-            Services = services ?? throw new ArgumentNullException(nameof(services));
-            DataLayerProvider = dataLayerProvider ?? throw new ArgumentNullException(nameof(dataLayerProvider));
-            DialogService = services.GetRequiredService<IDialogService>();
-            
-
             InitializeComponent();
             //  initially hide all buttons and labels
             processButton1.Visible = false;
@@ -54,11 +53,20 @@ namespace CruiseProcessing
             menuButton3.BackgroundImage = Properties.Resources.disabled_button;
             processBtn.BackgroundImage = Properties.Resources.disabled_button;
             menuButton5.BackgroundImage = Properties.Resources.disabled_button;
-            
+
             menuButton2.Enabled = false;
             menuButton3.Enabled = false;
             processBtn.Enabled = false;
             menuButton5.Enabled = false;
+        }
+
+        public MainMenu(IServiceProvider services, DataLayerContext dataLayerProvider, ILogger<MainMenu> logger)
+            : this()
+        {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger)); ;
+            Services = services ?? throw new ArgumentNullException(nameof(services));
+            DataLayerProvider = dataLayerProvider ?? throw new ArgumentNullException(nameof(dataLayerProvider));
+            DialogService = services.GetRequiredService<IDialogService>();
         }
 
         private void onExit(object sender, EventArgs e)
@@ -307,6 +315,12 @@ namespace CruiseProcessing
 
         public void OpenFile(string filePath)
         {
+            if (!EnsurePathValid(filePath, Logger, DialogService)
+                && !EnsurePathExistsAndCanWrite(filePath, Logger, DialogService))
+            {
+                return;
+            }
+
             var fileName = Path.GetFileName(filePath);
             var extention = Path.GetExtension(filePath).ToLowerInvariant();
 
@@ -330,7 +344,9 @@ namespace CruiseProcessing
                 var downConverter = new DownMigrator();
                 if (!downConverter.EnsureCanMigrate(cruiseID, v3db, out var error_message))
                 {
-                    MessageBox.Show("Unable to open V3 Cruise File due to Design Checks \r\nMessages: " + error_message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var message = "Unable to open V3 Cruise File due to Design Checks \r\nMessages: " + error_message;
+                    Logger.LogWarning(message);
+                    DialogService.ShowError(message);
                     return;
                 }
 
@@ -349,7 +365,8 @@ namespace CruiseProcessing
                     if (File.Exists(processFilePath))
                     { File.Delete(processFilePath); }
 
-                    MessageBox.Show("Error Translating V3 Cruise Data \r\nError: " + ex.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Logger.LogError(ex, "Error Migrating Cruise: {FileName}", fileName);
+                    DialogService.ShowError("Error Translating V3 Cruise Data \r\nError: " + ex.ToString());
                     return;
                 }
 
@@ -379,12 +396,16 @@ namespace CruiseProcessing
                 {
                     if(File.Exists(tempV2))
                     { File.Delete(tempV2); }
+
+                    Logger.LogError(ex, "Error Migrating Template: {FileName}", fileName);
+
                     return;
                 }
             }
             else
             {
-                MessageBox.Show("Invalid File Type Selected", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Logger.LogWarning("Invalid File Type: {FileName}", fileName);
+                DialogService.ShowError("Invalid File Type Selected")
                 return;
             }
 
@@ -424,7 +445,9 @@ namespace CruiseProcessing
                 if (datalayer.saleWithNullSpecies())
                 {
                     //One or more records contain incomplete data which affect processing.\n
-                    MessageBox.Show("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    Logger.LogWarning("File Has Trees With Null Species: {FileName}", fileName);
+                    DialogService.ShowError("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.");
                     return;
                 } 
             }
@@ -438,6 +461,68 @@ namespace CruiseProcessing
                 string tempName = "..." + fileName.Substring(fileName.Length - 35, 35);
                 Text = tempName;
             }
+        }
+
+        public static bool EnsurePathValid(string path, ILogger logger, IDialogService dialogService)
+        {
+            try
+            {
+                path = Path.GetFullPath(path);
+
+                // in net6.2 and later long paths are supported by default.
+                // however it can still cause issue. So we need to manual check the
+                // directory length
+                // 
+                var dirName = Path.GetDirectoryName(path);
+                if (dirName.Length >= 248 || path.Length >= 260)
+                {
+                    throw new PathTooLongException("The supplied path is too long");
+                }
+            }
+            catch (PathTooLongException ex)
+            {
+                var message = "File Path Too Long";
+                logger.LogError(ex, message);
+                dialogService.ShowError(message);
+                return false;
+            }
+            catch (SecurityException ex)
+            {
+                var message = "Can Not Open File Due To File Permissions";
+                logger.LogError(ex, message);
+                dialogService.ShowError(message);
+                return false;
+            }
+            catch (ArgumentException ex)
+            {
+                var message = (!string.IsNullOrEmpty(path) && path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+                    ? "Path Contains Invalid Characters" : "Invalid File Path";
+                logger.LogError(ex, message);
+                dialogService.ShowError(message);
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool EnsurePathExistsAndCanWrite(string path, ILogger logger, IDialogService dialogService)
+        {
+            if (!File.Exists(path))
+            {
+                var message = "Selected File Does Not Exist";
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Warning");
+                return false;
+            }
+
+            if (File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
+            {
+                var message = "Selected File Is Read Only.\r\nIf opening file from non-local location, please copy file to a location on your PC before opening.";
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Warning");
+                return false;
+            }
+            return true;
         }
 
         protected bool EnsureFileOpen()
