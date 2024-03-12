@@ -510,7 +510,7 @@ namespace CruiseProcessing
                .Join("Tree AS t", "USING (Tree_CN)")
                .Join("Stratum AS st", "USING (Stratum_CN)")
                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
-               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M AND t.Species = @p2 AND LogStock.Grade = @p3 AND DIBClass >= @p4 AND DIBClass <= @p5")
+               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M' AND t.Species = @p2 AND LogStock.Grade = @p3 AND DIBClass >= @p4 AND DIBClass <= @p5")
                .Read(currST, currSP, currGrade, minDIB, maxDIB).ToList();
         }   //  end getLogSpecies
 
@@ -522,7 +522,7 @@ namespace CruiseProcessing
                .Join("Tree AS t", "USING (Tree_CN)")
                .Join("Stratum AS st", "USING (Stratum_CN)")
                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
-               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M AND LogStock.Grade = @p3")
+               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M' AND LogStock.Grade = @p2")
                .Read(currST, currGrade).ToList();
         }   //  end getStrataLogs
 
