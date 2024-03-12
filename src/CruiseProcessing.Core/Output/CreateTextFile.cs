@@ -124,12 +124,11 @@ namespace CruiseProcessing
         {
             hasWarnings = false;
             var graphReports = new List<string>();
-            var reports = DataLayer.GetReports();
             var volumeEquations = DataLayer.getVolumeEquations();
             var failedReportsList = new List<string>();
 
             //  Output banner page
-            strWriteOut.Write(BannerPage.GenerateBannerPage(FilePath, headerData, Sale, reports, volumeEquations));
+            strWriteOut.Write(BannerPage.GenerateBannerPage(FilePath, headerData, Sale, selectedReports, volumeEquations));
 
             int pageNumber = 2;
 
