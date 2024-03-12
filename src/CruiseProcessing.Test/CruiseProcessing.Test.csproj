@@ -5,6 +5,10 @@
 	  <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DiffPlex" Version="1.7.2" />
+  </ItemGroup>
+
 
 	<!--<ItemGroup>
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" />

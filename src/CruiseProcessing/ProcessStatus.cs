@@ -11,6 +11,9 @@ using CruiseDAL;
 using CruiseProcessing.Services;
 using iTextSharp.text;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
+using System.Collections;
+using System.Threading.Tasks;
 
 namespace CruiseProcessing
 {
@@ -19,17 +22,13 @@ namespace CruiseProcessing
         public CPbusinessLayer DataLayer { get; }
         public IDialogService DialogService { get; }
 
-        protected ProcessStatus()
-        {
-            InitializeComponent();
-
-            ProcessProgress = new Progress<string>(ProcessProgress_OnProgressChanged);
-        }
-
         protected IProgress<string> ProcessProgress { get; }
+
+        protected ILogger Logger { get; }
+
         private void ProcessProgress_OnProgressChanged(string obj)
         {
-            if(processingStatus.InvokeRequired)
+            if (processingStatus.InvokeRequired)
             {
                 processingStatus.Invoke(new Action(() => ProcessProgress_OnProgressChanged(obj)));
             }
@@ -37,25 +36,70 @@ namespace CruiseProcessing
             {
                 processingStatus.Text = obj;
             }
-              
+
         }
 
-        public ProcessStatus(CPbusinessLayer dataLayer, IDialogService dialogService)
-            : this()
+        protected ProcessStatus()
+        {
+            InitializeComponent();
+
+            ProcessProgress = new Progress<string>(ProcessProgress_OnProgressChanged);
+        }
+
+        public ProcessStatus(CPbusinessLayer dataLayer, IDialogService dialogService, ILogger<ProcessStatus> logger)
+    : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        private void on_GO(object sender, EventArgs e)
+        private async void on_GO(object sender, EventArgs e)
         {
 
+            if (!DoPreProcessChecks())
+            {
+                Close();
+                return;
+            }
+
+            prepareCheck.Enabled = true;
+            Cursor.Current = Cursors.WaitCursor;
+            editCheck.Enabled = true;
+            goButton.Enabled = false;
+
+            try
+            {
+                await ProcessCoreAsync(ProcessProgress);
+
+                volumeCheck.Enabled = true;
+            }
+            catch (Exception ex) 
+            {
+                DialogService.ShowError("Processing Error: " + ex.GetType().Name);
+            }
+            finally
+            {
+                Cursor.Current = this.Cursor;
+            }
+        }   //  end on_GO
+
+        public bool DoPreProcessChecks()
+        {
             //  check for errors from FScruiser before running edit checks
             //  generate an error report
             //  June 2013
             List<ErrorLogDO> fscList = DataLayer.getErrorMessages("E", "FScruiser");
             if (fscList.Any())
             {
+                var messagesAndCounts = fscList.GroupBy(x => x.Message)
+                    .Select(x => (Message: x.Key, Count: x.Count()));
+                foreach (var i in messagesAndCounts)
+                {
+                    Logger.LogInformation("FScruiser Errors Found: {Message} Count:{Count}", i.Message, i.Count);
+                }
+
+
                 ErrorReport eRpt = new ErrorReport(DataLayer, DataLayer.GetReportHeaderData());
                 var outputFileName = eRpt.PrintFScruiserErrors(fscList);
                 string outputMessage = "ERRORS FROM FSCRUISER FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
@@ -63,8 +107,7 @@ namespace CruiseProcessing
                 //  request made to open error report in preview -- May 2015
                 DialogService.ShowPrintPreview();
 
-                Close();
-                return;
+                return false;
             }   //  endif report needed
 
             var allMeasureTrees = DataLayer.JustMeasuredTrees();
@@ -74,9 +117,10 @@ namespace CruiseProcessing
             //  of the condition.
             if (allMeasureTrees.Count == 0)
             {
+                Logger.LogInformation("No Measure Trees In Cruise");
+
                 DialogService.ShowError("NO MEASURED TREES IN THIS CRUISE.\r\nCannot continue and cannot produce any reports.");
-                Close();
-                return;
+                return false;
             }
 
             List<StratumDO> sList = DataLayer.GetStrata();
@@ -87,18 +131,21 @@ namespace CruiseProcessing
                 //  warn user if the stratum has no trees at all
                 if (stTrees.Any() == false)
                 {
+                    Logger.LogInformation("Stratum Contains No Data: Code {StratumCode}", st.Code);
                     string warnMsg = "WARNING!  Stratum ";
                     warnMsg += st.Code;
                     warnMsg += " has no trees recorded.  Some reports may not be complete.\nContinue?";
 
                     if (!DialogService.ShowWarningAskYesNo(warnMsg))
-                        return;
+                    { return false; }
+
+                    Logger.LogInformation("Stratum Contains No Data, Continuing");
                 }   //  endif no trees
             }
 
 
             processingStatus.Text = "READY TO BEGIN?  Click GO.";
-            Cursor.Current = Cursors.WaitCursor;
+            //Cursor.Current = Cursors.WaitCursor;
             //  perform edit checks -- 
             processingStatus.Text = "Edit checking the data.  Please wait.";
             processingStatus.Refresh();
@@ -108,6 +155,13 @@ namespace CruiseProcessing
             var errors = EditChecks.CheckErrors(DataLayer);
             if (errors.Any())
             {
+                var messagesAndCounts = errors.GroupBy(x => x.Message)
+                    .Select(x => (Message: x.Key, Count: x.Count()));
+                foreach (var i in messagesAndCounts)
+                {
+                    Logger.LogInformation("EditCheck Errors Found: {Message} Count:{Count}", i.Message, i.Count);
+                }
+
                 DataLayer.SaveErrorMessages(errors);
             }
 
@@ -123,62 +177,81 @@ namespace CruiseProcessing
                 //  request made to open error report in preview -- May 2015
                 DialogService.ShowPrintPreview();
 
-                Close();
-                return;
-
+                return false;
             }   //  endif report needed
 
-            editCheck.Enabled = true;
+            return true;
+        }
 
-            //  next show preparation of data
-            processingStatus.Text = "Preparing data for processing.";
-            processingStatus.Refresh();
 
+        protected Task ProcessCoreAsync(IProgress<string> progress)
+        {
+            return Task.Run(() => ProcessCore(progress));
+        }
+
+        public void ProcessCore(IProgress<string> progress)
+        {
             //  before making IDs, need to check for blank or null secondary products in sample groups
             //  if blank, default to 02 for every region but 6 where it will be 08 instead
             //  put a warning message in the error log table indicating the secondary product was set to a default
             //  June 2013
             DefaultSecondaryProduct();
 
-            
-
-            CalculatedValues calcVal = new CalculatedValues(DataLayer);
-            calcVal.CalcValues();
-
-            //  now need some other tables to start summing values
-            List<LCDDO> lcdList = DataLayer.getLCD();
-            List<POPDO> popList = DataLayer.getPOP();
-            List<PRODO> proList = DataLayer.getPRO();
-
-            List<CountTreeDO> ctList = DataLayer.getCountTrees();
-            List<PlotDO> pList = DataLayer.getPlots();
-            List<TreeDO> tList = DataLayer.getTrees();
-
-            //  show preparation of data is complete
-            prepareCheck.Enabled = true;
-            //  now loop through strata and show status message updating for each stratum
-            foreach (StratumDO sdo in sList)
+            //  next show preparation of data
+            progress.Report("Preparing data for processing.");
+            var dal = DataLayer.DAL;
+            dal.BeginTransaction();
+            try
             {
                 
-                //  update status message for next stratum
-                processingStatus.Text = "Calculating stratum " + sdo.Code;
-                processingStatus.Refresh();
+                DataLayer.DAL.BeginTransaction();
 
-                CalculateTreeValues calcTreeVal = new CalculateTreeValues(DataLayer);
-                ProcessStratum(sdo, calcTreeVal, calcVal, lcdList, popList, proList, ctList, pList, tList);
+                CalculatedValues calcVal = new CalculatedValues(DataLayer);
+                calcVal.CalcValues();
 
-            }   //  end foreach stratum
+                //  now need some other tables to start summing values
+                List<LCDDO> lcdList = DataLayer.getLCD();
+                List<POPDO> popList = DataLayer.getPOP();
+                List<PRODO> proList = DataLayer.getPRO();
 
-            //  show volume calculation is finished
-            volumeCheck.Enabled = true;
-            processingStatus.Text = "Processing is DONE";
-            processingStatus.Refresh();
-            System.Threading.Thread.Sleep(5000);
-            Cursor.Current = this.Cursor;
+                List<CountTreeDO> ctList = DataLayer.getCountTrees();
+                List<PlotDO> pList = DataLayer.getPlots();
+                List<TreeDO> tList = DataLayer.getTrees();
 
-            Close();
-            return;
-        }   //  end on_GO
+                //  show preparation of data is complete
+                progress.Report("Preparation of data complete");
+                //  now loop through strata and show status message updating for each stratum
+                List<StratumDO> sList = DataLayer.GetStrata();
+                foreach (StratumDO sdo in sList)
+                {
+
+                    //  update status message for next stratum
+                    progress.Report("Calculating stratum " + sdo.Code);
+
+                    CalculateTreeValues calcTreeVal = new CalculateTreeValues(DataLayer);
+                    ProcessStratum(sdo, calcTreeVal, calcVal, lcdList, popList, proList, ctList, pList, tList);
+
+                }   //  end foreach stratum
+
+                dal.CommitTransaction();
+
+                //  show volume calculation is finished
+                progress.Report("Processing is DONE");
+
+            }
+            catch(Exception ex)
+            {
+                dal.RollbackTransaction();
+                Logger.LogError(ex, "Processing Error: {FilePath}", dal.Path);
+
+                //  show volume calculation is finished
+                progress.Report("Processing Error");
+                throw;
+            }
+
+            
+        }
+
 
         private void ProcessStratum(
             StratumDO sdo,
@@ -437,7 +510,7 @@ namespace CruiseProcessing
                 }   //  endif
             }   //  end foreach loop
             DataLayer.SaveSampleGroups(sgList);
-            if(errors.Any())
+            if (errors.Any())
             {
                 DataLayer.SaveErrorMessages(errors);
             }
