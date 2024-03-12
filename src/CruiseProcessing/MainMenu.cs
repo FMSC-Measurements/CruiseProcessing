@@ -137,14 +137,15 @@ namespace CruiseProcessing
             processButton4.Visible = false;
             processButton5.Visible = false;
             processButton6.Visible = false;
+            modifyWeightFacts.Visible = false;
+            modifyMerchRules.Visible = false;
 
             // let user know it's happening
             //  replace this with the processing status window
             ProcessStatus statusDlg = Services.GetRequiredService<ProcessStatus>();
             statusDlg.ShowDialog();   
             Cursor.Current = this.Cursor;
-            modifyWeightFacts.Visible = false;
-            modifyMerchRules.Visible = false;
+            
             return;
         }   //  end onProcess
 
