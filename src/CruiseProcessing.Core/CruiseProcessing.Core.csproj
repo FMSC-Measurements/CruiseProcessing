@@ -1,11 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<AssemblyVersion>2.1.1.1</AssemblyVersion>
-		<FileVersion>2.1.1.1</FileVersion>
 		<RootNamespace>CruiseProcessing</RootNamespace>
-		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
