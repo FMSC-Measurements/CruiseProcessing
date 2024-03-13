@@ -12,15 +12,19 @@ namespace CruiseProcessing
 {
     public partial class R8Topwood : Form
     {
-        #region
         public string[] checkStatus = new string[30];
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
 
 
-        public R8Topwood()
+        protected R8Topwood()
         {
             InitializeComponent();
+        }
+
+        public R8Topwood(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         private void onOK(object sender, EventArgs e)
@@ -140,7 +144,7 @@ namespace CruiseProcessing
                 checkStatus[k] = "0";
 
             // Add species code to checkbox text area and set check to true
-            ArrayList justSpecies = bslyr.GetJustSpecies("Tree");
+            ArrayList justSpecies = DataLayer.GetJustSpecies("Tree");
             
             for (int k = 0; k < justSpecies.Count; k++)
             {

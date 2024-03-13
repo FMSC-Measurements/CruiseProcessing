@@ -13,33 +13,37 @@ namespace CruiseProcessing
 {
     public partial class StewardshipProductCosts : Form
     {
-        #region
-        public List<StewProductCosts> stewList = new List<StewProductCosts>();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        public List<StewProductCosts> StewList { get; } = new List<StewProductCosts>();
+        public CPbusinessLayer DataLayer { get; }
 
-        public StewardshipProductCosts()
+        protected StewardshipProductCosts()
         {
             InitializeComponent();
         }
 
-        public void setupDialog()
+        public StewardshipProductCosts(CPbusinessLayer dataLayer)
+            : this()
         {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
             //  pull unique cutting unit, species and primary product to put in stewList
-            List<TreeDO> justSpecies = bslyr.getUniqueStewardGroups();
+            List<TreeDO> justSpecies = DataLayer.getUniqueStewardGroups();
             foreach (TreeDO js in justSpecies)
             {
                 StewProductCosts spc = new StewProductCosts();
                 spc.costUnit = js.CuttingUnit.Code;
                 spc.costSpecies = js.Species;
                 spc.costProduct = js.SampleGroup.PrimaryProduct;
-                stewList.Add(spc);
+                StewList.Add(spc);
             }   //  end foreach loop
-            stewProductCostsBindingSource.DataSource = stewList;
+            stewProductCostsBindingSource.DataSource = StewList;
             StewardCosts.DataSource = stewProductCostsBindingSource;
-
-            return;
-        }   //  end setupDialog
+        }
 
 
         private void onCancel(object sender, EventArgs e)
@@ -56,7 +60,7 @@ namespace CruiseProcessing
         private void onFinished(object sender, EventArgs e)
         {
             //  make the includeInReport has some groups selected
-            List<StewProductCosts> groupsIncluded = stewList.FindAll(
+            List<StewProductCosts> groupsIncluded = StewList.FindAll(
                 delegate(StewProductCosts sp)
                 {
                     return sp.includeInReport == "True";
@@ -68,7 +72,7 @@ namespace CruiseProcessing
             }
             else
             {
-                bslyr.SaveStewCosts(stewList);
+                DataLayer.SaveStewCosts(StewList);
                 Close();
                 return;
             }   //  endif no groups included

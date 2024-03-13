@@ -1,0 +1,795 @@
+CRUISE REPORT HEADER & CERTIFICATION
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test
+RUN DATE & TIME: 8/3/2016 8:56:15 AM
+ 
+Year: 0    Region: 08   Forest: 08   District: 16
+Remarks:  
+FILENAME: C:\Users\bmenzel\Desktop\TestFiles Conversion\TestFiles\Region 8\R8.cruise
+REPORTS: A01 A02 A03 A04 ST1 ST2 VSM1 
+
+
+
+
+
+
+                            **************************** CRUISE CERTIFICATION ****************************
+
+                                I certify that the timber for the r8test timber sale
+                                has been designated and cruised by the procedures and standards in
+                                FSH 2409.12, Timber Cruising Handbook.  Records of checks are on file
+                                at the District Ranger Office,
+
+
+
+                                ___________________                 ___________________________________
+                                RANGER DISTRICT                     (name of headquarters town)
+
+
+                                ___________________                 ______________
+                                DISTRICT RANGER                     DATE
+
+                            *****************************************************************************
+
+
+
+
+
+
+
+
+Developed and Maintained By:
+USDA FOREST SERVICE                                                                                             VERSION: DRAFT.2016
+WASHINGTON OFFICE TIMBER MANAGEMENT                                                              VOLUME LIBRARY VERSION: 07.13.2016
+FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM
+
+VOLUME EQUATION TABLE                                                                                                       PAGE 2
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                                               PRIMARY                     SECONDARY
+                                                       ******* PRODUCT ********      ****** PRODUCT ******
+                                            TOTAL       MIN                             MIN
+                     VOLUME       STUMP     CUBIC       TOP                             TOP
+     SPECIES  PROD   EQUATION     HEIGHT    VOLUME      DIB   BDFT  CUFT  CORDS         DIB   BDFT  CUFT  CORDS   BIOMASS
+____________________________________________________________________________________________________________________________________
+     100       02    834CLKE100    0.5        NO        0.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     110       01    837CLKE110    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     121       01    837CLKE121    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     316       01    839CLKE316    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     531       01    839CLKE531    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     621       01    839CLKE621    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     800       02    834CLKE800    0.5        NO        0.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     800       01    839CLKE800    1.0        NO        0.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     806       01    839CLKE806    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     833       01    839CLKE833    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     835       01    839CLKE835    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+     837       01    839CLKE837    1.0        NO        0.0   YES   YES   NO            0.0   YES   YES   NO       NO     
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 3
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+     CRUISE   STRATA   CRUISE   STRATA          PLOT  NO. OF STRATA                     DATE
+     NO.      NO.      METHOD   ACRES   BAF     SIZE  PLOTS  DESCRIPTION                MMYYYY
+____________________________________________________________________________________________________________________________________
+     88888      00     100        8.80     0.00     0    0                               0   0
+     88888      03     STR       33.30     0.00     0    0                               0   0
+     88888      12     STR       33.30     0.00     0    0                               0   0
+     88888      18     STR       33.30     0.00     0    0                               0   0
+     88888      60     FIX       33.30     0.00    30    5                               0   0
+     88888      70     FCM       34.50     0.00    40    8                               0   0
+     88888      80     PNT       35.50    20.00     0    4                               0   0
+     88888      90     PCM       36.60    10.00     0    9                               0   0
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 4
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                              CUTTING   CUTTING
+     CRUISE       CUTTING     UNIT      UNIT                        LOG      PAYMENT
+     NO.          UNIT NO.    ACRES     DESCRIPTION                 METHOD   UNIT NO.
+____________________________________________________________________________________________________________________________________
+     88888              1        8.80                                        1  
+     88888              2       33.30                                        2  
+     88888              3       33.30                                        3  
+     88888              4       34.50                                        4  
+     88888              5       35.50                                        5  
+     88888              6       36.60                                        6  
+
+        TOTAL SALE ACRES:      182.00
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 5
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+     CRUISE     CUTTING             PAYMENT
+     NO.        UNIT     STRATUM    UNIT
+____________________________________________________________________________________________________________________________________
+     88888          1      00         1 
+     88888          2      03         2 
+     88888          2      12         2 
+     88888          2      18         2 
+     88888          3      60         3 
+     88888          4      70         4 
+     88888          5      80         5 
+     88888          6      90         6 
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 6
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+          SAMPLE                 BIG   SMALL
+ STRATUM  GROUP    FREQ   KZ     BAF   FPS      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+  00        ro        0      0      0                                   
+  03        zh      100      0      0                                   
+  03        zp      200      0      0                                   
+  12        hs       30      0      0                                   
+  12        ps       25      0      0                                   
+  18        hs      100      0      0                                   
+  18        ps       60      0      0                                   
+  60        hs        0      0      0                                   
+  60        ps        0      0      0                                   
+  60        zh        0      0      0                                   
+  60        zp        0      0      0                                   
+  70        hs        5      0      0                                   
+  70        ps        5      0      0                                   
+  70        zh        5      0      0                                   
+  70        zp        5      0      0                                   
+  80        hs        0      0      0                                   
+  80        ps        0      0      0                                   
+  80        zh        0      0      0                                   
+  80        zp        0      0      0                                   
+  90        hs        5      0      0                                   
+  90        ps        5      0      0                                   
+  90        zh        5      0      0                                   
+  90        zp        5      0      0                                   
+
+A02: PLOT INFORMATION REPORT (A1)                                                                                           PAGE 7
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+     CRUISE   PLOT     CUTTING  STRATA    SLOPE           PLOT   NULL
+     NO.      NO.      UNIT NO. NO.         %     ASPECT  KPI    PLOT?
+____________________________________________________________________________________________________________________________________
+     88888       1         3       60         0     0          0    
+     88888       2         3       60         0     0          0 YES
+     88888       3         3       60         0     0          0    
+     88888       4         3       60         0     0          0    
+     88888       5         3       60         0     0          0 YES
+     88888       1         4       70         0     0          0    
+     88888       2         4       70         0     0          0    
+     88888       3         4       70         0     0          0 YES
+     88888       4         4       70         0     0          0    
+     88888       5         4       70         0     0          0    
+     88888       6         4       70         0     0          0    
+     88888       7         4       70         0     0          0    
+     88888       8         4       70         0     0          0    
+     88888       1         5       80         0     0          0 YES
+     88888       2         5       80         0     0          0    
+     88888       3         5       80         0     0          0    
+     88888       4         5       80         0     0          0    
+     88888       1         6       90         0     0          0 YES
+     88888       2         6       90         0     0          0    
+     88888       3         6       90         0     0          0    
+     88888       4         6       90         0     0          0    
+     88888       5         6       90         0     0          0    
+     88888       6         6       90         0     0          0    
+     88888       7         6       90         0     0          0    
+     88888       8         6       90         0     0          0    
+     88888       9         6       90         0     0          0    
+
+A03: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS (A2)                                                                  PAGE 8
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                      T          P        T         M       
+                                  C   R       U         L R       M R   H   
+                         P  P     U C E          S   Y  I E       R H   T   
+                  S      R  R  S  T N E       O  E   L  V E       H T       
+S                 P      O  O  M  / T         F  E   D  E   D     T     U   
+T                 E      D  D  P  L / C          N      / G B       P       
+R  U    P    T    C               E M O       M      C  D R H     T R   S   
+A  N    L    R    I      P  S  G  A E U       E  D   O  E A -     Y     T   
+T  I    O    E    E      R  E  R  V A N       A  E   M  A D O     P P   E   
+A  T    T    E    S      I  C  P  E S T       S  F   P  D E B     E D   M   
+____________________________________________________________________________________________________________________________________
+00   1         1 833    01 02 ro  C M       1 03  10 CL L 0  27.3 F  43  55 
+00   1         2 837    01 02 ro  C M       1 03   5 CL L 0  30.5 F  40  48 
+00   1         3 833    01 02 ro  C M       1 03  15 CL L 0  28.0 F  46  55 
+00   1         4 833    01 02 ro  C M       1 03  15 CL L 0  29.1 F  44  50 
+03   2         1 100    02 02 zp  C M       1 03   0 CL L 0   6.8 F   0  18 
+03   2         2 800    02 02 zh  C M       1 03   0 CL L 0   8.1 F   0  43 
+03   2         3 100    02 02 zp  C M       1 03   0 CL L 0   7.4 F   0  39 
+03   2         4 800    02 02 zh  C M       1 03   0 CL L 0   9.0 F   0  51 
+03   2         5 100    02 02 zp  C M       1 03   0 CL L 0   7.2 F   0  38 
+03   2         7 100    02 02 zp  C M       1 03   0 CL L 0   8.8 F   0  54 
+03   2         9 800    02 02 zh  C M       1 03   0 CL L 0   5.9 F   0  12 
+03   2        18 100    02 02 zp  C M       1 03   0 CL L 0   7.1 F   0  34 
+12   2         6 316    01 02 hs  C M       1 03   0 CL L 0  13.3 F  24  33 
+12   2         8 531    01 02 hs  C M       1 03   0 CL L 0  14.2 F  32  38 
+12   2        10 121    01 02 ps  C M       1 03   0 CL L 0  14.6 F  35  42 
+12   2        11 110    01 02 ps  C M       1 03   0 CL L 0  12.2 F  28  33 
+12   2        17 531    01 02 hs  C M       1 03  20 CL L 0  15.7 F  43  51 
+18   2        12 621    01 02 hs  C M       1 03   0 CL L 0  19.4 F  67  75 
+18   2        13 110    01 02 ps  C M       1 03   0 CL L 0  20.4 F  55  67 
+18   2        14 110    01 02 ps  C M       1 03   0 CL L 0  21.1 F  63  70 
+18   2        15 806    01 02 hs  C M       1 03  20 CL L 0  18.6 F  53  60 
+18   2        16 110    01 02 ps  C M       1 03   0 CL L 0  19.2 F  62  72 
+60   3    1    1 100    02 02 zp  C M       1 03   0 CL L 0   6.3 F   0  21 
+60   3    1    2 800    02 02 zh  C M       1 03   0 CL L 0   7.2 F   0  25 
+60   3    1    3 316    01 02 hs  C M       1 03   0 CL L 0  13.1 F  25  32 
+60   3    1    4 316    01 02 hs  C M       1 03   0 CL L 0  14.3 F  33  39 
+60   3    3    1 121    01 02 ps  C M       1 03   0 CL L 0  14.5 F  38  44 
+60   3    3    2 100    02 02 zp  C M       1 03   0 CL L 0   7.0 F   0  39 
+60   3    3    3 100    02 02 zp  C M       1 03   0 CL L 0   9.0 F   0  49 
+60   3    3    4 100    02 02 zp  C M       1 03   0 CL L 0   8.3 F   0  44 
+60   3    4    1 800    02 02 zh  C M       1 03   0 CL L 0   7.8 F   0  50 
+
+A03: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS (A2)                                                                  PAGE 9
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                      T          P        T         M       
+                                  C   R       U         L R       M R   H   
+                         P  P     U C E          S   Y  I E       R H   T   
+                  S      R  R  S  T N E       O  E   L  V E       H T       
+S                 P      O  O  M  / T         F  E   D  E   D     T     U   
+T                 E      D  D  P  L / C          N      / G B       P       
+R  U    P    T    C               E M O       M      C  D R H     T R   S   
+A  N    L    R    I      P  S  G  A E U       E  D   O  E A -     Y     T   
+T  I    O    E    E      R  E  R  V A N       A  E   M  A D O     P P   E   
+A  T    T    E    S      I  C  P  E S T       S  F   P  D E B     E D   M   
+____________________________________________________________________________________________________________________________________
+60   3    4    2 621    01 02 hs  C M       1 03   0 CL L 0  14.5 F  42  50 
+60   3    4    3 621    01 02 hs  C M       1 03   0 CL L 0  13.6 F  36  44 
+60   3    4    4 800    02 02 zh  C M       1 03   0 CL L 0   6.9 F   0  21 
+60   3    4    5 800    02 02 zh  C M       1 03   0 CL L 0   7.2 F   0  30 
+70   4    1    1 835    01 02 hs  C M       1 03  15 CL L 0  14.6 F  33  39 
+70   4    1    2 800    02 02 zh  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    1    3 800    02 02 zh  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    1    4 800    02 02 zh  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    1    5 800    02 02 zh  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    2    1 110    01 02 ps  C M       1 03   0 CL L 0  15.2 F  41  49 
+70   4    2    2 100    02 02 zp  C M       1 03   0 CL L 0   7.9 F   0  47 
+70   4    2    3 800    02 02 zh  C M       1 03   0 CL L 0   8.4 F   0  44 
+70   4    4    1 621    01 02 hs  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    4    2 621    01 02 hs  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    4    3 621    01 02 hs  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    5    1 800    02 02 zh  C M       1 03   0 CL L 0   5.5 F   0  11 
+70   4    5    2 800    02 02 zh  C M       1 03   0 CL L 0   6.4 F   0  20 
+70   4    6    1 806    01 02 hs  C M       1 03   0 CL L 0  15.8 F  34  40 
+70   4    6    2 100    02 02 zp  C M       1 03   0 CL L 0   8.9 F   0  44 
+70   4    6    3 121    01 02 ps  C M       1 03   0 CL L 0  16.3 F  42  55 
+70   4    7    1 100    02 02 zp  C M       1 03   0 CL L 0   6.8 F   0  35 
+70   4    7    2 621    01 02 hs  C M       1 03   0 CL L 0  15.2 F  41  50 
+70   4    7    3 110    01 02 ps  C M       1 03   0 CL L 0  14.3 F  39  47 
+70   4    8    1 806    01 02 hs  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    8    2 121    01 02 ps  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    8    3 100    02 02 zp  C C       1 03   0 CL L 0   0.0 F   0   0 
+70   4    8    4 800    02 02 zh  C C       1 03   0 CL L 0   0.0 F   0   0 
+80   5    2    1 621    01 02 hs  C M       1 03   0 CL L 0  14.8 F  35  44 
+80   5    2    2 316    01 02 hs  C M       1 03   0 CL L 0  13.7 F  28  33 
+80   5    2    3 800    02 02 zh  C M       1 03   0 CL L 0   7.8 F   0  38 
+80   5    2    4 110    01 02 ps  C M       1 03   0 CL L 0  15.3 F  37  44 
+
+A03: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS (A2)                                                                  PAGE 10
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                      T          P        T         M       
+                                  C   R       U         L R       M R   H   
+                         P  P     U C E          S   Y  I E       R H   T   
+                  S      R  R  S  T N E       O  E   L  V E       H T       
+S                 P      O  O  M  / T         F  E   D  E   D     T     U   
+T                 E      D  D  P  L / C          N      / G B       P       
+R  U    P    T    C               E M O       M      C  D R H     T R   S   
+A  N    L    R    I      P  S  G  A E U       E  D   O  E A -     Y     T   
+T  I    O    E    E      R  E  R  V A N       A  E   M  A D O     P P   E   
+A  T    T    E    S      I  C  P  E S T       S  F   P  D E B     E D   M   
+____________________________________________________________________________________________________________________________________
+80   5    3    1 100    02 02 zp  C M       1 03   0 CL L 0   6.5 F   0  18 
+80   5    3    2 100    02 02 zp  C M       1 03   0 CL L 0   7.4 F   0  24 
+80   5    3    3 121    01 02 ps  C M       1 03   0 CL L 0  14.5 F  36  47 
+80   5    3    4 316    01 02 hs  C M       1 03  15 CL L 0  13.8 F  33  39 
+80   5    3    5 800    02 02 zh  C M       1 03   0 CL L 0   6.9 F   0  13 
+80   5    4    1 835    01 02 hs  C M       1 03  15 CL L 0  15.8 F  40  49 
+90   6    2    1 806    01 02 hs  C M       1 03  20 CL L 0  18.4 F  44  56 
+90   6    2    2 110    01 02 ps  C M       1 03   0 CL L 0  15.7 F  41  49 
+90   6    2    3 100    02 02 zp  C M       1 03   0 CL L 0   8.4 F   0  37 
+90   6    2    4 110    01 02 ps  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    2    5 100    02 02 zp  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    2    6 110    01 02 ps  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    3    1 800    02 02 zh  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    3    2 100    02 02 zp  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    3    3 100    02 02 zp  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    3    4 100    02 02 zp  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    3    5 100    02 02 zp  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    4    1 800    02 02 zh  C M       1 03   0 CL L 0   5.8 F   0  15 
+90   6    4    2 800    02 02 zh  C M       1 03   0 CL L 0   6.8 F   0  18 
+90   6    4    3 800    02 02 zh  C M       1 03   0 CL L 0   8.2 F   0  41 
+90   6    4    4 100    02 02 zp  C M       1 03   0 CL L 0   7.8 F   0  44 
+90   6    5    1 121    01 02 ps  C M       1 03   0 CL L 0  14.6 F  33  39 
+90   6    6    1 835    01 02 hs  C M       1 03  20 CL L 0  17.5 F  41  55 
+90   6    6    2 121    01 02 ps  C M       1 03   0 CL L 0  16.3 F  44  52 
+90   6    6    3 100    02 02 zp  C M       1 03   0 CL L 0   8.2 F   0  37 
+90   6    6    4 800    02 02 zh  C M       1 03   0 CL L 0   7.7 F   0  35 
+90   6    7    1 316    01 02 hs  C M       1 03   0 CL L 0  12.7 F  16  22 
+90   6    7    2 110    01 02 ps  C M       1 03   0 CL L 0  14.2 F  33  39 
+90   6    8    1 316    01 02 hs  C M       1 03   0 CL L 0  14.5 F  28  39 
+90   6    8    2 121    01 02 ps  C M       1 03   0 CL L 0  15.1 F  42  55 
+90   6    8    3 100    02 02 zp  C M       1 03   0 CL L 0   8.3 F   0  47 
+
+A03: LISTING OF TREE MEASUREMENTS AND CHARACTERISTICS (A2)                                                                  PAGE 11
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                      T          P        T         M       
+                                  C   R       U         L R       M R   H   
+                         P  P     U C E          S   Y  I E       R H   T   
+                  S      R  R  S  T N E       O  E   L  V E       H T       
+S                 P      O  O  M  / T         F  E   D  E   D     T     U   
+T                 E      D  D  P  L / C          N      / G B       P       
+R  U    P    T    C               E M O       M      C  D R H     T R   S   
+A  N    L    R    I      P  S  G  A E U       E  D   O  E A -     Y     T   
+T  I    O    E    E      R  E  R  V A N       A  E   M  A D O     P P   E   
+A  T    T    E    S      I  C  P  E S T       S  F   P  D E B     E D   M   
+____________________________________________________________________________________________________________________________________
+90   6    8    4 800    02 02 zh  C M       1 03   0 CL L 0   9.0 F   0  45 
+90   6    9    1 316    01 02 hs  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    9    2 110    01 02 ps  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    9    3 100    02 02 zp  C C       1 03   0 CL L 0   0.0 F   0   0 
+90   6    9    4 800    02 02 zh  C C       1 03   0 CL L 0   0.0 F   0   0 
+
+A04: COUNT TABLE INFORMATION (A2)                                                                                           PAGE 12
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+THE FOLLOWING INFORMATION IS PROVIDED FOR TREE-BASED METHODS AND REPRESENTS WHAT ONCE WERE COUNT RECORDS
+ 
+ CUTTING            SAMPLE                        KZ      TALLY
+   UNIT   STRATUM   GROUP   SPECIES   FREQUENCY   VALUE   COUNT   KPI      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+     2      03        zh    800           100       0     541        0     zh/800
+     2      03        zp    100           200       0     436        0     zp/100
+     2      12        hs    316            30       0     110        0     hs/316
+     2      12        hs    531            30       0       0        0     hs/531
+     2      12        ps    110            25       0      75        0     ps/110
+     2      12        ps    121            25       0       0        0     ps/121
+     2      18        hs    621           100       0       0        0     hs/621
+     2      18        hs    806           100       0       0        0     hs/806
+     2      18        ps    110            60       0     248        0     ps/110
+     2      18        hs    316           100       0     163        0     hs/316
+     4      70        hs    621             5       0       0        0     hs/621
+     4      70        hs    806             5       0       0        0     hs/806
+     4      70        hs    835             5       0       0        0     hs/835
+     4      70        ps    110             5       0       0        0     ps/110
+     4      70        ps    121             5       0       0        0     ps/121
+     4      70        zh    800             5       0       0        0     zh/800
+     4      70        zp    100             5       0       0        0     zp/100
+     6      90        hs    316             5       0       0        0     hs/316
+     6      90        hs    806             5       0       0        0     hs/806
+     6      90        hs    835             5       0       0        0     hs/835
+     6      90        ps    110             5       0       0        0     ps/110
+     6      90        ps    121             5       0       0        0     ps/121
+     6      90        zh    800             5       0       0        0     zh/800
+     6      90        zp    100             5       0       0        0     zp/100
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 13
+FOR CUT TREES ONLY
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                  S
+                  T
+    P      S      G   *************************************PRIMARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 00 01 03  ro  N  1     4     4     4   3.182    100.2      400.70       40323.49      7.8180    7.8044    0.000    0.0000     0.000
+
+ 03 02 03  zh  N  1     3   544     3   4.303      6.6       19.80         179.54      4.9427   74.8890    2.846  185.5358   185.536
+ 03 02 03  zp  N  1     5   441     5   2.776      6.3       31.60         245.46      3.3819   53.5105    1.504   66.0537    66.054
+
+ 12 01 03  hs  N  1     3   113     3   4.303     24.1       72.30        1849.97      7.3328   30.4265    4.177   74.5797    74.580
+ 12 01 03  ps  N  1     2    77     2  12.706     19.1       38.30         782.45      7.0004   36.5554    4.885  324.1386   324.139
+
+ 18 01 03  hs  N  1     2   165     2  12.706     60.0      120.00        7492.82     17.1120   28.5200   12.026  254.6799   254.680
+ 18 01 03  ps  N  1     3   251     3   4.303     77.3      231.90       18038.81      7.5147    9.7215    4.313   24.0066    24.007
+
+ 60 01 03  hs  N  1     4     0     5   2.776    550.8     2754.00     3840929.95    762.2380  138.3874  340.883  171.8031   171.803
+ 60 01 03  ps  N  1     1     0     5   2.776    151.8      759.00      576080.97    339.4351  223.6068  151.800  277.6000   277.600
+ 60 02 03  zh  N  1     4     0     5   2.776    112.8      564.00      221706.01    198.8007  176.2417   88.906  218.7979   218.798
+ 60 02 03  zp  N  1     4     0     5   2.776    169.8      849.00      604701.01    339.3158  199.8326  151.747  248.0852   248.085
+
+ 70 01 03  hs  N  1     7     0     8   2.365      0.9        7.00          13.00      0.9910  113.2607    0.350   94.7034   108.295
+ 70 01 03  hs  N  2     3     8     3   4.303     27.1       81.30        2268.89      5.7297   21.1429    3.308   52.5262   108.295
+ 70 01 03  ps  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886    96.186
+ 70 01 03  ps  N  2     3     8     3   4.303     31.5       94.50        3017.31      4.5033   14.2963    2.600   35.5169    96.186
+ 70 02 03  zh  N  1     8     0     8   2.365      1.0        8.00          22.00      1.4142  141.4214    0.500  118.2500   275.012
+ 70 02 03  zh  N  2     3     8     3   4.303      3.9       11.80          77.32      3.9311   99.9425    2.270  248.2911   275.012
+ 70 02 03  zp  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886   120.880
+ 70 02 03  zp  N  2     3     8     3   4.303      7.8       23.50         197.25      2.5658   32.7549    1.481   81.3743   120.880
+
+ 80 01 03  hs  N  1     4     0     4   3.182    399.6     1598.35      965817.12    330.2223   82.6411  165.111  131.4819   131.482
+ 80 01 03  ps  N  1     2     0     4   3.182    222.6      890.32      396500.70    257.1210  115.5186  128.561  183.7901   183.790
+ 80 02 03  zh  N  1     2     0     4   3.182    129.2      516.69      165947.59    181.8480  140.7798   90.924  223.9807   223.981
+ 80 02 03  zp  N  1     2     0     4   3.182    113.0      452.11      204405.03    226.0559  200.0000  113.028  318.2000   318.200
+
+ 90 01 03  hs  N  1     5     0     9   2.306      0.6        5.00           5.00      0.5270   94.8683    0.176   72.9221    83.716
+ 90 01 03  hs  N  2     4     9     4   3.182     18.3       73.39        1413.97      4.7418   25.8444    2.371   41.1185    83.716
+ 90 01 03  ps  N  1     8     0     9   2.306      0.9        8.00          14.00      0.9280  104.3956    0.309   80.2454    81.566
+ 90 01 03  ps  N  2     5     9     5   2.776     23.0      114.90        2669.64      2.7056   11.7740    1.210   14.6170    81.566
+ 90 02 03  zh  N  1     7     0     9   2.306      0.8        7.00          13.00      0.9718  124.9490    0.324   96.0441   109.012
+ 90 02 03  zh  N  2     5     9     5   2.776     15.5       77.33        1361.08      6.4241   41.5365    2.873   51.5661   109.012
+ 90 02 03  zp  N  1    10     0     9   2.306      1.1       10.00          24.00      1.2693  114.2366    0.423   87.8099    89.791
+ 90 02 03  zp  N  2     4     9     4   3.182     22.1       88.21        1965.74      2.6003   11.7908    1.300   18.7592    89.791
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 14
+FOR CUT TREES ONLY
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                  S
+                  T
+    P      S      G   *************************************SECONDARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 00 02 03  ro  N  1     4     4     4   3.182      9.8       39.40         408.58      2.6134   26.5323    0.000    0.0000     0.000
+
+
+ 12 02 03  hs  N  1     3   113     3   4.303      7.4       22.30         168.67      1.2055   16.2181    0.687   39.7528    39.753
+ 12 02 03  ps  N  1     2    77     2  12.706      3.0        6.10          18.73      0.3536   11.5919    0.247  102.7861   102.786
+
+ 18 02 03  hs  N  1     2   165     2  12.706      6.8       13.60          92.56      0.2828    4.1593    0.199   37.1419    37.142
+ 18 02 03  ps  N  1     3   251     3   4.303      4.9       14.70          76.85      1.5524   31.6820    0.891   78.2369    78.237
+
+ 60 02 03  hs  N  1     4     0     5   2.776    190.8      954.00      458585.98    262.9462  137.8125  117.593  171.0893   171.089
+ 60 02 03  ps  N  1     1     0     5   2.776     17.4       87.00        7569.00     38.9076  223.6068   17.400  277.6000   277.600
+
+ 70 02 03  hs  N  1     7     0     8   2.365      0.9        7.00          13.00      0.9910  113.2607    0.350   94.7034   111.043
+ 70 02 03  hs  N  2     3     8     3   4.303      6.8       20.50         145.17      1.5948   23.3383    0.921   57.9803   111.043
+ 70 02 03  ps  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886   114.265
+ 70 02 03  ps  N  2     3     8     3   4.303      4.4       13.30          62.19      1.2702   28.6505    0.733   71.1774   114.265
+ 70 02 03  zh  N  1     8     0     8   2.365      1.0        8.00          22.00      1.4142  141.4214    0.500  118.2500   118.250
+ 70 02 03  zp  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886    89.389
+
+ 80 02 03  hs  N  1     4     0     4   3.182    127.6      510.46      103692.25    113.3560   88.8258   56.678  141.3218   141.322
+ 80 02 03  ps  N  1     2     0     4   3.182     34.3      137.16        9976.16     41.9251  122.2689   20.963  194.5298   194.530
+
+ 90 02 03  hs  N  1     5     0     9   2.306      0.6        5.00           5.00      0.5270   94.8683    0.176   72.9221    81.084
+ 90 02 03  hs  N  2     4     9     4   3.182      7.2       28.91         216.69      1.6104   22.2838    0.805   35.4535    81.084
+ 90 02 03  ps  N  1     8     0     9   2.306      0.9        8.00          14.00      0.9280  104.3956    0.309   80.2454    88.474
+ 90 02 03  ps  N  2     5     9     5   2.776      3.0       14.95          47.93      0.8975   30.0130    0.401   37.2601    88.474
+ 90 02 03  zh  N  1     7     0     9   2.306      0.8        7.00          13.00      0.9718  124.9490    0.324   96.0441    96.044
+ 90 02 03  zp  N  1    10     0     9   2.306      1.1       10.00          24.00      1.2693  114.2366    0.423   87.8099    87.810
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST2: GROSS VOLUME STATISTICS FOR SAMPLE GROUP (DP2)                                                                         PAGE 15
+FOR CUT TREES ONLY
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                  S
+                  T
+    P      S      G   *************************************PRIMARY PRODUCT GROSS VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 00 01 03  ro  N  1     4     4     4   3.182    112.9      451.60       51084.74      5.7474    5.0907    0.000    0.0000     0.000
+
+ 03 02 03  zh  N  1     3   544     3   4.303      6.6       19.80         179.54      4.9427   74.8890    2.846  185.5358   185.536
+ 03 02 03  zp  N  1     5   441     5   2.776      6.3       31.60         245.46      3.3819   53.5105    1.504   66.0537    66.054
+
+ 12 01 03  hs  N  1     3   113     3   4.303     26.7       80.00        2386.66     11.2545   42.2043    6.411  103.4486   103.449
+ 12 01 03  ps  N  1     2    77     2  12.706     19.1       38.30         782.45      7.0004   36.5554    4.885  324.1386   324.139
+
+ 18 01 03  hs  N  1     2   165     2  12.706     66.0      132.00        8786.42      8.6267   13.0708    6.063  116.7203   116.720
+ 18 01 03  ps  N  1     3   251     3   4.303     77.3      231.90       18038.81      7.5147    9.7215    4.313   24.0066    24.007
+
+ 60 01 03  hs  N  1     4     0     5   2.776    550.8     2754.00     3840929.95    762.2380  138.3874  340.883  171.8031   171.803
+ 60 01 03  ps  N  1     1     0     5   2.776    151.8      759.00      576080.97    339.4351  223.6068  151.800  277.6000   277.600
+ 60 02 03  zh  N  1     4     0     5   2.776    112.8      564.00      221706.01    198.8007  176.2417   88.906  218.7979   218.798
+ 60 02 03  zp  N  1     4     0     5   2.776    169.8      849.00      604701.01    339.3158  199.8326  151.747  248.0852   248.085
+
+ 70 01 03  hs  N  1     7     0     8   2.365      0.9        7.00          13.00      0.9910  113.2607    0.350   94.7034   100.003
+ 70 01 03  hs  N  2     3     8     3   4.303     28.3       84.90        2429.45      3.6592   12.9301    2.113   32.1228   100.003
+ 70 01 03  ps  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886    96.186
+ 70 01 03  ps  N  2     3     8     3   4.303     31.5       94.50        3017.31      4.5033   14.2963    2.600   35.5169    96.186
+ 70 02 03  zh  N  1     8     0     8   2.365      1.0        8.00          22.00      1.4142  141.4214    0.500  118.2500   275.012
+ 70 02 03  zh  N  2     3     8     3   4.303      3.9       11.80          77.32      3.9311   99.9425    2.270  248.2911   275.012
+ 70 02 03  zp  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886   120.880
+ 70 02 03  zp  N  2     3     8     3   4.303      7.8       23.50         197.25      2.5658   32.7549    1.481   81.3743   120.880
+
+ 80 01 03  hs  N  1     4     0     4   3.182    434.3     1737.26     1085690.80    332.2510   76.5000  166.126  121.7115   121.711
+ 80 01 03  ps  N  1     2     0     4   3.182    222.6      890.32      396500.70    257.1210  115.5186  128.561  183.7901   183.790
+ 80 02 03  zh  N  1     2     0     4   3.182    129.2      516.69      165947.59    181.8480  140.7798   90.924  223.9807   223.981
+ 80 02 03  zp  N  1     2     0     4   3.182    113.0      452.11      204405.03    226.0559  200.0000  113.028  318.2000   318.200
+
+ 90 01 03  hs  N  1     5     0     9   2.306      0.6        5.00           5.00      0.5270   94.8683    0.176   72.9221    91.459
+ 90 01 03  hs  N  2     4     9     4   3.182     21.0       84.06        1925.86      7.2910   34.6955    3.645   55.2006    91.459
+ 90 01 03  ps  N  1     8     0     9   2.306      0.9        8.00          14.00      0.9280  104.3956    0.309   80.2454    81.566
+ 90 01 03  ps  N  2     5     9     5   2.776     23.0      114.90        2669.64      2.7056   11.7740    1.210   14.6170    81.566
+ 90 02 03  zh  N  1     7     0     9   2.306      0.8        7.00          13.00      0.9718  124.9490    0.324   96.0441   109.012
+ 90 02 03  zh  N  2     5     9     5   2.776     15.5       77.33        1361.08      6.4241   41.5365    2.873   51.5661   109.012
+ 90 02 03  zp  N  1    10     0     9   2.306      1.1       10.00          24.00      1.2693  114.2366    0.423   87.8099    89.791
+ 90 02 03  zp  N  2     4     9     4   3.182     22.1       88.21        1965.74      2.6003   11.7908    1.300   18.7592    89.791
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST2: GROSS VOLUME STATISTICS FOR SAMPLE GROUP (DP2)                                                                         PAGE 16
+FOR CUT TREES ONLY
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                  S
+                  T
+    P      S      G   *************************************SECONDARY PRODUCT GROSS VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 00 02 03  ro  N  1     4     4     4   3.182      9.8       39.40         408.58      2.6134   26.5323    0.000    0.0000     0.000
+
+
+ 12 02 03  hs  N  1     3   113     3   4.303      7.4       22.30         168.67      1.2055   16.2181    0.687   39.7528    39.753
+ 12 02 03  ps  N  1     2    77     2  12.706      3.0        6.10          18.73      0.3536   11.5919    0.247  102.7861   102.786
+
+ 18 02 03  hs  N  1     2   165     2  12.706      6.8       13.60          92.56      0.2828    4.1593    0.199   37.1419    37.142
+ 18 02 03  ps  N  1     3   251     3   4.303      4.9       14.70          76.85      1.5524   31.6820    0.891   78.2369    78.237
+
+ 60 02 03  hs  N  1     4     0     5   2.776    190.8      954.00      458585.98    262.9462  137.8125  117.593  171.0893   171.089
+ 60 02 03  ps  N  1     1     0     5   2.776     17.4       87.00        7569.00     38.9076  223.6068   17.400  277.6000   277.600
+
+ 70 02 03  hs  N  1     7     0     8   2.365      0.9        7.00          13.00      0.9910  113.2607    0.350   94.7034   111.043
+ 70 02 03  hs  N  2     3     8     3   4.303      6.8       20.50         145.17      1.5948   23.3383    0.921   57.9803   111.043
+ 70 02 03  ps  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886   114.265
+ 70 02 03  ps  N  2     3     8     3   4.303      4.4       13.30          62.19      1.2702   28.6505    0.733   71.1774   114.265
+ 70 02 03  zh  N  1     8     0     8   2.365      1.0        8.00          22.00      1.4142  141.4214    0.500  118.2500   118.250
+ 70 02 03  zp  N  1     4     0     8   2.365      0.5        4.00           4.00      0.5345  106.9045    0.189   89.3886    89.389
+
+ 80 02 03  hs  N  1     4     0     4   3.182    127.6      510.46      103692.25    113.3560   88.8258   56.678  141.3218   141.322
+ 80 02 03  ps  N  1     2     0     4   3.182     34.3      137.16        9976.16     41.9251  122.2689   20.963  194.5298   194.530
+
+ 90 02 03  hs  N  1     5     0     9   2.306      0.6        5.00           5.00      0.5270   94.8683    0.176   72.9221    81.084
+ 90 02 03  hs  N  2     4     9     4   3.182      7.2       28.91         216.69      1.6104   22.2838    0.805   35.4535    81.084
+ 90 02 03  ps  N  1     8     0     9   2.306      0.9        8.00          14.00      0.9280  104.3956    0.309   80.2454    88.474
+ 90 02 03  ps  N  2     5     9     5   2.776      3.0       14.95          47.93      0.8975   30.0130    0.401   37.2601    88.474
+ 90 02 03  zh  N  1     7     0     9   2.306      0.8        7.00          13.00      0.9718  124.9490    0.324   96.0441    96.044
+ 90 02 03  zp  N  1    10     0     9   2.306      1.1       10.00          24.00      1.2693  114.2366    0.423   87.8099    87.810
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+VSM1: LOW LEVEL VOLUME SUMMARY (B1)                                                                                         PAGE 17
+FOR CUT AND LEAVE TREES
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                                        M     M         
+                                                        E     E         
+                                                        A     A         
+              P                                         N     N         
+              R                  C                                      
+              O                  O                      M     H         
+              D        Y       T N                 M    R     T     AVG
+      S    P           L  S    R T                 E    H           DEFT   GROSS NET
+ S    P    R  S U      D  A    E R                 A    T     U     %   %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF   QUAD  N                       BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                      P     S     B   C                        ********** VOLUME ************
+ A    I    U  R F  I A O  G  S G P    MEAS   MEAN  D    R     T     D   U  CUFT  CUFT   # OF
+ T    E    C  C    V V M  R  T R E                 B    P     E     F   F                        *** GROSS ***    **** NET ****
+ A    S    T  E M  E E P  P  M D C    TREES  DBH   H    D     M     T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 00 833    01 P 03 L C CL ro N 0          3  28.1 28.1  44.3  53.3  13  13 6.525 6.531      3     2180     334     1888     289    0.0 
+ 00 833    02 S 03 L C CL ro N 0                                                                     0      29        0      29    0.0 
+ 00 837    01 P 03 L C CL ro N 0          1  30.5 30.5  40.0  48.0   4   5 6.553 6.559      1      770     118      732     112    0.0 
+ 00 837    02 S 03 L C CL ro N 0                                                                     0      11        0      11    0.0 
+____________________________________________________________________________________________________________________________________
+ 03 800    02 P 03 L C CL zh N 0          3   7.8  7.7        35.3   0   0 0.000 0.000    544        0    3590        0    3590    0.0 
+ 03 100    02 P 03 L C CL zp N 0          5   7.5  7.5        36.6   0   0 0.000 0.000    441        0    2787        0    2787    0.0 
+____________________________________________________________________________________________________________________________________
+ 12 316    01 P 03 L C CL hs N 0          1  13.3 13.3  24.0  33.0   0   0 5.488 5.488     38     3390     618     3390     618    0.0 
+ 12 316    02 S 03 L C CL hs N 0                                                                     0     328        0     328    0.0 
+ 12 531    01 P 03 L C CL hs N 0          2  15.0 14.9  37.5  44.5  11  12 6.053 6.064     75    14502    2396    12769    2106    0.0 
+ 12 531    02 S 03 L C CL hs N 0                                                                     0     512        0     512    0.0 
+ 12 110    01 P 03 L C CL ps N 0          1  12.2 12.2  28.0  33.0   0   0 5.986 5.986     39     3273     547     3273     547    0.0 
+ 12 110    02 S 03 L C CL ps N 0                                                                     0     108        0     108    0.0 
+ 12 121    01 P 03 L C CL ps N 0          1  14.6 14.6  35.0  42.0   0   0 5.394 5.394     39     5005     928     5005     928    0.0 
+ 12 121    02 S 03 L C CL ps N 0                                                                     0     127        0     127    0.0 
+____________________________________________________________________________________________________________________________________
+ 18 621    01 P 03 L C CL hs N 0          1  19.4 19.4  67.0  75.0   0   0 6.657 6.657     83    39600    5948    39600    5948    0.0 
+ 18 621    02 S 03 L C CL hs N 0                                                                     0     578        0     578    0.0 
+ 18 806    01 P 03 L C CL hs N 0          1  18.6 18.6  53.0  60.0  20  20 6.010 6.013     83    29700    4942    23760    3952    0.0 
+ 18 806    02 S 03 L C CL hs N 0                                                                     0     545        0     545    0.0 
+ 18 110    01 P 03 L C CL ps N 0          3  20.2 20.2  60.0  69.7   0   0 6.619 6.619    251   128429   19402   128429   19402    0.0 
+ 18 110    02 S 03 L C CL ps N 0                                                                     0    1230        0    1230    0.0 
+____________________________________________________________________________________________________________________________________
+ 60 316    01 P 03 L C CL hs N 0          2  13.7 13.7  29.0  35.5   0   0 5.283 5.283    400    42957    8132    42957    8132    0.0 
+ 60 316    02 S 03 L C CL hs N 0                                                                     0    2897        0    2897    0.0 
+
+VSM1: LOW LEVEL VOLUME SUMMARY (B1)                                                                                         PAGE 18
+FOR CUT AND LEAVE TREES
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                                        M     M         
+                                                        E     E         
+                                                        A     A         
+              P                                         N     N         
+              R                  C                                      
+              O                  O                      M     H         
+              D        Y       T N                 M    R     T     AVG
+      S    P           L  S    R T                 E    H           DEFT   GROSS NET
+ S    P    R  S U      D  A    E R                 A    T     U     %   %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF   QUAD  N                       BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                      P     S     B   C                        ********** VOLUME ************
+ A    I    U  R F  I A O  G  S G P    MEAS   MEAN  D    R     T     D   U  CUFT  CUFT   # OF
+ T    E    C  C    V V M  R  T R E                 B    P     E     F   F                        *** GROSS ***    **** NET ****
+ A    S    T  E M  E E P  P  M D C    TREES  DBH   H    D     M     T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 60 621    01 P 03 L C CL hs N 0          2  14.1 14.1  39.0  47.0   0   0 5.577 5.577    400    56943   10210    56943   10210    0.0 
+ 60 621    02 S 03 L C CL hs N 0                                                                     0    3457        0    3457    0.0 
+ 60 121    01 P 03 L C CL ps N 0          1  14.5 14.5  38.0  44.0   0   0 5.336 5.336    200    26973    5055    26973    5055    0.0 
+ 60 121    02 S 03 L C CL ps N 0                                                                     0     579        0     579    0.0 
+ 60 800    02 P 03 L C CL zh N 0          4   7.3  7.3        31.5   0   0 0.000 0.000    799        0    3756        0    3756    0.0 
+ 60 100    02 P 03 L C CL zp N 0          4   7.7  7.7        38.3   0   0 0.000 0.000    799        0    5654        0    5654    0.0 
+____________________________________________________________________________________________________________________________________
+ 70 621    01 P 03 L C CL hs N 0          1  15.2 15.2  41.0  50.0   0   0 5.844 5.844    403    72452   12397    72452   12397    0.0 
+ 70 621    02 S 03 L C CL hs N 0                                                                     0    3462        0    3462    0.0 
+ 70 806    01 P 03 L C CL hs N 0          1  15.8 15.8  34.0  40.0   0   0 6.500 6.500    403    78490   12075    78490   12075    0.0 
+ 70 806    02 S 03 L C CL hs N 0                                                                     0    2576        0    2576    0.0 
+ 70 835    01 P 03 L C CL hs N 0          1  14.6 14.6  33.0  39.0  14  14 5.602 5.610    403    54339    9701    46289    8251    0.0 
+ 70 835    02 S 03 L C CL hs N 0                                                                     0    2214        0    2214    0.0 
+ 70 110    01 P 03 L C CL ps N 0          2  14.8 14.7  40.0  48.0   0   0 5.802 5.802    460    78204   13479    78204   13479    0.0 
+ 70 110    02 S 03 L C CL ps N 0                                                                     0    1702        0    1702    0.0 
+ 70 121    01 P 03 L C CL ps N 0          1  16.3 16.3  42.0  55.0   0   0 6.128 6.128    230    50603    8257    50603    8257    0.0 
+ 70 121    02 S 03 L C CL ps N 0                                                                     0    1357        0    1357    0.0 
+ 70 800    02 P 03 L C CL zh N 0          3   6.9  6.8        25.0   0   0 0.000 0.000   1380        0    5428        0    5428    0.0 
+ 70 100    02 P 03 L C CL zp N 0          3   7.9  7.9        42.0   0   0 0.000 0.000    690        0    5405        0    5405    0.0 
+____________________________________________________________________________________________________________________________________
+ 80 316    01 P 03 L C CL hs N 0          2  13.7 13.7  30.5  36.0   8   8 5.569 5.568    344    40434    7260    37187    6679    0.0 
+ 80 316    02 S 03 L C CL hs N 0                                                                     0    2323        0    2323    0.0 
+ 80 621    01 P 03 L C CL hs N 0          1  14.8 14.8  35.0  44.0   0   0 6.055 6.055    149    23028    3803    23028    3803    0.0 
+ 80 621    02 S 03 L C CL hs N 0                                                                     0    1307        0    1307    0.0 
+ 80 835    01 P 03 L C CL hs N 0          1  15.8 15.8  40.0  49.0  14  14 5.689 5.704    130    24768    4354    21118    3702    0.0 
+ 80 835    02 S 03 L C CL hs N 0                                                                     0     899        0     899    0.0 
+
+VSM1: LOW LEVEL VOLUME SUMMARY (B1)                                                                                         PAGE 19
+FOR CUT AND LEAVE TREES
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                                        M     M         
+                                                        E     E         
+                                                        A     A         
+              P                                         N     N         
+              R                  C                                      
+              O                  O                      M     H         
+              D        Y       T N                 M    R     T     AVG
+      S    P           L  S    R T                 E    H           DEFT   GROSS NET
+ S    P    R  S U      D  A    E R                 A    T     U     %   %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF   QUAD  N                       BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                      P     S     B   C                        ********** VOLUME ************
+ A    I    U  R F  I A O  G  S G P    MEAS   MEAN  D    R     T     D   U  CUFT  CUFT   # OF
+ T    E    C  C    V V M  R  T R E                 B    P     E     F   F                        *** GROSS ***    **** NET ****
+ A    S    T  E M  E E P  P  M D C    TREES  DBH   H    D     M     T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 80 110    01 P 03 L C CL ps N 0          1  15.3 15.3  37.0  44.0   0   0 5.690 5.690    139    22938    4032    22938    4032    0.0 
+ 80 110    02 S 03 L C CL ps N 0                                                                     0     459        0     459    0.0 
+ 80 121    01 P 03 L C CL ps N 0          1  14.5 14.5  36.0  47.0   0   0 5.400 5.400    155    20895    3870    20895    3870    0.0 
+ 80 121    02 S 03 L C CL ps N 0                                                                     0     758        0     758    0.0 
+ 80 800    02 P 03 L C CL zh N 0          2   7.3  7.3        24.0   0   0 0.000 0.000   1219        0    4586        0    4586    0.0 
+ 80 100    02 P 03 L C CL zp N 0          2   6.9  6.9        20.6   0   0 0.000 0.000   1365        0    4012        0    4012    0.0 
+____________________________________________________________________________________________________________________________________
+ 90 316    01 P 03 L C CL hs N 0          2  13.5 13.5  21.2  29.4   0   0 5.801 5.801    102     9095    1568     9095    1568    0.0 
+ 90 316    02 S 03 L C CL hs N 0                                                                     0     872        0     872    0.0 
+ 90 806    01 P 03 L C CL hs N 0          1  18.4 18.4  44.0  56.0  20  19 6.311 6.311     28     8945    1417     7156    1134    0.0 
+ 90 806    02 S 03 L C CL hs N 0                                                                     0     278        0     278    0.0 
+ 90 835    01 P 03 L C CL hs N 0          1  17.5 17.5  41.0  55.0  19  20 6.501 6.509     30     8374    1288     6699    1029    0.0 
+ 90 835    02 S 03 L C CL hs N 0                                                                     0     320        0     320    0.0 
+ 90 110    01 P 03 L C CL ps N 0          2  14.9 14.9  36.6  43.5   0   0 5.846 5.846    108    17317    2962    17317    2962    0.0 
+ 90 110    02 S 03 L C CL ps N 0                                                                     0     351        0     351    0.0 
+ 90 121    01 P 03 L C CL ps N 0          3  15.3 15.3  39.3  48.3   0   0 5.875 5.875    153    26520    4514    26520    4514    0.0 
+ 90 121    02 S 03 L C CL ps N 0                                                                     0     622        0     622    0.0 
+ 90 800    02 P 03 L C CL zh N 0          5   7.2  7.2        27.1   0   0 0.000 0.000    996        0    4403        0    4403    0.0 
+ 90 100    02 P 03 L C CL zp N 0          4   8.2  8.2        41.3   0   0 0.000 0.000   1118        0    8968        0    8968    0.0 
+____________________________________________________________________________________________________________________________________
+ TOTALS ---          PRODUCT     EST. NO                   *** GROSS VOLUME ***          *** NET VOLUME ***
+            PRODUCT  SOURCE      OF TREES                  BDFT            CUFT          BDFT          CUFT           CORDS
+____________________________________________________________________________________________________________________________________
+              01        P              4844              890122          149606        863709        145051             0.0 
+              02        S                                     0           29900             0         29900             0.0 
+              02        P              9351                   0           48590             0         48590             0.0 
+____________________________________________________________________________________________________________________________________
+                                      14196              890122          228096        863709        223541             0.0 
+____________________________________________________________________________________________________________________________________
+
+VSM1: LOW LEVEL VOLUME SUMMARY (B1)                                                                                         PAGE 20
+FOR CUT AND LEAVE TREES
+CRUISE#: 88888      SALE#: 88888
+SALENAME: r8test                                                                                                 VERSION: DRAFT.2016
+RUN DATE & TIME: 8/3/2016 8:56:15 AM                                                             VOLUME LIBRARY VERSION: 07.13.2016
+
+
+                                                        M     M         
+                                                        E     E         
+                                                        A     A         
+              P                                         N     N         
+              R                  C                                      
+              O                  O                      M     H         
+              D        Y       T N                 M    R     T     AVG
+      S    P           L  S    R T                 E    H           DEFT   GROSS NET
+ S    P    R  S U      D  A    E R                 A    T     U     %   %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF   QUAD  N                       BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                      P     S     B   C                        ********** VOLUME ************
+ A    I    U  R F  I A O  G  S G P    MEAS   MEAN  D    R     T     D   U  CUFT  CUFT   # OF
+ T    E    C  C    V V M  R  T R E                 B    P     E     F   F                        *** GROSS ***    **** NET ****
+ A    S    T  E M  E E P  P  M D C    TREES  DBH   H    D     M     T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.

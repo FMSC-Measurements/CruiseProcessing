@@ -8,26 +8,33 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
 {
     public partial class ModifyWeightFactors : Form
     {
-        #region
         public List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
+        public IServiceProvider Services { get; }
 
-        public ModifyWeightFactors()
+        protected ModifyWeightFactors()
         {
             InitializeComponent();
+        }
+
+        public ModifyWeightFactors(CPbusinessLayer dataLayer, IServiceProvider services)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
 
         public int setupDialog()
         {
             //  first, ask the security question and only allow correct answer to proceed
-            SecurityQuestion sq = new SecurityQuestion();
+            SecurityQuestion sq = Services.GetRequiredService<SecurityQuestion>();
             sq.ShowDialog();
             if (sq.securityResponse != "OK")
             {
@@ -40,7 +47,7 @@ namespace CruiseProcessing
 
             //  if there are biomass equations, bind to grid
             //  else show message and return
-            bioList = bslyr.getBiomassEquations();
+            bioList = DataLayer.getBiomassEquations();
             if (bioList.Count == 0)
             {
                 MessageBox.Show("There are no biomass equations available for updating.\n Cannot continue.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -71,11 +78,11 @@ namespace CruiseProcessing
             {
                 Cursor.Current = Cursors.WaitCursor;
                 //  
-                bslyr.SaveBiomassEquations(bioList);
+                DataLayer.SaveBiomassEquations(bioList);
 
-                if (bslyr.DAL_V3 != null)
+                if (DataLayer.DAL_V3 != null)
                 {
-                    bslyr.syncBiomassEquationToV3();
+                    DataLayer.syncBiomassEquationToV3();
                 }//end if
 
                     Cursor.Current = this.Cursor;

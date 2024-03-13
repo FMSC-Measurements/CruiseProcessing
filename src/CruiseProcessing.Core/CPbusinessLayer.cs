@@ -3,30 +3,51 @@ using System.Collections;
 using System.Linq;
 using System.Text;
 using CruiseDAL.DataObjects;
-
-
+using CruiseDAL;
+using System;
+using CruiseProcessing.Output;
+using System.Reflection;
 
 namespace CruiseProcessing
 {
     public class CPbusinessLayer
     {
-        #region
-        public string fileName;
-        //StringBuilder sb = new StringBuilder();
-        // string[] parameterValues = new string[11];
-        // string[] selectValues = new string[11];
-        //  string[] selectParameters = new string[11];
-        public CruiseDAL.DAL DAL;
-        public CruiseDAL.CruiseDatastore_V3 DAL_V3;
-        // List<SaleDO> saleList = new List<SaleDO>();
-        // List<StratumDO> stList = new List<StratumDO>();
-        //List<CuttingUnitDO> cutList = new List<CuttingUnitDO>();
-        // List<SampleGroupDO> sgList = new List<SampleGroupDO>();
-        // List<TreeDO> tList = new List<TreeDO>();
-        // List<TreeDefaultValueDO> tdvList = new List<TreeDefaultValueDO>();
-        // List<PlotDO> pList = new List<PlotDO>();
-        // List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
-        #endregion
+        protected string CruiseID { get; } // for v3 files
+        public string FilePath { get; }
+        public DAL DAL { get; }
+        public CruiseDatastore_V3 DAL_V3 { get; }
+        public string CPVersion { get; }
+        public string VolLibVersion { get; }
+
+        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID)
+        {
+            if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }
+
+            DAL = dal;
+            DAL_V3 = dal_V3;
+            CruiseID = cruiseID; 
+            FilePath = DAL.Path;
+
+
+            var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
+            CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");
+            VolLibVersion = Utilities.CurrentDLLversion();
+        }
+
+        public HeaderFieldData GetReportHeaderData()
+        {
+            var sale = GetSale();
+
+
+            return new HeaderFieldData()
+            {
+                Date = DateTime.Now.ToString(),
+                Version = CPVersion,
+                DllVersion = VolLibVersion,
+                CruiseName = sale.SaleNumber,
+                SaleName = sale.Name.Trim(' '),
+            };
+        }
 
         // *******************************************************************************************
         public string createNewTableQuery(string tableName, params string[] valuesList)
@@ -161,12 +182,17 @@ namespace CruiseProcessing
         */
         // *******************************************************************************************
         //  Gets on each table -- pulls all data from specified table
-        public List<SaleDO> getSale()
+        public List<SaleDO> GetAllSaleRecords()
         {
             return DAL.From<SaleDO>().Read().ToList();
         }   //  end getSale
 
-        public List<StratumDO> getStratum()
+        public SaleDO GetSale()
+        {
+            return DAL.From<SaleDO>().Query().FirstOrDefault();
+        }
+
+        public List<StratumDO> GetStrata()
         {
             return DAL.From<StratumDO>().OrderBy("Code").Read().ToList();
         }   //  end getStratum
@@ -193,15 +219,9 @@ namespace CruiseProcessing
         }   //  end getCuttingUnitStratum
 
 
-        public List<PlotDO> getPlots()
-        {
-            return DAL.From<PlotDO>().OrderBy("PlotNumber").Read().ToList();
-        }   //  end getPlots
 
-        public List<SampleGroupDO> getSampleGroups()
-        {
-            return DAL.From<SampleGroupDO>().Read().ToList();
-        }   //  end getSampleGroups
+
+
 
         public List<TreeDefaultValueDO> getTreeDefaults()
         {
@@ -213,10 +233,7 @@ namespace CruiseProcessing
             return DAL.From<CountTreeDO>().Read().ToList();
         }   //  end getCountTrees
 
-        public List<TreeDO> getTrees()
-        {
-            return DAL.From<TreeDO>().Read().ToList();
-        }   //  end getTrees
+
 
         public List<LogDO> getLogs()
         {
@@ -493,7 +510,7 @@ namespace CruiseProcessing
                .Join("Tree AS t", "USING (Tree_CN)")
                .Join("Stratum AS st", "USING (Stratum_CN)")
                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
-               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M AND t.Species = @p2 AND LogStock.Grade = @p3 AND DIBClass >= @p4 AND DIBClass <= @p5")
+               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M' AND t.Species = @p2 AND LogStock.Grade = @p3 AND DIBClass >= @p4 AND DIBClass <= @p5")
                .Read(currST, currSP, currGrade, minDIB, maxDIB).ToList();
         }   //  end getLogSpecies
 
@@ -505,7 +522,7 @@ namespace CruiseProcessing
                .Join("Tree AS t", "USING (Tree_CN)")
                .Join("Stratum AS st", "USING (Stratum_CN)")
                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
-               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M AND LogStock.Grade = @p3")
+               .Where("sg.CutLeave = 'C' AND st.Code = @p1 AND t.CountOrMeasure = 'M' AND LogStock.Grade = @p2")
                .Read(currST, currGrade).ToList();
         }   //  end getStrataLogs
 
@@ -609,43 +626,49 @@ namespace CruiseProcessing
         public string getRegion()
         {
             //  retrieve sale record
-            List<SaleDO> saleList = getSale();
-            return saleList[0].Region;
-        }   //  end getRegion
+            var sale = GetSale();
+            return sale.Region;
+        }
 
         //  forest
         public string getForest()
         {
-            List<SaleDO> saleList = getSale();
-            return saleList[0].Forest;
-        }   //  end getForest
+            var sale = GetSale();
+            return sale.Forest;
+        }
 
         //  district
         public string getDistrict()
         {
-            List<SaleDO> saleList = getSale();
-            return saleList[0].District;
-        }   //  end getDistrict
+            var sale = GetSale();
+            return sale.District;
+        }
 
         public string getCruiseNumber()
-        {
-            List<SaleDO> saleList = getSale();
-            return saleList[0].SaleNumber;
-        }   //  end getCruiseNumber
+        { 
+            var sale = GetSale();
+            return sale.SaleNumber;
+        }
 
         public string getUOM(int currStratumCN)
         {
-            List<SampleGroupDO> sgList = DAL.From<SampleGroupDO>()
+            var sg = DAL.From<SampleGroupDO>()
                 .Where("Stratum_CN = @p1")
                 .Read(currStratumCN)
-                .ToList();
+                .FirstOrDefault();
 
-            return sgList[0].UOM;
-        }   //  end getUOM
+            return sg.UOM;
+        }
 
         //  Sample Groups
         // *******************************************************************************************
-        public List<SampleGroupDO> getSampleGroups(int currStratumCN)
+
+        public List<SampleGroupDO> getSampleGroups()
+        {
+            return DAL.From<SampleGroupDO>().Read().ToList();
+        }   //  end getSampleGroups
+
+        public List<SampleGroupDO> getSampleGroups(long currStratumCN)
         {
             return DAL.From<SampleGroupDO>()
                 .Where("Stratum_CN = @p1")
@@ -693,6 +716,12 @@ namespace CruiseProcessing
 
         //  Plot table
         // *******************************************************************************************
+        public List<PlotDO> getPlots()
+        {
+            return DAL.From<PlotDO>().OrderBy("PlotNumber").Read().ToList();
+        }   //  end getPlots
+
+
         public List<PlotDO> GetStrataPlots(string currStratum)
         {
             return DAL.From<PlotDO>()
@@ -922,6 +951,19 @@ namespace CruiseProcessing
 
         //  Tree table
         // *******************************************************************************************
+        public List<TreeDO> getTrees()
+        {
+            return DAL.From<TreeDO>().Read().ToList();
+        }   //  end getTrees
+
+        public IEnumerable<TreeDO> GetTreesByStratum(string stratumCode)
+        {
+            return DAL.From<TreeDO>()
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1")
+                .Query(stratumCode).ToArray();
+        }
+
         public List<TreeDO> getTreesOrdered(string searchString, string orderBy, string[] searchValues)
         {
             return DAL.Read<TreeDO>("SELECT * FROM Tree " + searchString + orderBy + ";", searchValues).ToList();
@@ -1216,9 +1258,6 @@ namespace CruiseProcessing
         public void SaveErrorMessages(List<ErrorLogDO> errList)
         {
             // rewritten DEC 2020 - Ben
-
-            DAL = new CruiseDAL.DAL(fileName);
-
             foreach (ErrorLogDO eld in errList)
             {
 
@@ -1241,6 +1280,22 @@ namespace CruiseProcessing
 
             return;
         }   //  end SaveErrorMessages
+
+        public void LogError(string tableName, int table_CN, string errLevel, string errMessage)
+        {
+            List<ErrorLogDO> errList = new List<ErrorLogDO>();
+            ErrorLogDO eldo = new ErrorLogDO();
+
+            eldo.TableName = tableName;
+            eldo.CN_Number = table_CN;
+            eldo.Level = errLevel;
+            eldo.ColumnName = "Volume";
+            eldo.Message = errMessage;
+            eldo.Program = "CruiseProcessing";
+            errList.Add(eldo);
+
+            SaveErrorMessages(errList);
+        } 
 
 
         public void SaveLCD(List<LCDDO> LCDlist)
@@ -1591,6 +1646,12 @@ namespace CruiseProcessing
                 }
                 rd.Save();
             }   //  end foreach loop
+
+            if (DAL_V3 != null)
+            {
+                insertReportsV3();
+            }
+
             return;
         }   //  end InsertReports
 
@@ -1836,95 +1897,31 @@ namespace CruiseProcessing
 
         public void DeletePRO()
         {
-            ////  see note above concerning this code
-            ////List<PRODO> proList = getPRO();
-            ////foreach (PRODO prdo in proList)
-            ////    prdo.Delete();
-            ////  make sure filename is complete
-            //fileName = checkFileName(fileName);
-
-            ////   open connection and delete data
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            //{
-            //    //  open connection
-            //    sqlconn.Open();
-            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-
-            //    //  delete all rows
-            //    sqlcmd.CommandText = "DELETE FROM PRO WHERE PRO_CN>0";
-            //    sqlcmd.ExecuteNonQuery();
-            //    sqlconn.Close();
-            //}   //  end using
-            //return;
-
             DAL.Execute("DELETE FROM PRO WHERE PRO_CN>0");
-        }   //  end deletePRO
+        }
 
 
-        public void DeleteErrorMessages()
+        public void DeleteCruiseProcessingErrorMessages()
         {
             //  deletes warnings and errors messages just for CruiseProcessing
-            //  make sure filename is complete
-            /*            fileName = checkFileName(fileName);
-
-                        //   open connection and delete data
-                        using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-                        {
-                            //  open connection
-                            sqlconn.Open();
-                            SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-
-                            //  delete all rows
-                            sqlcmd.CommandText = "DELETE FROM ErrorLog WHERE Program = 'CruiseProcessing'";
-                            sqlcmd.ExecuteNonQuery();
-                            sqlconn.Close();
-                        }   //  end using
-                        */
             DAL.Execute("DELETE FROM ErrorLog WHERE Program = 'CruiseProcessing'");
-            return;
         }   //  end deleteErrorMessages
 
 
         public void deleteVolumeEquations()
         {
-            //  used mostly in region 8 volume equations
-            //  make sure filename is complete
-            //fileName = checkFileName(fileName);
+            //  used only in region 8 volume equations to reset volEqs
 
-            //  open connection and delete data
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            // {
-            //    sqlconn.Open();
-            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-            //    //  delete all rows
-            //    sqlcmd.CommandText = ("DELETE FROM VolumeEquation");
-            //    sqlcmd.ExecuteNonQuery();
-            //    sqlconn.Close();
             DAL.Execute("DELETE FROM VolumeEquation");
-            //}   //  end using
-            //return;
-        }   //  end deleteVolumeEquations
+
+        }
 
 
         //  Regression table
         public void DeleteRegressions()
         {
-            //  fix filename
-            //string tempFileName = checkFileName(fileName);
-
-            //  open connection and delete data
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(tempFileName))
-            //{
-            //    sqlconn.Open();
-            //    SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-            //    //  delete all rows
-            //    sqlcmd.CommandText = "DELETE FROM Regression";
-            //    sqlcmd.ExecuteNonQuery();
-            //    sqlconn.Close();
-            //}   //  end using
             DAL.Execute("DELETE FROM Regression");
-            return;
-        }   //  end deleteRegressiosn
+        }
 
 
         public void SaveRegress(List<RegressionDO> resultsList)
@@ -1985,24 +1982,23 @@ namespace CruiseProcessing
         public void insertReportsV3()
         {
             DAL_V3.BeginTransaction();
-            var cruiseIDs = DAL_V3.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
-            var CruiseID = cruiseIDs.First();
-
-            //make sure the reports is empty.
-            DAL_V3.Execute("DELETE FROM REPORTS");
-
-            allReportsArray ara = new allReportsArray();
-            for (int k = 0; k < ara.reportsArray.GetLength(0); k++)
+            try
             {
-                //  since this is an initial list where none exists, selected will always be zero or false
-                string ReportID = ara.reportsArray[k, 0];
-                bool Selected = false;
-                string Title = ara.reportsArray[k, 1];
-                string CreatedBy = "";
+                //make sure the reports is empty.
+                DAL_V3.Execute("DELETE FROM REPORTS");
+
+                var reportsArray = allReportsArray.reportsArray;
+                for (int k = 0; k < reportsArray.GetLength(0); k++)
+                {
+                    //  since this is an initial list where none exists, selected will always be zero or false
+                    string ReportID = reportsArray[k, 0];
+                    bool Selected = false;
+                    string Title = reportsArray[k, 1];
+                    string CreatedBy = "";
 
 
-                DAL_V3.Execute2(
-                @"INSERT INTO Reports (
+                    DAL_V3.Execute2(
+                    @"INSERT INTO Reports (
                     ReportID,
                     CruiseID,
                     Selected,
@@ -2013,17 +2009,23 @@ namespace CruiseProcessing
                     @Selected,
                     @Title
                 );",
-                new
-                {
-                    ReportID,
-                    CruiseID,
-                    Selected,
-                    Title
-                });
+                    new
+                    {
+                        ReportID,
+                        CruiseID,
+                        Selected,
+                        Title
+                    });
 
-            }//  end for k loop
+                }//  end for k loop
 
-            DAL_V3.CommitTransaction();
+                DAL_V3.CommitTransaction();
+            }
+            catch
+            {
+                DAL_V3.RollbackTransaction();
+                throw;
+            }
 
         }
 
@@ -2033,90 +2035,86 @@ namespace CruiseProcessing
 
             //delete all from V3 file
             DAL_V3.BeginTransaction();
-            //CP assumes only 1 cruies so far.
-            var cruiseIDs = DAL_V3.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
-            var varCruiseID = cruiseIDs.First();
-
-            //make sure the reports is empty.
-            DAL_V3.Execute("DELETE FROM VolumeEquation");
-
-            foreach (VolumeEquationDO volEq in myVE)
+            try
             {
-                int VolumeEquation_CN;  //   VolumeEquation_CN INTEGER PRIMARY KEY AUTOINCREMENT,
-                
-                string CruiseID = varCruiseID.ToString();        //CruiseID TEXT NOT NULL COLLATE NOCASE,
+                //make sure the reports is empty.
+                DAL_V3.Execute("DELETE FROM VolumeEquation");
 
-                string Species;                 //Species TEXT NOT NULL,
-                Species = volEq.Species;
+                foreach (VolumeEquationDO volEq in myVE)
+                {
+                    int VolumeEquation_CN;  //   VolumeEquation_CN INTEGER PRIMARY KEY AUTOINCREMENT,
 
-                string PrimaryProduct;          //PrimaryProduct TEXT NOT NULL,
-                PrimaryProduct = volEq.PrimaryProduct;
+                    string Species;                 //Species TEXT NOT NULL,
+                    Species = volEq.Species;
 
-                string VolumeEquationNumber;    //VolumeEquationNumber TEXT NOT NULL,
-                VolumeEquationNumber = volEq.VolumeEquationNumber;
+                    string PrimaryProduct;          //PrimaryProduct TEXT NOT NULL,
+                    PrimaryProduct = volEq.PrimaryProduct;
 
-                float StumpHeight;              //StumpHeight REAL Default 0.0,
-                StumpHeight = volEq.StumpHeight;
+                    string VolumeEquationNumber;    //VolumeEquationNumber TEXT NOT NULL,
+                    VolumeEquationNumber = volEq.VolumeEquationNumber;
 
-                float TopDIBPrimary;            //TopDIBPrimary REAL Default 0.0,
-                TopDIBPrimary = volEq.TopDIBPrimary;
+                    float StumpHeight;              //StumpHeight REAL Default 0.0,
+                    StumpHeight = volEq.StumpHeight;
 
-                float TopDIBSecondary;          //TopDIBSecondary REAL Default 0.0,
-                TopDIBSecondary = volEq.TopDIBSecondary;
+                    float TopDIBPrimary;            //TopDIBPrimary REAL Default 0.0,
+                    TopDIBPrimary = volEq.TopDIBPrimary;
 
-                long CalcTotal;                  //CalcTotal INTEGER Default 0,
-                CalcTotal = volEq.CalcTotal;
+                    float TopDIBSecondary;          //TopDIBSecondary REAL Default 0.0,
+                    TopDIBSecondary = volEq.TopDIBSecondary;
 
-                long CalcBoard;                  //CalcBoard INTEGER Default 0,
-                CalcBoard = volEq.CalcBoard;
+                    long CalcTotal;                  //CalcTotal INTEGER Default 0,
+                    CalcTotal = volEq.CalcTotal;
 
-                long CalcCubic;                  //CalcCubic INTEGER Default 0,
-                CalcCubic = volEq.CalcCubic;
+                    long CalcBoard;                  //CalcBoard INTEGER Default 0,
+                    CalcBoard = volEq.CalcBoard;
 
-                long CalcCord;                   //CalcCord INTEGER Default 0,
-                CalcCord = volEq.CalcCord;
+                    long CalcCubic;                  //CalcCubic INTEGER Default 0,
+                    CalcCubic = volEq.CalcCubic;
 
-                long CalcTopwood;                //CalcTopwood INTEGER Default 0,
-                CalcTopwood = volEq.CalcTopwood;
+                    long CalcCord;                   //CalcCord INTEGER Default 0,
+                    CalcCord = volEq.CalcCord;
 
-                long CalcBiomass;                //CalcBiomass INTEGER Default 0,
-                CalcBiomass = volEq.CalcBiomass;
+                    long CalcTopwood;                //CalcTopwood INTEGER Default 0,
+                    CalcTopwood = volEq.CalcTopwood;
 
-                float Trim;                     //Trim REAL Default 0.0,
-                Trim = volEq.Trim;
+                    long CalcBiomass;                //CalcBiomass INTEGER Default 0,
+                    CalcBiomass = volEq.CalcBiomass;
 
-                long SegmentationLogic;          //SegmentationLogic INTEGER Default 0,
-                SegmentationLogic = volEq.SegmentationLogic;
+                    float Trim;                     //Trim REAL Default 0.0,
+                    Trim = volEq.Trim;
 
-                float MinLogLengthPrimary;      //MinLogLengthPrimary REAL Default 0.0,
-                MinLogLengthPrimary = volEq.MinLogLengthPrimary;
+                    long SegmentationLogic;          //SegmentationLogic INTEGER Default 0,
+                    SegmentationLogic = volEq.SegmentationLogic;
 
-                float MaxLogLengthPrimary;      //MaxLogLengthPrimary REAL Default 0.0,
-                MaxLogLengthPrimary = volEq.MaxLogLengthPrimary;
+                    float MinLogLengthPrimary;      //MinLogLengthPrimary REAL Default 0.0,
+                    MinLogLengthPrimary = volEq.MinLogLengthPrimary;
 
-                //float MinLogLengthSecondary;    no longer used in the data objects. //MinLogLengthSecondary REAL Default 0.0,
+                    float MaxLogLengthPrimary;      //MaxLogLengthPrimary REAL Default 0.0,
+                    MaxLogLengthPrimary = volEq.MaxLogLengthPrimary;
 
-                //float MaxLogLengthSecondary;    No longer used //MaxLogLengthSecondary REAL Default 0.0, 
-                //MaxLogLengthSecondary = volEq.MaxLogLengthSecondary;
+                    //float MinLogLengthSecondary;    no longer used in the data objects. //MinLogLengthSecondary REAL Default 0.0,
 
-                float MinMerchLength;           //MinMerchLength REAL Default 0.0,
-                MinMerchLength = volEq.MinMerchLength;
+                    //float MaxLogLengthSecondary;    No longer used //MaxLogLengthSecondary REAL Default 0.0, 
+                    //MaxLogLengthSecondary = volEq.MaxLogLengthSecondary;
 
-                string Model;                   //Model TEXT,
-                Model = volEq.Model;
+                    float MinMerchLength;           //MinMerchLength REAL Default 0.0,
+                    MinMerchLength = volEq.MinMerchLength;
 
-                string CommonSpeciesName;       //CommonSpeciesName TEXT,
-                CommonSpeciesName = volEq.CommonSpeciesName;
+                    string Model;                   //Model TEXT,
+                    Model = volEq.Model;
 
-                long MerchModFlag;               //MerchModFlag INTEGER Default 0,
-                MerchModFlag = volEq.MerchModFlag;
+                    string CommonSpeciesName;       //CommonSpeciesName TEXT,
+                    CommonSpeciesName = volEq.CommonSpeciesName;
 
-                long EvenOddSegment;             //EvenOddSegment INTEGER Default 0,
-                EvenOddSegment = volEq.EvenOddSegment;
+                    long MerchModFlag;               //MerchModFlag INTEGER Default 0,
+                    MerchModFlag = volEq.MerchModFlag;
+
+                    long EvenOddSegment;             //EvenOddSegment INTEGER Default 0,
+                    EvenOddSegment = volEq.EvenOddSegment;
 
 
-                DAL_V3.Execute2(
-                @"INSERT INTO VolumeEquation (
+                    DAL_V3.Execute2(
+                    @"INSERT INTO VolumeEquation (
                     CruiseID,
                     Species,
                     PrimaryProduct,
@@ -2163,37 +2161,43 @@ namespace CruiseProcessing
                     @MerchModFlag,
                     @EvenOddSegment
                 );",
-                new
-                {
-                    CruiseID,
-                    Species,
-                    PrimaryProduct,
-                    VolumeEquationNumber,
-                    StumpHeight,
-                    TopDIBPrimary,
-                    TopDIBSecondary,
-                    CalcTotal,
-                    CalcBoard,
-                    CalcCubic,
-                    CalcCord,
-                    CalcTopwood,
-                    CalcBiomass,
-                    Trim,
-                    SegmentationLogic,
-                    MinLogLengthPrimary,
-                    MaxLogLengthPrimary,
-                    MinMerchLength,
-                    Model,
-                    CommonSpeciesName,
-                    MerchModFlag,
-                    EvenOddSegment
-                });
+                    new
+                    {
+                        CruiseID,
+                        Species,
+                        PrimaryProduct,
+                        VolumeEquationNumber,
+                        StumpHeight,
+                        TopDIBPrimary,
+                        TopDIBSecondary,
+                        CalcTotal,
+                        CalcBoard,
+                        CalcCubic,
+                        CalcCord,
+                        CalcTopwood,
+                        CalcBiomass,
+                        Trim,
+                        SegmentationLogic,
+                        MinLogLengthPrimary,
+                        MaxLogLengthPrimary,
+                        MinMerchLength,
+                        Model,
+                        CommonSpeciesName,
+                        MerchModFlag,
+                        EvenOddSegment
+                    });
 
 
 
-            }//end for each
+                }//end for each
 
-            DAL_V3.CommitTransaction();
+                DAL_V3.CommitTransaction();
+            }
+            catch
+            {
+                DAL_V3.RollbackTransaction();
+                throw;
+            }
     
 
         }//end sync vol equation
@@ -2204,66 +2208,62 @@ namespace CruiseProcessing
 
             //delete all from V3 file
             DAL_V3.BeginTransaction();
-            //CP assumes only 1 cruies so far.
-            var cruiseIDs = DAL_V3.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
-            var varCruiseID = cruiseIDs.First();
-
-            //make sure the reports is empty.
-            DAL_V3.Execute("DELETE FROM BiomassEquation");
-
-            foreach (BiomassEquationDO bioEq in myBE)
+            try
             {
-                string CruiseID = varCruiseID.ToString();
+                //make sure the reports is empty.
+                DAL_V3.Execute("DELETE FROM BiomassEquation");
 
-                //Species TEXT NOT NULL,
-                string Species;
-                Species = bioEq.Species;
-                
-                //Product TEXT NOT NULL,
-                string Product;
-                Product = bioEq.Product;
-                
-                //Component TEXT NOT NULL,
-                string Component;
-                Component = bioEq.Component;
-                
-                //LiveDead TEXT NOT NULL,
-                string LiveDead;
-                LiveDead = bioEq.LiveDead;
+                foreach (BiomassEquationDO bioEq in myBE)
+                {
+                    //Species TEXT NOT NULL,
+                    string Species;
+                    Species = bioEq.Species;
 
-                //FIAcode INTEGER NOT NULL,
-                long FIAcode;
-                FIAcode = bioEq.FIAcode;
+                    //Product TEXT NOT NULL,
+                    string Product;
+                    Product = bioEq.Product;
 
-                //Equation TEXT,
-                string Equation;
-                Equation = bioEq.Equation;
+                    //Component TEXT NOT NULL,
+                    string Component;
+                    Component = bioEq.Component;
 
-                //PercentMoisture REAL Default 0.0,
-                float PercentMoisture;
-                PercentMoisture = bioEq.PercentMoisture;
+                    //LiveDead TEXT NOT NULL,
+                    string LiveDead;
+                    LiveDead = bioEq.LiveDead;
 
-                //PercentRemoved REAL Default 0.0,
-                float PercentRemoved;
-                PercentRemoved = bioEq.PercentRemoved;
+                    //FIAcode INTEGER NOT NULL,
+                    long FIAcode;
+                    FIAcode = bioEq.FIAcode;
 
-                //MetaData TEXT,
-                string MetaData;
-                MetaData = bioEq.MetaData;
+                    //Equation TEXT,
+                    string Equation;
+                    Equation = bioEq.Equation;
 
-                //WeightFactorPrimary REAL Default 0.0,
-                float WeightFactorPrimary;
-                WeightFactorPrimary = bioEq.WeightFactorPrimary;
+                    //PercentMoisture REAL Default 0.0,
+                    float PercentMoisture;
+                    PercentMoisture = bioEq.PercentMoisture;
 
-                //WeightFactorSecondary REAL Default 0.0,
-                float WeightFactorSecondary;
-                WeightFactorSecondary = bioEq.WeightFactorSecondary;
+                    //PercentRemoved REAL Default 0.0,
+                    float PercentRemoved;
+                    PercentRemoved = bioEq.PercentRemoved;
+
+                    //MetaData TEXT,
+                    string MetaData;
+                    MetaData = bioEq.MetaData;
+
+                    //WeightFactorPrimary REAL Default 0.0,
+                    float WeightFactorPrimary;
+                    WeightFactorPrimary = bioEq.WeightFactorPrimary;
+
+                    //WeightFactorSecondary REAL Default 0.0,
+                    float WeightFactorSecondary;
+                    WeightFactorSecondary = bioEq.WeightFactorSecondary;
 
 
 
 
-                DAL_V3.Execute2(
-               @"INSERT INTO BiomassEquation (
+                    DAL_V3.Execute2(
+                   @"INSERT INTO BiomassEquation (
                     CruiseID,
                     Species,
                     Product,
@@ -2291,25 +2291,31 @@ namespace CruiseProcessing
                     @WeightFactorPrimary,
                     @WeightFactorSecondary
                 );",
-                new
-                {
-                    CruiseID,
-                    Species,
-                    Product,
-                    Component,
-                    LiveDead,
-                    FIAcode,
-                    Equation,
-                    PercentMoisture,
-                    PercentRemoved,
-                    MetaData,
-                    WeightFactorPrimary,
-                    WeightFactorSecondary
-                });
+                    new
+                    {
+                        CruiseID,
+                        Species,
+                        Product,
+                        Component,
+                        LiveDead,
+                        FIAcode,
+                        Equation,
+                        PercentMoisture,
+                        PercentRemoved,
+                        MetaData,
+                        WeightFactorPrimary,
+                        WeightFactorSecondary
+                    });
 
-            }//end foreach
+                }//end foreach
 
-            DAL_V3.CommitTransaction();
+                DAL_V3.CommitTransaction();
+            }
+            catch
+            {
+                DAL_V3.RollbackTransaction();
+                throw;
+            }
 
         }//end sync biomass
 
@@ -2319,61 +2325,56 @@ namespace CruiseProcessing
 
             //delete all from V3 file
             DAL_V3.BeginTransaction();
-            //CP assumes only 1 cruies so far.
-            var cruiseIDs = DAL_V3.QueryScalar<string>("SELECT CruiseID FROM Cruise;").ToArray();
-            var varCruiseID = cruiseIDs.First();
-
-            //make sure the reports is empty.
-            DAL_V3.Execute("DELETE FROM ValueEquation");
-
-
-            foreach (ValueEquationDO ve in myVE)
+            try
             {
+                //make sure the reports is empty.
+                DAL_V3.Execute("DELETE FROM ValueEquation");
 
-                string CruiseID = varCruiseID.ToString();
 
-                //Species TEXT NOT NULL,
-                string Species = "";
-                Species = ve.Species;
+                foreach (ValueEquationDO ve in myVE)
+                {
+                    //Species TEXT NOT NULL,
+                    string Species = "";
+                    Species = ve.Species;
 
-                //PrimaryProduct TEXT NOT NULL,
-                string PrimaryProduct;
-                PrimaryProduct = ve.PrimaryProduct;
+                    //PrimaryProduct TEXT NOT NULL,
+                    string PrimaryProduct;
+                    PrimaryProduct = ve.PrimaryProduct;
 
-                //ValueEquationNumber TEXT,
-                string ValueEquationNumber;
-                ValueEquationNumber = ve.ValueEquationNumber;
+                    //ValueEquationNumber TEXT,
+                    string ValueEquationNumber;
+                    ValueEquationNumber = ve.ValueEquationNumber;
 
-                //Grade TEXT,
-                string Grade;
-                Grade = ve.Grade;
+                    //Grade TEXT,
+                    string Grade;
+                    Grade = ve.Grade;
 
-                //Coefficient1 REAL Default 0.0,
-                float Coefficient1;
-                Coefficient1 = ve.Coefficient1;
+                    //Coefficient1 REAL Default 0.0,
+                    float Coefficient1;
+                    Coefficient1 = ve.Coefficient1;
 
-                //Coefficient2 REAL Default 0.0,
-                float Coefficient2;
-                Coefficient2 = ve.Coefficient2;
+                    //Coefficient2 REAL Default 0.0,
+                    float Coefficient2;
+                    Coefficient2 = ve.Coefficient2;
 
-                //Coefficient3 REAL Default 0.0,
-                float Coefficient3;
-                Coefficient3 = ve.Coefficient3;
+                    //Coefficient3 REAL Default 0.0,
+                    float Coefficient3;
+                    Coefficient3 = ve.Coefficient3;
 
-                //Coefficient4 REAL Default 0.0,
-                float Coefficient4;
-                Coefficient4 = ve.Coefficient4;
+                    //Coefficient4 REAL Default 0.0,
+                    float Coefficient4;
+                    Coefficient4 = ve.Coefficient4;
 
-                //Coefficient5 REAL Default 0.0,
-                float Coefficient5;
-                Coefficient5 = ve.Coefficient5;
+                    //Coefficient5 REAL Default 0.0,
+                    float Coefficient5;
+                    Coefficient5 = ve.Coefficient5;
 
-                //Coefficient6 REAL Default 0.0,
-                float Coefficient6;
-                Coefficient6 = ve.Coefficient6;
+                    //Coefficient6 REAL Default 0.0,
+                    float Coefficient6;
+                    Coefficient6 = ve.Coefficient6;
 
-                DAL_V3.Execute2(
-                @"INSERT INTO ValueEquation (
+                    DAL_V3.Execute2(
+                    @"INSERT INTO ValueEquation (
                     CruiseID,
                     Species,
                     PrimaryProduct,
@@ -2399,27 +2400,32 @@ namespace CruiseProcessing
                     @Coefficient5,
                     @Coefficient6
                 );",
-                new
-                {
-                    CruiseID,
-                    Species,
-                    PrimaryProduct,
-                    ValueEquationNumber,
-                    Grade,
-                    Coefficient1,
-                    Coefficient2,
-                    Coefficient3,
-                    Coefficient4,
-                    Coefficient5,
-                    Coefficient6
+                    new
+                    {
+                        CruiseID,
+                        Species,
+                        PrimaryProduct,
+                        ValueEquationNumber,
+                        Grade,
+                        Coefficient1,
+                        Coefficient2,
+                        Coefficient3,
+                        Coefficient4,
+                        Coefficient5,
+                        Coefficient6
 
-                });
+                    });
 
 
-            }//end for each
+                }//end for each
 
-            DAL_V3.CommitTransaction();
-
+                DAL_V3.CommitTransaction();
+            }
+            catch
+            {
+                DAL_V3.RollbackTransaction();
+                throw;
+            }
         }
 
         public bool saleWithNullSpecies()

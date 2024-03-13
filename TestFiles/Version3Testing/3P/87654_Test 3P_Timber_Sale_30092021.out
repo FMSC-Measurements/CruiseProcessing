@@ -1,0 +1,556 @@
+CRUISE REPORT HEADER & CERTIFICATION
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P
+RUN DATE & TIME: 11/3/2021 3:41:00 PM
+ 
+Year: 0    Region: 01   Forest: 16   District: 01
+Remarks:  
+FILENAME: C:\Users\wlbest\Desktop\V3 Testing\3P-wb\87654_Test 3P_Timber_Sale_30092021.process
+REPORTS: A01 A02 A04 A05 ST1 ST3 UC5 VPA2 VSM1 VSM2 VSM3 
+
+
+
+
+
+
+                            **************************** CRUISE CERTIFICATION ****************************
+
+                                I certify that the timber for the Test 3P timber sale
+                                has been designated and cruised by the procedures and standards in
+                                FSH 2409.12, Timber Cruising Handbook.  Records of checks are on file
+                                at the District Ranger Office,
+
+
+
+                                ___________________                 ___________________________________
+                                RANGER DISTRICT                     (name of headquarters town)
+
+
+                                ___________________                 ______________
+                                DISTRICT RANGER                     DATE
+
+                            *****************************************************************************
+
+
+
+
+
+
+
+
+Developed and Maintained By:
+USDA FOREST SERVICE                                                                                             VERSION: 06.01.2021
+WASHINGTON OFFICE TIMBER MANAGEMENT                                                              VOLUME LIBRARY VERSION: 10.26.2021
+FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM
+
+VOLUME EQUATION TABLE                                                                                                       PAGE 2
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                                                               PRIMARY                     SECONDARY
+                                                       ******* PRODUCT ********      ****** PRODUCT ******
+                                            TOTAL       MIN                             MIN
+                     VOLUME       STUMP     CUBIC       TOP                             TOP
+     SPECIES  PROD   EQUATION     HEIGHT    VOLUME      DIB   BDFT  CUFT  CORDS         DIB   BDFT  CUFT  CORDS   BIOMASS
+____________________________________________________________________________________________________________________________________
+     AF        01    I00FW2W019    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     AF        08    I00FW2W019    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     C         01    I00FW2W242    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     C         08    I00FW2W242    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     DF        01    I00FW2W202    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     DF        08    I00FW2W202    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     GF        01    I00FW2W017    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     GF        08    I00FW2W017    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     H         01    I00FW2W260    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     H         08    I00FW2W260    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     L         01    I00FW2W073    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     L         08    I00FW2W073    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     LP        01    I00FW2W108    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     LP        08    I00FW2W108    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     PP        01    I00FW2W122    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     PP        08    I00FW2W122    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     S         01    I00FW2W093    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     S         08    I00FW2W093    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     WP        01    I00FW2W119    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     WP        08    I00FW2W119    1.0        NO        4.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 3
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+     CRUISE   STRATA   CRUISE   STRATA          PLOT  NO. OF STRATA                     DATE
+     NO.      NO.      METHOD   ACRES   BAF     SIZE  PLOTS  DESCRIPTION                MMYYYY
+____________________________________________________________________________________________________________________________________
+     87654      01     3P        40.00     0.00     0    0   3P                          0   0
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 4
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                              CUTTING   CUTTING
+     CRUISE       CUTTING     UNIT      UNIT                        LOG      PAYMENT
+     NO.          UNIT NO.    ACRES     DESCRIPTION                 METHOD   UNIT NO.
+____________________________________________________________________________________________________________________________________
+     87654             01       19.00   unit 01                     430      01 
+     87654             02       21.00   unit 02                     430      02 
+
+        TOTAL SALE ACRES:       40.00
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 5
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+     CRUISE     CUTTING             PAYMENT
+     NO.        UNIT     STRATUM    UNIT
+____________________________________________________________________________________________________________________________________
+     87654         01      01        01 
+     87654         02      01        02 
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 6
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+          SAMPLE                 BIG   SMALL
+ STRATUM  GROUP    FREQ   KZ     BAF   FPS      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+  01         A        0    500      0                                   
+  01         B        0    450      0                                   
+  01         C        0    180      0                                   
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+A02 >>>> No data for report in Plot table
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+A04: COUNT TABLE INFORMATION (A2)                                                                                           PAGE 7
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+THE FOLLOWING INFORMATION IS PROVIDED FOR TREE-BASED METHODS AND REPRESENTS WHAT ONCE WERE COUNT RECORDS
+ 
+ CUTTING            SAMPLE                        KZ      TALLY
+   UNIT   STRATUM   GROUP   SPECIES   FREQUENCY   VALUE   COUNT   KPI      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+    01      01         A    DF              0     500     240     6580      
+    01      01         B    GF              0     450     410     7856      
+    01      01         C    C               0     180      81     2430      
+    02      01         A    DF              0     500     226     6196      
+    02      01         B    GF              0     450     374     7166      
+    02      01         C    C               0     180      72     2160      
+
+A05: CUBIC FOOT                                                                                                             PAGE 8
+ PRIMARY AND SECONDARY PRODUCT
+ VOLUME INFORMATION (A5)
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                                    
+                                    
+                                    
+                  S            T    
+  S               P       D    O    
+  T               E       B    T    
+  R  U    P   T   C       H            ************ PER TREE ************                           ***** PER ACRE/PER STRATA *****
+  A  N    L   R   I       -    H       *** PRIMARY ***    ** SECONDARY **                           ** PRIMARY **   ** SECONDARY **
+  T  I    O   E   E       O    G        GROSS    NET      GROSS   NET      TREE    CHAR      EXP     GROSS   NET      GROSS    NET
+  A  T    T   E   S       B    T        CUFT     CUFT     CUFT    CUFT      FAC     FAC      FAC     CUFT    CUFT     CUFT     CUFT
+____________________________________________________________________________________________________________________________________
+ 01  01         1 DF      12.0  64        14.6    14.6      1.4     1.4    0.000   0.000  133.083   1943.0   1943.0    186.3   186.3
+ 01  01         2 GF      14.9  78        33.5    31.5      1.1     1.1    0.000   0.000   74.000   2479.0   2331.0     81.4    81.4
+ 01  01         3 C       13.1  72        20.2    20.2      1.4     1.4    0.000   0.000   38.250    772.7    772.7     53.5    53.5
+ 01  01         4 C       22.5 102        83.5    73.5      0.0     0.0    0.000   0.000   12.575   1050.0    924.3      0.0     0.0
+ 01  01         5 GF      19.6 108        84.9    74.7      1.1     1.1    0.000   0.000   31.559   2679.4   2357.5     34.7    34.7
+ 01  01         6 DF      14.5  81        30.4    28.6      1.1     1.1    0.000   0.000   68.688   2088.1   1964.5     75.6    75.6
+ 01  01         7 GF      10.3  80        18.0    18.0      2.0     2.0    0.000   0.000  126.235   2272.2   2272.2    252.5   252.5
+ 01  01         8 C       17.6  98        54.7    54.7      1.1     1.1    0.000   0.000   16.393    896.7    896.7     18.0    18.0
+ 01  01         9 GF      13.2  89        32.2    30.3      1.1     1.1    0.000   0.000   82.538   2657.7   2500.9     90.8    90.8
+ 01  01        10 DF      21.7 129       104.9    92.3      1.1     1.1    0.000   0.000   22.414   2351.2   2068.8     24.7    24.7
+ 01  02         1 C       23.9 124       123.3   108.5      1.1     1.1    0.000   0.000    8.270   1019.7    897.3      9.1     9.1
+ 01  02         2 DF      17.8  86        45.2    45.2      0.0     0.0    0.000   0.000   38.024   1718.7   1718.7      0.0     0.0
+ 01  02         3 GF      16.6  85        45.5    34.1      0.0     0.0    0.000   0.000   59.611   2712.3   2032.7      0.0     0.0
+ 01  02         4 GF      21.2  92        73.2    73.2      0.0     0.0    0.000   0.000   29.000   2122.8   2122.8      0.0     0.0
+ 01  02         5 DF      14.4  71        24.9    24.9      1.1     1.1    0.000   0.000   76.048   1893.6   1893.6     83.7    83.7
+ 01  02         6 C       15.1  78        30.0    28.2      1.1     1.1    0.000   0.000   27.818    834.5    784.5     30.6    30.6
+ 01  02         7 DF      19.3  88        53.2    50.0      1.1     1.1    0.000   0.000   36.090   1920.0   1804.5     39.7    39.7
+ 01  02         8 GF      13.7  67        23.1    23.1      1.1     1.1    0.000   0.000   79.481   1836.0   1836.0     87.4    87.4
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 9
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                  S
+                  T
+    P      S      G   *************************************PRIMARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 01 01 03   A  N  1     6   466     6   2.571      0.9        5.35           4.79      0.0581    6.5156    0.024    6.8388     6.839
+ 01 01 03   B  N  1     7   784     7   2.447      1.0        7.20           7.47      0.1048   10.1918    0.040    9.4261     9.426
+ 01 01 03   C  N  1     5   153     5   2.776      0.9        4.66           4.36      0.0772    8.2871    0.035   10.2882    10.288
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 10
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                  S
+                  T
+    P      S      G   *************************************SECONDARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 01 02 03   A  N  1     6   466     6   2.571      0.0        0.19           0.01      0.0309   96.2223    0.013  100.9956   100.996
+ 01 02 03   B  N  1     7   784     7   2.447      0.0        0.25           0.02      0.0402  110.5512    0.015  102.2465   102.246
+ 01 02 03   C  N  1     5   153     5   2.776      0.0        0.12           0.00      0.0227   93.5852    0.010  116.1827   116.183
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 11
+PRIMARY PRODUCT VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+     P         ******** PRIMARY PRODUCT GROSS VOLUME **********       ******* PRIMARY PRODUCT NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+ 01   01  03     33247.6      7.94         30607          35888            31121.6     5.49        29412         32831
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03     33247.6      7.94         30607          35888            31121.6     5.49        29412         32831
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03     33247.6      7.94         30607          35888            31121.6     5.49        29412         32831
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+ 01       03     33247.6      7.94         30607          35888            31121.6     5.49        29412         32831
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 12
+SECONDARY PRODUCT VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+     P         ******** SECONDARY PRODUCT GROSS VOLUME **********       ******* SECONDARY PRODUCT NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+ 01   02  03      1068.0     66.25           360           1776             1068.0    66.25          360          1776
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      02  03      1068.0     66.25           360           1776             1068.0    66.25          360          1776
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03      1068.0     66.25           360           1776             1068.0    66.25          360          1776
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+ 01       03      1068.0     66.25           360           1776             1068.0    66.25          360          1776
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 13
+TOTAL VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+     P         ******** ******* TOTAL GROSS VOLUME **********       ******* ******* TOTAL NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03     33247.6      7.94         30607          35888            31121.6     5.49        29412         32831
+      02  03      1068.0     66.25           360           1776             1068.0    66.25          360          1776
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03     34315.6      7.97         31582          37049            32189.6     5.75        30339         34040
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+ 01       03     34315.6      7.97         31582          37049            32189.6     5.75        30339         34040
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+UC5: VOLUME BY SPECIES WITHIN CUTTING UNIT ACROSS ALL STRATA                                                                PAGE 14
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+      S             TOTAL    ******************* SAWTIMBER *******************     ***************** NON-SAWTIMBER ****************
+      P                                  (PROD = 01   UM = 01, 03)                         (PROD NOT = 01   UM = 01, 02, 03)
+      E             EST.     EST.                                                   (AND ALL SECONDARY & RECOVERED PRODUCT VOLUMES)
+  U   C             
+  N   I             # OF     # OF    ** GROSS VOLUME **      ** NET VOLUME **      ***   GROSS    ***   ***   NET    ***
+  I   E             
+  T   S             TREES    TREES      BDFT       CUFT       BDFT       CUFT        BDFT      CUFT       BDFT      CUFT      CORDS
+____________________________________________________________________________________________________________________________________
+  01 DF               240        0      32210      6136      30686       5868        1732       211       1732       211       0.00
+  01 GF               410        0      45009      8765      41406       8081        2060       286       2060       286       0.00
+  01 C                 81        0      12527      2421      11663       2263         480        59        480        59       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  01 TOTAL      731        0      89746     17322      83755      16213        4272       556       4272       556       0.00
+ 
+  02 DF               226        0      30330      5778      28895       5525        1631       199       1631       199       0.00
+  02 GF               374        0      41055      7995      37769       7372        1879       261       1879       261       0.00
+  02 C                 72        0      11135      2152      10367       2012         427        52        427        52       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  02 TOTAL      672        0      82521     15925      77031      14909        3937       512       3937       512       0.00
+ 
+                  _________________________________________________________________________________________________________________
+
+
+ S U B T O T A L S    ************************SAWTIMBER***********************      ****************NON-SAWTIMBER****************
+                   TOT EST   EST
+                    # OF     # OF     ** GROSS VOLUME **     ** NET VOLUME **       GROSS     GROSS      NET       NET
+          SPECIES   TREES    TREES      BDFT       CUFT       BDFT      CUFT        BDFT      CUFT       BDFT      CUFT     CORDS
+          DF          466        0      62540      11915      59581      11393        3363       410       3363       410       0.00
+          GF          784        0      86064      16759      79176      15453        3938       547       3938       547       0.00
+          C           153        0      23663       4574      22029       4275         907       111        907       111       0.00
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+
+
+ OVERALL TOTALS--    1403        0     172266      33248     160786      31122        8209      1068       8209      1068       0.00
+
+
+* FOR TREE-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON THE # OF TREES TALLIED OR THE SUM OF KPIS THAT FALL WITHIN
+THE CUTTING UNIT.  FOR AREA-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON AN AVERAGE VOLUME PER ACRE AT THE STRATA
+LEVEL TIMES THE NUMBER OF ACRES IN THE CUTTING UNIT.
+*R = RECOVERED VOLUME ADDED TO NET SECONDARY VOLUME.
+*FOR CRUISE METHOD 3P ONLY, THE COLUMN Est. # of Trees for sawtimber WILL SHOW ZERO INSTEAD OF ACTUAL TALLY.
+
+VPA2: VOLUME PER ACRE SUMMARY BY SAMPLE GROUP (CP2)                                                                         PAGE 15
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+            P                               
+            R                               
+            O                               
+            D                               
+       P             S                      
+   S   R    S   U    M                     ************************************PER ACRE ************************************
+   T   O    O        P                    EST.
+   R   D    U   O                           
+   A   U    R   F    G    S               NO. OF
+   T   C    C        R    T                           *******GROSS*******       *******NET********
+   A   T    E   M    P    M               TREES        BDFT        CUFT           BDFT       CUFT        CORDS
+____________________________________________________________________________________________________________________________________
+   01  01   P   03    A   N                  12         1563        298           1490        285         0.0 
+   01  02   S   03    A   N                               84         10             84         10         0.0 
+   01  01   P   03    B   N                  20         2152        419           1979        386         0.0 
+   01  02   S   03    B   N                               98         14             98         14         0.0 
+   01  01   P   03    C   N                   4          592        114            551        107         0.0 
+   01  02   S   03    C   N                               23          3             23          3         0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM1: LOW LEVEL VOLUME SUMMARY (B1)                                                                                         PAGE 16
+FOR CUT AND LEAVE TREES
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                                                                        
+                                                                        
+                                                        M               
+              P                                         E               
+              R                  C                      A               
+              O                  O                      N               
+              D        Y       T N                 M                AVG
+      S    P           L  S    R T                 E    T           DEFT   GROSS NET
+ S    P    R  S U      D  A    E R                 A    O           %   %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF   QUAD  N    T                  BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                                  B   C                        ********** VOLUME ************
+ A    I    U  R F  I A O  G  S G P    MEAS   MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T    E    C  C    V V M  R  T R E                 B    G           F   F                        *** GROSS ***    **** NET ****
+ A    S    T  E M  E E P  P  M D C    TREES  DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 01 DF     01 P 03 L C CL  A N 0          6  15.1 14.8  77.0         4   4 5.249 5.230    466    62540   11915    59581   11393    0.0 
+ 01 DF     02 S 03 L C CL  A N 0                                                                  3363     410     3363     410    0.0 
+ 01 GF     01 P 03 L C CL  B N 0          7  14.4 14.1  82.3         8   7 5.135 5.124    784    86064   16759    79176   15453    0.0 
+ 01 GF     02 S 03 L C CL  B N 0                                                                  3938     547     3938     547    0.0 
+ 01 C      01 P 03 L C CL  C N 0          5  16.8 16.4  85.6         6   6 5.174 5.153    153    23663    4574    22029    4275    0.0 
+ 01 C      02 S 03 L C CL  C N 0                                                                   907     111      907     111    0.0 
+____________________________________________________________________________________________________________________________________
+ TOTALS ---          PRODUCT     EST. NO                   *** GROSS VOLUME ***          *** NET VOLUME ***
+            PRODUCT  SOURCE      OF TREES                  BDFT            CUFT          BDFT          CUFT           CORDS
+____________________________________________________________________________________________________________________________________
+              01        P              1403              172266           33248        160786         31122             0.0 
+              02        S                                  8209            1068          8209          1068             0.0 
+____________________________________________________________________________________________________________________________________
+                                       1403              180475           34316        168994         32190             0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM2: VOLUME SUMMARY FOR SAMPLE GROUP (CP1)                                                                                 PAGE 17
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                                                          
+                                                          
+                                          M               
+       P                                  E               
+       R              # OF                A               
+       O              TREES               N               
+       D              M              M                AVG
+    P        S        E     T        E    T           DEFT   GROSS NET
+ S  R  S U   A        A     A        A    O           %   %               **************** STRATA LEVEL ****************
+ T  O  O     M        S     L  QUAD  N    T                  BDFT  BDFT   EST.
+ R  D  U O            U     L                         B   C                        ********** VOLUME ************
+ A  U  R F   G  S     R     I  MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T  C  C     R  T     E     E        B    G           F   F                        *** GROSS ***    **** NET ****
+ A  T  E M   P  M     D     D  DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 01 01 P 03  A  N     6   466  15.1 14.8   77.0        4   4 5.249 5.230    466    62540   11915    59581   11393    0.0 
+ 01 02 S 03  A  N                                                                   3363     410     3363     410    0.0 
+ 01 01 P 03  B  N     7   784  14.4 14.1   82.3        8   7 5.135 5.124    784    86064   16759    79176   15453    0.0 
+ 01 02 S 03  B  N                                                                   3938     547     3938     547    0.0 
+ 01 01 P 03  C  N     5   153  16.8 16.4   85.6        6   6 5.174 5.153    153    23663    4574    22029    4275    0.0 
+ 01 02 S 03  C  N                                                                    907     111      907     111    0.0 
+____________________________________________________________________________________________________________________________________
+  TOTALS ------
+                        QUAD                                         EST.         ************** VOLUME ***************
+           PRODUCT      MEAN      MEAN    MEAN                       # OF         **** GROSS ****       ***** NET *****
+  PRODUCT  SOURCE       DBH       DBH     TOT HGT                    TREES        BDFT      CUFT        BDFT       CUFT     CORDS
+____________________________________________________________________________________________________________________________________
+    01        P         15.0      14.6      80.6                      1403      172266     33248      160786      31122       0.0
+    02        S                                                                   8209      1068        8209       1068       0.0
+____________________________________________________________________________________________________________________________________
+                        15.0      14.6      80.6                      1403      180475     34316      168994      32190       0.0
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM3: VOLUME SUMMARY FOR STRATA (CS1)                                                                                       PAGE 18
+FOR CUT TREES ONLY
+CRUISE#: 87654      SALE#: 87654
+SALENAME: Test 3P                                                                                                VERSION: 06.01.2021
+RUN DATE & TIME: 11/3/2021 3:41:00 PM                                                             VOLUME LIBRARY VERSION: 10.26.2021
+
+
+                                                        
+                                                        
+                                        M               
+       P                                E               
+       R         # OF                   A               
+       O         TREES                  N               
+       D         M                 M                AVG
+    P            E    T            E    T           DEFT   GROSS NET
+ S  R  S  U      A    A            A    O           %   %               **************** STRATA LEVEL ****************
+ T  O  O         S    L      QUAD  N    T                  BDFT  BDFT   EST.
+ R  D  U  O      U    L                             B   C                        ********** VOLUME ************
+ A  U  R  F      R    I      MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T  C  C         E    E            B    G           F   F                        *** GROSS ***    **** NET ****
+ A  T  E  M      D    D      DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 01 01 P  03    18  1403     15.0 14.6  80.6         6   6 5.181 5.166   1403   172266   33248   160786   31122    0.0 
+ 01 02 S  03                                                                      8209    1068     8209    1068    0.0 
+____________________________________________________________________________________________________________________________________
+  TOTALS ------
+                   QUAD                             GROSS     NET       EST.      ************** VOLUME  ***************
+           PRODUCT MEAN  MEAN   MEAN                BF/CF     BF/CF     # OF      ***** GROSS *****     *****  NET *****
+  PRODUCT  SOURCE  DBH   DBH   TOT HGT              RATIO     RATIO     TREES     BDFT         CUFT     BDFT        CUFT     CORDS
+____________________________________________________________________________________________________________________________________
+    01       P     15.0  14.6    80.6               5.1813    5.1664     1403    172266       33248     160786     31122       0.0 
+    02       S                                                                     8209        1068       8209      1068       0.0 
+____________________________________________________________________________________________________________________________________
+                   15.0  14.6    80.6               5.2593    5.2500     1403    180475       34316     168994     32190       0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.

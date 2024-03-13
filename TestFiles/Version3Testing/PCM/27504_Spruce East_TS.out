@@ -1,0 +1,627 @@
+CRUISE REPORT HEADER & CERTIFICATION
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East
+RUN DATE & TIME: 8/26/2021 8:25:33 AM
+ 
+Year: 0    Region: 02   Forest: 06   District: 05
+Remarks:  
+FILENAME: C:\Users\wlbest\Desktop\V3 Testing\PCM\27504_Spruce East_TS.cruise
+REPORTS: A01 A02 A04 A05 ST1 ST3 UC5 VPA2 VSM1 VSM2 VSM3 
+
+
+
+
+
+
+                            **************************** CRUISE CERTIFICATION ****************************
+
+                                I certify that the timber for the Spruce East timber sale
+                                has been designated and cruised by the procedures and standards in
+                                FSH 2409.12, Timber Cruising Handbook.  Records of checks are on file
+                                at the District Ranger Office,
+
+
+
+                                ___________________                 ___________________________________
+                                RANGER DISTRICT                     (name of headquarters town)
+
+
+                                ___________________                 ______________
+                                DISTRICT RANGER                     DATE
+
+                            *****************************************************************************
+
+
+
+
+
+
+
+
+Developed and Maintained By:
+USDA FOREST SERVICE                                                                                             VERSION: 06.01.2021
+WASHINGTON OFFICE TIMBER MANAGEMENT                                                              VOLUME LIBRARY VERSION: 01.05.2021
+FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM
+
+VOLUME EQUATION TABLE                                                                                                       PAGE 2
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                               PRIMARY                     SECONDARY
+                                                       ******* PRODUCT ********      ****** PRODUCT ******
+                                            TOTAL       MIN                             MIN
+                     VOLUME       STUMP     CUBIC       TOP                             TOP
+     SPECIES  PROD   EQUATION     HEIGHT    VOLUME      DIB   BDFT  CUFT  CORDS         DIB   BDFT  CUFT  CORDS   BIOMASS
+____________________________________________________________________________________________________________________________________
+     LP        01    200FW2W108    1.0        NO        6.0   YES   YES   NO            4.0   NO    NO    NO       NO     
+     TF        01    I00FW2W019    1.0        NO        6.0   YES   YES   NO            4.0   NO    NO    NO       NO     
+     LPD       01    200FW2W108    1.0        NO        6.0   YES   YES   NO            4.0   NO    NO    NO       NO     
+     LPP       08    200FW2W108    0.0        NO        0.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+     LPPD      08    200FW2W108    0.0        NO        0.0   YES   YES   NO            0.0   NO    NO    NO       NO     
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 3
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     CRUISE   STRATA   CRUISE   STRATA          PLOT  NO. OF STRATA                     DATE
+     NO.      NO.      METHOD   ACRES   BAF     SIZE  PLOTS  DESCRIPTION                MMYYYY
+____________________________________________________________________________________________________________________________________
+     27504       1     PCM      314.10    20.00     0   15   LP Stands                   0   0
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 4
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                              CUTTING   CUTTING
+     CRUISE       CUTTING     UNIT      UNIT                        LOG      PAYMENT
+     NO.          UNIT NO.    ACRES     DESCRIPTION                 METHOD   UNIT NO.
+____________________________________________________________________________________________________________________________________
+     27504             10       23.30                               420          
+     27504             12       14.40                               420          
+     27504             13        8.30                               420          
+     27504             14        7.20                               420          
+     27504             15       22.10                               420          
+     27504             16       26.00                               420          
+     27504             17       43.90                               420          
+     27504             18       42.50                               420          
+     27504              2       28.90                               420          
+     27504             20       15.10                               420          
+     27504             21       32.50                               420          
+     27504              3       22.10                               420          
+     27504              7       10.00                               420          
+     27504              8       17.80                               420          
+
+        TOTAL SALE ACRES:      314.10
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 5
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     CRUISE     CUTTING             PAYMENT
+     NO.        UNIT     STRATUM    UNIT
+____________________________________________________________________________________________________________________________________
+     27504         10       1           
+     27504         12       1           
+     27504         13       1           
+     27504         14       1           
+     27504         15       1           
+     27504         16       1           
+     27504         17       1           
+     27504         18       1           
+     27504          2       1           
+     27504         20       1           
+     27504         21       1           
+     27504          3       1           
+     27504          7       1           
+     27504          8       1           
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 6
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+          SAMPLE                 BIG   SMALL
+ STRATUM  GROUP    FREQ   KZ     BAF   FPS      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+   1        LP        5      0      0                                   
+   1        TF        1      0      0                                   
+
+A02: PLOT INFORMATION REPORT (A1)                                                                                           PAGE 7
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     CRUISE   PLOT     CUTTING  STRATA    SLOPE           PLOT   NULL
+     NO.      NO.      UNIT NO. NO.         %     ASPECT  KPI    PLOT?
+____________________________________________________________________________________________________________________________________
+     27504       5        10        1         0     0          0    
+     27504       6        12        1         0     0          0    
+     27504       7        15        1         0     0          0    
+     27504       8        16        1         0     0          0    
+     27504       9        17        1         0     0          0    
+     27504      10        17        1         0     0          0    
+     27504      11        18        1         0     0          0    
+     27504      12        18        1         0     0          0 YES
+     27504       1         2        1         0     0          0    
+     27504      13        20        1         0     0          0    
+     27504      14        21        1         0     0          0    
+     27504      15        21        1         0     0          0    
+     27504       2         3        1         0     0          0    
+     27504       3         7        1         0     0          0    
+     27504       4         8        1         0     0          0    
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+A04 >>>> No data for report in Count table
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+A05: CUBIC FOOT                                                                                                             PAGE 8
+ PRIMARY AND SECONDARY PRODUCT
+ VOLUME INFORMATION (A5)
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                    
+                                    
+                                    
+                  S            T    
+  S               P       D    O    
+  T               E       B    T    
+  R  U    P   T   C       H            ************ PER TREE ************                           ***** PER ACRE/PER STRATA *****
+  A  N    L   R   I       -    H       *** PRIMARY ***    ** SECONDARY **                           ** PRIMARY **   ** SECONDARY **
+  T  I    O   E   E       O    G        GROSS    NET      GROSS   NET      TREE    CHAR      EXP     GROSS   NET      GROSS    NET
+  A  T    T   E   S       B    T        CUFT     CUFT     CUFT    CUFT      FAC     FAC      FAC     CUFT    CUFT     CUFT     CUFT
+____________________________________________________________________________________________________________________________________
+  1  10    5    7 LPD     13.6  60        24.2    17.3      0.0     0.0   19.826   5.167    6.829    165.3    118.1      0.0     0.0
+  1  12    6    1 TF      10.7  62        11.6    10.9      0.0     0.0   32.029   1.000    2.135     24.8     23.3      0.0     0.0
+  1  15    7    1 LPD     11.1  49        13.3    10.7      0.0     0.0   29.762   5.167   10.252    136.4    109.7      0.0     0.0
+  1  17    9    1 LP       7.5  50         3.7     3.4      0.0     0.0   65.192   5.167   22.455     83.1     76.3      0.0     0.0
+  1  17    9    4 LPD     10.1  56        11.6     9.3      0.0     0.0   35.948   5.167   12.382    143.6    115.2      0.0     0.0
+  1  17   10    2 LP      10.8  60        15.3    13.7      0.0     0.0   31.439   5.167   10.829    165.7    148.4      0.0     0.0
+  1  18   11    5 LPD      8.2  50         5.4     3.9      0.0     0.0   54.536   5.167   18.785    101.4     73.3      0.0     0.0
+  1   2    1    2 TF       7.8  47         3.2     3.0      0.0     0.0   60.273   1.000    4.018     12.9     12.1      0.0     0.0
+  1  20   13    3 LP       8.5  48         6.0     5.2      0.0     0.0   50.755   5.167   17.482    104.9     90.9      0.0     0.0
+  1  21   15    2 LPD      7.7  51         4.6     3.6      0.0     0.0   61.849   5.167   21.304     98.0     76.7      0.0     0.0
+  1   3    2    6 LPD      7.5  53         3.7     2.4      0.0     0.0   65.192   5.167   22.455     83.1     53.9      0.0     0.0
+  1   7    3    1 LPD      7.7  47         3.7     3.0      0.0     0.0   61.849   5.167   21.304     78.8     63.9      0.0     0.0
+  1   7    3    3 TF       9.2  50         6.7     6.3      0.0     0.0   43.325   1.000    2.888     19.3     18.2      0.0     0.0
+  1   8    4    4 LP       7.7  56         5.0     4.5      0.0     0.0   61.849   5.167   21.304    106.5     95.9      0.0     0.0
+  1   8    4    8 LPD      9.2  58        10.7     8.4      0.0     0.0   43.325   5.167   14.923    159.7    125.4      0.0     0.0
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 9
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                  S
+                  T
+    P      S      G   *************************************PRIMARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+  1 01 03  LP  N  1    62     0    15   2.145      4.1       62.00         398.00      3.1818   76.9789    0.822   42.6337    46.570
+  1 01 03  LP  N  2    12    15    12   2.201     13.9      166.58        2496.88      4.0942   29.4934    1.182   18.7393    46.570
+  1 01 03  TF  N  1     3     0    15   2.145      0.2        3.00           3.00      0.4140  207.0197    0.107  114.6551   138.802
+  1 01 03  TF  N  2     3    15     3   4.303     13.4       40.14         572.70      4.2138   31.4897    2.433   78.2310   138.802
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 10
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                  S
+                  T
+    P      S      G   *************************************SECONDARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+  1 02 03  LP  N  1    62     0    15   2.145      4.1       62.00         398.00      3.1818   76.9789    0.822   42.6337    42.634
+  1 02 03  TF  N  1     3     0    15   2.145      0.2        3.00           3.00      0.4140  207.0197    0.107  114.6551   114.655
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 11
+PRIMARY PRODUCT VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     P         ******** PRIMARY PRODUCT GROSS VOLUME **********       ******* PRIMARY PRODUCT NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+  1   01  03    465941.9     44.74        257484         674400           377266.3    44.92       207787        546746
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03    465941.9     44.74        257484         674400           377266.3    44.92       207787        546746
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03    465941.9     44.74        257484         674400           377266.3    44.92       207787        546746
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+  1       03    465941.9     44.74        257484         674400           377266.3    44.92       207787        546746
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 12
+TOTAL VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     P         ******** ******* TOTAL GROSS VOLUME **********       ******* ******* TOTAL NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03    465941.9     44.74        257484         674400           377266.3    44.92       207787        546746
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03    465941.9     44.74        257484         674400           377266.3    44.92       207787        546746
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+  1       03    465941.9     44.74        257484         674400           377266.3    44.92       207787        546746
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+UC5: VOLUME BY SPECIES WITHIN CUTTING UNIT ACROSS ALL STRATA                                                                PAGE 13
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+      S             TOTAL    ******************* SAWTIMBER *******************     ***************** NON-SAWTIMBER ****************
+      P                                  (PROD = 01   UM = 01, 03)                         (PROD NOT = 01   UM = 01, 02, 03)
+      E             EST.     EST.                                                   (AND ALL SECONDARY & RECOVERED PRODUCT VOLUMES)
+  U   C             
+  N   I             # OF     # OF    ** GROSS VOLUME **      ** NET VOLUME **      ***   GROSS    ***   ***   NET    ***
+  I   E             
+  T   S             TREES    TREES      BDFT       CUFT       BDFT       CUFT        BDFT      CUFT       BDFT      CUFT      CORDS
+____________________________________________________________________________________________________________________________________
+  10 LPD             2988     2988     100330     22514      76039      17151           0         0          0         0       0.00
+  10 LP              1679     1679      50274     10722      44587       9587           0         0          0         0       0.00
+  10 TF               211      211       5442      1327       5158       1247           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  10 TOTAL     4878     4878     156046     34564     125784      27986           0         0          0         0       0.00
+ 
+  12 LPD             1847     1847      62006     13914      46994      10600           0         0          0         0       0.00
+  12 LP              1038     1038      31070      6627      27556       5925           0         0          0         0       0.00
+  12 TF               130      130       3363       820       3188        771           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  12 TOTAL     3015     3015      96440     21361      77738      17296           0         0          0         0       0.00
+ 
+  13 LPD             1064     1064      35740      8020      27087       6110           0         0          0         0       0.00
+  13 LP               598      598      17909      3819      15883       3415           0         0          0         0       0.00
+  13 TF                75       75       1939       473       1838        444           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  13 TOTAL     1738     1738      55587     12312      44807       9969           0         0          0         0       0.00
+ 
+  14 LPD              923      923      31003      6957      23497       5300           0         0          0         0       0.00
+  14 LP               519      519      15535      3313      13778       2963           0         0          0         0       0.00
+  14 TF                65       65       1682       410       1594        385           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  14 TOTAL     1507     1507      48220     10681      38869       8648           0         0          0         0       0.00
+ 
+  15 LPD             2834     2834      95163     21354      72123      16268           0         0          0         0       0.00
+  15 LP              1593     1593      47685     10170      42290       9094           0         0          0         0       0.00
+  15 TF               200      200       5162      1259       4893       1183           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  15 TOTAL     4627     4627     148009     32784     119306      26544           0         0          0         0       0.00
+ 
+  16 LPD             3334     3334     111956     25123      84851      19139           0         0          0         0       0.00
+  16 LP              1874     1874      56099     11965      49753      10698           0         0          0         0       0.00
+  16 TF               235      235       6073      1481       5756       1392           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  16 TOTAL     5443     5443     174128     38569     140360      31229           0         0          0         0       0.00
+ 
+  17 LPD             5629     5629     189033     42419     143267      32315           0         0          0         0       0.00
+  17 LP              3164     3164      94722     20202      84007      18064           0         0          0         0       0.00
+
+UC5: VOLUME BY SPECIES WITHIN CUTTING UNIT ACROSS ALL STRATA                                                                PAGE 14
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+      S             TOTAL    ******************* SAWTIMBER *******************     ***************** NON-SAWTIMBER ****************
+      P                                  (PROD = 01   UM = 01, 03)                         (PROD NOT = 01   UM = 01, 02, 03)
+      E             EST.     EST.                                                   (AND ALL SECONDARY & RECOVERED PRODUCT VOLUMES)
+  U   C             
+  N   I             # OF     # OF    ** GROSS VOLUME **      ** NET VOLUME **      ***   GROSS    ***   ***   NET    ***
+  I   E             
+  T   S             TREES    TREES      BDFT       CUFT       BDFT       CUFT        BDFT      CUFT       BDFT      CUFT      CORDS
+____________________________________________________________________________________________________________________________________
+  17 TF               397      397      10254      2501       9719       2350           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  17 TOTAL     9190     9190     294009     65122     236992      52728           0         0          0         0       0.00
+ 
+  18 LPD             5450     5450     183005     41066     138698      31284           0         0          0         0       0.00
+  18 LP              3063     3063      91701     19558      81328      17488           0         0          0         0       0.00
+  18 TF               384      384       9927      2421       9409       2275           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  18 TOTAL     8897     8897     284633     63045     229435      51047           0         0          0         0       0.00
+ 
+   2 LPD             3706     3706     124443     27925      94315      21273           0         0          0         0       0.00
+   2 LP              2083     2083      62357     13299      55303      11892           0         0          0         0       0.00
+   2 TF               261      261       6750      1647       6398       1547           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT   2 TOTAL     6050     6050     193550     42871     156016      34712           0         0          0         0       0.00
+ 
+  20 LPD             1936     1936      65021     14591      49279      11115           0         0          0         0       0.00
+  20 LP              1088     1088      32581      6949      28895       6213           0         0          0         0       0.00
+  20 TF               137      137       3527       860       3343        808           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  20 TOTAL     3161     3161     101128     22400      81517      18137           0         0          0         0       0.00
+ 
+  21 LPD             4168     4168     139945     31404     106063      23923           0         0          0         0       0.00
+  21 LP              2342     2342      70124     14956      62192      13373           0         0          0         0       0.00
+  21 TF               294      294       7591      1852       7195       1739           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  21 TOTAL     6804     6804     217660     48211     175450      39036           0         0          0         0       0.00
+ 
+   3 LPD             2834     2834      95163     21354      72123      16268           0         0          0         0       0.00
+   3 LP              1593     1593      47685     10170      42290       9094           0         0          0         0       0.00
+   3 TF               200      200       5162      1259       4893       1183           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT   3 TOTAL     4627     4627     148009     32784     119306      26544           0         0          0         0       0.00
+ 
+   7 LPD             1282     1282      43060      9663      32635       7361           0         0          0         0       0.00
+   7 LP               721      721      21577      4602      19136       4115           0         0          0         0       0.00
+   7 TF                90       90       2336       570       2214        535           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT   7 TOTAL     2093     2093      66972     14834      53985      12011           0         0          0         0       0.00
+ 
+
+UC5: VOLUME BY SPECIES WITHIN CUTTING UNIT ACROSS ALL STRATA                                                                PAGE 15
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+      S             TOTAL    ******************* SAWTIMBER *******************     ***************** NON-SAWTIMBER ****************
+      P                                  (PROD = 01   UM = 01, 03)                         (PROD NOT = 01   UM = 01, 02, 03)
+      E             EST.     EST.                                                   (AND ALL SECONDARY & RECOVERED PRODUCT VOLUMES)
+  U   C             
+  N   I             # OF     # OF    ** GROSS VOLUME **      ** NET VOLUME **      ***   GROSS    ***   ***   NET    ***
+  I   E             
+  T   S             TREES    TREES      BDFT       CUFT       BDFT       CUFT        BDFT      CUFT       BDFT      CUFT      CORDS
+____________________________________________________________________________________________________________________________________
+   8 LPD             2283     2283      76647     17200      58090      13103           0         0          0         0       0.00
+   8 LP              1283     1283      38407      8191      34062       7324           0         0          0         0       0.00
+   8 TF               161      161       4158      1014       3941        953           0         0          0         0       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT   8 TOTAL     3726     3726     119211     26405      96093      21380           0         0          0         0       0.00
+ 
+                  _________________________________________________________________________________________________________________
+
+
+ S U B T O T A L S    ************************SAWTIMBER***********************      ****************NON-SAWTIMBER****************
+                   TOT EST   EST
+                    # OF     # OF     ** GROSS VOLUME **     ** NET VOLUME **       GROSS     GROSS      NET       NET
+          SPECIES   TREES    TREES      BDFT       CUFT       BDFT      CUFT        BDFT      CUFT       BDFT      CUFT     CORDS
+          LPD       40278    40278    1352515     303504    1025059     231210           0         0          0         0       0.00
+          LP        22637    22637     677724     144542     601059     129245           0         0          0         0       0.00
+          TF         2840     2840      73364      17895      69538      16811           0         0          0         0       0.00
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+
+
+ OVERALL TOTALS--   65755    65755    2103603     465942    1695657     377266           0         0          0         0       0.00
+
+
+* FOR TREE-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON THE # OF TREES TALLIED OR THE SUM OF KPIS THAT FALL WITHIN
+THE CUTTING UNIT.  FOR AREA-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON AN AVERAGE VOLUME PER ACRE AT THE STRATA
+LEVEL TIMES THE NUMBER OF ACRES IN THE CUTTING UNIT.
+*R = RECOVERED VOLUME ADDED TO NET SECONDARY VOLUME.
+*FOR CRUISE METHOD 3P ONLY, THE COLUMN Est. # of Trees for sawtimber WILL SHOW ZERO INSTEAD OF ACTUAL TALLY.
+
+VPA2: VOLUME PER ACRE SUMMARY BY SAMPLE GROUP (CP2)                                                                         PAGE 16
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+            P                               
+            R                               
+            O                               
+            D                               
+       P             S                      
+   S   R    S   U    M                     ************************************PER ACRE ************************************
+   T   O    O        P                    EST.
+   R   D    U   O                           
+   A   U    R   F    G    S               NO. OF
+   T   C    C        R    T                           *******GROSS*******       *******NET********
+   A   T    E   M    P    M               TREES        BDFT        CUFT           BDFT       CUFT        CORDS
+____________________________________________________________________________________________________________________________________
+    1  01   P   03   LP   N                 200         6464       1426           5177       1148         0.0 
+    1  01   P   03   TF   N                   9          234         57            221         54         0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM1: LOW LEVEL VOLUME SUMMARY (B1)                                                                                         PAGE 17
+FOR CUT AND LEAVE TREES
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                                        
+                                                                        
+                                                        M               
+              P                                         E               
+              R                  C                      A               
+              O                  O                      N               
+              D        Y       T N                 M                AVG
+      S    P           L  S    R T                 E    T           DEFT   GROSS NET
+ S    P    R  S U      D  A    E R                 A    O           %   %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF   QUAD  N    T                  BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                                  B   C                        ********** VOLUME ************
+ A    I    U  R F  I A O  G  S G P    MEAS   MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T    E    C  C    V V M  R  T R E                 B    G           F   F                        *** GROSS ***    **** NET ****
+ A    S    T  E M  E E P  P  M D C    TREES  DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+  1 LP     01 P 03 L C CL LP N 0 LP       4   8.4  8.3  52.8        11  10 4.689 4.651  22637   677724  144542   601059  129245    0.0 
+  1 LPD    01 P 03 D C CL LP N 0 LP       8   8.9  8.7  52.2        24  23 4.456 4.433  40278  1352515  303504  1025059  231210    0.0 
+  1 TF     01 P 03 L C CL TF N 0 LP       3   9.0  8.9  51.5         5   6 4.100 4.137   2840    73364   17895    69538   16811    0.0 
+____________________________________________________________________________________________________________________________________
+ TOTALS ---          PRODUCT     EST. NO                   *** GROSS VOLUME ***          *** NET VOLUME ***
+            PRODUCT  SOURCE      OF TREES                  BDFT            CUFT          BDFT          CUFT           CORDS
+____________________________________________________________________________________________________________________________________
+              01        P             65755             2103603          465942       1695657        377266             0.0 
+____________________________________________________________________________________________________________________________________
+                                      65755             2103603          465942       1695657        377266             0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM2: VOLUME SUMMARY FOR SAMPLE GROUP (CP1)                                                                                 PAGE 18
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                          
+                                                          
+                                          M               
+       P                                  E               
+       R              # OF                A               
+       O              TREES               N               
+       D              M              M                AVG
+    P        S        E     T        E    T           DEFT   GROSS NET
+ S  R  S U   A        A     A        A    O           %   %               **************** STRATA LEVEL ****************
+ T  O  O     M        S     L  QUAD  N    T                  BDFT  BDFT   EST.
+ R  D  U O            U     L                         B   C                        ********** VOLUME ************
+ A  U  R F   G  S     R     I  MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T  C  C     R  T     E     E        B    G           F   F                        *** GROSS ***    **** NET ****
+ A  T  E M   P  M     D     D  DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+  1 01 P 03 LP  N    12    62   8.7  8.6   52.4       19  19 4.531 4.511  62915  2030239  448047  1626119  360456    0.0 
+  1 01 P 03 TF  N     3     3   9.0  8.9   51.5        5   6 4.100 4.137   2840    73364   17895    69538   16811    0.0 
+____________________________________________________________________________________________________________________________________
+  TOTALS ------
+                        QUAD                                         EST.         ************** VOLUME ***************
+           PRODUCT      MEAN      MEAN    MEAN                       # OF         **** GROSS ****       ***** NET *****
+  PRODUCT  SOURCE       DBH       DBH     TOT HGT                    TREES        BDFT      CUFT        BDFT       CUFT     CORDS
+____________________________________________________________________________________________________________________________________
+    01        P          8.7       8.6      52.3                     65755     2103603    465942     1695657     377266       0.0
+____________________________________________________________________________________________________________________________________
+                         8.7       8.6      52.3                     65755     2103603    465942     1695657     377266       0.0
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM3: VOLUME SUMMARY FOR STRATA (CS1)                                                                                       PAGE 19
+FOR CUT TREES ONLY
+CRUISE#: 27504      SALE#: 27504
+SALENAME: Spruce East                                                                                            VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:25:33 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                        
+                                                        
+                                        M               
+       P                                E               
+       R         # OF                   A               
+       O         TREES                  N               
+       D         M                 M                AVG
+    P            E    T            E    T           DEFT   GROSS NET
+ S  R  S  U      A    A            A    O           %   %               **************** STRATA LEVEL ****************
+ T  O  O         S    L      QUAD  N    T                  BDFT  BDFT   EST.
+ R  D  U  O      U    L                             B   C                        ********** VOLUME ************
+ A  U  R  F      R    I      MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T  C  C         E    E            B    G           F   F                        *** GROSS ***    **** NET ****
+ A  T  E  M      D    D      DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+  1 01 P  03    15    65      8.7  8.6  52.3        19  19 4.515 4.495  65755  2103603  465942  1695657  377266    0.0 
+____________________________________________________________________________________________________________________________________
+  TOTALS ------
+                   QUAD                             GROSS     NET       EST.      ************** VOLUME  ***************
+           PRODUCT MEAN  MEAN   MEAN                BF/CF     BF/CF     # OF      ***** GROSS *****     *****  NET *****
+  PRODUCT  SOURCE  DBH   DBH   TOT HGT              RATIO     RATIO     TREES     BDFT         CUFT     BDFT        CUFT     CORDS
+____________________________________________________________________________________________________________________________________
+    01       P      8.7   8.6    52.3               4.5147    4.4946    65755   2103603      465942    1695657    377266       0.0 
+____________________________________________________________________________________________________________________________________
+                    8.7   8.6    52.3               4.5147    4.4946    65755   2103603      465942    1695657    377266       0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.

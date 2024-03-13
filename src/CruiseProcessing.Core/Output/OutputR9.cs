@@ -1,0 +1,633 @@
+﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Output;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+
+namespace CruiseProcessing
+{
+    internal class OutputR9 : OutputFileReportGeneratorBase
+    {
+        private int[] fieldLengths;
+
+        private List<RegionalReports> listToOutput = new List<RegionalReports>();
+        private double sumEstTrees, sumTipwood;
+
+        private string currCL = "C";
+        private List<string> prtFields = new List<string>();
+        private List<StratumDO> sList = new List<StratumDO>();
+        private List<TreeCalculatedValuesDO> tcvList = new List<TreeCalculatedValuesDO>();
+        private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
+        private List<LCDDO> lcdList = new List<LCDDO>();
+        private List<PRODO> proList = new List<PRODO>();
+        private List<ReportSubtotal> unitSubtotal = new List<ReportSubtotal>();
+        private List<ReportSubtotal> strataSubtotal = new List<ReportSubtotal>();
+        private List<ReportSubtotal> grandTotal = new List<ReportSubtotal>();
+        private List<ReportSubtotal> summaryList = new List<ReportSubtotal>();
+        private string[] completeHeader = new string[11];
+        private double numTrees = 0.0;
+        private double estTrees = 0.0;
+        private double currTipwood = 0.0;
+        private double sumExpanFactor = 0.0;
+        private double proratFac = 0.0;
+
+        private long currSTcn;
+        private long currCUcn;
+
+        public OutputR9(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        {
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        public void OutputTipwoodReport(TextWriter strWriteOut, ref int pageNumb)
+        {
+            string currentTitle = fillReportTitle(currentReport);
+            sList = DataLayer.GetStrata();
+            cList = DataLayer.getCuttingUnits();
+            proList = DataLayer.getPRO();
+            // string orderBy = "";
+            // reset summation variables
+
+            fieldLengths = new[] { 6, 8, 10, 12, 13 };
+            numTrees = 0.0;
+            estTrees = 0.0;
+            currTipwood = 0.0;
+            unitSubtotal.Clear();
+            strataSubtotal.Clear();
+
+            numOlines = 0;
+
+            summaryList.Clear();
+            // needs to run by cutting unit
+            foreach (CuttingUnitDO c in cList)
+            {
+                c.Strata.Populate();
+                currCUcn = (long)c.CuttingUnit_CN;
+                //  Create report title
+                SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+
+                //  Load and print data for current cutting unit
+                LoadAndPrintProrated(strWriteOut, c, ref pageNumb, summaryList);
+                if (unitSubtotal.Count > 0)
+                    OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
+                unitSubtotal.Clear();
+            }   //  end foreach loop
+                //  output Subtotal Summary and grand total for the report
+            OutputSubtotalSummary(strWriteOut, ref pageNumb, summaryList);
+            OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
+
+            return;
+        }   //  end OutputUnitReports
+
+        private int findMethods()
+        {
+            int nthRow = -1;
+            nthRow = sList.FindIndex(
+                delegate (StratumDO s)
+                {
+                    return s.Method == "S3P" || s.Method == "F3P" || s.Method == "3P";
+                });
+
+            return nthRow;
+        }   //  end findMethods
+
+        private void OutputUnitSubtotal(TextWriter strWriteOut, ref int pageNumb,
+                                     string currRPT)
+        {
+            //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+            //                     completeHeader, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                               regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+            strWriteOut.Write("                  ");
+            strWriteOut.WriteLine(reportConstants.subtotalLine1);
+            strWriteOut.Write("  UNIT ");
+            strWriteOut.Write(unitSubtotal[0].Value1.PadLeft(3, ' '));
+            strWriteOut.Write(" TOTAL       ");
+            strWriteOut.Write(" {0,7:F0}", unitSubtotal[0].Value3);
+            // strWriteOut.Write("  {0,7:F0}", unitSubtotal[0].Value13);
+            strWriteOut.WriteLine("  {0,12:F0}", unitSubtotal[0].Value4);
+            strWriteOut.WriteLine(" ");
+            numOlines += 3;
+            return;
+        }   //  end OutputUnitSubtotal
+
+        private void OutputGrandTotal(TextWriter strWriteOut, string currRPT, ref int pageNumb)
+        {
+            //WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+            //                        completeHeader, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+            //  works for UC reports
+            strWriteOut.WriteLine("");
+            strWriteOut.WriteLine("");
+            strWriteOut.Write(" OVERALL TOTALS-- ");
+            if (grandTotal.Count > 0)
+            {
+                strWriteOut.Write("{0,7:F0}", grandTotal[0].Value3);
+                strWriteOut.WriteLine("  {0,9:F0}", grandTotal[0].Value4);
+                numOlines += 3;
+            }   //  endif
+            strWriteOut.WriteLine("");
+            strWriteOut.WriteLine("");
+
+            grandTotal.Clear();
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                    regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+            //WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+            //                        completeHeader, 13, ref pageNumb, "");
+            //  also output the footer
+            // for (int k = 0; k < 5; k++)
+            //     strWriteOut.WriteLine(rh.UCfooter[k]);
+            return;
+        }   //  end OutputGrandTotal
+
+        private void OutputSubtotalSummary(TextWriter strWriteOut, ref int pageNumb, List<ReportSubtotal> summaryList)
+        {
+            //  output summary headers
+            //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+            //                      completeHeader, 13, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+            strWriteOut.WriteLine("                  _________________________________________________________________________________________________________________");
+            strWriteOut.WriteLine("");
+            strWriteOut.WriteLine("");
+            strWriteOut.WriteLine(" S U B T O T A L S    ");
+            strWriteOut.WriteLine("                   TOT EST ");
+            strWriteOut.WriteLine("                    # OF ");
+            strWriteOut.WriteLine("          SPECIES   TREES      TIPWOOD");
+            numOlines += 7;
+
+            //  write out summary list
+            foreach (ReportSubtotal rs in summaryList)
+            {
+                strWriteOut.Write("          ");
+                strWriteOut.Write(rs.Value1.PadRight(6, ' '));
+                strWriteOut.Write("  {0,7:F0}", rs.Value3);
+                strWriteOut.WriteLine("  {0,9:F0}", rs.Value4);
+                numOlines++;
+            }   //  end foreach loop
+            strWriteOut.WriteLine(reportConstants.longLine);
+            strWriteOut.WriteLine(reportConstants.longLine);
+            numOlines += 2;
+            return;
+        }   //  end OutputSubtotalSummary
+
+        private void finishColumnHeaders(string[] leftHandSide, string[] rightHandSide)
+        {
+            //  clean up completeHeader before loading again
+            for (int j = 0; j < 11; j++)
+                completeHeader[j] = null;
+            //  load up complete header
+            StringBuilder sb = new StringBuilder();
+            for (int k = 0; k < rightHandSide.Count(); k++)
+            {
+                sb.Clear();
+                sb.Append(leftHandSide[k]);
+                sb.Append(rightHandSide[k]);
+                completeHeader[k] = sb.ToString();
+            }   //  end for loop
+            return;
+        }   //  end finishColumnHeaders
+
+        //////////////////////////////////////////////////////////////////////////
+        private void LoadAndPrintProrated(TextWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
+        {
+            //  overloaded to properly print UC5-UC6
+            //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
+            //  or sample groups for UC6
+            ArrayList groupsToProcess = new ArrayList();
+            groupsToProcess = DataLayer.GetJustSpecies("Tree");
+            foreach (string gtp in groupsToProcess)
+            {
+                //  pull data based on strata method and species
+                foreach (StratumDO stratum in cdo.Strata)
+                {
+                    currSTcn = (long)stratum.Stratum_CN;
+                    switch (stratum.Method)
+                    {
+                        case "100":
+                            //  data comes from trees and must be expanded
+                            tcvList = DataLayer.getTreeCalculatedValues((int)stratum.Stratum_CN, (int)cdo.CuttingUnit_CN);
+                            List<TreeCalculatedValuesDO> currentGroup = new List<TreeCalculatedValuesDO>();
+                            //  find cut trees and species to process
+                            currentGroup = tcvList.FindAll(
+                            delegate (TreeCalculatedValuesDO tdo)
+                            {
+                                return tdo.Tree.Species == gtp && tdo.Tree.SampleGroup.CutLeave == currCL;
+                            });
+                            if (currentGroup.Count > 0) SumUpGroups(currentGroup);
+                            break;
+
+                        default:
+                            //  otherwise data comes from LCD and is NOT expanded
+                            lcdList = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ", "Species", currCL, stratum.Code);
+                            List<LCDDO> currGroup = new List<LCDDO>();
+                            //  find species to process
+                            currGroup = lcdList.FindAll(delegate (LCDDO l) { return l.Species == gtp; });
+                            if (currGroup.Count > 0) SumUpGroups(currGroup, cdo.Code);
+                            break;
+                    }   //  end switch on method
+                }   //  end for loop on strata
+                if (numTrees > 0)
+                {
+                    //  Ready to print line
+                    prtFields.Add("");
+                    prtFields.Add(cdo.Code.PadLeft(3, ' '));
+                    prtFields.Add(gtp.PadRight(6, ' '));
+
+                    WriteCurrentGroup(strWriteOut, ref pageNumb);
+                    UpdateSubtotalSummary(gtp, summaryList);
+                    UpdateUnitTotal(currentReport);
+                    unitSubtotal[0].Value1 = cdo.Code;
+                }   //  endif something to print -- numTrees is not zero
+                prtFields.Clear();
+                // reset summation variables
+                numTrees = 0.0;
+                estTrees = 0.0;
+                currTipwood = 0.0;
+                //  end foreach loop on species
+            }
+            return;
+        }   //  end LoadAndPrintProrated
+
+        private void UpdateUnitTotal(string currRPT)
+        {
+            //  Works for UC reports
+            //  subtotals are not prorated as the values are prorated when each line is printed
+            if (unitSubtotal.Count > 0)
+            {
+                unitSubtotal[0].Value3 += numTrees;
+                unitSubtotal[0].Value4 += currTipwood;
+                // unitSubtotal[0].Value13 += estTrees;
+            }
+            else
+            {
+                ReportSubtotal rs = new ReportSubtotal();
+                rs.Value3 += numTrees;
+                rs.Value4 += currTipwood;
+                // rs.Value13 += estTrees;
+                unitSubtotal.Add(rs);
+            }   //  endif
+            return;
+        }   //  end UpdateUnitTotal
+
+        private void UpdateStrataTotal(string currRPT)
+        {
+            //  Works for UC reports
+            //  subtotals not prorated as the values are prorated when each line is printed
+            if (strataSubtotal.Count > 0)
+            {
+                strataSubtotal[0].Value3 += numTrees;
+                strataSubtotal[0].Value4 += currTipwood;
+            }
+            else
+            {
+                ReportSubtotal rs = new ReportSubtotal();
+                rs.Value3 += numTrees;
+                rs.Value4 += currTipwood;
+                strataSubtotal.Add(rs);
+            }   //  endif
+
+            //  updates grand total as well
+            if (grandTotal.Count > 0)
+            {
+                grandTotal[0].Value3 += numTrees;
+                grandTotal[0].Value4 += currTipwood;
+            }
+            else
+            {
+                ReportSubtotal rs = new ReportSubtotal();
+                rs.Value3 += numTrees;
+                rs.Value4 += currTipwood;
+
+                grandTotal.Add(rs);
+            }   //  endif
+
+            return;
+        }   //  end UpdateStrataTotal
+
+        //      /////////////////////////////////////////////////////////////////////////////////
+        private void UpdateSubtotalSummary(string currSP, List<ReportSubtotal> summaryList)
+        {
+            //  used by UC5-UC6 only for summary at end of report
+            //  see if current species is in the list
+            int nthRow = summaryList.FindIndex(
+                delegate (ReportSubtotal rs)
+                {
+                    return rs.Value1 == currSP;
+                });
+            if (nthRow >= 0)
+            {
+                summaryList[nthRow].Value3 += numTrees;
+                summaryList[nthRow].Value4 += currTipwood;
+                //summaryList[nthRow].Value13 += estTrees;
+            }
+            else            //  species not in list so add it
+            {
+                ReportSubtotal rs = new ReportSubtotal();
+                rs.Value1 = currSP;
+                rs.Value3 += numTrees;
+                rs.Value4 += currTipwood;
+                //rs.Value13 += estTrees;
+                summaryList.Add(rs);
+            }   //  endif
+
+            //  updates grand total as well
+            if (grandTotal.Count > 0)
+            {
+                grandTotal[0].Value3 += numTrees;
+                grandTotal[0].Value4 += currTipwood;
+                //grandTotal[0].Value13 += estTrees;
+            }
+            else
+            {
+                ReportSubtotal rs = new ReportSubtotal();
+                rs.Value3 += numTrees;
+                rs.Value4 += currTipwood;
+                //rs.Value13 += estTrees;
+                grandTotal.Add(rs);
+            }   //  endif
+            return;
+        }   //  end UpdateSubtotalSummary
+
+        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb)
+        {
+            //  overloaded for UC reports
+            string fieldFormat3 = "{0,9:F0}";
+            string fieldFormat5 = "{0,7:F0}";
+
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+
+            //  Expansion factor is first
+            prtFields.Add(String.Format(fieldFormat5, numTrees));
+            //  This is estimated number of trees -- all methods except 3P
+            //if (currTipwood == 0.0)
+            //       prtFields.Add("      0");
+            // else prtFields.Add(Utilities.FormatField(estTrees, fieldFormat5));
+            //  load volumes
+
+            prtFields.Add(String.Format(fieldFormat3, currTipwood));
+
+            printOneRecord(fieldLengths, prtFields, strWriteOut);
+            return;
+        }   //  end WriteCurrentGroup
+
+        private void SumUpGroups(List<TreeCalculatedValuesDO> tList)
+        {
+            //  overloaded for 100% method
+            foreach (TreeCalculatedValuesDO t in tList)
+            {
+                //  separate sawtimber from non-saw
+                if (t.Tree.SampleGroup.UOM != "05")
+                {
+                    numTrees += t.Tree.ExpansionFactor;
+                    currTipwood += t.TipwoodVolume * t.Tree.ExpansionFactor;
+
+                    //  lookup proration factor for this group
+                    int nthRow = proList.FindIndex(
+                        delegate (PRODO p)
+                        {
+                            return p.CutLeave == "C" && p.Stratum == t.Tree.Stratum.Code &&
+                                p.CuttingUnit == t.Tree.CuttingUnit.Code &&
+                                p.SampleGroup == t.Tree.SampleGroup.Code &&
+                                p.PrimaryProduct == t.Tree.SampleGroup.PrimaryProduct &&
+                                p.UOM == t.Tree.SampleGroup.UOM;
+                        });
+                    if (nthRow >= 0) proratFac = proList[nthRow].ProrationFactor;
+                }   // endif on unit of measure
+            }   //  end foreach loop on trees
+
+            return;
+        }   //  end SumUpGroups for 100% method
+
+        private void SumUpGroups(List<LCDDO> lcdList, string currCU)
+        {
+            //  overloaded for all other methods using LCD
+            foreach (LCDDO l in lcdList)
+            {
+                //  lookup proration factor for this group
+                int nthRow = proList.FindIndex(
+                    delegate (PRODO p)
+                    {
+                        return p.CutLeave == currCL && p.Stratum == l.Stratum &&
+                            p.CuttingUnit == currCU &&
+                            p.SampleGroup == l.SampleGroup &&
+                            p.PrimaryProduct == l.PrimaryProduct &&
+                            p.UOM == l.UOM && p.STM == l.STM;
+                    });
+                if (nthRow >= 0)
+                    proratFac = proList[nthRow].ProrationFactor;
+
+                // separate sawtimber from nonsaw
+                if (l.UOM != "05")
+                {
+                    //  check on method since S3P and 3P use tallied trees instead of expansion factor
+                    if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3P" ||
+                        Utilities.MethodLookup(l.Stratum, DataLayer) == "S3P")
+                    {
+                        numTrees += pull3PtallyTrees(proList, lcdList, l.SampleGroup,
+                                                l.Species, l.Stratum, l.PrimaryProduct,
+                                                l.LiveDead, l.STM, currCU);
+                        estTrees = 0.0;
+                    }
+                    else if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3PPNT")
+                    {
+                        numTrees += l.SumExpanFactor * proratFac;
+                        estTrees = 0.0;
+                    }
+                    else
+                    {
+                        numTrees += l.SumExpanFactor * proratFac;
+                        if (l.PrimaryProduct == "01" && (l.SumNBDFT > 0 || l.SumNCUFT > 0))
+                            estTrees += l.SumExpanFactor * proratFac;
+                    }   //  endif
+                        //  Sum up STM trees separately as what's in the current cutting unit stays in that unit
+                    if (l.STM == "Y")
+                        //  calls capture method to sum expanded volume for each STM tree in the cutting unit
+                        getSTMtrees(currSTcn, currCUcn, l.SampleGroup, l.STM, ref currTipwood, proratFac);
+                    else
+                    {
+                        currTipwood += l.SumTipwood * proratFac;
+                    }   //  endif sure to measure
+                }   //  endif on unit of measure
+            }   //  end foreach loop on LCD
+            return;
+        }   //  end SumUpGroups
+
+        private double pull3PtallyTrees(List<PRODO> proList, List<LCDDO> lcdList, string currSG,
+                                        string currSP, string currST, string currPP, string currLD,
+                                        string currSTM, string currCU)
+        {
+            double talliedTrees = 0;
+            //  Are there multiple species in the current sample group
+            //  for just non-STM first
+            //  need entire LCD list for UC5-6
+            lcdList = DataLayer.getLCD();
+
+            List<LCDDO> justGroups = lcdList.FindAll(
+                delegate (LCDDO l)
+                {
+                    return l.Stratum == currST && l.SampleGroup == currSG && l.STM == "N";
+                });
+            if (justGroups.Count > 1)
+            {
+                //  find number of tallied trees in LCD for current species
+                int nthRow = lcdList.FindIndex(
+                    delegate (LCDDO l)
+                    {
+                        return l.Stratum == currST && l.Species == currSP &&
+                            l.SampleGroup == currSG && l.PrimaryProduct == currPP &&
+                            l.LiveDead == currLD && l.STM == currSTM;
+                    });
+                if (nthRow >= 0)
+                    talliedTrees += lcdList[nthRow].TalliedTrees;
+            }
+            else
+            {
+                //  that means only one species per sample group
+                //  so return number of tallied trees from the PRO table
+                int nthRow = proList.FindIndex(
+                    delegate (PRODO p)
+                    {
+                        return p.Stratum == currST && p.SampleGroup == currSG &&
+                            p.CuttingUnit == currCU && p.PrimaryProduct == currPP &&
+                            p.STM == currSTM;
+                    });
+                if (nthRow >= 0)
+                    talliedTrees += proList[nthRow].TalliedTrees;
+            }   //  endif
+
+            return talliedTrees;
+        }   //  end pull3PtallyTrees
+
+        public void getSTMtrees(long currSTcn, long currCUcn, string currSG, string currSTM, ref double Tipwoodsum,
+                                     double currProFac)
+        {
+            //  retrieve calc values for current stratum
+            List<TreeCalculatedValuesDO> tList = DataLayer.getTreeCalculatedValues((int)currSTcn, (int)currCUcn);
+            //  Find all STM trees in the current cutting unit
+            List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
+                delegate (TreeCalculatedValuesDO tcv)
+                {
+                    return tcv.Tree.SampleGroup.Code == currSG && tcv.Tree.STM == currSTM;
+                });
+            //  expand and sum up
+            foreach (TreeCalculatedValuesDO js in justSTM)
+            {
+                Tipwoodsum += js.TipwoodVolume * js.Tree.ExpansionFactor * currProFac;
+            }   //  end foreach loop
+
+            return;
+        }   //  end getSTMtrees
+
+        /*      public void OutputTipwoodReport(StreamWriter strWriteOut, reportHeaders rh, ref int pageNumb)
+           {
+               string currentTitle = fillReportTitle(currentReport);
+               fieldLengths = new [] {6, 8, 10, 12, 13};
+               List<TreeDO> tList = bslyr.getTrees();
+               List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
+               List<CuttingUnitDO> cuList = bslyr.getCuttingUnits();
+
+               foreach (CuttingUnitDO cul in cuList)
+               {
+                   double estTrees = 0;
+                   double tipWoodVol = 0;
+                   sumEstTrees = 0;
+                   sumTipwood = 0;
+                   string prevSP = "**";
+                   cul.Strata.Populate();
+                  //pull each stratum from LCD table
+                   foreach (StratumDO sd in cul.Strata)
+                   //for (int k = 0; k < cul.Strata.Count; k++)
+                   {
+                       List<LCDDO> justStrata = bslyr.getLCDOrdered("WHERE CutLeave = ? AND Stratum = ? ORDER BY SPECIES",
+                                                                           "", "C", sd.Code);
+                       double STacres = Utilities.ReturnCorrectAcres(sd.Code, bslyr, (long)sd.Stratum_CN);
+                       //  pull tree data and sum
+                       foreach (LCDDO ju in justStrata)
+                       {
+                           if (prevSP != ju.Species)
+                           {
+                               List<TreeDO> currentTrees = tList.FindAll(
+                                   delegate (TreeDO t)
+                                       {
+                                           return t.Species == ju.Species && t.CountOrMeasure == "M";
+                                       });
+                               estTrees = currentTrees.Sum(tdo => tdo.ExpansionFactor);
+                               foreach (TreeDO ct in currentTrees)
+                               {
+                                   int nthRow = tcvList.FindIndex(
+                                       delegate (TreeCalculatedValuesDO tcv)
+                                       {
+                                           return tcv.Tree_CN == ct.Tree_CN;
+                                       });
+                                   //
+                                   tipWoodVol += tcvList[nthRow].TipwoodVolume * ct.ExpansionFactor * STacres;
+                                   //
+                               }   //  end foreach  loopl
+                                prevSP = ju.Species;
+                              // end foreach loop
+                               RegionalReports rr = new RegionalReports();
+                               rr.value1 = cul.Code;
+                               rr.value2 = ju.Species;
+                               rr.value7 = estTrees;
+                               rr.value8 = tipWoodVol;
+                               listToOutput.Add(rr);
+
+                               sumEstTrees += estTrees;
+                               sumTipwood += tipWoodVol;
+                               tipWoodVol = 0;
+                               estTrees = 0;
+                           }
+                       }   //  end for k loop
+                   }   //  end foreach loop
+                   WriteCurrentGroup(strWriteOut, ref pageNumb, rh);
+                   WriteSummaryGroup(strWriteOut, ref pageNumb, rh);
+               }
+
+               return;
+               //  end OutputTipwoodReport
+           }   //  end OutputR9
+
+           private void WriteCurrentGroup(StreamWriter strWriteOut, ref int pageNum, reportHeaders rh)
+           {
+               //  works for R902
+               foreach (RegionalReports lto in listToOutput)
+               {
+                   WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                       rRH.R902columns, 10, ref pageNum, "");
+
+                   prtFields.Clear();
+                   prtFields.Add("");
+                   prtFields.Add(lto.value1.PadRight(4, ' '));
+                   prtFields.Add(lto.value2.PadRight(6, ' '));
+
+                   //  est trees and tipwood volume
+                   prtFields.Add(Utilities.FormatField(lto.value7, "{0,10:F0}").ToString().PadLeft(10, ' '));
+                   prtFields.Add(Utilities.FormatField(lto.value8, "{0,10:F0}").ToString().PadLeft(10, ' '));
+                   printOneRecord(fieldLengths, prtFields, strWriteOut);
+               }   //  end foreach loop
+               return;
+           }   //  end WriteCurrentGroup
+
+           private void WriteSummaryGroup(StreamWriter strWriteOut, ref int pageNum, reportHeaders rh)
+           {
+               WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                                   rRH.R902columns, 10, ref pageNum, "");
+               // print solid line
+               // print group summary
+               // print blank line
+               //  est trees and tipwood volume
+               strWriteOut.WriteLine("_________________________________________________________________________________________________________");
+               prtFields.Clear();
+               prtFields.Add(Utilities.FormatField(sumEstTrees, "{0,10:F0}").ToString().PadLeft(34, ' '));
+               prtFields.Add(Utilities.FormatField(sumTipwood, "{0,10:F0}").ToString().PadLeft(12, ' '));
+               printOneRecord(fieldLengths, prtFields, strWriteOut);
+           }
+           */
+    }
+}
