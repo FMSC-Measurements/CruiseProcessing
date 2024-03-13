@@ -1,0 +1,662 @@
+CRUISE REPORT HEADER & CERTIFICATION
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs
+RUN DATE & TIME: 8/26/2021 8:19:18 AM
+ 
+Year: 0    Region: 04   Forest: 14   District: 03
+Remarks:  
+FILENAME: C:\Users\wlbest\Desktop\V3 Testing\FIX\20301 Cold Springs Recon.cruise
+REPORTS: A01 A02 A04 A05 ST1 ST3 UC5 VPA2 VSM1 VSM2 VSM3 
+
+
+
+
+
+
+                            **************************** CRUISE CERTIFICATION ****************************
+
+                                I certify that the timber for the Cold Springs timber sale
+                                has been designated and cruised by the procedures and standards in
+                                FSH 2409.12, Timber Cruising Handbook.  Records of checks are on file
+                                at the District Ranger Office,
+
+
+
+                                ___________________                 ___________________________________
+                                RANGER DISTRICT                     (name of headquarters town)
+
+
+                                ___________________                 ______________
+                                DISTRICT RANGER                     DATE
+
+                            *****************************************************************************
+
+
+
+
+
+
+
+
+Developed and Maintained By:
+USDA FOREST SERVICE                                                                                             VERSION: 06.01.2021
+WASHINGTON OFFICE TIMBER MANAGEMENT                                                              VOLUME LIBRARY VERSION: 01.05.2021
+FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM
+
+VOLUME EQUATION TABLE                                                                                                       PAGE 2
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                               PRIMARY                     SECONDARY
+                                                       ******* PRODUCT ********      ****** PRODUCT ******
+                                            TOTAL       MIN                             MIN
+                     VOLUME       STUMP     CUBIC       TOP                             TOP
+     SPECIES  PROD   EQUATION     HEIGHT    VOLUME      DIB   BDFT  CUFT  CORDS         DIB   BDFT  CUFT  CORDS   BIOMASS
+____________________________________________________________________________________________________________________________________
+     AF        01    400MATW019    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     DF        01    400MATW202    1.0        NO        6.0   YES   YES   NO            4.0   YES   YES   NO       NO     
+     D         07    400MATW202    1.0        NO        6.0   YES   YES   NO            3.0   YES   YES   NO       NO     
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 3
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     CRUISE   STRATA   CRUISE   STRATA          PLOT  NO. OF STRATA                     DATE
+     NO.      NO.      METHOD   ACRES   BAF     SIZE  PLOTS  DESCRIPTION                MMYYYY
+____________________________________________________________________________________________________________________________________
+     20301      01     FIX       34.00     0.00    20    6   USFS Units                  8   0
+     20301      02     FIX       27.00     0.00    25    6   BLM Units                   8   0
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 4
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                              CUTTING   CUTTING
+     CRUISE       CUTTING     UNIT      UNIT                        LOG      PAYMENT
+     NO.          UNIT NO.    ACRES     DESCRIPTION                 METHOD   UNIT NO.
+____________________________________________________________________________________________________________________________________
+     20301             51       34.00   USFS Cold Springs RX Unit 1 492      1  
+     20301             53       27.00   BLM Cold Springs RX Unit 3  492      2  
+
+        TOTAL SALE ACRES:       61.00
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 5
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     CRUISE     CUTTING             PAYMENT
+     NO.        UNIT     STRATUM    UNIT
+____________________________________________________________________________________________________________________________________
+     20301         51      01         1 
+     20301         53      02         2 
+
+A01: STRATA, UNIT, PAYMENT UNIT AND SAMPLE GROUP REPORT (A1)                                                                PAGE 6
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+          SAMPLE                 BIG   SMALL
+ STRATUM  GROUP    FREQ   KZ     BAF   FPS      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+  01        AF        0      0      0          Subalpine fir            
+  01        DF        0      0      0          Douglas-fir              
+  01         D        0      0      0          Dead Douglas-fir and others
+  02        AF        0      0      0          Subalpine fir            
+  02        DF        0      0      0          Douglas-fir              
+  02         D        0      0      0          Dead Douglas-fir and others
+
+A02: PLOT INFORMATION REPORT (A1)                                                                                           PAGE 7
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     CRUISE   PLOT     CUTTING  STRATA    SLOPE           PLOT   NULL
+     NO.      NO.      UNIT NO. NO.         %     ASPECT  KPI    PLOT?
+____________________________________________________________________________________________________________________________________
+     20301       1        51       01         0     0          0    
+     20301       4        51       01         0     0          0    
+     20301       8        51       01         0     0          0    
+     20301       9        51       01         0     0          0    
+     20301      10        51       01         0     0          0    
+     20301      12        51       01         0     0          0    
+     20301      33        53       02         0     0          0    
+     20301      34        53       02         0     0          0    
+          REMARKS >>   plot center was located on trail, moved down slope out of trail at a random azimuth
+     20301      36        53       02         0     0          0    
+     20301      37        53       02         0     0          0    
+     20301      46        53       02         0     0          0    
+     20301      47        53       02         0     0          0    
+
+A04: COUNT TABLE INFORMATION (A2)                                                                                           PAGE 8
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+THE FOLLOWING INFORMATION IS PROVIDED FOR TREE-BASED METHODS AND REPRESENTS WHAT ONCE WERE COUNT RECORDS
+ 
+ CUTTING            SAMPLE                        KZ      TALLY
+   UNIT   STRATUM   GROUP   SPECIES   FREQUENCY   VALUE   COUNT   KPI      DESCRIPTION
+____________________________________________________________________________________________________________________________________
+    51      01        AF                    0       0       0        0     AF
+    51      01         D                    0       0       0        0     D
+    51      01        DF                    0       0       0        0     DF
+    53      02        AF                    0       0       0        0     AF
+    53      02         D                    0       0       0        0     D
+    53      02        DF                    0       0       0        0     DF
+
+A05: CUBIC FOOT                                                                                                             PAGE 9
+ PRIMARY AND SECONDARY PRODUCT
+ VOLUME INFORMATION (A5)
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                    
+                                    
+                                    
+                  S            T    
+  S               P       D    O    
+  T               E       B    T    
+  R  U    P   T   C       H            ************ PER TREE ************                           ***** PER ACRE/PER STRATA *****
+  A  N    L   R   I       -    H       *** PRIMARY ***    ** SECONDARY **                           ** PRIMARY **   ** SECONDARY **
+  T  I    O   E   E       O    G        GROSS    NET      GROSS   NET      TREE    CHAR      EXP     GROSS   NET      GROSS    NET
+  A  T    T   E   S       B    T        CUFT     CUFT     CUFT    CUFT      FAC     FAC      FAC     CUFT    CUFT     CUFT     CUFT
+____________________________________________________________________________________________________________________________________
+ 01  51    1    1 DF      17.6  80        46.1    46.1      1.8     1.8   20.000   0.000    3.333    153.7    153.7      6.1     6.0
+ 01  51    1    2 D       16.0  83        40.5    40.5      1.8     1.8   20.000   0.000    3.333    135.0    135.0      6.0     6.0
+ 01  51    1    3 DF      10.9  50         9.9     8.8      2.4     2.4   20.000   0.000    3.333     33.0     29.3      7.8     8.0
+ 01  51    1    4 AF       9.3  38         5.1     4.9      2.1     2.1   20.000   0.000    3.333     17.0     16.3      6.9     7.0
+ 01  51    1    5 DF       9.7  49         7.1     6.7      2.6     2.6   20.000   0.000    3.333     23.7     22.3      8.7     8.7
+ 01  51    1    6 DF      13.7  73        25.9    23.6      2.0     2.0   20.000   0.000    3.333     86.3     78.7      6.6     6.7
+ 01  51    1    7 DF      19.7  90        64.7    60.8      1.8     1.8   20.000   0.000    3.333    215.6    202.6      6.1     6.0
+ 01  51    1    8 AF       8.3  53         4.4     4.0      3.8     3.8   20.000   0.000    3.333     14.7     13.3     12.6    12.7
+ 01  51    1    9 DF      14.0  78        27.5    27.5      2.2     2.2   20.000   0.000    3.333     91.7     91.7      7.2     7.3
+ 01  51    1   10 DF      12.9  82        25.1    21.6      2.3     2.3   20.000   0.000    3.333     83.7     72.0      7.5     7.7
+ 01  51    1   11 DF      14.0  81        28.0    27.2      2.3     2.3   20.000   0.000    3.333     93.3     90.7      7.8     7.7
+ 01  51    1   12 D       24.8  85        91.6    91.6      1.6     1.6   20.000   0.000    3.333    305.3    305.3      5.3     5.3
+ 01  51    4    1 AF       8.9  43         4.4     4.4      2.7     2.7   20.000   0.000    3.333     14.7     14.7      8.9     9.0
+ 01  51    4    2 DF      14.1  75        27.0    14.0      2.0     2.0   20.000   0.000    3.333     90.0     46.7      6.8     6.7
+ 01  51    8    1 D       23.2  73        69.6    69.6      1.2     1.2   20.000   0.000    3.333    232.0    232.0      4.2     4.0
+ 01  51    8    2 D       17.4  67        35.4    35.4      1.9     1.9   20.000   0.000    3.333    118.0    118.0      6.5     6.3
+ 01  51    8    3 D       15.2  72        31.3    31.3      2.1     2.1   20.000   0.000    3.333    104.3    104.3      6.9     7.0
+ 01  51    8    4 DF       8.3  55         4.1     4.0      3.5     3.5   20.000   0.000    3.333     13.7     13.3     11.8    11.7
+ 01  51    8    5 D       15.2  74        31.7    31.7      2.0     2.0   20.000   0.000    3.333    105.7    105.7      6.8     6.7
+ 01  51    8    6 D       24.5  84        91.5    91.5      1.3     1.3   20.000   0.000    3.333    305.0    305.0      4.4     4.3
+ 01  51    8    7 D       19.9  69        50.3    50.3      1.5     1.6   20.000   0.000    3.333    167.6    167.6      5.2     5.3
+ 01  51    8    8 DF      13.0  56        16.6    16.1      2.2     2.2   20.000   0.000    3.333     55.3     53.7      7.2     7.3
+ 01  51    9    1 DF      16.6  74        37.7    31.3      1.8     1.8   20.000   0.000    3.333    125.7    104.3      6.0     6.0
+ 01  51    9    2 AF       9.2  64         7.2     6.8      3.6     3.6   20.000   0.000    3.333     24.0     22.7     12.1    12.0
+ 01  51   10    1 AF      15.2 103        44.0    40.5      3.1     3.1   20.000   0.000    3.333    146.7    135.0     10.4    10.3
+ 01  51   10    2 AF       9.6  70        10.1     9.5      3.9     3.9   20.000   0.000    3.333     33.7     31.7     13.2    13.0
+ 01  51   12    1 AF       9.3  67         8.5     8.5      3.7     3.7   20.000   0.000    3.333     28.3     28.3     12.4    12.3
+ 01  51   12    2 AF       8.0  61         4.1     3.7      4.0     4.0   20.000   0.000    3.333     13.7     12.3     13.4    13.3
+ 01  51   12    3 AF       9.3  68         8.5     7.7      3.9     3.9   20.000   0.000    3.333     28.3     25.7     12.9    13.0
+ 01  51   12    4 AF      10.2  68        10.7    10.4      3.5     3.5   20.000   0.000    3.333     35.7     34.7     11.8    11.7
+
+A05: CUBIC FOOT                                                                                                             PAGE 10
+ PRIMARY AND SECONDARY PRODUCT
+ VOLUME INFORMATION (A5)
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                    
+                                    
+                                    
+                  S            T    
+  S               P       D    O    
+  T               E       B    T    
+  R  U    P   T   C       H            ************ PER TREE ************                           ***** PER ACRE/PER STRATA *****
+  A  N    L   R   I       -    H       *** PRIMARY ***    ** SECONDARY **                           ** PRIMARY **   ** SECONDARY **
+  T  I    O   E   E       O    G        GROSS    NET      GROSS   NET      TREE    CHAR      EXP     GROSS   NET      GROSS    NET
+  A  T    T   E   S       B    T        CUFT     CUFT     CUFT    CUFT      FAC     FAC      FAC     CUFT    CUFT     CUFT     CUFT
+____________________________________________________________________________________________________________________________________
+ 01  51   12    5 AF      10.6  73        13.0    11.8      3.5     3.5   20.000   0.000    3.333     43.3     39.3     11.8    11.7
+ 01  51   12    6 DF      21.5  79        67.7    61.6      1.5     1.5   20.000   0.000    3.333    225.6    205.3      5.1     5.0
+ 01  51   12    7 AF      10.6  75        13.5    13.5      3.4     3.4   20.000   0.000    3.333     45.0     45.0     11.4    11.3
+ 01  51   12    8 DF      18.0  75        43.8    39.4      1.7     1.7   20.000   0.000    3.333    146.0    131.3      5.8     5.7
+ 02  53   33    1 DF       8.8  61         6.8     6.8      3.6     3.6   25.000   0.000    4.167     28.3     28.3     15.0    15.0
+ 02  53   33    2 DF      10.7  64        12.1    10.8      2.5     2.5   25.000   0.000    4.167     50.4     45.0     10.5    10.4
+ 02  53   33    3 DF       9.4  60         7.7     7.5      3.0     3.0   25.000   0.000    4.167     32.1     31.3     12.5    12.5
+ 02  53   34    1 DF      18.2  79        48.1    41.4      1.7     1.7   25.000   0.000    4.167    200.4    172.5      7.1     7.1
+ 02  53   34    2 D       10.4  27         3.8     3.8      1.4     1.4   25.000   0.000    4.167     15.8     15.8      5.9     5.8
+ 02  53   36    1 DF      11.3  79        18.6    18.6      2.9     2.9   25.000   0.000    4.167     77.5     77.5     12.2    12.1
+ 02  53   36    2 DF       8.5  75         7.5     7.1      4.3     4.3   25.000   0.000    4.167     31.3     29.6     17.7    17.9
+ 02  53   36    3 DF      11.5  65        15.0    14.6      2.6     2.6   25.000   0.000    4.167     62.5     60.8     10.7    10.8
+ 02  53   37    1 DF       8.6  68         7.2     7.2      4.1     4.1   25.000   0.000    4.167     30.0     30.0     17.0    17.1
+ 02  53   37    2 DF       9.0  53         6.3     6.3      2.9     2.9   25.000   0.000    4.167     26.3     26.3     12.1    12.1
+ 02  53   46    1 DF       8.7  51         4.8     4.8      3.2     3.2   25.000   0.000    4.167     20.0     20.0     13.5    13.3
+ 02  53   46    2 DF       9.8  49         7.1     6.8      2.6     2.6   25.000   0.000    4.167     29.6     28.3     11.0    10.8
+ 02  53   47    1 DF      12.7  68        20.1    17.3      2.2     2.2   25.000   0.000    4.167     83.8     72.1      9.1     9.2
+ 02  53   47    2 DF      11.4  71        15.9    15.9      2.8     2.8   25.000   0.000    4.167     66.3     66.3     11.6    11.7
+ 02  53   47    3 DF      15.2  71        29.7    27.9      1.9     1.9   25.000   0.000    4.167    123.8    116.3      7.8     7.9
+ 02  53   47    4 DF      11.3  71        15.9    14.2      2.7     2.7   25.000   0.000    4.167     66.3     59.2     11.4    11.3
+ 02  53   47    5 D       10.1  66        11.1    11.1      3.0     3.0   25.000   0.000    4.167     46.3     46.3     12.6    12.5
+ 02  53   47    6 DF      11.1  66        15.0    14.7      2.6     2.6   25.000   0.000    4.167     62.5     61.3     10.9    10.8
+ 02  53   47    7 DF       8.9  37         3.8     3.8      2.2     2.2   25.000   0.000    4.167     15.8     15.8      9.0     9.2
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 11
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                  S
+                  T
+    P      S      G   *************************************PRIMARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 01 01 03  AF  N  1    12     0     6   2.571    419.0     2514.00     2294467.99    498.2172  118.9063  203.396  124.8048   124.805
+ 01 01 03  DF  N  1    14     0     6   2.571   1295.7     7774.00    24479195.85   1697.4500  131.0098  692.981  137.5087   137.509
+ 01 07 03   D  N  1     8     0     6   2.571   1473.0     8838.00    45370579.65   2543.7062  172.6888 1038.464  181.2553   181.255
+
+ 02 01 03  DF  N  1    17     0     6   2.571    940.4     5642.50     8177068.65    757.7292   80.5738  309.342   84.5707    84.571
+ 02 07 03   D  N  1     2     0     6   2.571     62.1      372.50       86031.26    112.1652  180.6688   45.791  189.6312   189.631
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST1: NET VOLUME STATISTICS FOR SAMPLE GROUP (DP1)                                                                           PAGE 12
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                  S
+                  T
+    P      S      G   *************************************SECONDARY PRODUCT NET VOLUME *****************************************
+ S  R  U   A
+ T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED
+ R  D  O          A
+ A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING
+ T  C      R   T
+ A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR
+____________________________________________________________________________________________________________________________________
+ 01 08 03  AF  N  1    12     0     6   2.571    137.3      824.00      235224.00    156.2443  113.7701   63.786  119.4138   119.414
+ 01 08 03  DF  N  1    14     0     6   2.571    100.3      602.00      141092.00    127.0365  126.6144   51.862  132.8953   132.895
+ 01 07 03   D  N  1     8     0     6   2.571     45.0      270.00       45428.00     81.5819  181.2930   33.306  190.2863   190.286
+
+ 02 08 03  DF  N  1    17     0     6   2.571    199.2     1195.00      294837.50    106.6146   53.5303   43.525   56.1858    56.186
+ 02 07 03   D  N  1     2     0     6   2.571     18.3      110.00        6850.00     31.0913  169.5887   12.693  178.0014   178.001
+
+  * CANNOT CALCULATE SAMPLING ERROR IF SMALL N EQUALS 1.
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 13
+PRIMARY PRODUCT VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     P         ******** PRIMARY PRODUCT GROSS VOLUME **********       ******* PRIMARY PRODUCT NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+ 01   01  03     63992.9    102.74         -1753         129739            58292.8   108.29        -4832        121418
+ 01   07  03     50077.0    181.26        -40690         140844            50077.0   181.26       -40690        140844
+ 02   01  03     27182.2     85.55          3927          50437            25393.3    84.57         3918         46869
+ 02   07  03      1676.4    189.63         -1503           4855             1676.4   189.63        -1503          4855
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03     91175.1     76.49         21437         160913            83686.1    79.68        17008        150364
+      07  03     51753.4    175.49        -39069         142576            51753.4   175.49       -39069        142576
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03    142928.5     80.12         28420         257437           135439.5    83.19        22768        248111
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+ 01       03    114069.9     98.25          1993         226147           108369.8   102.02        -2190        218930
+ 02       03     28858.6     81.33          5388          52330            27069.7    80.20         5360         48779
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 14
+SECONDARY PRODUCT VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     P         ******** SECONDARY PRODUCT GROSS VOLUME **********       ******* SECONDARY PRODUCT NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+ 01   07  03      1538.8    190.66         -1395           4473             1529.8   190.29        -1381          4441
+ 01   08  03      8108.2     88.84           905          15312             8079.9    88.93          894         15265
+ 02   07  03       497.2    178.05          -388           1383              495.0   178.00         -386          1376
+ 02   08  03      5374.8     55.88          2371           8378             5377.9    56.19         2356          8400
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      07  03      2036.0    150.52         -1028           5101             2024.9   150.21        -1017          5066
+      08  03     13483.0     57.88          5678          21288            13457.8    57.92         5663         21253
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03     15519.0     54.03          7134          23904            15482.7    54.04         7115         23850
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+ 01       03      9647.0     80.63          1869          17425             9609.7    80.68         1857         17363
+ 02       03      5872.0     53.32          2741           9003             5873.0    53.59         2725          9020
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+ST3: ERROR TERM, VOLUME AND CONFIDENCE INTERVAL (DS1)                                                                       PAGE 15
+TOTAL VOLUME
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+     P         ******** ******* TOTAL GROSS VOLUME **********       ******* ******* TOTAL NET VOLUME ********
+  S  R   U
+  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******
+  R  D   O
+  A  U   F                                    INTERVAL                                           INTERVAL
+  T  C
+  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO
+____________________________________________________________________________________________________________________________________
+
+                                       ------------  AGGREGATED BY PRODUCT  ------------
+      01  03     91175.1     76.49         21437         160913            83686.1    79.68        17008        150364
+      07  03     53789.4    168.95        -37085         144664            53778.3   168.98       -37095        144652
+      08  03     13483.0     57.88          5678          21288            13457.8    57.92         5663         21253
+
+                                       --------  AGGREGATED BY UNIT OF MEASURE  --------
+          03    158447.5     72.46         43633         273262           150922.2    74.86        37941        263904
+
+                                       ------------  AGGREGATED BY STRATA   ------------
+ 01       03    123716.9     90.81         11370         236063           117979.5    93.94         7148        228811
+ 02       03     34730.6     68.18         11052          58410            32942.6    66.59        11006         54879
+
+* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME
+
+UC5: VOLUME BY SPECIES WITHIN CUTTING UNIT ACROSS ALL STRATA                                                                PAGE 16
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+      S             TOTAL    ******************* SAWTIMBER *******************     ***************** NON-SAWTIMBER ****************
+      P                                  (PROD = 01   UM = 01, 03)                         (PROD NOT = 01   UM = 01, 02, 03)
+      E             EST.     EST.                                                   (AND ALL SECONDARY & RECOVERED PRODUCT VOLUMES)
+  U   C             
+  N   I             # OF     # OF    ** GROSS VOLUME **      ** NET VOLUME **      ***   GROSS    ***   ***   NET    ***
+  I   E             
+  T   S             TREES    TREES      BDFT       CUFT       BDFT       CUFT        BDFT      CUFT       BDFT      CUFT      CORDS
+____________________________________________________________________________________________________________________________________
+  51 AF              1360     1360      74793     15128      70486      14245           0      4685          0      4669       0.00
+  51 DF              1587     1587     258374     48864     233103      44048           0      3424          0      3411       0.00
+  51 D                907        0          0         0          0          0      269706     51616     269706     51607       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  51 TOTAL     3853     2946     333167     63993     303590      58293      269706     59724     269706     59687       0.00
+ 
+  53 DF              1913     1913     138386     27182     129160      25393           0      5375          0      5378       0.00
+  53 D                225        0          0         0          0          0        6751      2174       6751      2171       0.00
+                  __________________________________________________________________________________________________________________
+  UNIT  53 TOTAL     2138     1913     138386     27182     129160      25393        6751      7548       6751      7549       0.00
+ 
+                  _________________________________________________________________________________________________________________
+
+
+ S U B T O T A L S    ************************SAWTIMBER***********************      ****************NON-SAWTIMBER****************
+                   TOT EST   EST
+                    # OF     # OF     ** GROSS VOLUME **     ** NET VOLUME **       GROSS     GROSS      NET       NET
+          SPECIES   TREES    TREES      BDFT       CUFT       BDFT      CUFT        BDFT      CUFT       BDFT      CUFT     CORDS
+          AF         1360     1360      74793      15128      70486      14245           0      4685          0      4669       0.00
+          DF         3499     3499     396760      76047     362264      69442           0      8798          0      8789       0.00
+          D          1132        0          0          0          0          0      276457     53789     276457     53778       0.00
+____________________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________________
+
+
+ OVERALL TOTALS--    5991     4859     471553      91175     432750      83686      276457     67272     276457     67236       0.00
+
+
+* FOR TREE-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON THE # OF TREES TALLIED OR THE SUM OF KPIS THAT FALL WITHIN
+THE CUTTING UNIT.  FOR AREA-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON AN AVERAGE VOLUME PER ACRE AT THE STRATA
+LEVEL TIMES THE NUMBER OF ACRES IN THE CUTTING UNIT.
+*R = RECOVERED VOLUME ADDED TO NET SECONDARY VOLUME.
+*FOR CRUISE METHOD 3P ONLY, THE COLUMN Est. # of Trees for sawtimber WILL SHOW ZERO INSTEAD OF ACTUAL TALLY.
+
+VPA2: VOLUME PER ACRE SUMMARY BY SAMPLE GROUP (CP2)                                                                         PAGE 17
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+            P                               
+            R                               
+            O                               
+            D                               
+       P             S                      
+   S   R    S   U    M                     ************************************PER ACRE ************************************
+   T   O    O        P                    EST.
+   R   D    U   O                           
+   A   U    R   F    G    S               NO. OF
+   T   C    C        R    T                           *******GROSS*******       *******NET********
+   A   T    E   M    P    M               TREES        BDFT        CUFT           BDFT       CUFT        CORDS
+____________________________________________________________________________________________________________________________________
+   01  01   P   03   AF   N                  40         2200        445           2073        419         0.0 
+   01  08   S   03   AF   N                                0        138              0        137         0.0 
+   01  07   P   03    D   N                  27         7933       1473           7933       1473         0.0 
+   01  07   S   03    D   N                                0         45              0         45         0.0 
+   01  01   P   03   DF   N                  47         7599       1437           6856       1296         0.0 
+   01  08   S   03   DF   N                                0        101              0        100         0.0 
+____________________________________________________________________________________________________________________________________
+   02  07   P   03    D   N                   8          250         62            250         62         0.0 
+   02  07   S   03    D   N                                0         18              0         18         0.0 
+   02  01   P   03   DF   N                  71         5125       1007           4784        940         0.0 
+   02  08   S   03   DF   N                                0        199              0        199         0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM1: LOW LEVEL VOLUME SUMMARY (B1)                                                                                         PAGE 18
+FOR CUT AND LEAVE TREES
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                                        
+                                                                        
+                                                        M               
+              P                                         E               
+              R                  C                      A               
+              O                  O                      N               
+              D        Y       T N                 M                AVG
+      S    P           L  S    R T                 E    T           DEFT   GROSS NET
+ S    P    R  S U      D  A    E R                 A    O           %   %               **************** STRATA LEVEL ****************
+ T    E    O  O      L    M    E      # OF   QUAD  N    T                  BDFT  BDFT   EST.
+ R    C    D  U O  L E C         S                                  B   C                        ********** VOLUME ************
+ A    I    U  R F  I A O  G  S G P    MEAS   MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T    E    C  C    V V M  R  T R E                 B    G           F   F                        *** GROSS ***    **** NET ****
+ A    S    T  E M  E E P  P  M D C    TREES  DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 01 AF     01 P 03 L C CL AF N 0 AF      12  10.0  9.9  65.3         5   5 4.944 4.948   1360    74793   15128    70486   14245    0.0 
+ 01 AF     08 S 03 L C CL AF N 0 AF                                                                  0    4685        0    4669    0.0 
+ 01 DF     01 P 03 L C CL DF N 0 DF      14  15.0 14.6  71.2         9   9 5.288 5.292   1587   258374   48864   233103   44048    0.0 
+ 01 DF     08 S 03 L C CL DF N 0 DF                                                                  0    3424        0    3411    0.0 
+ 01 D      07 P 03 D C CL  D N 0 D        8  19.9 19.5  75.9         0   0 5.386 5.386    907   269706   50077   269706   50077    0.0 
+ 01 D      07 S 03 D C CL  D N 0 D                                                                   0    1539        0    1530    0.0 
+____________________________________________________________________________________________________________________________________
+ 02 DF     01 P 03 L C CL DF N 0 DF      17  11.2 10.9  64.0         6   6 5.091 5.086   1913   138386   27182   129160   25393    0.0 
+ 02 DF     08 S 03 L C CL DF N 0 DF                                                                  0    5375        0    5378    0.0 
+ 02 D      07 P 03 D C CL  D N 0 D        2  10.3 10.2  46.5         0   0 4.027 4.027    225     6751    1676     6751    1676    0.0 
+ 02 D      07 S 03 D C CL  D N 0 D                                                                   0     497        0     495    0.0 
+____________________________________________________________________________________________________________________________________
+ TOTALS ---          PRODUCT     EST. NO                   *** GROSS VOLUME ***          *** NET VOLUME ***
+            PRODUCT  SOURCE      OF TREES                  BDFT            CUFT          BDFT          CUFT           CORDS
+____________________________________________________________________________________________________________________________________
+              01        P              4859              471553           91175        432750         83686             0.0 
+              08        S                                     0           13483             0         13458             0.0 
+              07        P              1132              276457           51753        276457         51753             0.0 
+              07        S                                     0            2036             0          2025             0.0 
+____________________________________________________________________________________________________________________________________
+                                       5991              748010          158447        709207        150922             0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM2: VOLUME SUMMARY FOR SAMPLE GROUP (CP1)                                                                                 PAGE 19
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                          
+                                                          
+                                          M               
+       P                                  E               
+       R              # OF                A               
+       O              TREES               N               
+       D              M              M                AVG
+    P        S        E     T        E    T           DEFT   GROSS NET
+ S  R  S U   A        A     A        A    O           %   %               **************** STRATA LEVEL ****************
+ T  O  O     M        S     L  QUAD  N    T                  BDFT  BDFT   EST.
+ R  D  U O            U     L                         B   C                        ********** VOLUME ************
+ A  U  R F   G  S     R     I  MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T  C  C     R  T     E     E        B    G           F   F                        *** GROSS ***    **** NET ****
+ A  T  E M   P  M     D     D  DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 01 01 P 03 AF  N    12    12  10.0  9.9   65.3        5   5 4.944 4.948   1360    74793   15128    70486   14245    0.0 
+ 01 08 S 03 AF  N                                                                      0    4685        0    4669    0.0 
+ 01 07 P 03  D  N     8     8  19.9 19.5   75.9        0   0 5.386 5.386    907   269706   50077   269706   50077    0.0 
+ 01 07 S 03  D  N                                                                      0    1539        0    1530    0.0 
+ 01 01 P 03 DF  N    14    14  15.0 14.6   71.2        9   9 5.288 5.292   1587   258374   48864   233103   44048    0.0 
+ 01 08 S 03 DF  N                                                                      0    3424        0    3411    0.0 
+____________________________________________________________________________________________________________________________________
+ 02 07 P 03  D  N     2     2  10.3 10.2   46.5        0   0 4.027 4.027    225     6751    1676     6751    1676    0.0 
+ 02 07 S 03  D  N                                                                      0     497        0     495    0.0 
+ 02 01 P 03 DF  N    17    17  11.2 10.9   64.0        6   6 5.091 5.086   1913   138386   27182   129160   25393    0.0 
+ 02 08 S 03 DF  N                                                                      0    5375        0    5378    0.0 
+____________________________________________________________________________________________________________________________________
+  TOTALS ------
+                        QUAD                                         EST.         ************** VOLUME ***************
+           PRODUCT      MEAN      MEAN    MEAN                       # OF         **** GROSS ****       ***** NET *****
+  PRODUCT  SOURCE       DBH       DBH     TOT HGT                    TREES        BDFT      CUFT        BDFT       CUFT     CORDS
+____________________________________________________________________________________________________________________________________
+    01        P         12.3      11.8      66.7                      4859      471553     91175      432750      83686       0.0
+    08        S                                                                      0     13483           0      13458       0.0
+    07        P         18.4      17.7      70.0                      1132      276457     51753      276457      51753       0.0
+    07        S                                                                      0      2036           0       2025       0.0
+____________________________________________________________________________________________________________________________________
+                        13.7      12.9      67.3                      5991      748010    158447      709207     150922       0.0
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.
+
+VSM3: VOLUME SUMMARY FOR STRATA (CS1)                                                                                       PAGE 20
+FOR CUT TREES ONLY
+CRUISE#: 20301      SALE#: 20301
+SALENAME: Cold Springs                                                                                           VERSION: 06.01.2021
+RUN DATE & TIME: 8/26/2021 8:19:18 AM                                                             VOLUME LIBRARY VERSION: 01.05.2021
+
+
+                                                        
+                                                        
+                                        M               
+       P                                E               
+       R         # OF                   A               
+       O         TREES                  N               
+       D         M                 M                AVG
+    P            E    T            E    T           DEFT   GROSS NET
+ S  R  S  U      A    A            A    O           %   %               **************** STRATA LEVEL ****************
+ T  O  O         S    L      QUAD  N    T                  BDFT  BDFT   EST.
+ R  D  U  O      U    L                             B   C                        ********** VOLUME ************
+ A  U  R  F      R    I      MEAN  D    H           D   U  CUFT  CUFT   # OF
+ T  C  C         E    E            B    G           F   F                        *** GROSS ***    **** NET ****
+ A  T  E  M      D    D      DBH   H    T           T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS
+____________________________________________________________________________________________________________________________________
+ 01 01 P  03    26    26     13.0 12.4  68.5         8   8 5.206 5.208   2946   333167   63993   303590   58293    0.0 
+ 01 08 S  03                                                                         0    8108        0    8080    0.0 
+ 01 07 P  03     8     8     19.9 19.5  75.9         0   0 5.386 5.386    907   269706   50077   269706   50077    0.0 
+ 01 07 S  03                                                                         0    1539        0    1530    0.0 
+____________________________________________________________________________________________________________________________________
+ 02 01 P  03    17    17     11.2 10.9  64.0         6   6 5.091 5.086   1913   138386   27182   129160   25393    0.0 
+ 02 08 S  03                                                                         0    5375        0    5378    0.0 
+ 02 07 P  03     2     2     10.3 10.2  46.5         0   0 4.027 4.027    225     6751    1676     6751    1676    0.0 
+ 02 07 S  03                                                                         0     497        0     495    0.0 
+____________________________________________________________________________________________________________________________________
+  TOTALS ------
+                   QUAD                             GROSS     NET       EST.      ************** VOLUME  ***************
+           PRODUCT MEAN  MEAN   MEAN                BF/CF     BF/CF     # OF      ***** GROSS *****     *****  NET *****
+  PRODUCT  SOURCE  DBH   DBH   TOT HGT              RATIO     RATIO     TREES     BDFT         CUFT     BDFT        CUFT     CORDS
+____________________________________________________________________________________________________________________________________
+    01       P     12.3  11.8    66.7               5.1719    5.1711     4859    471553       91175     432750     83686       0.0 
+    08       S                                                                        0       13483          0     13458       0.0 
+    07       P     18.4  17.7    70.0               5.3418    5.3418     1132    276457       51753     276457     51753       0.0 
+    07       S                                                                        0        2036          0      2025       0.0 
+____________________________________________________________________________________________________________________________________
+                   13.7  12.9    67.3               4.7209    4.6992     5991    748010      158447     709207    150922       0.0 
+____________________________________________________________________________________________________________________________________
+
+PRODUCT SOURCE KEY: 
+
+P = PRIMARY PRODUCT
+S = SECONDARY PRODUCT
+R = RECOVERABLE PRODUCT
+
+The following items are not reported and/or calculated for secondary or recovered
+products but are shown here as blank so the associated volumes can be reported:
+Number of measured trees, Quad mean DBH, Mean DBH, Mean height(s), Average defect,
+any Ratio, Estimated number of trees.

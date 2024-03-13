@@ -8,31 +8,37 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Output;
 using ZedGraph;
 
 namespace CruiseProcessing
 {
     public partial class GraphForm : Form
     {
-        #region
         public string chartType;
         public string currTitle;
         public string currXtitle;
         public string currYtitle;
-        public string fileName;
         public string currSP;
         public int graphNum;
         public string cruiseNum;
         public string currSaleName;
         public List<TreeDO> treeList = new List<TreeDO>();
-        public List<CreateTextFile.ReportSubtotal> graphData = new List<CreateTextFile.ReportSubtotal>();
+        public List<ReportGeneratorBase.ReportSubtotal> graphData = new List<ReportGeneratorBase.ReportSubtotal>();
         public List<LogStockDO> logStockList = new List<LogStockDO>();
         public List<LCDDO> lcdList = new List<LCDDO>();
-        #endregion
+
+        protected CPbusinessLayer DataLayer { get; }
 
         public GraphForm()
         {
             InitializeComponent();
+        }
+
+        public GraphForm(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void GraphForm_Load(object sender, EventArgs e)
@@ -105,7 +111,7 @@ namespace CruiseProcessing
             //  save graph
             Size newSize = new Size(337,320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(fileName);
+            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             outputFile += "\\Graphs\\";
             outputFile += currSaleName;
             System.IO.Directory.CreateDirectory(outputFile);
@@ -169,7 +175,7 @@ namespace CruiseProcessing
                     currPane.XAxis.Scale.MajorStep = 2;
                     break;
                 case 9:
-                    foreach (CreateTextFile.ReportSubtotal gd in graphData)
+                    foreach (ReportGeneratorBase.ReportSubtotal gd in graphData)
                         graphList.Add(gd.Value4, gd.Value3);
                     legendTitle = "NUMBER OF TREES";
                     double MaxKPI = Convert.ToInt16(graphData.Max(g => g.Value4));
@@ -208,7 +214,7 @@ namespace CruiseProcessing
             //  save graphs
             Size newSize = new Size(337, 320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(fileName);
+            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             outputFile += "\\Graphs\\";
             outputFile += currSaleName;
             System.IO.Directory.CreateDirectory(outputFile);
@@ -359,7 +365,7 @@ namespace CruiseProcessing
                     break;
                 case 10:
                     //  dump needed values into arrays
-                    foreach (CreateTextFile.ReportSubtotal gd in graphData)
+                    foreach (ReportGeneratorBase.ReportSubtotal gd in graphData)
                     {
                         valuesForSlices[listCnt] = gd.Value3;
                         combinedLabel.Append(gd.Value1);
@@ -406,7 +412,7 @@ namespace CruiseProcessing
             //  save graphs
             Size newSize = new Size(337, 320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(fileName);
+            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             outputFile += "\\Graphs\\";
             outputFile += currSaleName;
             System.IO.Directory.CreateDirectory(outputFile);

@@ -1,26 +1,26 @@
-﻿using System;
-using System.Collections;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace CruiseProcessing
 {
     public partial class graphOutputDialog : Form
     {
-        #region
-        public ArrayList graphReports = new ArrayList();
-        public string fileName;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        public IEnumerable<string> GraphReports { get; set; }
+        public IServiceProvider Services { get; }
 
-        public graphOutputDialog()
+        protected graphOutputDialog()
         {
             InitializeComponent();
+        }
+
+        public graphOutputDialog(IServiceProvider services)
+            : this()
+        {
+            Services = services ?? throw new ArgumentNullException(nameof(services));
+            //GraphReports = graphReports ?? throw new ArgumentNullException(nameof(graphReports));
+
         }
 
         private void onCancel(object sender, EventArgs e)
@@ -35,18 +35,14 @@ namespace CruiseProcessing
             Cancel_button.Enabled = false;
 
             //  loop through list and display graphs
-            for (int k = 0; k < graphReports.Count; k++)
+            foreach (var report in GraphReports)
             {
-                OutputGraphs og = new OutputGraphs();
-                og.currentReport = graphReports[k].ToString();
-                og.fileName = fileName;
-                og.bslyr.fileName = bslyr.fileName;
-                og.bslyr.DAL = bslyr.DAL;
+                OutputGraphs og = Services.GetRequiredService<OutputGraphs>();
+                og.currentReport = report;
                 og.createGraphs();
-            }   //  end for k loop
+            }
             Close();
             return;
         }   //  end onContinue
-
     }
 }

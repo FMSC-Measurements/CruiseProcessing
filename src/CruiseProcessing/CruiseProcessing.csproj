@@ -1,439 +1,390 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-  <PropertyGroup>
-    <AssemblyTitle>CruiseProcessing</AssemblyTitle>
-    <Company>USDA Forest Service</Company>
-    <Product>CruiseProcessing</Product>
-    <Copyright>Copyright © USDA Forest Service 2011</Copyright>
-    <ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
-    <Version>04.15.2023</Version>
+	<PropertyGroup>
+		<AssemblyTitle>CruiseProcessing</AssemblyTitle>
+		<Product>CruiseProcessing</Product>
+		<ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
 
-  </PropertyGroup>
+	</PropertyGroup>
 
-  <PropertyGroup Label="Build Config">
-    <TargetFramework>net472</TargetFramework>
-    <PlatformTarget>x86</PlatformTarget>
-    <OutputType>WinExe</OutputType>
-    <UseWindowsForms>true</UseWindowsForms>
-    <StartupObject>$(RootNamespace).Program</StartupObject>
-  </PropertyGroup>
+	<PropertyGroup Label="Build Config">
+		<PlatformTarget>x86</PlatformTarget>
+		<OutputType>WinExe</OutputType>
+		<UseWindowsForms>true</UseWindowsForms>
+		<StartupObject>$(RootNamespace).Program</StartupObject>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="itextsharp">
-      <HintPath>..\libs\itextsharp.dll</HintPath>
-    </Reference>
-    <!--<Reference Include="System.Data.DataSetExtensions" />
+
+
+	<ItemGroup>
+		<Reference Include="itextsharp">
+			<HintPath>..\libs\itextsharp.dll</HintPath>
+		</Reference>
+		<!--<Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Windows.Forms" />-->
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="CapturePercentRemoved.cs" />
-    <Compile Update="CapturePercentRemoved.Designer.cs">
-      <DependentUpon>CapturePercentRemoved.cs</DependentUpon>
-    </Compile>
-    <Compile Update="EnterNewFilename.cs" />
-    <Compile Update="EnterNewFilename.Designer.cs">
-      <DependentUpon>EnterNewFilename.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ExportDialog.cs" />
-    <Compile Update="ExportDialog.Designer.cs">
-      <DependentUpon>ExportDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Update="FLIWdlg.cs" />
-    <Compile Update="FLIWdlg.Designer.cs">
-      <DependentUpon>FLIWdlg.cs</DependentUpon>
-    </Compile>
-    <Compile Update="GraphForm.cs" />
-    <Compile Update="GraphForm.Designer.cs">
-      <DependentUpon>GraphForm.cs</DependentUpon>
-    </Compile>
-    <Compile Update="graphOutputDialog.cs" />
-    <Compile Update="graphOutputDialog.Designer.cs">
-      <DependentUpon>graphOutputDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Update="GraphReportsDialog.cs" />
-    <Compile Update="GraphReportsDialog.Designer.cs">
-      <DependentUpon>GraphReportsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Update="LocalVolume.cs" />
-    <Compile Update="LocalVolume.Designer.cs">
-      <DependentUpon>LocalVolume.cs</DependentUpon>
-    </Compile>
-    <Compile Update="LogMatrixUpdate.cs" />
-    <Compile Update="LogMatrixUpdate.Designer.cs">
-      <DependentUpon>LogMatrixUpdate.cs</DependentUpon>
-    </Compile>
-    <Compile Update="MainMenu.cs" />
-    <Compile Update="MainMenu.Designer.cs">
-      <DependentUpon>MainMenu.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ModifyMerchRules.cs" />
-    <Compile Update="ModifyMerchRules.Designer.cs">
-      <DependentUpon>ModifyMerchRules.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ModifyWeightFactors.cs" />
-    <Compile Update="ModifyWeightFactors.Designer.cs">
-      <DependentUpon>ModifyWeightFactors.cs</DependentUpon>
-    </Compile>
-    <Compile Update="PasswordProtect.cs" />
-    <Compile Update="PasswordProtect.Designer.cs">
-      <DependentUpon>PasswordProtect.cs</DependentUpon>
-    </Compile>
-    <Compile Update="PDFfileOutput.cs" />
-    <Compile Update="PDFfileOutput.Designer.cs">
-      <DependentUpon>PDFfileOutput.cs</DependentUpon>
-    </Compile>
-    <Compile Update="PDFwatermarkDlg.cs" />
-    <Compile Update="PDFwatermarkDlg.Designer.cs">
-      <DependentUpon>PDFwatermarkDlg.cs</DependentUpon>
-    </Compile>
-    <Compile Update="PrintPreview.cs" />
-    <Compile Update="PrintPreview.Designer.cs">
-      <DependentUpon>PrintPreview.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ProcessStatus.cs" />
-    <Compile Update="ProcessStatus.Designer.cs">
-      <DependentUpon>ProcessStatus.cs</DependentUpon>
-    </Compile>
-    <EmbeddedResource Update="CapturePercentRemoved.resx">
-      <DependentUpon>CapturePercentRemoved.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="EnterNewFilename.resx">
-      <DependentUpon>EnterNewFilename.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ExportDialog.resx">
-      <DependentUpon>ExportDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="FLIWdlg.resx">
-      <DependentUpon>FLIWdlg.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="GraphForm.resx">
-      <DependentUpon>GraphForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="graphOutputDialog.resx">
-      <DependentUpon>graphOutputDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="GraphReportsDialog.resx">
-      <DependentUpon>GraphReportsDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="LocalVolume.resx">
-      <DependentUpon>LocalVolume.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="LogMatrixUpdate.resx">
-      <DependentUpon>LogMatrixUpdate.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="MainMenu.resx">
-      <DependentUpon>MainMenu.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ModifyMerchRules.resx">
-      <DependentUpon>ModifyMerchRules.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ModifyWeightFactors.resx">
-      <DependentUpon>ModifyWeightFactors.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="PasswordProtect.resx">
-      <DependentUpon>PasswordProtect.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="PDFfileOutput.resx">
-      <DependentUpon>PDFfileOutput.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="PDFwatermarkDlg.resx">
-      <DependentUpon>PDFwatermarkDlg.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="PrintPreview.resx">
-      <DependentUpon>PrintPreview.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ProcessStatus.resx">
-      <DependentUpon>ProcessStatus.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="QualityAdjEquations.resx">
-      <DependentUpon>QualityAdjEquations.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R8product08.resx">
-      <DependentUpon>R8product08.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R8PulpwoodMeasurement.resx">
-      <DependentUpon>R8PulpwoodMeasurement.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R8Topwood.resx">
-      <DependentUpon>R8Topwood.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R8VolEquation.resx">
-      <DependentUpon>R8VolEquation.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R9TopDIB.resx">
-      <DependentUpon>R9TopDIB.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R9Topwood.resx">
-      <DependentUpon>R9Topwood.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="R9VolEquation.resx">
-      <DependentUpon>R9VolEquation.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ReportsDialog.resx">
-      <DependentUpon>ReportsDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SecurityQuestion.resx">
-      <DependentUpon>SecurityQuestion.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="SelectCSV.resx">
-      <DependentUpon>SelectCSV.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="selectLength.resx">
-      <DependentUpon>selectLength.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="StewardshipProductCosts.resx">
-      <DependentUpon>StewardshipProductCosts.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="TemplateRegionForest.resx">
-      <DependentUpon>TemplateRegionForest.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="TextFileOutput.resx">
-      <DependentUpon>TextFileOutput.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ValueEquations.resx">
-      <DependentUpon>ValueEquations.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Update="VolumeEquations.resx">
-      <DependentUpon>VolumeEquations.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Update="QualityAdjEquations.cs" />
-    <Compile Update="QualityAdjEquations.Designer.cs">
-      <DependentUpon>QualityAdjEquations.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R8product08.cs" />
-    <Compile Update="R8product08.Designer.cs">
-      <DependentUpon>R8product08.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R8PulpwoodMeasurement.cs" />
-    <Compile Update="R8PulpwoodMeasurement.Designer.cs">
-      <DependentUpon>R8PulpwoodMeasurement.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R8Topwood.cs" />
-    <Compile Update="R8Topwood.Designer.cs">
-      <DependentUpon>R8Topwood.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R8VolEquation.cs" />
-    <Compile Update="R8VolEquation.Designer.cs">
-      <DependentUpon>R8VolEquation.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R9TopDIB.cs" />
-    <Compile Update="R9TopDIB.Designer.cs">
-      <DependentUpon>R9TopDIB.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R9Topwood.cs" />
-    <Compile Update="R9Topwood.Designer.cs">
-      <DependentUpon>R9Topwood.cs</DependentUpon>
-    </Compile>
-    <Compile Update="R9VolEquation.cs" />
-    <Compile Update="R9VolEquation.Designer.cs">
-      <DependentUpon>R9VolEquation.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ReportsDialog.cs" />
-    <Compile Update="ReportsDialog.Designer.cs">
-      <DependentUpon>ReportsDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Update="SecurityQuestion.cs" />
-    <Compile Update="SecurityQuestion.Designer.cs">
-      <DependentUpon>SecurityQuestion.cs</DependentUpon>
-    </Compile>
-    <Compile Update="SelectCSV.cs" />
-    <Compile Update="SelectCSV.Designer.cs">
-      <DependentUpon>SelectCSV.cs</DependentUpon>
-    </Compile>
-    <Compile Update="selectLength.cs" />
-    <Compile Update="selectLength.Designer.cs">
-      <DependentUpon>selectLength.cs</DependentUpon>
-    </Compile>
-    <Compile Update="StewardshipProductCosts.cs" />
-    <Compile Update="StewardshipProductCosts.Designer.cs">
-      <DependentUpon>StewardshipProductCosts.cs</DependentUpon>
-    </Compile>
-    <Compile Update="TemplateRegionForest.cs" />
-    <Compile Update="TemplateRegionForest.Designer.cs">
-      <DependentUpon>TemplateRegionForest.cs</DependentUpon>
-    </Compile>
-    <Compile Update="TextFileOutput.cs" />
-    <Compile Update="TextFileOutput.Designer.cs">
-      <DependentUpon>TextFileOutput.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ValueEquations.cs" />
-    <Compile Update="ValueEquations.Designer.cs">
-      <DependentUpon>ValueEquations.cs</DependentUpon>
-    </Compile>
-    <Compile Update="VolumeEquations.cs" />
-    <Compile Update="VolumeEquations.Designer.cs">
-      <DependentUpon>VolumeEquations.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\LocalVolume.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\volume.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\money3.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\weight.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\biomass.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\quality.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\R8.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\R9.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\textfile.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\htmlfile.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\pdffile.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\graphs.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\preview.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\standard.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\regional.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\disabled_button.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\disabled_button.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\DataSources\BiomassList.datasource" />
-    <None Include="Properties\DataSources\CruiseDAL.DataObjects.BiomassEquationDO.datasource" />
-    <None Include="Properties\DataSources\CruiseDAL.DataObjects.QualityAdjEquationDO.datasource" />
-    <None Include="Properties\DataSources\CruiseDAL.DataObjects.ValueEquationDO.datasource" />
-    <None Include="Properties\DataSources\CruiseDAL.DataObjects.VolumeEquationDO.datasource" />
-    <None Include="Properties\DataSources\CruiseDAL.DataObjects.WeightEquationDO.datasource" />
-    <None Include="Properties\DataSources\QualityAdjList.datasource" />
-    <None Include="Properties\DataSources\R8product08.datasource" />
-    <None Include="Properties\DataSources\StewProductCosts.datasource" />
-    <None Include="Properties\DataSources\ValueEqList.datasource" />
-    <None Include="Properties\DataSources\VolumeEqList.datasource" />
-    <None Include="Properties\DataSources\WeightEqList.datasource" />
-    <None Include="Resources\button_image.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="cruisetree_trees.ico" />
-    <Content Include="../FMSC EULA.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../CruiseProcessingIntro.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../libs/NBEL.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../libs/LocalVolume.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../libs/vollib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="Properties\DataSources\CruiseDAL.DataObjects.LogMatrixDO.datasource" />
-    <None Include="Properties\DataSources\RegressGroups.datasource" />
-    <None Include="Resources\CSVfile.bmp" />
-    <None Include="Resources\CSVfile.jpg" />
-    <Content Include="Resources\equation.bmp" />
-    <Content Include="Resources\Final.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Biomass.cs" />
-    <Compile Remove="BiomassEquations.cs" />
-    <Compile Remove="BiomassEquations.Designer.cs" />
-    <Compile Remove="BiomassList.cs" />
-    <Compile Remove="CalculateTreeValues!.cs" />
-    <Compile Remove="Form1.cs" />
-    <Compile Remove="Form1.Designer.cs" />
-    <Compile Remove="SpeciesAssociations.cs" />
-    <Compile Remove="SpeciesAssociations.Designer.cs" />
-    <Compile Remove="WeightEqMethods.cs" />
-    <Compile Remove="WeightEquations.cs" />
-    <Compile Remove="WeightEquations.Designer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="NBEL.dll" />
-    <None Remove="vollib.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
-    <PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
-    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.1.11601" />
-    <PackageReference Include="ZedGraph" Version="5.1.7" />
-    <PackageReference Include="ZedGraph.Web" Version="5.1.5" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />
-  </ItemGroup>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="CapturePercentRemoved.cs" />
+		<Compile Update="CapturePercentRemoved.Designer.cs">
+			<DependentUpon>CapturePercentRemoved.cs</DependentUpon>
+		</Compile>
+		<Compile Update="GraphForm.cs" />
+		<Compile Update="GraphForm.Designer.cs">
+			<DependentUpon>GraphForm.cs</DependentUpon>
+		</Compile>
+		<Compile Update="graphOutputDialog.cs" />
+		<Compile Update="graphOutputDialog.Designer.cs">
+			<DependentUpon>graphOutputDialog.cs</DependentUpon>
+		</Compile>
+		<Compile Update="GraphReportsDialog.cs" />
+		<Compile Update="GraphReportsDialog.Designer.cs">
+			<DependentUpon>GraphReportsDialog.cs</DependentUpon>
+		</Compile>
+		<Compile Update="LocalVolume.cs" />
+		<Compile Update="LocalVolume.Designer.cs">
+			<DependentUpon>LocalVolume.cs</DependentUpon>
+		</Compile>
+		<Compile Update="LogMatrixUpdate.cs" />
+		<Compile Update="LogMatrixUpdate.Designer.cs">
+			<DependentUpon>LogMatrixUpdate.cs</DependentUpon>
+		</Compile>
+		<Compile Update="MainMenu.cs" />
+		<Compile Update="MainMenu.Designer.cs">
+			<DependentUpon>MainMenu.cs</DependentUpon>
+		</Compile>
+		<Compile Update="ModifyMerchRules.cs" />
+		<Compile Update="ModifyMerchRules.Designer.cs">
+			<DependentUpon>ModifyMerchRules.cs</DependentUpon>
+		</Compile>
+		<Compile Update="ModifyWeightFactors.cs" />
+		<Compile Update="ModifyWeightFactors.Designer.cs">
+			<DependentUpon>ModifyWeightFactors.cs</DependentUpon>
+		</Compile>
+		<Compile Update="PasswordProtect.cs" />
+		<Compile Update="PasswordProtect.Designer.cs">
+			<DependentUpon>PasswordProtect.cs</DependentUpon>
+		</Compile>
+		<Compile Update="PDFfileOutput.cs" />
+		<Compile Update="PDFfileOutput.Designer.cs">
+			<DependentUpon>PDFfileOutput.cs</DependentUpon>
+		</Compile>
+		<Compile Update="PDFwatermarkDlg.cs" />
+		<Compile Update="PDFwatermarkDlg.Designer.cs">
+			<DependentUpon>PDFwatermarkDlg.cs</DependentUpon>
+		</Compile>
+		<Compile Update="PrintPreview.cs" />
+		<Compile Update="PrintPreview.Designer.cs">
+			<DependentUpon>PrintPreview.cs</DependentUpon>
+		</Compile>
+		<Compile Update="ProcessStatus.cs" />
+		<Compile Update="ProcessStatus.Designer.cs">
+			<DependentUpon>ProcessStatus.cs</DependentUpon>
+		</Compile>
+		<EmbeddedResource Update="CapturePercentRemoved.resx">
+			<DependentUpon>CapturePercentRemoved.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="GraphForm.resx">
+			<DependentUpon>GraphForm.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="graphOutputDialog.resx">
+			<DependentUpon>graphOutputDialog.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="GraphReportsDialog.resx">
+			<DependentUpon>GraphReportsDialog.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="LocalVolume.resx">
+			<DependentUpon>LocalVolume.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="LogMatrixUpdate.resx">
+			<DependentUpon>LogMatrixUpdate.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="MainMenu.resx">
+			<DependentUpon>MainMenu.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="ModifyMerchRules.resx">
+			<DependentUpon>ModifyMerchRules.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="ModifyWeightFactors.resx">
+			<DependentUpon>ModifyWeightFactors.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="PasswordProtect.resx">
+			<DependentUpon>PasswordProtect.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="PDFfileOutput.resx">
+			<DependentUpon>PDFfileOutput.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="PDFwatermarkDlg.resx">
+			<DependentUpon>PDFwatermarkDlg.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="PrintPreview.resx">
+			<DependentUpon>PrintPreview.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="ProcessStatus.resx">
+			<DependentUpon>ProcessStatus.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="R8PulpwoodMeasurement.resx">
+			<DependentUpon>R8PulpwoodMeasurement.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="R8Topwood.resx">
+			<DependentUpon>R8Topwood.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="R8VolEquation.resx">
+			<DependentUpon>R8VolEquation.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="R9TopDIB.resx">
+			<DependentUpon>R9TopDIB.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="R9Topwood.resx">
+			<DependentUpon>R9Topwood.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="R9VolEquation.resx">
+			<DependentUpon>R9VolEquation.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="ReportsDialog.resx">
+			<DependentUpon>ReportsDialog.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="SecurityQuestion.resx">
+			<DependentUpon>SecurityQuestion.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="SelectCSV.resx">
+			<DependentUpon>SelectCSV.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="selectLength.resx">
+			<DependentUpon>selectLength.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="StewardshipProductCosts.resx">
+			<DependentUpon>StewardshipProductCosts.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="TemplateRegionForest.resx">
+			<DependentUpon>TemplateRegionForest.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="TextFileOutput.resx">
+			<DependentUpon>TextFileOutput.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="ValueEquations.resx">
+			<DependentUpon>ValueEquations.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<EmbeddedResource Update="VolumeEquations.resx">
+			<DependentUpon>VolumeEquations.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+		</Compile>
+		<None Include="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+		</Compile>
+		<Compile Update="R8PulpwoodMeasurement.cs" />
+		<Compile Update="R8PulpwoodMeasurement.Designer.cs">
+			<DependentUpon>R8PulpwoodMeasurement.cs</DependentUpon>
+		</Compile>
+		<Compile Update="R8Topwood.cs" />
+		<Compile Update="R8Topwood.Designer.cs">
+			<DependentUpon>R8Topwood.cs</DependentUpon>
+		</Compile>
+		<Compile Update="R8VolEquation.cs" />
+		<Compile Update="R8VolEquation.Designer.cs">
+			<DependentUpon>R8VolEquation.cs</DependentUpon>
+		</Compile>
+		<Compile Update="R9TopDIB.cs" />
+		<Compile Update="R9TopDIB.Designer.cs">
+			<DependentUpon>R9TopDIB.cs</DependentUpon>
+		</Compile>
+		<Compile Update="R9Topwood.cs" />
+		<Compile Update="R9Topwood.Designer.cs">
+			<DependentUpon>R9Topwood.cs</DependentUpon>
+		</Compile>
+		<Compile Update="R9VolEquation.cs" />
+		<Compile Update="R9VolEquation.Designer.cs">
+			<DependentUpon>R9VolEquation.cs</DependentUpon>
+		</Compile>
+		<Compile Update="ReportsDialog.cs" />
+		<Compile Update="ReportsDialog.Designer.cs">
+			<DependentUpon>ReportsDialog.cs</DependentUpon>
+		</Compile>
+		<Compile Update="SecurityQuestion.cs" />
+		<Compile Update="SecurityQuestion.Designer.cs">
+			<DependentUpon>SecurityQuestion.cs</DependentUpon>
+		</Compile>
+		<Compile Update="SelectCSV.cs" />
+		<Compile Update="SelectCSV.Designer.cs">
+			<DependentUpon>SelectCSV.cs</DependentUpon>
+		</Compile>
+		<Compile Update="selectLength.cs" />
+		<Compile Update="selectLength.Designer.cs">
+			<DependentUpon>selectLength.cs</DependentUpon>
+		</Compile>
+		<Compile Update="StewardshipProductCosts.cs" />
+		<Compile Update="StewardshipProductCosts.Designer.cs">
+			<DependentUpon>StewardshipProductCosts.cs</DependentUpon>
+		</Compile>
+		<Compile Update="TemplateRegionForest.cs" />
+		<Compile Update="TemplateRegionForest.Designer.cs">
+			<DependentUpon>TemplateRegionForest.cs</DependentUpon>
+		</Compile>
+		<Compile Update="TextFileOutput.cs" />
+		<Compile Update="TextFileOutput.Designer.cs">
+			<DependentUpon>TextFileOutput.cs</DependentUpon>
+		</Compile>
+		<Compile Update="ValueEquations.cs" />
+		<Compile Update="ValueEquations.Designer.cs">
+			<DependentUpon>ValueEquations.cs</DependentUpon>
+		</Compile>
+		<Compile Update="VolumeEquations.cs" />
+		<Compile Update="VolumeEquations.Designer.cs">
+			<DependentUpon>VolumeEquations.cs</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\LocalVolume.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\volume.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\money3.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\weight.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\biomass.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\quality.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\R8.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\R9.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\textfile.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\htmlfile.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\pdffile.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\graphs.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\preview.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\standard.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\regional.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\disabled_button.bmp" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Resources\disabled_button.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Properties\DataSources\BiomassList.datasource" />
+		<None Include="Properties\DataSources\CruiseDAL.DataObjects.BiomassEquationDO.datasource" />
+		<None Include="Properties\DataSources\CruiseDAL.DataObjects.QualityAdjEquationDO.datasource" />
+		<None Include="Properties\DataSources\CruiseDAL.DataObjects.ValueEquationDO.datasource" />
+		<None Include="Properties\DataSources\CruiseDAL.DataObjects.VolumeEquationDO.datasource" />
+		<None Include="Properties\DataSources\CruiseDAL.DataObjects.WeightEquationDO.datasource" />
+		<None Include="Properties\DataSources\QualityAdjList.datasource" />
+		<None Include="Properties\DataSources\R8product08.datasource" />
+		<None Include="Properties\DataSources\StewProductCosts.datasource" />
+		<None Include="Properties\DataSources\ValueEqList.datasource" />
+		<None Include="Properties\DataSources\VolumeEqList.datasource" />
+		<None Include="Properties\DataSources\WeightEqList.datasource" />
+		<None Include="Resources\button_image.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="cruisetree_trees.ico" />
+		<Content Include="../libs/NBEL.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="../libs/LocalVolume.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="../libs/vollib.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<None Include="Properties\DataSources\CruiseDAL.DataObjects.LogMatrixDO.datasource" />
+		<None Include="Properties\DataSources\RegressGroups.datasource" />
+		<None Include="Resources\CSVfile.bmp" />
+		<None Include="Resources\CSVfile.jpg" />
+		<Content Include="Resources\equation.bmp" />
+		<Content Include="Resources\Final.jpg" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Remove="NBEL.dll" />
+		<None Remove="vollib.dll" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
+		<PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
+		<PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.1.11601" />
+		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.3" />
+		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.3" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="ZedGraph" Version="5.1.7" />
+		<PackageReference Include="ZedGraph.Web" Version="5.1.5" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />
+	</ItemGroup>
+
+	<Target Name="GenerateSecrets" BeforeTargets="CoreBuild">
+		<ItemGroup>
+			<TemplateFile Include="Secrets.cst" />
+		</ItemGroup>
+
+		<ProcessCodeTemplate TemplateFiles="@(TemplateFile)" />
+	</Target>
 </Project>

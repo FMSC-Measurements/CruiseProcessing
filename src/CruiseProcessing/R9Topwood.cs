@@ -14,16 +14,20 @@ namespace CruiseProcessing
 {
     public partial class R9Topwood : Form
     {
-        #region
-        public string fileName;
         public ArrayList speciesList = new ArrayList();
         public ArrayList flagList = new ArrayList();
-        #endregion
 
+        protected CPbusinessLayer DataLayer { get; }
 
         public R9Topwood()
         {
             InitializeComponent();
+        }
+
+        public R9Topwood(CPbusinessLayer dataLayer)
+            :this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()

@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace CruiseProcessing
 {
     public partial class R9VolEquation : Form 
     {
-        #region
-        public string fileName;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        public CPbusinessLayer DataLayer { get; }
+        public IServiceProvider Services { get; }
+
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         ArrayList topwoodSpecies = new ArrayList();
         ArrayList topwoodFlags = new ArrayList();
@@ -25,11 +22,17 @@ namespace CruiseProcessing
         double defaultConiferTop = 7.6;
         double defaultHardwoodTop = 9.6;
         double defaultNonSaw = 4.0;
-        #endregion
 
-        public R9VolEquation()
+        protected R9VolEquation()
         {
             InitializeComponent();
+        }
+
+        public R9VolEquation(CPbusinessLayer dataLayer, IServiceProvider services)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
 
@@ -37,7 +40,7 @@ namespace CruiseProcessing
         {
             //  Initially, set default equations to whatever is in the volume equation table
             //  if empty, set to Clark
-            volList = bslyr.getVolumeEquations();
+            volList = DataLayer.getVolumeEquations();
             if (volList.Count > 0)
             {
                 foreach (VolumeEquationDO vel in volList)
@@ -56,14 +59,14 @@ namespace CruiseProcessing
             {
                 //  Need to save equations before user can specify topwood
                 //  Remove all equations as they are rebuilt with either of these calls
-                bslyr.SaveVolumeEquations(volList);
+                DataLayer.SaveVolumeEquations(volList);
                 if (taperEquations.Checked == true)
                     CreateEquations("900CLKE");
                 else if (oldEquations.Checked == true)
                     CreateEquations("900DVEE");
 
                 //  Save equations
-                bslyr.SaveVolumeEquations(volList);  
+                DataLayer.SaveVolumeEquations(volList);  
             }   //  endif equations exist
 
             //  load lists for topwood portion
@@ -81,10 +84,9 @@ namespace CruiseProcessing
 
         private void onTopwoodCalculation(object sender, EventArgs e)
         {
-            R9Topwood r9top = new R9Topwood();
+            R9Topwood r9top = Services.GetRequiredService<R9Topwood>();
             r9top.speciesList = topwoodSpecies;
             r9top.flagList = topwoodFlags;
-            r9top.fileName = fileName;
             r9top.setupDialog();
             r9top.ShowDialog();
             topwoodSpecies = r9top.speciesList;
@@ -105,11 +107,8 @@ namespace CruiseProcessing
             //    CreateEquations("900DVEE");
 
             //  Save equations
-            bslyr.SaveVolumeEquations(volList);
-            R9TopDIB r9DIB = new R9TopDIB();
-            r9DIB.fileName = fileName;
-            r9DIB.bslyr.fileName = fileName;
-            r9DIB.bslyr.DAL = bslyr.DAL;
+            DataLayer.SaveVolumeEquations(volList);
+            R9TopDIB r9DIB = Services.GetRequiredService<R9TopDIB>();
             r9DIB.setupDialog();
             r9DIB.Show();
             jstDIBs = r9DIB.jstDIB;
@@ -132,20 +131,17 @@ namespace CruiseProcessing
         {
             //  Remove all equations as they are rebuilt with either of these calls
             volList.Clear();
-            bslyr.SaveVolumeEquations(volList);
+            DataLayer.SaveVolumeEquations(volList);
             if (taperEquations.Checked == true)
                 CreateEquations("900CLKE");
             else if (oldEquations.Checked == true)
                 CreateEquations("900DVEE");
 
             //  Save equations
-            bslyr.SaveVolumeEquations(volList);
+            DataLayer.SaveVolumeEquations(volList);
             if(calcBiomass.Checked == true)
             {
-                VolumeEquations ve = new VolumeEquations();
-                ve.bslyr.fileName = fileName;
-                ve.fileName = fileName;
-                ve.bslyr.DAL = bslyr.DAL;
+                VolumeEquations ve = Services.GetRequiredService<VolumeEquations>();
                 ve.updateBiomass(volList);
             }   //  endif calculate biomass
             Close();
@@ -160,11 +156,11 @@ namespace CruiseProcessing
             string currentSpecies;
 
             //  Need to capture DIBs before creating equations
-            List<JustDIBs> oldDIBs = bslyr.GetJustDIBs();
+            List<JustDIBs> oldDIBs = DataLayer.GetJustDIBs();
 
             //  Grab tree data grouped by unique species and products
             string[,] speciesProduct;
-            speciesProduct = bslyr.GetUniqueSpeciesProduct();
+            speciesProduct = DataLayer.GetUniqueSpeciesProduct();
 
             StringBuilder sb = new StringBuilder();
             double updatedPrimaryDIB = 0.0;

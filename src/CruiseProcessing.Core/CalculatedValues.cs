@@ -10,84 +10,70 @@ namespace CruiseProcessing
 {
     public class CalculatedValues
     {
-    #region
-        public string fileName;
-        public DAL DAL { get; set; }
-        private double firstSum = 0.0;
-        private double talliedSum = 0.0;
-        private double totalKPI = 0.0;
-        private double totalMeasuredKPI = 0.0;
-    #endregion
+        private CPbusinessLayer DataLayer;
+
+        public CalculatedValues(CPbusinessLayer dataLayer)
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+        }
+
         public void CalcValues()
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-            bslyr.fileName = fileName;
-
-            List<SampleGroupDO> sgList = bslyr.getSampleGroups();
-            List<TreeDefaultValueDO> tdvList = bslyr.getTreeDefaults();
-            List<CountTreeDO> ctList = bslyr.getCountTrees();
-            List<PlotDO> pList = bslyr.getPlots();
-
             ClearCalculatedTables();
-            MakePopulationIDs(sgList, tdvList);
-
+            MakePopulationIDs();
         }
         //  this will contain methods for any calculated values
         public void ClearCalculatedTables()
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-            bslyr.fileName = fileName;
             //  if any of these tables have data, delete all
             //  Tree calculated values
             //List<TreeCalculatedValuesDO> tcvList = bslyr.getTreeCalculatedValues();
 
             //if (tcvList.Count > 0)
-            bslyr.deleteTreeCalculatedValues();
+            DataLayer.deleteTreeCalculatedValues();
             //bslyr.fileName = fileName;
 
             //  Log stock
             //List<LogStockDO> lsList = bslyr.getLogStock();
            // if (lsList.Count > 0)
-                bslyr.DeleteLogStock();
+                DataLayer.DeleteLogStock();
            // bslyr.fileName = fileName;
 
             //  LCD
             //List<LCDDO> lcdList = bslyr.getLCD();
             //if (lcdList.Count > 0)
-                bslyr.DeleteLCD();
+                DataLayer.DeleteLCD();
             //bslyr.fileName = fileName;
 
             //  POP
             //List<POPDO> popList = bslyr.getPOP();
            // if (popList.Count > 0)
-                bslyr.DeletePOP();
+                DataLayer.DeletePOP();
             //bslyr.fileName = fileName;
 
             //  PRO
             //List<PRODO> proList = bslyr.getPRO();
             //if (proList.Count > 0)
-                bslyr.DeletePRO();
+                DataLayer.DeletePRO();
             //bslyr.fileName = fileName;
 
             return;
         }   //  end ClearCalculatedTables
 
-        public void MakePopulationIDs(List<SampleGroupDO> sgList, List<TreeDefaultValueDO> tdvList)
+        public void MakePopulationIDs()
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-            bslyr.fileName = fileName;
+            List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
+            List<TreeDefaultValueDO> tdvList = DataLayer.getTreeDefaults();
+
             //  Load ID info into tables
             List<LCDDO> lcdList = new List<LCDDO>();
             List<POPDO> popList = new List<POPDO>();
             List<PRODO> proList = new List<PRODO>();
-            List<TreeDO> tList = bslyr.getTrees();
+            List<TreeDO> tList = DataLayer.getTrees();
 
             //  need to check Contract Species in TDV table before doing unique
             //  reset to a blank if it is null -- September 2016
-            List<TreeDefaultValueDO> treeDefaults = bslyr.getTreeDefaults();
+            List<TreeDefaultValueDO> treeDefaults = DataLayer.getTreeDefaults();
             foreach(TreeDefaultValueDO tdv in treeDefaults)
             {
                 if (tdv.ContractSpecies == null)
@@ -95,7 +81,7 @@ namespace CruiseProcessing
                 else if (tdv.ContractSpecies == "")
                     tdv.ContractSpecies = " ";
             }   //  end foreach
-            bslyr.SaveTreeDefaults(treeDefaults);
+            DataLayer.SaveTreeDefaults(treeDefaults);
 
             foreach (SampleGroupDO sgd in sgList)
             {
@@ -103,7 +89,7 @@ namespace CruiseProcessing
                 //  Load LCD population IDs
                 //  Need unique species, livedead and grade from Tree table
                 // not sure about the count table -- need IDs from there?  11/2012
-                List<TreeDO> distinctSpecies = bslyr.GetDistinctSpecies((long)sgd.SampleGroup_CN);
+                List<TreeDO> distinctSpecies = DataLayer.GetDistinctSpecies((long)sgd.SampleGroup_CN);
                 foreach(TreeDO t in distinctSpecies)
                 {
                     LCDDO lcd = new LCDDO();
@@ -174,7 +160,7 @@ namespace CruiseProcessing
 
                 //  Load PRO population IDs
                 //  These need cutting unit numbers -- from Cutting Unit 
-                List<CuttingUnitStratumDO> strataUnits = bslyr.getCuttingUnitStratum((long)sgd.Stratum_CN);
+                List<CuttingUnitStratumDO> strataUnits = DataLayer.getCuttingUnitStratum((long)sgd.Stratum_CN);
                 foreach (CuttingUnitStratumDO cudo in strataUnits)
                 {
                     PRODO pro = new PRODO();
@@ -213,9 +199,9 @@ namespace CruiseProcessing
                     }   //  endif
                 }   //  end foreach loop on strataUnits
             }   //  end foreach loop on SampleGroup
-            bslyr.SaveLCD(lcdList);
-            bslyr.SavePOP(popList);
-            bslyr.SavePRO(proList);
+            DataLayer.SaveLCD(lcdList);
+            DataLayer.SavePOP(popList);
+            DataLayer.SavePRO(proList);
 
             return;
         }   //  end MakePopulationIDs
@@ -228,26 +214,23 @@ namespace CruiseProcessing
         public void SumTreeCountsLCD(string currST, List<CountTreeDO> ctList, List<PlotDO> justPlots, 
                                             List<LCDDO> justCurrentLCD, string currMethod, List<LCDDO> lcdList)
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-            bslyr.fileName = fileName;
 
             string currSG = "*";
             string prevSP = "*";
             //  Sums trees and counts from either the CountTree table or tree count records
             foreach (LCDDO lcd in justCurrentLCD)
             {
-                firstSum = 0.0;
-                talliedSum = 0.0;
-                totalMeasuredKPI = 0.0;
-                totalKPI = 0.0;
+                double firstSum = 0.0;
+                double talliedSum = 0.0;
+                double totalMeasuredKPI = 0.0;
+                double totalKPI = 0.0;
                 //  find measured trees for current LCD group
-                List<TreeDO> lcdTrees = bslyr.getLCDtrees(lcd, "M");
+                List<TreeDO> lcdTrees = DataLayer.getLCDtrees(lcd, "M");
                 //  measured trees is just a count of the trees for current LCD group
                 lcd.MeasuredTrees = lcdTrees.Count();
                
                 //  now need count trees from tree count records
-                List<TreeDO> lcdCntTrees = bslyr.getLCDtrees(lcd, "C");
+                List<TreeDO> lcdCntTrees = DataLayer.getLCDtrees(lcd, "C");
                 //  Sum all tree counts for first stage and total tallied
                 //  see note in POP section on 100% method
                 if (currMethod == "STR" || currMethod == "100")
@@ -275,7 +258,7 @@ namespace CruiseProcessing
                     }   //  endif on current method
                 }   //  endif
                 //  insurance trees go into just the tallied tree count
-                List<TreeDO> lcdInsurance = bslyr.getLCDtrees(lcd, "I");
+                List<TreeDO> lcdInsurance = DataLayer.getLCDtrees(lcd, "I");
                 talliedSum += lcdInsurance.Sum(tdo => tdo.TreeCount);
                 //  Complete totals based on method --  KPIs too
                 List<CountTreeDO> lcdCountCounts = new List<CountTreeDO>();
@@ -394,7 +377,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Save list before continuing
-            bslyr.SaveLCD(lcdList);
+            DataLayer.SaveLCD(lcdList);
             return;
         }   //  end SumTreeCountsLCD
 
@@ -402,9 +385,6 @@ namespace CruiseProcessing
         public void SumTreeCountsPOP(string currST, List<CountTreeDO> ctList, List<PlotDO> justPlots, 
                                             List<POPDO> justCurrentPOP, string currMethod, List<POPDO> popList)
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-            bslyr.fileName = fileName;
             //  also need first and second stage sample counts
             double stage1 = 0.0;
 
@@ -412,17 +392,17 @@ namespace CruiseProcessing
             //  Sums trees and counts from either the Count Tree table or tree count records
             foreach (POPDO pop in justCurrentPOP)
             {
-                firstSum = 0.0;
-                talliedSum = 0.0;
-                totalKPI = 0.0;
-                totalMeasuredKPI = 0.0;
+                double firstSum = 0.0;
+                double talliedSum = 0.0;
+                double totalKPI = 0.0;
+                double totalMeasuredKPI = 0.0;
                 //  find measured trees for current POP group
-                List<TreeDO> popTrees = bslyr.getPOPtrees(pop, "M");
+                List<TreeDO> popTrees = DataLayer.getPOPtrees(pop, "M");
                 //  measured tree is just a count of the trees for the current group
                 pop.MeasuredTrees = popTrees.Count();
 
                 //  now need count trees from tree count records
-                List<TreeDO> popCntTrees = bslyr.getPOPtrees(pop, "C");
+                List<TreeDO> popCntTrees = DataLayer.getPOPtrees(pop, "C");
 
                 //  sum all tree counts for first stage and total tallied
                 if (currMethod == "STR" || currMethod == "100")
@@ -455,7 +435,7 @@ namespace CruiseProcessing
                     }   //  endif on current method
                 }   //  endif
                 //  insurance trees go into just the tallied tree count
-                List<TreeDO> lcdInsurance = bslyr.getPOPtrees(pop, "I");
+                List<TreeDO> lcdInsurance = DataLayer.getPOPtrees(pop, "I");
                 talliedSum += lcdInsurance.Sum(tdo => tdo.TreeCount);
                 //  Complete totals for tree count and stage samples and KPIs based on method
                 stage1 = justPlots.Count();
@@ -580,7 +560,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Save list before continuing
-            bslyr.SavePOP(popList);
+            DataLayer.SavePOP(popList);
 
             return;
         }   //  end SumTreeCountsPOP
@@ -588,23 +568,20 @@ namespace CruiseProcessing
 
         public void SumTreeCountsPRO(string currST, List<CountTreeDO> ctList, List<PlotDO> justPlots, List<PRODO> justCurrentPRO, string currMethod, List<PRODO> proList)
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-            bslyr.fileName = fileName;
             //  Sums tree counts from either the Count Tree table or tree count records
             foreach (PRODO pro in justCurrentPRO)
             {
-                firstSum = 0.0;
-                talliedSum = 0.0;
-                totalKPI = 0.0;
-                totalMeasuredKPI = 0.0;
+                double firstSum = 0.0;
+                double talliedSum = 0.0;
+                double totalKPI = 0.0;
+                double totalMeasuredKPI = 0.0;
                 //  find measured trees for current PRO group
-                List<TreeDO> proTrees = bslyr.getPROtrees(pro, "M");
+                List<TreeDO> proTrees = DataLayer.getPROtrees(pro, "M");
                 //  measured trees is just a count of the trees for current PRO group
                 pro.MeasuredTrees = proTrees.Count();
 
                 //  now need count trees from tree count records
-                List<TreeDO> proCntTrees = bslyr.getPROtrees(pro, "C");
+                List<TreeDO> proCntTrees = DataLayer.getPROtrees(pro, "C");
                 //  Sum all tree counts for first stage and total tallied
                 //  see note in POP or LCD section on 100% method
                 if (currMethod == "STR" || currMethod == "100")
@@ -633,7 +610,7 @@ namespace CruiseProcessing
                     }   //  endif on current method
                 }   //  endif
                 //  insurance trees go into just the tallied tree count
-                List<TreeDO> lcdInsurance = bslyr.getPROtrees(pro, "I");
+                List<TreeDO> lcdInsurance = DataLayer.getPROtrees(pro, "I");
                 talliedSum += lcdInsurance.Sum(tdo => tdo.TreeCount);
                 //  Complete totals and KPIs based on method
                 List<CountTreeDO> proCountCounts = new List<CountTreeDO>();
@@ -729,16 +706,13 @@ namespace CruiseProcessing
             }   //  end foreach loop
 
             //  Save list before continuing
-            bslyr.SavePRO(proList);
+            DataLayer.SavePRO(proList);
 
             return;
         }   //  end SumTreeCountsPRO
 
         public void CalcExpFac(StratumDO sdo, List<PlotDO> justPlots, List<POPDO> justCurrentPOP)
         {
-            CPbusinessLayer bslyr = new CPbusinessLayer();
-            bslyr.DAL = DAL;
-            bslyr.fileName = fileName;
             //  Calculates expansion factor, tree factor and point factor for each tree in the current population
             double EF = 0.0;        //  expansion factor
             double TF = 0.0;        //  tree factor
@@ -754,9 +728,9 @@ namespace CruiseProcessing
                 //  pull trees for population
                 List<TreeDO> justTrees = new List<TreeDO>();
                 if (sdo.Method == "FIXCNT")
-                    justTrees = bslyr.getPOPtrees(pdo, "C");
+                    justTrees = DataLayer.getPOPtrees(pdo, "C");
                 else
-                    justTrees = bslyr.getPOPtrees(pdo, "M");
+                    justTrees = DataLayer.getPOPtrees(pdo, "M");
 
                 //  3PPNT uses measured plots
                 if (sdo.Method == "3PPNT")
@@ -871,12 +845,11 @@ namespace CruiseProcessing
                     tdo.PointFactor = (float)PF;
                 }   //  end foreach loop on justTrees
                 //  save this bunch of trees
-                bslyr.SaveTrees(justTrees);
+                DataLayer.SaveTrees(justTrees);
             }   //  end foreach loop on justCurrentPOP
 
             return;
         }   //  end CalcExpFac
-
 
     }   //  end CalculatedValues
 }

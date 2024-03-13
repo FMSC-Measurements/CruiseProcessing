@@ -15,20 +15,23 @@ namespace CruiseProcessing
 {
     public partial class ValueEquations : Form
     {
-        #region
         private string[] BasicEquations = new string[8] {"01","02","03","04","06","07","10","12"};
         private string[] R9Equations = new string[14] { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14" };
         private string[] R4Equations = new string[4] { "01", "02", "03", "04" };
         private string equationPrefix = "VLPP";
         private List<ValueEquationDO> valList = new List<ValueEquationDO>();
-        public string fileName;
         private int trackRow = -1;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
-        #endregion
+        protected CPbusinessLayer DataLayer { get; }
 
-        public ValueEquations()
+        protected ValueEquations()
         {
             InitializeComponent();
+        }
+
+        public ValueEquations(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
 
@@ -36,12 +39,12 @@ namespace CruiseProcessing
         {
             //  if there are value equations, show in grid
             //  if not, just initialize the grid
-            valList = bslyr.getValueEquations();
+            valList = DataLayer.getValueEquations();
             valueEquationDOBindingSource.DataSource = valList;
             valueEquationList.DataSource = valueEquationDOBindingSource;
 
             //  need unique species and product
-            List<TreeDefaultValueDO> tdvList = bslyr.GetUniqueSpeciesProductLiveDead();
+            List<TreeDefaultValueDO> tdvList = DataLayer.GetUniqueSpeciesProductLiveDead();
             
             if (valList.Count == 0)
             {
@@ -56,7 +59,7 @@ namespace CruiseProcessing
             }   //  endif list is empty
 
             //  Fill lists at bottom with unique species and primary products
-            ArrayList justSpecies = bslyr.GetJustSpecies("Tree");
+            ArrayList justSpecies = DataLayer.GetJustSpecies("Tree");
             for (int n = 0; n < justSpecies.Count; n++)
                 speciesList.Items.Add(justSpecies[n].ToString());
 
@@ -69,7 +72,7 @@ namespace CruiseProcessing
                 return -1;
             }   //  endif
 
-            ArrayList justProducts = bslyr.GetJustPrimaryProduct();
+            ArrayList justProducts = DataLayer.GetJustPrimaryProduct();
             for (int n = 0; n < justProducts.Count; n++)
                 primaryProdList.Items.Add(justProducts[n].ToString());
 
@@ -212,13 +215,13 @@ namespace CruiseProcessing
                     if (ved.Coefficient5 <= 0) ved.Coefficient5 = 0;
                     if (ved.Coefficient6 <= 0) ved.Coefficient6 = 0;
                 }   //  end foreach loop
-                bslyr.SaveValueEquations(valList);
+                DataLayer.SaveValueEquations(valList);
                 Cursor.Current = this.Cursor;
             }   //  endif
 
-            if (bslyr.DAL_V3 != null)
+            if (DataLayer.DAL_V3 != null)
             {
-                bslyr.syncValueEquationToV3();
+                DataLayer.syncValueEquationToV3();
             }//end if
 
             Close();

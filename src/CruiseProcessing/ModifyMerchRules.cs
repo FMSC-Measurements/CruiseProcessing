@@ -15,8 +15,13 @@ namespace CruiseProcessing
 {
     public partial class ModifyMerchRules : Form
     {
-        #region
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        //  definitions for volume library function call
+        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
+        static extern void MRULESCS(ref int regn, StringBuilder voleq, StringBuilder prod, ref float trim,
+                                    ref float minlen, ref float maxlen, ref int opt, ref float merchl,
+                                    int l1, int l2);
+
+
         private List<VolumeEquationDO> vList = new List<VolumeEquationDO>();
         private List<VolumeEquationDO> justProducts = new List<VolumeEquationDO>();
         private int nthRow = 0;
@@ -28,28 +33,31 @@ namespace CruiseProcessing
         private float TRIM, MINLEN, MAXLEN, MERCHL;
         private int OPT;
         private int EVOD;
-        //  definitions for volume library function call
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void MRULESCS(ref int regn, StringBuilder voleq, StringBuilder prod, ref float trim, 
-                                    ref float minlen, ref float maxlen, ref int opt, ref float merchl, 
-                                    int l1, int l2);
+       
 
-        #endregion
-        public ModifyMerchRules()
+        public CPbusinessLayer DataLayer { get; }
+
+        protected ModifyMerchRules()
         {
             InitializeComponent();
+        }
+
+        public ModifyMerchRules(CPbusinessLayer dataLayer)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
         public void setupDialog()
         {
             //  first, any changes made?  Indicates where data comes from
-            vList = bslyr.getVolumeEquations();
+            vList = DataLayer.getVolumeEquations();
             int modFlag = (int) vList.Sum(v => v.MerchModFlag);
             if (modFlag == 0)
             {
                 //  means no changes made -- need regional defaults from volume library
                 //  need region
-                string regText = bslyr.getRegion();
+                string regText = DataLayer.getRegion();
                 //  convert to integer for call to volume library
                 int currReg = Convert.ToInt16(regText);
                 //  then fill vList with values from volume library
@@ -226,11 +234,11 @@ namespace CruiseProcessing
             //  and update volume list for saving
             updateVolumeList();
             //  save volume equation list
-            bslyr.SaveVolumeEquations(vList);
+            DataLayer.SaveVolumeEquations(vList);
 
-            if (bslyr.DAL_V3 != null)
+            if (DataLayer.DAL_V3 != null)
             {
-                bslyr.syncVolumeEquationToV3();
+                DataLayer.syncVolumeEquationToV3();
             }//end if
 
             Close();

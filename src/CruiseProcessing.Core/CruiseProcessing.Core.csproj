@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
-    <AssemblyVersion>2.1.1.1</AssemblyVersion>
-    <FileVersion>2.1.1.1</FileVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<RootNamespace>CruiseProcessing</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
-    <PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
-    <PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.1.11601" />
-    <!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" /> -->
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
+		<PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
+		<PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.1.11601" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" /> -->
+	</ItemGroup>
 
 </Project>

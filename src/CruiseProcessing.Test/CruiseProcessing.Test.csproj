@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <RootNamespace>CruiseProcessing.Test</RootNamespace>
+	  <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DiffPlex" Version="1.7.2" />
+  </ItemGroup>
+
+
+	<!--<ItemGroup>
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" />
+	</ItemGroup>-->
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\CruiseProcessing\CruiseProcessing.csproj" Exclude="none" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Reference Include="System.Windows.Forms" />
+	</ItemGroup>
+
+
+	<Import Project="..\CruiseProcessing.Test.Shared\CruiseProcessing.Test.Shared.projitems" Label="Shared" />
+
+
+	<!--<ItemGroup>
+	  <ProjectReference Include="..\CruiseProcessing\CruiseProcessing.csproj" />
+	</ItemGroup>-->
+	
+</Project>

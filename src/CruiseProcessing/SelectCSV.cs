@@ -7,16 +7,16 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using CruiseProcessing.Services;
 
 namespace CruiseProcessing
 {
     public partial class SelectCSV : Form
     {
-        #region
-        public string fileName;
-        public CPbusinessLayer bslyr = new CPbusinessLayer();
+        
+        
+        
         private string textFileName;
-        private string CSVoutFile;
         private int[] filesToOutput = new int[11];
         private string[] CSVfileNames = new string[11] { "ReportA05.csv", 
                                                         "ReportA06.csv", 
@@ -29,17 +29,26 @@ namespace CruiseProcessing
                                                         "ReportKPIestimates.csv",
                                                         "TimberTheft.csv",
                                                         "ReportVSM4.csv"};
-        #endregion
+        
+        protected CPbusinessLayer DataLayer { get; }
+        public IDialogService DialogService { get; }
 
-        public SelectCSV()
+        protected SelectCSV()
         {
             InitializeComponent();
+        }
+
+        public SelectCSV(CPbusinessLayer dataLayer, IDialogService dialogService)
+            : this()
+        {
+            DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         public void setupDialog()
         {
             //  make sure text output file exists as these are generated from the reports in that file
-            textFileName = System.IO.Path.ChangeExtension(fileName, "out");
+            textFileName = System.IO.Path.ChangeExtension(DataLayer.FilePath, "out");
             if (!File.Exists(textFileName))
             {
                 MessageBox.Show("TEXT OUTPUT FILE COULD NOT BE FOUND.\nPlease create the text output file to continue.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -84,72 +93,75 @@ namespace CruiseProcessing
 
         private void onCreateFiles(object sender, EventArgs e)
         {
-            OutputCSV ocsv = new OutputCSV();
-            ocsv.fileName = fileName;
-            ocsv.bslyr.fileName = bslyr.fileName;
-            ocsv.bslyr.DAL = bslyr.DAL;
-            string currPath = System.IO.Path.GetDirectoryName(fileName);
+            string currPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
             currPath += "\\";
             for (int j = 0; j < 11; j++)
             {
                 if (filesToOutput[j] == 1)
                 {
-                    CSVoutFile = currPath;
-                    CSVoutFile += CSVfileNames[j];
-                    switch (j)
+                    var csvPath = Path.Combine(currPath, CSVfileNames[j]);
+
+                    if (j == 8)//  KPI estimates
                     {
-                        case 0:     //  A05
-                            ocsv.currentReport = "CSV1";
-                            ocsv.OutputCSVfiles(CSVoutFile, "A05", textFileName);
-                            break;
-                        case 1:     //  A06
-                            ocsv.currentReport = "CSV2";
-                            ocsv.OutputCSVfiles(CSVoutFile, "A06", textFileName);
-                            break;
-                        case 2:     //  A07
-                            ocsv.currentReport = "CSV3";
-                            ocsv.OutputCSVfiles(CSVoutFile, "A07", textFileName);
-                            break;
-                        case 3:     //  A10
-                            ocsv.currentReport = "CSV4";
-                            ocsv.OutputCSVfiles(CSVoutFile, "A10", textFileName);
-                            break;
-                        case 4:     //  L1
-                            ocsv.currentReport = "CSV5";
-                            ocsv.OutputCSVfiles(CSVoutFile, "L1:", textFileName);
-                            break;
-                        case 5:     //  L3
-                            //  this needs to be built from scratch -- noope, fixed it to work with L2 report
-                            ocsv.currentReport = "CSV6";
-                            ocsv.fileName = fileName;
-                            ocsv.OutputCSVfiles(CSVoutFile, "L2:", textFileName);
-                            break;
-                        case 6:     //  ST1
-                            ocsv.currentReport = "CSV7";
-                            ocsv.fileName = fileName;
-                            ocsv.OutputCSVfiles(CSVoutFile, "ST1", textFileName);
-                            break;
-                        case 7:     //  UC5
-                            ocsv.currentReport = "CSV8";
-                            ocsv.fileName = fileName;
-                            ocsv.OutputCSVfiles(CSVoutFile, "UC5", textFileName);
-                            break;
-                        case 8:     //  KPI estimates
-                            ocsv.currentReport = "CSV9";
-                            ocsv.OutputEstimateFile(CSVoutFile);
-                            break;
-                        case 9: //  Timber Theft file
-                            ocsv.currentReport = "CSV10";
-                            ocsv.OutputTimberTheft(CSVoutFile);
-                            break;
-                        case 10:        //  VSM<4 
-                            ocsv.currentRegion = "CSV11";
-                            ocsv.OutputCSVfiles(CSVoutFile, "VSM4", textFileName);
-                            break;
-                    }   //  end switch
-                }   //  endif
-                CSVoutFile = "";
-            }   //  end for j loop
+                        var csvReportBuilder = new OutputCSV(DataLayer, DialogService, "CSV9");
+                        csvReportBuilder.OutputEstimateFile(csvPath);
+                    }
+                    else if (j == 9) //  Timber Theft file
+                    {
+                        var csvReportBuilder = new OutputCSV(DataLayer, DialogService, "CSV10");
+                        csvReportBuilder.OutputTimberTheft(csvPath);
+                    }
+                    else
+                    {
+                        string currentReport = null;
+                        string reportToUse = null;
+
+                        switch (j)
+                        {
+                            case 0:     //  A05
+                                currentReport = "CSV1";
+                                reportToUse = "A05";
+                                break;
+                            case 1:     //  A06
+                                currentReport = "CSV2";
+                                reportToUse = "A06";
+                                break;
+                            case 2:     //  A07
+                                currentReport = "CSV3";
+                                reportToUse = "A07";
+                                break;
+                            case 3:     //  A10
+                                currentReport = "CSV4";
+                                reportToUse = "A10";
+                                break;
+                            case 4:     //  L1
+                                currentReport = "CSV5";
+                                reportToUse = "L1:";
+                                break;
+                            case 5:     //  L3
+                                        //  this needs to be built from scratch -- noope, fixed it to work with L2 report
+                                currentReport = "CSV6";
+                                reportToUse = "L2:";
+                                break;
+                            case 6:     //  ST1
+                                currentReport = "CSV7";
+                                reportToUse = "ST1";
+                                break;
+                            case 7:     //  UC5
+                                currentReport = "CSV8";
+                                reportToUse = "UC5";
+                                break;
+                            case 10:        //  VSM<4 
+                                currentReport = "CSV11";
+                                reportToUse = "VSM4";
+                                break;
+                        }
+
+                        var csvReportBuilder = new OutputCSV(DataLayer, DialogService, currentReport);
+                        csvReportBuilder.OutputCSVfiles(csvPath, reportToUse, textFileName);
+                    }
+                }
+            }
 
             MessageBox.Show("All CSV files requested have been created.\nCheck directory for .CSV files", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
           
