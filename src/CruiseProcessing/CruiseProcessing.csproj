@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
 		<AssemblyTitle>CruiseProcessing</AssemblyTitle>
-		<Company>USDA Forest Service</Company>
 		<Product>CruiseProcessing</Product>
-		<Copyright>Copyright © USDA Forest Service 2011</Copyright>
 		<ApplicationIcon>cruisetree_trees.ico</ApplicationIcon>
-		<Version>11.21.2023</Version>
 
 	</PropertyGroup>
 
 	<PropertyGroup Label="Build Config">
-		<TargetFramework>net472</TargetFramework>
 		<PlatformTarget>x86</PlatformTarget>
 		<OutputType>WinExe</OutputType>
 		<UseWindowsForms>true</UseWindowsForms>
@@ -348,12 +344,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="cruisetree_trees.ico" />
-		<Content Include="../FMSC EULA.txt">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="../CruiseProcessingIntro.txt">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 		<Content Include="../libs/NBEL.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
