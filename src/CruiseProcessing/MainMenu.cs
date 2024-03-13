@@ -405,7 +405,7 @@ namespace CruiseProcessing
             else
             {
                 Logger.LogWarning("Invalid File Type: {FileName}", fileName);
-                DialogService.ShowError("Invalid File Type Selected")
+                DialogService.ShowError("Invalid File Type Selected");
                 return;
             }
 
