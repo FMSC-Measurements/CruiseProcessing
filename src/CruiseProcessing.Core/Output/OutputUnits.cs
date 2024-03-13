@@ -127,7 +127,7 @@ namespace CruiseProcessing
                                 lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2 ", orderBy);
                                 break;
                         }   //  end switch on method
-                        LoadAndPrintProrated(strWriteOut, s, currentReport, ref pageNumb);
+                        LoadAndPrintProrated_UC1to4(strWriteOut, s, currentReport, ref pageNumb);
                     
                     }   //  end foreach loop
                     //  Output grand total for the report
@@ -156,7 +156,7 @@ namespace CruiseProcessing
                         fieldLengths = new int[] { 1, 4, 13, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10, 10 };
 
                         //  Load and print data for current cutting unit
-                        LoadAndPrintProrated(strWriteOut, c, ref pageNumb, summaryList);
+                        LoadAndPrintProrated_UC5and6(strWriteOut, c, ref pageNumb, summaryList);
                         if(unitSubtotal.Count > 0)
                             OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
                         unitSubtotal.Clear();
@@ -266,7 +266,7 @@ namespace CruiseProcessing
                     {
                         //  create report header
                         SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                        LoadAndPrintProrated(speciesList, strWriteOut, cud, ref pageNumb);
+                        LoadAndPrintProrated_VSM5(speciesList, strWriteOut, cud, ref pageNumb);
                     }   //  end foreach on cutting unit
                     //  output summary table before the grand total
                     OutputSummaryList(strWriteOut, ref pageNumb, summaryList);
@@ -850,7 +850,7 @@ namespace CruiseProcessing
         }   //  end finishColumnHeaders
 
 
-        private void LoadAndPrintProrated(TextWriter strWriteOut, StratumDO sdo, string currRPT,
+        private void LoadAndPrintProrated_UC1to4(TextWriter strWriteOut, StratumDO sdo, string currRPT,
                                             ref int pageNumb)
         {
             //  loads based on cruise method for UC reports (UC1-UC4)
@@ -894,22 +894,22 @@ namespace CruiseProcessing
                             });
 
                         //  sum up groups
-                        SumUpGroups(justCurrentGroup, currentReport, strWriteOut, ref pageNumb);
+                        SumUpGroups_UC1to4_hpct(justCurrentGroup, currentReport, strWriteOut, ref pageNumb);
                         break;
                     case "STR":
                     case "3P":
                     case "S3P":
-                        SumUpGroups(currentReport, prevCU, strWriteOut, ref pageNumb);
+                        SumUpGroups_UC1to4(currentReport, prevCU, strWriteOut, ref pageNumb);
                         break;
                     default:        //  area based methods
                         //  sum up groups in the strata and output for current unit
-                        SumUpGroups(currentReport, prevCU, strWriteOut, ref pageNumb);
+                        SumUpGroups_UC1to4(currentReport, prevCU, strWriteOut, ref pageNumb);
                         break;
                 }   //  end switch on method
             }   //  end for k loop
             //  output last group, unit subtotal and strata subtotal
-            UpdateUnitTotal(currentReport);
-            UpdateStrataTotal(currentReport);
+            UpdateUnitTotal_UCreports(currentReport);
+            UpdateStrataTotal_UC1to4(currentReport);
             unitSubtotal[0].Value1 = prevCU.PadLeft(3,' ');
             OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
             if(currentReport != "UC5" || currentReport != "UC6")
@@ -920,7 +920,7 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintProrated
 
 
-        private void LoadAndPrintProrated(TextWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
+        private void LoadAndPrintProrated_UC5and6(TextWriter strWriteOut, CuttingUnitDO cdo, ref int pageNumb, List<ReportSubtotal> summaryList)
         {
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
@@ -960,7 +960,7 @@ namespace CruiseProcessing
                                         return tdo.Tree.SampleGroup.Code == gtp && tdo.Tree.SampleGroup.CutLeave == currCL;
                                     });
                             }   //  endif on current report
-                            if(currentGroup.Count > 0) SumUpGroups(currentGroup);
+                            if(currentGroup.Count > 0) SumUpGroups_UC5UC6VSM5_hpct(currentGroup);
                             break;
                         default:
                             //  otherwise data comes from LCD and is NOT expanded
@@ -984,7 +984,7 @@ namespace CruiseProcessing
                                         return l.SampleGroup == gtp;
                                     });
                             }   //  endif current report
-                            if(currGroup.Count > 0) SumUpGroups(currGroup,cdo.Code);
+                            if(currGroup.Count > 0) SumUpGroups_UC5and6(currGroup,cdo.Code);
                             break;
                     }   //  end switch on method
                 }   //  end for loop on strata
@@ -996,9 +996,9 @@ namespace CruiseProcessing
                     if (currentReport == "UC5" || currentReport == "LV05")
                         prtFields.Add(gtp.PadRight(6, ' '));
                     else if (currentReport == "UC6") prtFields.Add(gtp.PadRight(6,' '));   //  sample group
-                    WriteCurrentGroup(strWriteOut, ref pageNumb);
-                    UpdateSubtotalSummary(gtp, summaryList);
-                    UpdateUnitTotal(currentReport);
+                    WriteCurrentGroup_CUreports(strWriteOut, ref pageNumb);
+                    UpdateSubtotalSummary_UC5and6(gtp, summaryList);
+                    UpdateUnitTotal_UCreports(currentReport);
                     unitSubtotal[0].Value1 = cdo.Code;
                 }   //  endif something to print -- numTrees is not zero
                 prtFields.Clear();
@@ -1020,7 +1020,7 @@ namespace CruiseProcessing
         }   //  end LoadAndPrintProrated (just UC5-UC6)
 
 
-        private void LoadAndPrintProrated(List<ReportSubtotal> speciesList, TextWriter strWriteOut,
+        private void LoadAndPrintProrated_VSM5(List<ReportSubtotal> speciesList, TextWriter strWriteOut,
                                             CuttingUnitDO cdo, ref int pageNumb)
         {
             //  overloaded method for VSM5 report -- summary by cutting unit
@@ -1047,7 +1047,7 @@ namespace CruiseProcessing
                                             tdo.Tree.SampleGroup.PrimaryProduct == groupsToProcess[k, 1] &&
                                             tdo.Tree.SampleGroup.CutLeave == "C";
                                     });
-                                if (currentGroup.Count > 0) SumUpGroups(currentGroup);
+                                if (currentGroup.Count > 0) SumUpGroups_UC5UC6VSM5_hpct(currentGroup);
                                 break;
                             default:
                                 //  any other method comes from the LCD table
@@ -1059,7 +1059,7 @@ namespace CruiseProcessing
                                         return l.Species == groupsToProcess[k, 0] &&
                                                 l.PrimaryProduct == groupsToProcess[k, 1];
                                     });
-                                if (currGroup.Count > 0) SumUpGroups(currGroup, s.Method, cdo.Code, 
+                                if (currGroup.Count > 0) SumUpGroups_VSM5(currGroup, s.Method, cdo.Code, 
                                                                         (long) cdo.CuttingUnit_CN, (long) s.Stratum_CN);
                                 break;
                         }   //  end switch on method
@@ -1071,12 +1071,12 @@ namespace CruiseProcessing
                         prtFields.Add(cdo.Code.PadLeft(3, ' '));
                         prtFields.Add(groupsToProcess[k, 0].PadRight(6, ' '));
                         prtFields.Add(groupsToProcess[k, 1].PadRight(2, ' '));
-                        WriteCurrentGroup(cdo.Code, strWriteOut, ref pageNumb, prtFields, groupsToProcess[k, 1]);
+                        WriteCurrentGroup_VSM5(cdo.Code, strWriteOut, ref pageNumb, prtFields, groupsToProcess[k, 1]);
                         //  This will update unit subtotals and grand total
-                        UpdateUnitTotal();
+                        UpdateUnitTotal_VSM5();
                         unitSubtotal[0].Value1 = cdo.Code;
                         //  also need to update the summary list
-                        UpdateSummaryList(summaryList, groupsToProcess[k,0], groupsToProcess[k,1]);
+                        UpdateSummaryList_VSM5(summaryList, groupsToProcess[k,0], groupsToProcess[k,1]);
                         //  reset variables
                         prtFields.Clear();
                         numTrees = 0.0;
@@ -1103,7 +1103,7 @@ namespace CruiseProcessing
         }   //  end overloaded LoadAndPrintProrated
 
         
-        private void UpdateUnitTotal()
+        private void UpdateUnitTotal_VSM5()
         {
             //  works for VSM5 only
             //  Updates unit totals and grand totals
@@ -1144,7 +1144,7 @@ namespace CruiseProcessing
         }   //  end UpdateUnitTotal
 
 
-        private void UpdateUnitTotal(string currRPT)
+        private void UpdateUnitTotal_UCreports(string currRPT)
         {
             //  Works for UC reports
             //  subtotals are not prorated as the values are prorated when each line is printed
@@ -1187,7 +1187,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateUnitTotal
 
-        private void UpdateStrataTotal(string currRPT)
+        private void UpdateStrataTotal_UC1to4(string currRPT)
         {
             //  Works for UC reports
             //  subtotals not prorated as the values are prorated when each line is printed
@@ -1271,7 +1271,7 @@ namespace CruiseProcessing
         }   //  end UpdateStrataTotal
 
 
-        private void UpdateSubtotalSummary(string currSP, List<ReportSubtotal> summaryList)
+        private void UpdateSubtotalSummary_UC5and6(string currSP, List<ReportSubtotal> summaryList)
         {
             //  used by UC5-UC6 only for summary at end of report
             //  see if current species is in the list
@@ -1349,7 +1349,7 @@ namespace CruiseProcessing
         }   //  end UpdateSubtotalSummary
 
 
-        private void UpdateSummaryList(List<ReportSubtotal> summaryList, string currSP, string currPP)
+        private void UpdateSummaryList_VSM5(List<ReportSubtotal> summaryList, string currSP, string currPP)
         {
             //  used by VSM5 only for summary at end of report
             //  see if current species is in the list
@@ -1387,7 +1387,7 @@ namespace CruiseProcessing
         }   //  end UpdateSummaryList
 
 
-        private void WriteCurrentGroup(TextWriter strWriteOut, ref int pageNumb)
+        private void WriteCurrentGroup_CUreports(TextWriter strWriteOut, ref int pageNumb)
         {
             //  overloaded for UC reports
             string fieldFormat1 = "{0,3:F0}";
@@ -1448,7 +1448,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void WriteCurrentGroup(string currCU, TextWriter strWriteOut,
+        private void WriteCurrentGroup_VSM5(string currCU, TextWriter strWriteOut,
                                         ref int pageNumb, List<string> prtFields,
                                         string currPP)
         {
@@ -1488,7 +1488,7 @@ namespace CruiseProcessing
         }   //  end WriteCurrentGroup
 
 
-        private void SumUpGroups(List<TreeCalculatedValuesDO> currentGroup, string currRPT,
+        private void SumUpGroups_UC1to4_hpct(List<TreeCalculatedValuesDO> currentGroup, string currRPT,
                                     TextWriter strWriteOut, ref int pageNumb)
         {
             //  This uses the tree data to sum up values for UC reports (100% method)
@@ -1531,9 +1531,9 @@ namespace CruiseProcessing
                             prevPP != tcv.Tree.SampleGroup.PrimaryProduct ||
                             prevUOM != tcv.Tree.SampleGroup.UOM)
                 {
-                    WriteCurrentGroup(strWriteOut, ref pageNumb);
-                    UpdateUnitTotal(currentReport);
-                    UpdateStrataTotal(currentReport);
+                    WriteCurrentGroup_CUreports(strWriteOut, ref pageNumb);
+                    UpdateUnitTotal_UCreports(currentReport);
+                    UpdateStrataTotal_UC1to4(currentReport);
 
                     prtFields.Clear();
                     prtFields.Add("");
@@ -1648,10 +1648,10 @@ namespace CruiseProcessing
 
             }   //  end foreach loop on tree calculated values
             //  output last group
-            WriteCurrentGroup(strWriteOut, ref pageNumb);
+            WriteCurrentGroup_CUreports(strWriteOut, ref pageNumb);
             prtFields.Clear();
-            UpdateUnitTotal(currentReport);
-            UpdateStrataTotal(currentReport);
+            UpdateUnitTotal_UCreports(currentReport);
+            UpdateStrataTotal_UC1to4(currentReport);
             //  reset total values
             numTrees = 0.0;
             estTrees = 0.0;
@@ -1668,7 +1668,7 @@ namespace CruiseProcessing
         }   //  end SumUpGroups for 100% method
 
 
-        private void SumUpGroups(string currRPT, string currCU, TextWriter strWriteOut, ref int pageNumb)
+        private void SumUpGroups_UC1to4(string currRPT, string currCU, TextWriter strWriteOut, ref int pageNumb)
         {
             //  This sums the current group from the LCD data for the UC reports
             string prevSP = "**";
@@ -1709,9 +1709,9 @@ namespace CruiseProcessing
                          (prevSG != ldo.SampleGroup && (currRPT == "UC2" || currRPT == "UC4")) || 
                           prevPP != ldo.PrimaryProduct || prevUOM != ldo.UOM)
                 {
-                    WriteCurrentGroup(strWriteOut, ref pageNumb);
-                    UpdateUnitTotal(currentReport);
-                    UpdateStrataTotal(currentReport);
+                    WriteCurrentGroup_CUreports(strWriteOut, ref pageNumb);
+                    UpdateUnitTotal_UCreports(currentReport);
+                    UpdateStrataTotal_UC1to4(currentReport);
 
                     prtFields.Clear();
                     prtFields.Add("");
@@ -1774,7 +1774,7 @@ namespace CruiseProcessing
                         if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3P" ||
                             Utilities.MethodLookup(ldo.Stratum, DataLayer) == "S3P")
                         {
-                            numTrees += pull3PtallyTrees(proList, lcdList, ldo.SampleGroup, 
+                            numTrees += pull3PtallyTrees_UCreports(proList, lcdList, ldo.SampleGroup, 
                                                 ldo.Species, ldo.Stratum, ldo.PrimaryProduct, 
                                                 ldo.LiveDead, ldo.STM, currCU);
                             estTrees = 0.0;
@@ -1791,7 +1791,7 @@ namespace CruiseProcessing
                         }   //  endif//  Sum up STM trees separately as what's in the current cutting unit stays in that unit
                         if (ldo.STM == "Y")
                             //  calls capture method to sum expanded volume for each STM tree in the cutting unit
-                            captureSTMtrees(currSTcn, currCUcn, ldo.SampleGroup, ldo.STM, ref currGBDFT, ref currNBDFT,
+                            captureSTMtrees_UCreports(currSTcn, currCUcn, ldo.SampleGroup, ldo.STM, ref currGBDFT, ref currNBDFT,
                                             ref currGCUFT, ref currNCUFT, ref currGBDFTnonsaw, ref currNBDFTnonsaw,
                                             ref currGCUFTnonsaw, ref currNCUFTnonsaw, ref currCords, proratFac);
                         else
@@ -1812,7 +1812,7 @@ namespace CruiseProcessing
                             if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3P" ||
                                 Utilities.MethodLookup(ldo.Stratum, DataLayer) == "S3P")
                             {
-                                numTrees += pull3PtallyTrees(proList, lcdList, ldo.SampleGroup,
+                                numTrees += pull3PtallyTrees_UCreports(proList, lcdList, ldo.SampleGroup,
                                                     ldo.Species, ldo.Stratum, ldo.PrimaryProduct,
                                                     ldo.LiveDead, ldo.STM, currCU);
                                 estTrees = 0.0;
@@ -1831,7 +1831,7 @@ namespace CruiseProcessing
                             //  Sum up STM trees separately as what's in the current cutting unit stays in that unit
                             if (ldo.STM == "Y")
                                 //  calls capture method to sum expanded volume for each STM tree in the cutting unit
-                                captureSTMtrees(currSTcn, currCUcn, ldo.SampleGroup, ldo.STM, ref currGBDFT, ref currNBDFT, 
+                                captureSTMtrees_UCreports(currSTcn, currCUcn, ldo.SampleGroup, ldo.STM, ref currGBDFT, ref currNBDFT, 
                                                 ref currGCUFT, ref currNCUFT, ref currGBDFTnonsaw, ref currNBDFTnonsaw, 
                                                 ref currGCUFTnonsaw, ref currNCUFTnonsaw, ref currCords, proratFac);
                             else
@@ -1874,10 +1874,10 @@ namespace CruiseProcessing
                 }   //  end switch
             }   //  end foreach loop on tree calculated values
             //  output last group
-            WriteCurrentGroup(strWriteOut, ref pageNumb);
+            WriteCurrentGroup_CUreports(strWriteOut, ref pageNumb);
             prtFields.Clear();
-            UpdateUnitTotal(currentReport);
-            UpdateStrataTotal(currentReport);
+            UpdateUnitTotal_UCreports(currentReport);
+            UpdateStrataTotal_UC1to4(currentReport);
             //  reset total values
             numTrees = 0.0;
             estTrees = 0.0;
@@ -1894,7 +1894,7 @@ namespace CruiseProcessing
         }   //  end SumUpGroups for area based methods
 
 
-        private void SumUpGroups(List<TreeCalculatedValuesDO> tList)
+        private void SumUpGroups_UC5UC6VSM5_hpct(List<TreeCalculatedValuesDO> tList)
         {
             //  overloaded for UC5-UC6 100% method
             foreach (TreeCalculatedValuesDO t in tList)
@@ -1955,7 +1955,7 @@ namespace CruiseProcessing
         }   //  end SumUpGroups for 100% method
 
 
-        private void SumUpGroups(List<LCDDO> lcdList, string currCU)
+        private void SumUpGroups_UC5and6(List<LCDDO> lcdList, string currCU)
         {
             //  overloaded for UC5-UC6 all other methods using LCD
             foreach (LCDDO l in lcdList)
@@ -1980,7 +1980,7 @@ namespace CruiseProcessing
                     if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3P" ||
                         Utilities.MethodLookup(l.Stratum, DataLayer) == "S3P")
                     {
-                        numTrees += pull3PtallyTrees(proList, lcdList, l.SampleGroup,
+                        numTrees += pull3PtallyTrees_UCreports(proList, lcdList, l.SampleGroup,
                                                 l.Species, l.Stratum, l.PrimaryProduct,
                                                 l.LiveDead, l.STM, currCU);
                         estTrees = 0.0;
@@ -1999,7 +1999,7 @@ namespace CruiseProcessing
                             //  Sum up STM trees separately as what's in the current cutting unit stays in that unit
                     if (l.STM == "Y")
                         //  calls capture method to sum expanded volume for each STM tree in the cutting unit
-                        captureSTMtrees(currSTcn, currCUcn, l.SampleGroup, l.STM, ref currGBDFT, ref currNBDFT,
+                        captureSTMtrees_UCreports(currSTcn, currCUcn, l.SampleGroup, l.STM, ref currGBDFT, ref currNBDFT,
                                         ref currGCUFT, ref currNCUFT, ref currGBDFTnonsaw, ref currNBDFTnonsaw,
                                         ref currGCUFTnonsaw, ref currNCUFTnonsaw, ref currCords, proratFac);
                     else
@@ -2043,7 +2043,7 @@ namespace CruiseProcessing
         }   //  end SumUpGroups
 
 
-        private void SumUpGroups(List<LCDDO> currGroup, string currMethod, 
+        private void SumUpGroups_VSM5(List<LCDDO> currGroup, string currMethod, 
                                     string currCU, long currCU_CN, long currST_CN)
         {
             //  overloaded to sum up volumes for VSM5 report
@@ -2075,7 +2075,7 @@ namespace CruiseProcessing
                 if (cg.STM == "Y")
                 {
                     //  need to sum up volumes differently here
-                    sumSTMtrees(cg, currCU, currCU_CN, currST_CN);
+                    sumSTMtrees_VSM5(cg, currCU, currCU_CN, currST_CN);
                 }
                 else
                 {
@@ -2106,7 +2106,7 @@ namespace CruiseProcessing
             return;
         }   //  end overloaded SumUpGroups
 
-        private void sumSTMtrees(LCDDO currGroup, string currentUnit, 
+        private void sumSTMtrees_VSM5(LCDDO currGroup, string currentUnit, 
                                     long currCU_CN, long currST_CN)
         {
             //  sums sure-to-measure trees for VSM5 report
@@ -2155,7 +2155,7 @@ namespace CruiseProcessing
             return;
         }   //  end sumSTMtrees
 
-        private double pull3PtallyTrees(List<PRODO> proList, List<LCDDO> lcdList, string currSG, 
+        private double pull3PtallyTrees_UCreports(List<PRODO> proList, List<LCDDO> lcdList, string currSG, 
                                         string currSP, string currST, string currPP, string currLD, 
                                         string currSTM, string currCU)
         {
@@ -2202,7 +2202,7 @@ namespace CruiseProcessing
             return talliedTrees;
         }   //  end pull3PtallyTrees
 
-        protected void captureSTMtrees(long currSTcn, long currCUcn, string currSG, string currSTM, ref double GBDFTsum,
+        protected void captureSTMtrees_UCreports(long currSTcn, long currCUcn, string currSG, string currSTM, ref double GBDFTsum,
                             ref double NBDFTsum, ref double GCUFTsum, ref double NCUFTsum, ref double GBDFTnonsaw,
                             ref double NBDFTnonsaw, ref double GCUFTnonsaw, ref double NCUFTnonsaw,
                             ref double CordSum, double currProFac)
