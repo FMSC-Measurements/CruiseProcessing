@@ -4,6 +4,7 @@ using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace CruiseProcessing
 {
@@ -53,10 +54,20 @@ namespace CruiseProcessing
                 errors.AddError("Sale", "E", "28", 28, "SaleNumber");       //  error 28 -- more than one sale record not allowed
             if (saleCount == 1)
             {
+                var sale = saleList[0];
+
                 //  and blank sale number
-                if (String.IsNullOrWhiteSpace(saleList.Single().SaleNumber))
-                { errors.AddError("Sale", "E", " 8Sale Number", 8, "SaleNumber"); }
+                if (String.IsNullOrWhiteSpace(sale.SaleNumber))
+                { errors.AddError("Sale", "E", " 8Sale Number", sale.Sale_CN.Value, "SaleNumber"); }
+
+                // CalculateTreeValues.ProcessTree requires district to be a integer value
+                if (!int.TryParse(sale.District, out var _))
+                {
+                    errors.AddError("Sale", "E", " Sale District Not a Number", sale.Sale_CN.Value, "District");
+                }
             }
+
+            
         }
 
         private static void ValidateCountTrees(CPbusinessLayer dataLayer, ErrorLogCollection errors)
