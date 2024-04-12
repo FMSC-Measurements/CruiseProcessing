@@ -21,8 +21,6 @@ namespace CruiseProcessing
         private string selectedForest;
         public int templateFlag;
         private int trackRow = -1;
-        
-        public VolumeEqMethods Veq { get; }
 
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void CRZSPDFTCS(ref int regn, StringBuilder forst, ref int spcd, float[] wf, StringBuilder agteq, StringBuilder lbreq,
@@ -43,7 +41,6 @@ namespace CruiseProcessing
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
-            Veq = new VolumeEqMethods();
         }
 
         public int setupDialog()
@@ -63,7 +60,7 @@ namespace CruiseProcessing
             equationList = DataLayer.getVolumeEquations();
 
             //  Check for missing common name and model name
-            Veq.updateVolumeList(equationList, currRegion);
+            VolumeEqMethods.SetSpeciesAndModelValues(equationList, currRegion);
 
             string[,] speciesProduct;
             speciesProduct = DataLayer.GetUniqueSpeciesProduct();
@@ -192,31 +189,19 @@ namespace CruiseProcessing
                 selectedRegion = "11";
             //if(selectedRegion == "05")
             //    MessageBox.Show("USE \"ALL\" FOR THE FOREST SELECTION.\nThe specific forest number should only be used for special reports\nwhen requestd by the Northern Spotted Owl planning team.","WARNING",MessageBoxButtons.OK,MessageBoxIcon.Warning);
-            volForest.Items.Clear();
             fillForests(selectedRegion);
             return;
         }   //  end onRegionSelected
 
         private void fillForests(string selectedRegion)
         {
-            volList = VolumeEqMethods.GetRegionVolumes(selectedRegion);
+            volList = volumeLists.GetVolumeEquationsByRegion(selectedRegion);
+
             //  find unique forests to generate list
-            string currentForest = "";
-            for (int k = 0; k < volList.Count; k++)
-            {
-                //  first forest
-                if (k == 0)
-                {
-                    currentForest = volList[k].vForest;
-                    volForest.Items.Add(currentForest);
-                }
-                else if (currentForest != volList[k].vForest)
-                {
-                    //  add to list and store
-                    currentForest = volList[k].vForest;
-                    volForest.Items.Add(currentForest);
-                }   //  endif
-            }   //  end for k loop
+            var distinctForests = volList.Select(x => x.vForest).Distinct().ToArray();
+
+            volForest.Items.Clear();
+            volForest.Items.AddRange(distinctForests);
 
             volForest.Enabled = true;
             return;
