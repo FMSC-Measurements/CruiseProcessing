@@ -1,36 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CruiseProcessing
 {
     public partial class CalculateTreeValues2
     {
-        //  character length parameters
-        const int STRING_BUFFER_SIZE = 256;
-        const int CHARLEN = 1;
+        private const int STRING_BUFFER_SIZE = 256;
+        private const int CHARLEN = 1;
 
-        const int DRYBIO_ARRAY_SIZE = 15;
-        const int GRNBIO_ARRAY_SIZE = 15;
+        private const int DRYBIO_ARRAY_SIZE = 15;
+        private const int GRNBIO_ARRAY_SIZE = 15;
 
-        // TODO make const when switching to VOLLIBCSNVB 
-        const int I3 = 3;
-        const int I7 = 7;
-        const int I15 = 15;
-        const int I20 = 20;
-        const int I21 = 21;
+        private const int I3 = 3;
+        private const int I7 = 7;
+        private const int I15 = 15;
+        private const int I20 = 20;
+        private const int I21 = 21;
 
-        const int CRZBIOMASSCS_BMS_SIZE = 8;
+        private const int CRZBIOMASSCS_BMS_SIZE = 8;
 
-
-        //  declarations for external methods from vollib.dll
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//EntryPoint = "VERNUM2",
         public static extern void VERNUM2(out int a);
-
-        
 
         [DllImportAttribute("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CRZBIOMASSCS(ref int regn,
@@ -46,9 +36,8 @@ namespace CruiseProcessing
                             ref int errflg,
                             int i1);
 
-
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//, CallingConvention = CallingConvention.StdCall)]
-        static extern void VOLLIBCSNVB(ref int regn,
+        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void VOLLIBCSNVB(ref int regn,
                             StringBuilder forst,
                             StringBuilder voleq,
                             ref float mtopp,
@@ -105,7 +94,6 @@ namespace CruiseProcessing
                             ref MRules mRules,
                             ref int dist,
 
-                            
                             ref float brkht,
                             ref float brkhtd,
                             ref int fiaspcd,
