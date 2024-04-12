@@ -5,11 +5,10 @@ using System.Linq;
 
 namespace CruiseProcessing
 {
-    public class VolumeEqMethods
+    public static class VolumeEqMethods
     {
-        private string speciesName = "";
-        private string modelName = "";
 
+        [Obsolete]
         public static List<VolumeEquationDO> GetAllEquationsToCalc(List<VolumeEquationDO> volList,
                                                                     string currSP, string currPP)
         {
@@ -22,188 +21,75 @@ namespace CruiseProcessing
             return returnList;
         }   //  end GetAllEquationsToCalc
 
-        //  methods pertaining to volume equations
-        public static List<VolEqList> GetRegionVolumes(string currentRegion)
+        public static void SetSpeciesAndModelValues(List<VolumeEquationDO> volEquations, string currentRegion)
         {
-            volumeLists vList = new volumeLists();
-            //  build a list to return to the volume equation window based on region selected
-            List<VolEqList> volList = new List<VolEqList>();
-            switch (currentRegion)
-            {
-                case "10":
-                    for (int k = 0; k < 13; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray10[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray10[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray10[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray10[k, 3].ToString();
-                        volList.Add(vl);
-                    }   //  end for k loop
-                    break;
-
-                case "06":
-                    for (int k = 0; k < 89; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray06[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray06[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray06[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray06[k, 3].ToString();
-                        volList.Add(vl);
-                    }   //  end for k loop
-                    break;
-
-                case "05":
-                    for (int k = 0; k < 30; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray05[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray05[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray05[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray05[k, 3].ToString();
-                        volList.Add(vl);
-                    }   //  end for k loop
-                    break;
-
-                case "04":
-                    for (int k = 0; k < 54; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray04[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray04[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray04[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray04[k, 3].ToString();
-                        volList.Add(vl);
-                    }   //  end for k loop
-                    break;
-
-                case "03":
-                    for (int k = 0; k < 26; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray03[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray03[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray03[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray03[k, 3].ToString();
-                        volList.Add(vl);
-                    }   //  end for k loop
-                    break;
-
-                case "02":
-                    for (int k = 0; k < 19; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray02[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray02[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray02[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray02[k, 3].ToString();
-                        volList.Add(vl);
-                    }   // end for k loop
-                    break;
-
-                case "01":
-                    for (int k = 0; k < 14; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray01[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray01[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray01[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray01[k, 3].ToString();
-                        volList.Add(vl);
-                    }   //  end for k loop
-                    break;
-
-                case "11":
-                    for (int k = 0; k < 20; k++)
-                    {
-                        VolEqList vl = new VolEqList();
-                        vl.vForest = vList.volumeArray11[k, 0].ToString();
-                        vl.vCommonName = vList.volumeArray11[k, 1].ToString();
-                        vl.vEquation = vList.volumeArray11[k, 2].ToString();
-                        vl.vModelName = vList.volumeArray11[k, 3].ToString();
-                        volList.Add(vl);
-                    }   //  end for k loop
-                    break;
-            }   //  end switch on current region
-
-            return volList;
-        }   //  end GetRegionVolumes
-
-        public void updateVolumeList(List<VolumeEquationDO> volEquations, string currentRegion)
-        {
-            volumeLists vList = new volumeLists();
-
             //  loop through equation list and update common species and model name if blank
             foreach (VolumeEquationDO vel in volEquations)
             {
-                //  are they blank?
-                if ((vel.CommonSpeciesName == "" || vel.CommonSpeciesName == " " || vel.CommonSpeciesName == null) ||
-                    (vel.Model == "" || vel.Model == " " || vel.Model == null))
+                if (String.IsNullOrEmpty(vel.CommonSpeciesName) ||
+                    String.IsNullOrEmpty(vel.Model))
                 {
+                    var equationNumber = vel.VolumeEquationNumber;
+
                     //  call fillFields based on equation first character
-                    if (vel.VolumeEquationNumber.Substring(0, 1) == "3")
-                        fillFields(vel.VolumeEquationNumber, vList.volumeArray03);
-                    else if (vel.VolumeEquationNumber.Substring(0, 1) == "A")
-                        fillFields(vel.VolumeEquationNumber, vList.volumeArray10);
-                    else if (vel.VolumeEquationNumber.Substring(0, 1) == "4" ||
-                             vel.VolumeEquationNumber.Substring(0, 3) == "I15")
-                        fillFields(vel.VolumeEquationNumber, vList.volumeArray04);
+                    if (equationNumber.Substring(0, 1) == "3")
+                        SetSpeciesAndModel(vel, volumeLists.Region3Equations);
+                    else if (equationNumber.Substring(0, 1) == "A")
+                        SetSpeciesAndModel(vel, volumeLists.Region10Equations);
+                    else if (equationNumber.Substring(0, 1) == "4" ||
+                             equationNumber.Substring(0, 3) == "I15")
+                        SetSpeciesAndModel(vel, volumeLists.Region4Eauations);
                     else if (currentRegion == "02")
                     {
-                        if (vel.VolumeEquationNumber.Substring(0, 1) == "2" ||
-                            vel.VolumeEquationNumber.Substring(0, 1) == "4" ||
-                            vel.VolumeEquationNumber.Substring(0, 1) == "I")
-                            fillFields(vel.VolumeEquationNumber, vList.volumeArray02);
+                        if (equationNumber.Substring(0, 1) == "2" ||
+                            equationNumber.Substring(0, 1) == "4" ||
+                            equationNumber.Substring(0, 1) == "I")
+                            SetSpeciesAndModel(vel, volumeLists.Region2Equations);
                     }
                     else if (currentRegion == "01")
                     {
-                        if (vel.VolumeEquationNumber.Substring(0, 1) == "1" ||
-                            vel.VolumeEquationNumber.Substring(0, 1) == "2" ||
-                            vel.VolumeEquationNumber.Substring(0, 1) == "I")
-                            fillFields(vel.VolumeEquationNumber, vList.volumeArray01);
+                        if (equationNumber.Substring(0, 1) == "1" ||
+                            equationNumber.Substring(0, 1) == "2" ||
+                            equationNumber.Substring(0, 1) == "I")
+                            SetSpeciesAndModel(vel, volumeLists.Region1Equations);
                     }
                     else if (currentRegion == "05")
                     {
-                        if (vel.VolumeEquationNumber.Substring(0, 1) == "H" ||
-                            vel.VolumeEquationNumber.Substring(0, 1) == "5" ||
-                            vel.VolumeEquationNumber.Substring(0, 3) == "I15")
-                            fillFields(vel.VolumeEquationNumber, vList.volumeArray05);
+                        if (equationNumber.Substring(0, 1) == "H" ||
+                            equationNumber.Substring(0, 1) == "5" ||
+                            equationNumber.Substring(0, 3) == "I15")
+                            SetSpeciesAndModel(vel, volumeLists.Region5Equations);
                     }
                     else if (currentRegion == "06")
                     {
-                        if (vel.VolumeEquationNumber.Substring(0, 1) == "6" ||
-                            vel.VolumeEquationNumber.Substring(0, 1) == "I" ||
-                            vel.VolumeEquationNumber.Substring(0, 1) == "F" ||
-                            vel.VolumeEquationNumber.Substring(0, 3) == "I11" ||
-                            vel.VolumeEquationNumber.Substring(0, 3) == "I12" ||
-                            vel.VolumeEquationNumber.Substring(0, 3) == "I13")
-                            fillFields(vel.VolumeEquationNumber, vList.volumeArray06);
-                    }   //  endif
-                    vel.CommonSpeciesName = speciesName;
-                    vel.Model = modelName;
-                }   //  endif
-            }   //  end foreach loop
-            return;
-        }   //  end updateVolumeList
+                        if (equationNumber.Substring(0, 1) == "6" ||
+                            equationNumber.Substring(0, 1) == "I" ||
+                            equationNumber.Substring(0, 1) == "F" ||
+                            equationNumber.Substring(0, 3) == "I11" ||
+                            equationNumber.Substring(0, 3) == "I12" ||
+                            equationNumber.Substring(0, 3) == "I13")
+                            SetSpeciesAndModel(vel, volumeLists.Region6Equations);
+                    }
+                }
+            }
+        }
 
-        private void fillFields(string currentEquation, string[,] arrayToUse)
+        private static void SetSpeciesAndModel(VolumeEquationDO volEq, IEnumerable<VolEqList> arrayToUse)
         {
-            for (int n = 0; n < arrayToUse.GetLength(0); n++)
-            {
-                if (currentEquation == arrayToUse[n, 2])
-                {
-                    speciesName = arrayToUse[n, 1];
-                    modelName = arrayToUse[n, 3];
-                    return;
-                }   //  endif currentEquation
-            }   //  end for n loop
+            var currentEquation = volEq.VolumeEquationNumber;
 
-            //  if it falls through to here, must be an older equation
-            speciesName = " ";
-            modelName = " ";
-            return;
-        }   //  end fillFields
+            var eq = arrayToUse.FirstOrDefault(x => x.vEquation == currentEquation);
+            if(eq != null)
+            {
+                volEq.CommonSpeciesName = eq.vCommonName;
+                volEq.Model = eq.vModelName;
+            }
+            else
+            {
+                volEq.CommonSpeciesName = " ";
+                volEq.Model = " ";
+            }
+        }
 
         public static List<string> buildMerchArray(VolumeEquationDO vel)
         {
