@@ -8,10 +8,22 @@ using System.Runtime.InteropServices;
 
 namespace CruiseProcessing
 {
-    public class CalculateTreeValues
+    public interface ICalculateTreeValues
     {
+        void ProcessTrees(string currST, string currMethod, long currST_CN);
+    }
+
+
+    public class CalculateTreeValues : ICalculateTreeValues
+    {
+        const int STRING_BUFFER_SIZE = 256;
+        const int CHARLEN = 1;
+
+        const int DRYBIO_ARRAY_SIZE = 15;
+        const int GRNBIO_ARRAY_SIZE = 15;
+
         #region
-        
+
         private string currRegion;
         private  string currForest;
         private  string currDist;
@@ -34,6 +46,84 @@ namespace CruiseProcessing
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
+
+        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//, CallingConvention = CallingConvention.StdCall)]
+        static extern void VOLLIBCSNVB(ref int regn,
+                            StringBuilder forst,
+                            StringBuilder voleq,
+                            ref float mtopp,
+                            ref float mtops,
+
+                            ref float stump,
+                            ref float dbhob,
+                            ref float drcob,
+                            StringBuilder httype,
+                            ref float httot,
+
+                            ref int htlog,
+                            ref float ht1prd,
+                            ref float ht2prd,
+                            ref float upsht1,
+                            ref float upsht2,
+
+                            ref float upsd1,
+                            ref float upsd2,
+                            ref int htref,
+                            ref float avgz1,
+                            ref float avgz2,
+
+                            ref int fclass,
+                            ref float dbtbh,
+                            ref float btr,
+                            float[] vol,
+                            float[,] logvol,
+
+                            float[,] logdia,
+                            float[] loglen,
+                            float[] bohlt,
+                            ref int tlogs,
+                            ref float nologp,
+
+                            ref float nologs,
+                            ref int cutflg,
+                            ref int bfpflg,
+                            ref int cupflg,
+                            ref int cdpflg,
+
+                            ref int spflg,
+                            StringBuilder conspec,
+                            StringBuilder prod,
+                            ref int httfll,
+                            StringBuilder live,
+
+                            ref int ba,
+                            ref int si,
+                            StringBuilder ctype,
+                            ref int errflg,
+                            ref int pmtflg,
+
+                            ref MRules mRules,
+                            ref int dist,
+
+
+                            ref float brkht,
+                            ref float brkhtd,
+                            ref int fiaspcd,
+                            float[] drybio,
+                            float[] grnbio,
+
+                            ref float cr,
+                            ref float cull,
+                            ref int decaycd,
+
+                            int ll1,
+                            int ll2,
+                            int ll3,
+                            int ll4,
+                            int ll5,
+                            int ll6,
+                            int ll7,
+                            int charLen);
 
         //  declarations for external methods from vollib.dll
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//EntryPoint = "VERNUM2",
@@ -221,16 +311,44 @@ namespace CruiseProcessing
                             getLibraryCallValues(td, ved);
 
                             //  volume library call
-                            VOLLIBCS(ref REGN, FORST, VOLEQ, ref MTOPP, ref MTOPS, ref STUMP,
-                                     ref DBHOB, ref DRCOB, HTTYPE, ref HTTOT, ref HTLOG,
-                                     ref HT1PRD, ref HT2PRD, ref UPSHT1, ref UPSHT2, ref UPSD1, ref UPSD2,
-                                     ref HTREF, ref AVGZ1, ref AVGZ2, ref FCLASS, ref DBTBH, ref BTR,
-                                     ref I3, ref I7, ref I15, ref I20, ref I21, VOL, LOGVOL, LOGDIA, LOGLEN, BOLHT,
-                                     ref TLOGS, ref NOLOGP, ref NOLOGS, ref CUTFLG, ref BFPFLG,
-                                     ref CUPFLG, ref CDPFLG, ref SPFLG, CONSPEC, PROD,
-                                     ref HTTFLL, LIVE, ref BA, ref SI, CTYPE, ref ERRFLAG,
-                                     ref INDEB, ref PMTFLG, ref mRules, ref IDIST, strlen, strlen, strlen, strlen,
-                                     strlen, strlen, strlen, charLen);
+                            //VOLLIBCS(ref REGN, FORST, VOLEQ, ref MTOPP, ref MTOPS, ref STUMP,
+                            //         ref DBHOB, ref DRCOB, HTTYPE, ref HTTOT, ref HTLOG,
+                            //         ref HT1PRD, ref HT2PRD, ref UPSHT1, ref UPSHT2, ref UPSD1, ref UPSD2,
+                            //         ref HTREF, ref AVGZ1, ref AVGZ2, ref FCLASS, ref DBTBH, ref BTR,
+                            //         ref I3, ref I7, ref I15, ref I20, ref I21, VOL, LOGVOL, LOGDIA, LOGLEN, BOLHT,
+                            //         ref TLOGS, ref NOLOGP, ref NOLOGS, ref CUTFLG, ref BFPFLG,
+                            //         ref CUPFLG, ref CDPFLG, ref SPFLG, CONSPEC, PROD,
+                            //         ref HTTFLL, LIVE, ref BA, ref SI, CTYPE, ref ERRFLAG,
+                            //         ref INDEB, ref PMTFLG, ref mRules, ref IDIST, strlen, strlen, strlen, strlen,
+                            //         strlen, strlen, strlen, charLen);
+
+                            // unused VOLLIBCSNVB variables
+                            float brkht = 0.0f;
+                            float brkhtd = 0.0f;
+                            float cr = 0.0f;
+                            float cull = 0.0f;
+                            int decaycd = 0;
+                            float[] drybio = new float[DRYBIO_ARRAY_SIZE];
+                            float[] grnbio = new float[GRNBIO_ARRAY_SIZE];
+
+                            int fiaspcd = int.Parse(ved.VolumeEquationNumber.Substring(7, 3));
+
+
+                            VOLLIBCSNVB(ref REGN, FORST, VOLEQ, ref MTOPP, ref MTOPS,
+                                ref STUMP, ref DBHOB, ref DRCOB, HTTYPE, ref HTTOT,
+                                ref HTLOG, ref HT1PRD, ref HT2PRD, ref UPSHT1, ref UPSHT2,
+                                ref UPSD1, ref UPSD2, ref HTREF, ref AVGZ1, ref AVGZ2,
+                                ref FCLASS, ref DBTBH, ref BTR, VOL, LOGVOL,
+                                LOGDIA, LOGLEN, BOLHT, ref TLOGS, ref NOLOGP,
+                                ref NOLOGS, ref CUTFLG, ref BFPFLG, ref CUPFLG, ref CDPFLG,
+                                ref SPFLG, CONSPEC, PROD, ref HTTFLL, LIVE,
+                                ref BA, ref SI, CTYPE, ref ERRFLAG, ref PMTFLG,
+                                ref mRules, ref IDIST,
+                                ref brkht, ref brkhtd, ref fiaspcd, drybio, grnbio,
+                                ref cr, ref cull, ref decaycd,
+                                STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE,
+                                     STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, CHARLEN);
+
                             if (ERRFLAG > 0)
                                 DataLayer.LogError("Tree", (int)td.Tree_CN, "W", ERRFLAG.ToString());
 

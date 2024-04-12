@@ -4,16 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Web;
 using System.Windows.Forms;
 using CruiseProcessing.Services.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace CruiseProcessing
 {
-    static class Program
+    internal static class Program
     {
         public static IServiceProvider ServiceProvider { get; private set; }
         public static DataLayerContext DataLayerContext { get; private set; }
@@ -22,7 +20,7 @@ namespace CruiseProcessing
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main(string[] args)
         {
 #if !DEBUG
             Microsoft.AppCenter.AppCenter.Start(Secrets.CRUISEPROCESSING_APPCENTER_KEY_WINDOWS,
@@ -39,7 +37,7 @@ namespace CruiseProcessing
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var host = Host.CreateDefaultBuilder()
+            var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((context, services) => ConfigureServices(context, services))
                 .ConfigureLogging(ConfigureLogging).Build();
 
@@ -60,6 +58,16 @@ namespace CruiseProcessing
             //services.AddTransient<IMyService, MyService>();
             //services.AddTransient<MyForm>();
 
+            var config = context.Configuration;
+            if (config.GetValue("UseOldCalculateTreeValues", false))
+            {
+                services.AddTransient<ICalculateTreeValues, CalculateTreeValues>();
+            }
+            else
+            {
+                services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
+            }
+
             // register all forms
             services.AddSingleton<MainMenu>();
 
@@ -70,7 +78,7 @@ namespace CruiseProcessing
             services.RegisterForm<GraphReportsDialog>();
             services.RegisterForm<LocalVolume>();
             services.RegisterForm<LogMatrixUpdate>();
-            
+
             services.RegisterForm<ModifyMerchRules>();
             services.RegisterForm<ModifyWeightFactors>();
             services.RegisterForm<PasswordProtect>();
@@ -95,13 +103,10 @@ namespace CruiseProcessing
             services.RegisterForm<VolumeEquations>();
             services.RegisterForm<CapturePercentRemoved>();
 
-
-
             // register other services
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<DataLayerContext>();
             services.AddTransient<CPbusinessLayer>(x => x.GetRequiredService<DataLayerContext>().DataLayer);
-
         }
     }
 }

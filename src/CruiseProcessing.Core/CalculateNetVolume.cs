@@ -7,17 +7,17 @@ using CruiseDAL.Schema;
 
 namespace CruiseProcessing
 {
-    public  class CalculateNetVolume
+    public class CalculateNetVolume
     {
-        #region
-        private int defectLogic = 1;
-        private double soundDefault = 0;
-        #endregion
+        int defectLogic = 1;
+        double soundDefault = 0;
 
-        public void calcNetVol(string cruiseType, float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList, 
+        public void calcNetVol(string cruiseType, float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList,
                                     TreeDO currTree, string currRegion, float NOLOGP, float NOLOGS, int TLOGS, float MTOPP,
                                     string currPP)
         {
+            
+
             //  March 2015 --  because Region 5 records hidden defect differently from other regions
             //  the value on a tree record needs to be checked; if 0 look in TDV and set if greater than zero
             //  Otherwise hidden defect will default to zero
@@ -33,21 +33,21 @@ namespace CruiseProcessing
             if (cruiseType == "V")
                 VariableLogLength(VOL, LOGVOL, logStockList, TLOGS, currPP, currTree.TreeDefaultValue.CullPrimary,
                                     tempHidden, currTree.SeenDefectPrimary);
-            
+
             //  set defect flag based on region
             if (currRegion == "02" || currRegion == "04" || currRegion == "07")
                 defectLogic = 2;
             else if (currRegion == "08")
                 defectLogic = 3;
             else if (currRegion == "10")
-                defectLogic = 4; 
+                defectLogic = 4;
             else if (currRegion == "01" || currRegion == "03" ||
                      currRegion == "05" || currRegion == "09")
                 defectLogic = 1;
 
             //  set primary and secondary number of logs to integer for loop but must round not truncate them
             NOLOGP = (float)Math.Round(NOLOGP);
-            NOLOGS = (float)Math.Round(NOLOGS+.5);
+            NOLOGS = (float)Math.Round(NOLOGS + .5);
 
             //  set percent sound based on region
             if (currRegion == "05") soundDefault = 0.25;
@@ -86,9 +86,9 @@ namespace CruiseProcessing
                     VolumeLogDefect(currRegion, LOGVOL, VOL, logStockList, currTree.TreeDefaultValue.CullPrimary,
                                     tempHidden, currTree.SeenDefectPrimary,
                                     currTree.TreeDefaultValue.CullSecondary, currTree.TreeDefaultValue.HiddenSecondary,
-                                    currTree.SeenDefectSecondary, (int)NOLOGP, (int)NOLOGS, TLOGS, 
+                                    currTree.SeenDefectSecondary, (int)NOLOGP, (int)NOLOGS, TLOGS,
                                     currTree.RecoverablePrimary);
-                    
+
                     if (currRegion == "07" || currRegion == "10")
                         LogUtil(VOL, LOGVOL, TLOGS, (int)NOLOGP, (int)NOLOGS, logStockList, currRegion, currPP);
 
@@ -104,7 +104,7 @@ namespace CruiseProcessing
                     VolumeLogDefect(currRegion, LOGVOL, VOL, logStockList, currTree.TreeDefaultValue.CullPrimary,
                                     tempHidden, currTree.SeenDefectPrimary,
                                     currTree.TreeDefaultValue.CullSecondary, currTree.TreeDefaultValue.HiddenSecondary,
-                                    currTree.SeenDefectSecondary, (int)NOLOGP, (int)NOLOGS, TLOGS, 
+                                    currTree.SeenDefectSecondary, (int)NOLOGP, (int)NOLOGS, TLOGS,
                                     currTree.RecoverablePrimary);
                     LogUtil(VOL, LOGVOL, TLOGS, (int)NOLOGP, (int)NOLOGS, logStockList, currRegion, currPP);
                     SetDiameterClass(currRegion, logStockList, TLOGS);
@@ -114,7 +114,7 @@ namespace CruiseProcessing
             {   //  default -- includes regions 1, 2, 3, 4, 8 and 9
                 VolumeTreeDefect(currTree.TreeDefaultValue.CullPrimary, tempHidden,
                                 currTree.SeenDefectPrimary, currTree.TreeDefaultValue.CullSecondary,
-                                currTree.TreeDefaultValue.HiddenSecondary, currTree.SeenDefectSecondary, 
+                                currTree.TreeDefaultValue.HiddenSecondary, currTree.SeenDefectSecondary,
                                 ref VOL, currRegion, currPP);
             }   //  endif currRegion
 
@@ -156,7 +156,7 @@ namespace CruiseProcessing
                     }   //  endif currPP
                 }   //  endif currRegn
             }
-            else if(defectLogic == 2)
+            else if (defectLogic == 2)
             {
                 totalPrimDef = (1 - currentDef1 / 100) * (1 - currentDef2 / 100) * (1 - currentDef3 / 100);
                 totalSecDef = (1 - currentDef4 / 100) * (1 - currentDef5 / 100) * (1 - currentDef6 / 100);
@@ -166,7 +166,7 @@ namespace CruiseProcessing
                 VOL[7] = totalSecDef * VOL[6];      //  Net CUFT secondary volume
                 VOL[12] = totalSecDef * VOL[11];    //  Net BDFT secondary volume
             }
-            else if(defectLogic == 4)
+            else if (defectLogic == 4)
             {
                 breakageDef = 1 - (currentDef1 / 100);
                 hiddenDef = 1 - (currentDef2 / 100);
@@ -176,16 +176,16 @@ namespace CruiseProcessing
             }   //  endif defectLogic
 
             //  Round net volumes
-            VOL[2] = (float)Math.Round(VOL[2] + 0.001,0,MidpointRounding.AwayFromZero);
-            VOL[4] = (float)Math.Round(VOL[4] + 0.001,1,MidpointRounding.AwayFromZero);
-            VOL[7] = (float)Math.Round(VOL[7] + 0.001,1,MidpointRounding.AwayFromZero);
-            VOL[10] = (float)Math.Round(VOL[10] + 0.001,0,MidpointRounding.AwayFromZero);
-            VOL[12] = (float)Math.Round(VOL[12] + 0.001,0,MidpointRounding.AwayFromZero);
+            VOL[2] = (float)Math.Round(VOL[2] + 0.001, 0, MidpointRounding.AwayFromZero);
+            VOL[4] = (float)Math.Round(VOL[4] + 0.001, 1, MidpointRounding.AwayFromZero);
+            VOL[7] = (float)Math.Round(VOL[7] + 0.001, 1, MidpointRounding.AwayFromZero);
+            VOL[10] = (float)Math.Round(VOL[10] + 0.001, 0, MidpointRounding.AwayFromZero);
+            VOL[12] = (float)Math.Round(VOL[12] + 0.001, 0, MidpointRounding.AwayFromZero);
             return;
         }   //  end VolumeTreeDefect
 
 
-        private void SetLogGrades(string currRegn, List<LogStockDO> logStockList, string currTG,
+        private static void SetLogGrades(string currRegn, List<LogStockDO> logStockList, string currTG,
                                           int numPPlogs, int TLOGS, float currDefRec)
         {
             //  skip first log record (0) -- loop starts with next log (1)
@@ -196,9 +196,9 @@ namespace CruiseProcessing
                     //  For every log except the first one and log grade is blank
                     //  grade the grade from the previous log 
                     //  also defect for Region 10
-                    if (n != 0 && 
-                        (logStockList[n].Grade == "" || 
-                        logStockList[n].Grade == " " || 
+                    if (n != 0 &&
+                        (logStockList[n].Grade == "" ||
+                        logStockList[n].Grade == " " ||
                         logStockList[n].Grade == null))
                     {
                         logStockList[n].Grade = logStockList[n - 1].Grade;
@@ -235,12 +235,12 @@ namespace CruiseProcessing
                         logStockList[n].Grade = "T";
                         if (logStockList[n].SeenDefect >= 99) logStockList[n].SeenDefect = 100;
                     }
-                    else if(currRegn == "07")
+                    else if (currRegn == "07")
                     {
                         logStockList[n].Grade = "7";
                         if (logStockList[n].SeenDefect >= 99) logStockList[n].SeenDefect = 100;
                     }
-                    else if(currRegn == "10")
+                    else if (currRegn == "10")
                     {
                         //  January 2017 -- see above concerning use of grade 7
                         //logStockList[n].Grade = "7";
@@ -252,8 +252,8 @@ namespace CruiseProcessing
 
                 if (currRegn == "10")
                 {
-                    if((logStockList[n].Grade == "" || logStockList[n].Grade == " ") &&
-                        (currTG == "8" || currTG == "9") || 
+                    if ((logStockList[n].Grade == "" || logStockList[n].Grade == " ") &&
+                        (currTG == "8" || currTG == "9") ||
                         (logStockList[n].Grade == "8" || logStockList[n].Grade == "9"))
                     {
                         logStockList[n].SeenDefect = 100;
@@ -274,9 +274,9 @@ namespace CruiseProcessing
             }   //  endif no logs
 
             //  For Regions 7 (BLM) or 10, if the first log has a blank grade, reset it to zero.  Per KCormier June 2003 -- bem
-            if(currRegn == "07" || currRegn == "10")
+            if (currRegn == "07" || currRegn == "10")
             {
-                if(logStockList[0].Grade == "" || logStockList[0].Grade == " ")
+                if (logStockList[0].Grade == "" || logStockList[0].Grade == " ")
                     logStockList[0].Grade = "0";
             }   //  endif current region
             return;
@@ -309,7 +309,7 @@ namespace CruiseProcessing
                     //  find seen defect from log record
                     string currLN = Convert.ToString(n + 1);
                     int nthRow = logStockList.FindIndex(
-                        delegate(LogStockDO ls)
+                        delegate (LogStockDO ls)
                         {
                             return ls.LogNumber == currLN;
                         });
@@ -329,7 +329,7 @@ namespace CruiseProcessing
                         //  Net board foot
                         LOGVOL[n, 2] = (float)Math.Floor(((LOGVOL[n, 0] * breakageDef) * seenDef) * hiddenDef + 0.5);
                         //  Net cubic foot
-                        LOGVOL[n, 5] = (float)(Math.Floor((((LOGVOL[n, 3] * breakageDef) * seenDef) * hiddenDef) * 10 + 0.5)/10.0);
+                        LOGVOL[n, 5] = (float)(Math.Floor((((LOGVOL[n, 3] * breakageDef) * seenDef) * hiddenDef) * 10 + 0.5) / 10.0);
 
                         //  add recoverable percent together (tree and log) and make sure it's not large than total defect
                         //  need just log grades 0-6
@@ -345,85 +345,85 @@ namespace CruiseProcessing
                         float totalDef = currentDef1 + currentDef2 + logStockList[n].SeenDefect;
                         double boardUtil = 0;
                         double cubicUtil = 0;
-                        
+
                         //  January 2017 -- they are no longer selloing utility voulme
                         //  so calculation of utility is no longer needed
                         //if (combinedRecPC <= totalDef)
                         //{
-                            //  Calculate utility volume using combined recoverable percent
+                        //  Calculate utility volume using combined recoverable percent
                         //    boardUtil = Math.Floor(LOGVOL[n, 0] * combinedRecPC / 100 + 0.0499);
                         //    cubicUtil = Math.Floor((LOGVOL[n, 3] * combinedRecPC / 100) * 10 + 0.0499) / 10.0;
                         //logStockList[n].PercentRecoverable = combinedRecPC;
                         //}
                         //else
                         //{
-                            //  Calculate utility volume using total defect instead
+                        //  Calculate utility volume using total defect instead
                         //    boardUtil = Math.Floor(LOGVOL[n, 0] * totalDef / 100 + 0.0499);
                         //    cubicUtil = Math.Floor((LOGVOL[n, 3] * totalDef / 100) * 10 + 0.0499) / 10.0;
-                            //logStockList[n].PercentRecoverable = totalDef;
+                        //logStockList[n].PercentRecoverable = totalDef;
                         //}   //  endif on recoverable percent
                         //  Board foot removed
-                        LOGVOL[n, 1] = (float)(Math.Round(((LOGVOL[n, 0] * breakageDef) - boardUtil),0,MidpointRounding.AwayFromZero));
+                        LOGVOL[n, 1] = (float)(Math.Round(((LOGVOL[n, 0] * breakageDef) - boardUtil), 0, MidpointRounding.AwayFromZero));
                         //  Cubic foot removed
-                        LOGVOL[n, 4] = (float)(Math.Round(((LOGVOL[n, 3] * breakageDef) - cubicUtil),1,MidpointRounding.AwayFromZero));
+                        LOGVOL[n, 4] = (float)(Math.Round(((LOGVOL[n, 3] * breakageDef) - cubicUtil), 1, MidpointRounding.AwayFromZero));
 
                         //  store utility calculation in the log stock list
-                        logStockList[n].BoardUtil =  (float) boardUtil;
-                        logStockList[n].CubicUtil = (float) cubicUtil;
+                        logStockList[n].BoardUtil = (float)boardUtil;
+                        logStockList[n].CubicUtil = (float)cubicUtil;
                     }   //  endif
 
                 }   //  end for n loop
             }
-            else if(currRegn == "05")
+            else if (currRegn == "05")
             {
-                for(int n=0;n<TLOGS;n++)
+                for (int n = 0; n < TLOGS; n++)
                 {
                     //  find seen defect from log record
                     string currLN = Convert.ToString(n + 1);
                     float logSeenDef = 0;
                     int nthRow = logStockList.FindIndex(
-                        delegate(LogStockDO ls)
+                        delegate (LogStockDO ls)
                         {
                             return ls.LogNumber == currLN;
                         });
                     if (nthRow >= 0) logSeenDef = logStockList[n].SeenDefect;
 
-                    if(n < numPPlogs)
+                    if (n < numPPlogs)
                     {
-                        breakageDef = 1.0 - (currentDef1/100.0);
-                        hiddenDef = 1.0 - (currentDef2/100.0);
-                        seenDef = 1.0 - ((logSeenDef + currentDef3)/100.0);
+                        breakageDef = 1.0 - (currentDef1 / 100.0);
+                        hiddenDef = 1.0 - (currentDef2 / 100.0);
+                        seenDef = 1.0 - ((logSeenDef + currentDef3) / 100.0);
                     }
                     else
                     {
-                        breakageDef = 1.0 - (currentDef4/100.0);
-                        hiddenDef = 1.0 - (currentDef5/100.0);
-                        seenDef = 1.0 - ((logSeenDef + currentDef6)/100.0);
+                        breakageDef = 1.0 - (currentDef4 / 100.0);
+                        hiddenDef = 1.0 - (currentDef5 / 100.0);
+                        seenDef = 1.0 - ((logSeenDef + currentDef6) / 100.0);
                     }   //  endif
                     //  Board foot removed
-                    LOGVOL[n, 1] = (float)Math.Round(LOGVOL[n, 0] * breakageDef,0,MidpointRounding.AwayFromZero);
+                    LOGVOL[n, 1] = (float)Math.Round(LOGVOL[n, 0] * breakageDef, 0, MidpointRounding.AwayFromZero);
                     //  Cubic foot removed
-                    LOGVOL[n, 4] = (float)Math.Round(LOGVOL[n, 3] * breakageDef,1,MidpointRounding.AwayFromZero);
+                    LOGVOL[n, 4] = (float)Math.Round(LOGVOL[n, 3] * breakageDef, 1, MidpointRounding.AwayFromZero);
                     //  Net board foot
-                    LOGVOL[n, 2] = (float)Math.Round(((LOGVOL[n, 0] * breakageDef) * seenDef) * hiddenDef,0,MidpointRounding.AwayFromZero);
+                    LOGVOL[n, 2] = (float)Math.Round(((LOGVOL[n, 0] * breakageDef) * seenDef) * hiddenDef, 0, MidpointRounding.AwayFromZero);
                     //  Net cubic foot
-                    LOGVOL[n, 5] = (float)Math.Round((((LOGVOL[n, 3] * breakageDef) * seenDef) * hiddenDef),1,MidpointRounding.AwayFromZero);
+                    LOGVOL[n, 5] = (float)Math.Round((((LOGVOL[n, 3] * breakageDef) * seenDef) * hiddenDef), 1, MidpointRounding.AwayFromZero);
 
-                    
+
                 }   //  end for n loop
             }
-            else if(currRegn == "07")
+            else if (currRegn == "07")
             {
                 double totalDefect;
-                for(int n=0;n<TLOGS;n++)
+                for (int n = 0; n < TLOGS; n++)
                 {
                     //  Apply defect as recorded for every log and apply override exceptions below
-                    if(n < numPPlogs)
+                    if (n < numPPlogs)
                         totalDefect = currentDef1 + currentDef2 + currentDef3 + logStockList[n].SeenDefect;
                     else
                         totalDefect = currentDef4 + currentDef5 + currentDef6 + logStockList[n].SeenDefect;
 
-                    if(totalDefect >= 100)
+                    if (totalDefect >= 100)
                     {
                         //  Board foot removed
                         LOGVOL[n, 1] = 0;
@@ -440,12 +440,12 @@ namespace CruiseProcessing
 
                     //  Calculate net volumes
                     //  Net board foot
-                    LOGVOL[n, 2] = (float)Math.Round(LOGVOL[n, 0] * (1.0 - (totalDefect/100.0)),0,MidpointRounding.AwayFromZero);
+                    LOGVOL[n, 2] = (float)Math.Round(LOGVOL[n, 0] * (1.0 - (totalDefect / 100.0)), 0, MidpointRounding.AwayFromZero);
                     //  Net cubic foot
-                    LOGVOL[n, 5] = (float)Math.Round(LOGVOL[n, 3] * (1.0 - (totalDefect/100.0)),1,MidpointRounding.AwayFromZero);
+                    LOGVOL[n, 5] = (float)Math.Round(LOGVOL[n, 3] * (1.0 - (totalDefect / 100.0)), 1, MidpointRounding.AwayFromZero);
 
                     //  Now for the grades shown, override the volume calculated with zero
-                    if(logStockList[n].Grade == "7" || logStockList[n].Grade == "8")
+                    if (logStockList[n].Grade == "7" || logStockList[n].Grade == "8")
                     {
                         //  Net board foot
                         LOGVOL[n, 2] = 0;
@@ -454,13 +454,13 @@ namespace CruiseProcessing
 
                         //  If seen defect is greater than 50%, this is a cull log.
                         //  Grade does not change but gross merch is reset to zero.
-                        if(logStockList[n].SeenDefect > 50)
+                        if (logStockList[n].SeenDefect > 50)
                         {
                             LOGVOL[n, 1] = 0;      //  BDFT
                             LOGVOL[n, 4] = 0;      //  CUFT
                         }
                     }
-                    else if(logStockList[n].Grade == "9")
+                    else if (logStockList[n].Grade == "9")
                     {
                         //  reset gross removed to zero for BDFT and CUFT
                         LOGVOL[n, 1] = 0;
@@ -517,46 +517,46 @@ namespace CruiseProcessing
 
             //  Check for sound log
             float percentSound;
-            for(int n=0;n<TLOGS;n++)
+            for (int n = 0; n < TLOGS; n++)
             {
-                if(LOGVOL[n, 0] > 0)
+                if (LOGVOL[n, 0] > 0)
                 {
-                    percentSound = LOGVOL[n, 2]/LOGVOL[n, 0];
-                    if(percentSound < soundDefault)
+                    percentSound = LOGVOL[n, 2] / LOGVOL[n, 0];
+                    if (percentSound < soundDefault)
                     {
                         LOGVOL[n, 2] = 0;
-                        if(currRegn == "06") logStockList[n].Grade = "9";
+                        if (currRegn == "06") logStockList[n].Grade = "9";
                     }   //  endif
                 }   //  endif
 
-                if(LOGVOL[n, 3] > 0)
+                if (LOGVOL[n, 3] > 0)
                 {
-                    percentSound = LOGVOL[n, 5]/LOGVOL[n, 3];
-                    if(percentSound < soundDefault)
+                    percentSound = LOGVOL[n, 5] / LOGVOL[n, 3];
+                    if (percentSound < soundDefault)
                     {
                         LOGVOL[n, 5] = 0;
-                        if(currRegn == "06") logStockList[n].Grade = "9";
+                        if (currRegn == "06") logStockList[n].Grade = "9";
                     }   //  endif
                 }   //  endif
             }   //  end for n loop
 
             //  Sum log volumes into tree volumes
-            for(int n=0;n<numPPlogs;n++)
+            for (int n = 0; n < numPPlogs; n++)
             {
                 VOL[2] += LOGVOL[n, 2];
                 VOL[4] += LOGVOL[n, 5];
             }   //  end for n loop
 
-            for(int n=0;n<numSPlogs;n++)
+            for (int n = 0; n < numSPlogs; n++)
             {
-                VOL[7] += LOGVOL[n+numPPlogs, 5];
-                VOL[12] += LOGVOL[n+numPPlogs, 2];
+                VOL[7] += LOGVOL[n + numPPlogs, 5];
+                VOL[12] += LOGVOL[n + numPPlogs, 2];
             }   //  end for n loop
             return;
         }   //  end VolumeLogDefect
 
 
-        private void LogUtil(float[] VOL, float[,] LOGVOL, int TLOGS, int numPPlogs, int numSPlogs, 
+        private static void LogUtil(float[] VOL, float[,] LOGVOL, int TLOGS, int numPPlogs, int numSPlogs,
                                     List<LogStockDO> logStockList, string currRegn, string currPP)
         {
             //  Zero out volumes
@@ -574,9 +574,9 @@ namespace CruiseProcessing
             for (int n = 0; n < numPPlogs; n++)
             {
                 if ((currRegn == "06" && (logStockList[n].Grade == "7" || logStockList[n].Grade == "8") && currPP == "01"))
-                    //  January 2017 --  Region 10 no longer sells utility volume
-                    //  so no log grade 7 and this check doesn't apply
-                    // || (currRegn == "10" && logStockList[n].Grade == "7" && currPP == "01"))
+                //  January 2017 --  Region 10 no longer sells utility volume
+                //  so no log grade 7 and this check doesn't apply
+                // || (currRegn == "10" && logStockList[n].Grade == "7" && currPP == "01"))
                 {
                     VOL[6] += LOGVOL[n, 3];
                     VOL[7] += LOGVOL[n, 5];
@@ -604,14 +604,14 @@ namespace CruiseProcessing
         }   //  end LogUtil
 
 
-        private void SetDiameterClass(string currRegn, List<LogStockDO> logStockList, int TLOGS)
+        private static void SetDiameterClass(string currRegn, List<LogStockDO> logStockList, int TLOGS)
         {
             for (int n = 0; n < TLOGS; n++)
             {
                 //  used to have small end diameter scale used here.  Need to calculate it like the volume library
                 //  now that only the calculated small end diameter is stored.
                 int roundedSED;
-                
+
                 //  For Region 6, make adjustments as needed
                 if (currRegn == "6" || currRegn == "06")
                 {
@@ -629,13 +629,13 @@ namespace CruiseProcessing
                     logStockList[n].DIBClass = (float)Math.Round(logStockList[n].SmallEndDiameter - 0.1);
                 else
                     logStockList[n].DIBClass = (float)Math.Round(logStockList[n].SmallEndDiameter);
-                
+
             }   //  end for n loop
             return;
         }   //  end SetDiameterClass
 
 
-        private void GetR6LogGrade(string currTG, List<LogStockDO> logStockList, int TLOGS, 
+        private static void GetR6LogGrade(string currTG, List<LogStockDO> logStockList, int TLOGS,
                                             int numPPlogs, float MTOPP)
         {
             /*  These comments are from the original GETLOG/GETR6GRADE in NatCRS
@@ -658,13 +658,13 @@ namespace CruiseProcessing
 
             for (int n = 0; n < TLOGS; n++)
             {
-                if(logStockList[n].Grade == "0" || logStockList[n].Grade == "" || 
+                if (logStockList[n].Grade == "0" || logStockList[n].Grade == "" ||
                     logStockList[n].Grade == " " || logStockList[n].Grade == null)
                     logStockList[n].Grade = currTG;
 
                 string gradeTest = "0123456";
                 //if (currTG.IndexOf(gradeTest) >= 0 || logStockList[n].Grade.IndexOf(gradeTest) >= 0)
-                if(gradeTest.IndexOf(currTG) >= 0 || gradeTest.IndexOf(logStockList[n].Grade) >= 0)
+                if (gradeTest.IndexOf(currTG) >= 0 || gradeTest.IndexOf(logStockList[n].Grade) >= 0)
                 {
                     //  Per Jeff Penman, this check now uses top dib as recorded on volume equations
                     //  February 2008 -- bem
@@ -702,7 +702,7 @@ namespace CruiseProcessing
         }   //  end GetR6LogGrade
 
 
-        private void VariableLogLength(float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList, int TLOGS,
+        private static void VariableLogLength(float[] VOL, float[,] LOGVOL, List<LogStockDO> logStockList, int TLOGS,
                                                 string currPP, float currentDef1, float currentDef2, float currentDef3)
         {
             //  zero volume array
@@ -715,17 +715,17 @@ namespace CruiseProcessing
             for (int n = 0; n < TLOGS; n++)
             {
                 //  reset defect if needed
-                if(logStockList[n].Grade == "0")
+                if (logStockList[n].Grade == "0")
                     logStockList[n].SeenDefect = 100;
 
                 //  Accumulate defect and apply to log volume
                 float totalDefect = currentDef1 + currentDef2 + currentDef3 + logStockList[n].SeenDefect;
                 if (totalDefect > 100) totalDefect = 100;
 
-                LOGVOL[n, 2] = (float)Math.Round(LOGVOL[n, 0] * (1.0 - (totalDefect/100.0)));
+                LOGVOL[n, 2] = (float)Math.Round(LOGVOL[n, 0] * (1.0 - (totalDefect / 100.0)));
                 LOGVOL[n, 5] = (float)Math.Round(LOGVOL[n, 3] * (1.0 - (totalDefect / 100.0)));
 
-                if((logStockList[n].Grade == "9" || logStockList[n].Grade == "A" || logStockList[n].Grade == "B")
+                if ((logStockList[n].Grade == "9" || logStockList[n].Grade == "A" || logStockList[n].Grade == "B")
                         && currPP == "01")
                 {
                     VOL[6] += LOGVOL[n, 3];

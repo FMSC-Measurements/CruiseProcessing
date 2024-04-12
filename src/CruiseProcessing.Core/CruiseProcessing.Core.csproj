@@ -2,6 +2,8 @@
 
 	<PropertyGroup>
 		<RootNamespace>CruiseProcessing</RootNamespace>
+		<!-- needs to target x86 because vollib is just compiled for x86-->
+		<PlatformTarget>x86</PlatformTarget>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -13,4 +15,16 @@
 		<!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" /> -->
 	</ItemGroup>
 
+	<ItemGroup>
+		<Content Include="../libs/NBEL.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="../libs/LocalVolume.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="../libs/vollib.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	
 </Project>
