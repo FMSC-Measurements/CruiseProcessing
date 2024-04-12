@@ -60,7 +60,7 @@ namespace CruiseProcessing.Test.Output
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal, null, null);
+            var dataLayer = new CPbusinessLayer(dal);
 
             List<TreeDO> tList = dataLayer.getTrees();
             double summedEF = tList.Sum(t => t.ExpansionFactor);

@@ -7,10 +7,11 @@ using CruiseDAL;
 using System;
 using CruiseProcessing.Output;
 using System.Reflection;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
-    public class CPbusinessLayer
+    public class CPbusinessLayer : IErrorLogDataService
     {
         protected string CruiseID { get; } // for v3 files
         public string FilePath { get; }
@@ -19,19 +20,23 @@ namespace CruiseProcessing
         public string CPVersion { get; }
         public string VolLibVersion { get; }
 
-        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID)
+        public CPbusinessLayer(DAL dal)
         {
-            if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }
-
             DAL = dal;
-            DAL_V3 = dal_V3;
-            CruiseID = cruiseID; 
             FilePath = DAL.Path;
-
 
             var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
             CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");
             VolLibVersion = Utilities.CurrentDLLversion();
+        }
+
+        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID)
+            : this(dal)
+        {
+            if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }
+
+            DAL_V3 = dal_V3;
+            CruiseID = cruiseID; 
         }
 
         public HeaderFieldData GetReportHeaderData()
@@ -1080,7 +1085,19 @@ namespace CruiseProcessing
             return;
         }   //  end SaveTrees
 
+        public void SaveLogStock(IEnumerable<LogStockDO> lsList)
+        {
+            foreach(var ls in lsList)
+            {
+                if (ls.DAL == null)
+                {
+                    ls.DAL = DAL;
+                }   //  endif
+                ls.Save();
+            }
+        }
 
+        [Obsolete]
         public void SaveLogStock(List<LogStockDO> lsList, int totLogs)
         {
             LogStockDO ls = new LogStockDO();
@@ -1096,8 +1113,6 @@ namespace CruiseProcessing
             }   //  end for k loop
             return;
         }   //  end SaveLogStock
-
-
 
         public void SaveLogMatrix(List<LogMatrixDO> lmList, string currReport)
         {

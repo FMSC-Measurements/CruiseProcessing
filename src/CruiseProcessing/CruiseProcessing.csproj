@@ -344,15 +344,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="cruisetree_trees.ico" />
-		<Content Include="../libs/NBEL.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="../libs/LocalVolume.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="../libs/vollib.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 		<None Include="Properties\DataSources\CruiseDAL.DataObjects.LogMatrixDO.datasource" />
 		<None Include="Properties\DataSources\RegressGroups.datasource" />
 		<None Include="Resources\CSVfile.bmp" />
@@ -360,10 +351,9 @@
 		<Content Include="Resources\equation.bmp" />
 		<Content Include="Resources\Final.jpg" />
 	</ItemGroup>
-	<ItemGroup>
-		<None Remove="NBEL.dll" />
-		<None Remove="vollib.dll" />
-	</ItemGroup>
+
+
+
 	<ItemGroup>
 		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
 		<PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
