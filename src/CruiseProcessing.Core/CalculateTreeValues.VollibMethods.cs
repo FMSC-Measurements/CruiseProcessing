@@ -22,7 +22,7 @@ namespace CruiseProcessing
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//EntryPoint = "VERNUM2",
         public static extern void VERNUM2(out int a);
 
-        [DllImportAttribute("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CRZBIOMASSCS(ref int regn,
                             StringBuilder forst,
                             ref int spcd,
