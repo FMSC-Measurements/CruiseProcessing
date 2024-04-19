@@ -412,7 +412,7 @@ namespace CruiseProcessing
             //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
             dal.OpenConnection();
 
-            var datalayer = new CPbusinessLayer(dal, dal_v3, cruiseID);
+            var datalayer = new CPbusinessLayer(dal, dal_v3, cruiseID, isTemplate);
 
             if (isTemplate)
             {
@@ -565,7 +565,7 @@ namespace CruiseProcessing
                 //  then check for various conditions to know what to do with the reports list
                 if (currentReports.Count == 0)
                 {
-                    currentReports = ReportMethods.fillReportsList();
+                    currentReports = allReportsArray.fillReportsList();
                     DataLayer.SaveReports(currentReports);
 
 
@@ -590,7 +590,7 @@ namespace CruiseProcessing
                 //  now get reports selected
 
 
-                currentReports = ReportMethods.deleteReports(currentReports, DataLayer);
+                ReportMethods.deleteCSVReports(currentReports, DataLayer);
                 currentReports = DataLayer.GetSelectedReports();
                 //  Get selected reports 
                 ReportsDialog rd = Services.GetRequiredService<ReportsDialog>();

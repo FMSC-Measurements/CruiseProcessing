@@ -20,18 +20,24 @@ namespace CruiseProcessing
         public string CPVersion { get; }
         public string VolLibVersion { get; }
 
-        public CPbusinessLayer(DAL dal)
+        public bool IsTemplateFile { get; }
+
+        public bool IsProcessed { get; set; }
+
+        public CPbusinessLayer(DAL dal, bool isTemplateFile = false)
         {
             DAL = dal;
             FilePath = DAL.Path;
+            IsTemplateFile = isTemplateFile;
 
             var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
             CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");
             VolLibVersion = Utilities.CurrentDLLversion();
+            IsTemplateFile = isTemplateFile;
         }
 
-        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID)
-            : this(dal)
+        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID, bool isTemplateFile = false)
+            : this(dal, isTemplateFile)
         {
             if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }
 

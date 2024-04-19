@@ -1,31 +1,41 @@
 ﻿using CruiseProcessing.Services;
+using CruiseProcessing.Services.Logging;
+using CruiseProcessing.ViewModel;
+using CruiseProcessing.Views;
 using Microsoft.AppCenter;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
-using System.Windows.Forms;
-using CruiseProcessing.Services.Logging;
-using Microsoft.Extensions.Configuration;
+using System.Reflection;
+using System.Windows;
 
 namespace CruiseProcessing
 {
-    internal static class Program
+    public partial class App : Application
     {
-        public static IServiceProvider ServiceProvider { get; private set; }
-        public static DataLayerContext DataLayerContext { get; private set; }
+        private IServiceProvider Services { get; set; }
 
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        private static void Main(string[] args)
+        private IHost _host;
+
+        private DataLayerContext DataLayerContext { get; set; }
+
+        public Version AppVersion { get; }
+
+        public App()
+        {
+            AppVersion = Assembly.GetExecutingAssembly().GetName().Version;
+        }
+
+        private async void Application_Startup(object sender, StartupEventArgs e)
         {
 #if !DEBUG
             Microsoft.AppCenter.AppCenter.Start(Secrets.CRUISEPROCESSING_APPCENTER_KEY_WINDOWS,
                                typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes));
 #else
+            
             ApplicationLifecycleHelper.Instance.UnhandledExceptionOccurred += Instance_UnhandledExceptionOccurred;
 
             static void Instance_UnhandledExceptionOccurred(object sender, Microsoft.AppCenter.Utils.UnhandledExceptionOccurredEventArgs e)
@@ -34,17 +44,27 @@ namespace CruiseProcessing
             }
 #endif
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            _host = Host.CreateDefaultBuilder(e.Args)
+                 .ConfigureServices((context, services) => ConfigureServices(context, services, this))
+                 .ConfigureLogging(ConfigureLogging).Build();
 
-            var host = Host.CreateDefaultBuilder(args)
-                .ConfigureServices((context, services) => ConfigureServices(context, services))
-                .ConfigureLogging(ConfigureLogging).Build();
+            Services = _host.Services;
+            await _host.StartAsync();
 
-            DataLayerContext = host.Services.GetRequiredService<DataLayerContext>();
-            ServiceProvider = host.Services;
 
-            Application.Run(ServiceProvider.GetRequiredService<MainMenu>());
+            DataLayerContext = _host.Services.GetRequiredService<DataLayerContext>();
+            var mainWindow = Services.GetRequiredService<MainWindow>();
+
+            MainWindow = mainWindow;
+            mainWindow.Show();
+        }
+
+        private async void Application_Exit(object sender, ExitEventArgs e)
+        {
+            using (_host)
+            {
+                await _host.StopAsync();
+            }
         }
 
         private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
@@ -52,11 +72,13 @@ namespace CruiseProcessing
             builder.AddAppCenterLogger();
         }
 
-        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services, App appInstance)
         {
             //example
             //services.AddTransient<IMyService, MyService>();
             //services.AddTransient<MyForm>();
+
+            services.AddSingleton(appInstance);
 
             var config = context.Configuration;
             if (config.GetValue("UseOldCalculateTreeValues", false))
@@ -69,7 +91,8 @@ namespace CruiseProcessing
             }
 
             // register all forms
-            services.AddSingleton<MainMenu>();
+            //services.AddSingleton<MainMenu>();
+            services.AddSingleton<MainWindow>();
 
             services.RegisterForm<CapturePercentRemoved>();
             services.RegisterForm<GraphForm>();
@@ -103,8 +126,12 @@ namespace CruiseProcessing
             services.RegisterForm<VolumeEquations>();
             services.RegisterForm<CapturePercentRemoved>();
 
+            // register View Models
+            services.AddTransient<MainWindowViewModel>();
+
             // register other services
-            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<DialogService>();
+            services.AddTransient<IDialogService>(x => x.GetRequiredService<DialogService>());
             services.AddSingleton<DataLayerContext>();
             services.AddTransient<CPbusinessLayer>(x => x.GetRequiredService<DataLayerContext>().DataLayer);
         }
