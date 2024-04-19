@@ -207,9 +207,6 @@ namespace CruiseProcessing
             dal.BeginTransaction();
             try
             {
-                
-                DataLayer.DAL.BeginTransaction();
-
                 CalculatedValues calcVal = new CalculatedValues(DataLayer);
                 calcVal.CalcValues();
 

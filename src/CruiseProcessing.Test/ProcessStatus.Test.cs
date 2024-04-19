@@ -129,7 +129,8 @@ namespace CruiseProcessing.Test
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
 
             var mockServiceProvider = new Mock<IServiceProvider>();
-            mockServiceProvider.Setup(x => x.GetService<ICalculateTreeValues>()).Returns(new CalculateTreeValues2(dataLayer));
+            mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
+                .Returns(new CalculateTreeValues2(dataLayer));
 
             var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
 
@@ -137,11 +138,11 @@ namespace CruiseProcessing.Test
             if(!result)
             { throw new Exception("Skip"); }
 
-
+            dal.TransactionDepth.Should().Be(0, "Before Process");
             var mockProgress = new Mock<IProgress<string>>();
             processStatus.ProcessCore(mockProgress.Object);
 
-
+            dal.TransactionDepth.Should().Be(0, "After Process");
 
         }
 
@@ -197,7 +198,8 @@ namespace CruiseProcessing.Test
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
 
             var mockServiceProvider = new Mock<IServiceProvider>();
-            mockServiceProvider.Setup(x => x.GetService<ICalculateTreeValues>()).Returns(new CalculateTreeValues2(dataLayer));
+            mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
+                .Returns(new CalculateTreeValues2(dataLayer));
 
             var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
 
@@ -205,10 +207,9 @@ namespace CruiseProcessing.Test
             if (!result)
             { throw new Exception("Skip"); }
 
-
+            
             var mockProgress = new Mock<IProgress<string>>();
             processStatus.ProcessCore(mockProgress.Object);
-
 
             var ctf = new CreateTextFile(dataLayer);
 
