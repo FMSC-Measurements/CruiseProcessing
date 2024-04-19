@@ -141,7 +141,7 @@ namespace CruiseProcessing
             foreach (ReportsDO rdo in selectedReports)
             {
 
-                if (allReportsArray.GRAPH_REPORTS.Contains(rdo.ReportID))
+                if (ReportsDataservice.GRAPH_REPORTS.Contains(rdo.ReportID))
                 {
                     graphReports.Add(rdo.ReportID);
                     string graphFile = Path.GetDirectoryName(FilePath);

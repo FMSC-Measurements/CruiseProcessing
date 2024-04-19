@@ -2002,7 +2002,7 @@ namespace CruiseProcessing
                 //make sure the reports is empty.
                 DAL_V3.Execute("DELETE FROM REPORTS");
 
-                var reportsArray = allReportsArray.reportsArray;
+                var reportsArray = ReportsDataservice.reportsArray;
                 for (int k = 0; k < reportsArray.GetLength(0); k++)
                 {
                     //  since this is an initial list where none exists, selected will always be zero or false

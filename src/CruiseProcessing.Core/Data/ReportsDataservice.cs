@@ -1,12 +1,32 @@
-﻿using System;
+﻿using CruiseDAL.DataObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace CruiseProcessing
 {
-    public static class allReportsArray
+    public static class ReportsDataservice
     {
+        public static List<ReportsDO> GetDefaultReports()
+        {
+            //  this would be used to fill the list with reports when there are none in the database
+            List<ReportsDO> rList = new List<ReportsDO>();
+
+            //  need the reports array to loop through
+            for (int k = 0; k < reportsArray.GetLength(0); k++)
+            {
+                ReportsDO rl = new ReportsDO();
+                rl.ReportID = reportsArray[k, 0];
+                //  since this is an initial list where none exists, selected will always be zero or false
+                rl.Selected = false;
+                rl.Title = reportsArray[k, 1];
+                rList.Add(rl);
+            }   //  end for k loop
+
+            return rList;
+        }   //  end fillReportsList
+
         //  an all reports array
         public static readonly string[,] reportsArray = new string[,] {
                                                  {"BLM01","Board Foot Strata Summary (R701)"},
