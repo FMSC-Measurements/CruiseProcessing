@@ -77,10 +77,12 @@ namespace CruiseProcessing
                 await ProcessCoreAsync(ProcessProgress);
 
                 volumeCheck.Enabled = true;
+                DialogResult = DialogResult.OK;
             }
             catch (Exception ex) 
             {
                 DialogService.ShowError("Processing Error: " + ex.GetType().Name);
+                DialogResult = DialogResult.Abort;
             }
             finally
             {
@@ -237,6 +239,7 @@ namespace CruiseProcessing
 
                 dal.CommitTransaction();
 
+                DataLayer.IsProcessed = true;
                 //  show volume calculation is finished
                 progress?.Report("Processing is DONE");
 
@@ -245,6 +248,7 @@ namespace CruiseProcessing
             {
                 dal.RollbackTransaction();
                 Logger.LogError(ex, "Processing Error: {FilePath}", dal.Path);
+                DataLayer.IsProcessed = false;
 
                 //  show volume calculation is finished
                 progress.Report("Processing Error");

@@ -10,8 +10,24 @@
 		<PlatformTarget>x86</PlatformTarget>
 		<OutputType>WinExe</OutputType>
 		<UseWindowsForms>true</UseWindowsForms>
-		<StartupObject>$(RootNamespace).Program</StartupObject>
+		<UseWPF>true</UseWPF>
+		<!--<StartupObject>CruiseProcessing.Program</StartupObject>-->
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Resource Include="Resources\*.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="About.jpg" />
+		<None Remove="MainLogo.jpg" />
+		<None Remove="MainPic.jpg" />
+	</ItemGroup>
+
+	<!--<Compile Update="MainMenu.cs" />
+		<Compile Update="MainMenu.Designer.cs">
+			<DependentUpon>MainMenu.cs</DependentUpon>
+		</Compile>-->
 
 
 
@@ -48,10 +64,7 @@
 		<Compile Update="LogMatrixUpdate.Designer.cs">
 			<DependentUpon>LogMatrixUpdate.cs</DependentUpon>
 		</Compile>
-		<Compile Update="MainMenu.cs" />
-		<Compile Update="MainMenu.Designer.cs">
-			<DependentUpon>MainMenu.cs</DependentUpon>
-		</Compile>
+
 		<Compile Update="ModifyMerchRules.cs" />
 		<Compile Update="ModifyMerchRules.Designer.cs">
 			<DependentUpon>ModifyMerchRules.cs</DependentUpon>
@@ -276,57 +289,8 @@
 			<DependentUpon>VolumeEquations.cs</DependentUpon>
 		</Compile>
 	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\LocalVolume.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\volume.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\money3.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\weight.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\biomass.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\quality.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\R8.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\R9.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\textfile.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\htmlfile.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\pdffile.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\graphs.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\preview.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\standard.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\regional.jpg" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\disabled_button.bmp" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Resources\disabled_button.jpg" />
-	</ItemGroup>
+
+
 	<ItemGroup>
 		<None Include="Properties\DataSources\BiomassList.datasource" />
 		<None Include="Properties\DataSources\CruiseDAL.DataObjects.BiomassEquationDO.datasource" />
@@ -344,12 +308,12 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="cruisetree_trees.ico" />
+		<Resource Include="About.jpg" />
+		<Resource Include="MainLogo.jpg" />
+		<Resource Include="MainPic.jpg" />
 		<None Include="Properties\DataSources\CruiseDAL.DataObjects.LogMatrixDO.datasource" />
 		<None Include="Properties\DataSources\RegressGroups.datasource" />
-		<None Include="Resources\CSVfile.bmp" />
-		<None Include="Resources\CSVfile.jpg" />
 		<Content Include="Resources\equation.bmp" />
-		<Content Include="Resources\Final.jpg" />
 	</ItemGroup>
 
 
@@ -363,8 +327,15 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
 		<PackageReference Include="ZedGraph" Version="5.1.7" />
 		<PackageReference Include="ZedGraph.Web" Version="5.1.5" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+		<Page Include="App.xaml" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />

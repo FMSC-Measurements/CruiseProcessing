@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruiseProcessing.Core", "Cr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4899172A-8293-4CE8-B78F-EC24FD8AF09A}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		Build_Installer.cmd = Build_Installer.cmd
 		Build_Release.cmd = Build_Release.cmd
 		Build_ZipArtifact.cmd = Build_ZipArtifact.cmd

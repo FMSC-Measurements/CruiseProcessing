@@ -1,0 +1,36 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <BitmapImage x:Key="logoXLarge" UriSource="pack://application:,,,/MainLogo.jpg" />
+
+    <BitmapImage x:Key="mainBackground" UriSource="pack://application:,,,/MainPic.jpg" />
+
+    <BitmapImage x:Key="aboutButton" UriSource="pack://application:,,,/About.jpg" />
+
+
+    <BitmapImage x:Key="outputTextFile" UriSource="pack://application:,,,/Resources/textfile.jpg" />
+    <BitmapImage x:Key="outputHtml" UriSource="pack://application:,,,/Resources/htmlfile.jpg" />
+    <BitmapImage x:Key="outputPdf" UriSource="pack://application:,,,/Resources/pdffile.jpg" />
+    <BitmapImage x:Key="outputCsv" UriSource="pack://application:,,,/Resources/CSVfile.jpg" />
+    <BitmapImage x:Key="printPreview" UriSource="pack://application:,,,/Resources/preview.jpg" />
+    <BitmapImage x:Key="localVolume" UriSource="pack://application:,,,/Resources/LocalVolume.jpg" />
+
+
+    <BitmapImage x:Key="button" UriSource="pack://application:,,,/Resources/button_image.jpg" />
+    <BitmapImage x:Key="buttonDisabled" UriSource="pack://application:,,,/Resources/disabled_button.jpg" />
+
+    <BitmapImage x:Key="standardReports" UriSource="pack://application:,,,/Resources/standard.jpg" />
+    <BitmapImage x:Key="graphReports" UriSource="pack://application:,,,/Resources/graphs.jpg" />
+
+    <BitmapImage x:Key="volumeEquations"
+                 UriSource="pack://application:,,,/Resources/volume.jpg" />
+
+    <BitmapImage x:Key="valueEquations"
+                 UriSource="pack://application:,,,/Resources/money3.jpg" />
+
+    <BitmapImage x:Key="region8"
+                 UriSource="pack://application:,,,/Resources/R8.jpg" />
+
+    <BitmapImage x:Key="region9"
+                 UriSource="pack://application:,,,/Resources/R9.jpg" />
+</ResourceDictionary>
