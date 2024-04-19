@@ -92,6 +92,9 @@ namespace CruiseProcessing
             new VolEqList("ALL", "White Pine",           "NVBM240119", "National-Scale Volume and Biomass Equation"),
             new VolEqList("ALL", "Engelmann's Spruce",   "NVBM330093", "National-Scale Volume and Biomass Equation"),
             new VolEqList("ALL", "Quaking aspen",        "NVB0000746", "National-Scale Volume and Biomass Equation"),
+            new VolEqList("ALL", "Maple", "300DVEW310",  "Chojnacky Equation"),
+            new VolEqList("ALL", "Black maple",          "300DVEW314", "Chojnacky Equation"),
+            new VolEqList("ALL", "Limber pine",          "300DVEW113", "Hann and Bare Equation"),
         };
 
         //  Region 4 equations
