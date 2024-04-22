@@ -327,7 +327,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+		
 		<PackageReference Include="ZedGraph" Version="5.1.7" />
 		<PackageReference Include="ZedGraph.Web" Version="5.1.5" />
 	</ItemGroup>
