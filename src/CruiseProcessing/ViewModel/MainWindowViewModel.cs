@@ -40,7 +40,13 @@ namespace CruiseProcessing.ViewModel
         private ICommand _processCommand;
         private string _title;
         private bool _isOutFileCreated;
-        private ICommand _showAbout;
+        private ICommand _showAboutCommand;
+        private bool _enableVolumeEquationsPage;
+        private bool _enableValueEquations;
+        private bool _enableR9Equations;
+        private bool _enableR8Equations;
+        private bool _enableMerchRules;
+        private bool _enableWeightFactors;
 
         public MainWindowViewModel(IServiceProvider services, DialogService dialogService, DataLayerContext dataserviceProvider, ILogger<MainWindowViewModel> logger)
         {
@@ -52,7 +58,7 @@ namespace CruiseProcessing.ViewModel
             
         }
 
-        public CPbusinessLayer DataLayer => DataserviceProvider.DataLayer;
+        public CPbusinessLayer? DataLayer => DataserviceProvider.DataLayer;
 
         public IServiceProvider Services { get; }
         public DataLayerContext DataserviceProvider { get; }
@@ -65,17 +71,21 @@ namespace CruiseProcessing.ViewModel
 
 
         public bool IsFileOpen => DataserviceProvider.DataLayer != null;
-        public bool IsFileTemplate => DataserviceProvider?.DataLayer.IsTemplateFile ?? false;
+        public bool IsFileTemplate => DataLayer?.IsTemplateFile ?? false;
 
         public bool IsCruiseFileOpen => IsFileOpen && !IsFileTemplate;
 
-        public bool IsFileProcessed => IsCruiseFileOpen && DataLayer.IsProcessed;
+        public bool IsFileProcessed => IsCruiseFileOpen && (DataLayer?.IsProcessed ?? false);
+
+
 
         public bool IsOutFileCreated
         {
             get => _isOutFileCreated;
             set => SetProperty(ref _isOutFileCreated, value);
         }
+
+        public int Region { get; protected set; }
 
 
         public string Title
@@ -104,7 +114,43 @@ namespace CruiseProcessing.ViewModel
         public ICommand CreateCsvFileCommand => _createCsvFileCommand ??= new RelayCommand(DialogService.ShowCreateCsv);
         public ICommand ShowPrintPreviewCommand => _showPrintPreviewCommand ??= new RelayCommand(DialogService.ShowPrintPreview);
         public ICommand AddLocalVolumeCommand => _addLocalVolumeCommand ??= new RelayCommand(DialogService.ShowAddLocalVolumes);
-        public ICommand ShowAbout => _showAbout ??= new RelayCommand(DialogService.ShowAbout);
+        public ICommand ShowAboutCommand => _showAboutCommand ??= new RelayCommand(DialogService.ShowAbout);
+
+        public bool EnableVolumeEquations
+        {
+            get => _enableVolumeEquationsPage;
+            set => SetProperty(ref _enableVolumeEquationsPage, value);
+        }
+
+        public bool EnableValueEquations
+        {
+            get => _enableValueEquations;
+            set => SetProperty(ref _enableValueEquations, value);
+        }
+
+        public bool EnableR8Equations
+        {
+            get => _enableR8Equations;
+            set => SetProperty(ref _enableR8Equations, value);
+        }
+        public bool EnableR9Equations
+        {
+            get => _enableR9Equations;
+            set => SetProperty(ref _enableR9Equations, value);
+        }
+
+        public bool EnableMerchRules
+        {
+            get => _enableMerchRules;
+            set => SetProperty(ref _enableMerchRules, value);
+        }
+
+        public bool EnableWeightFactors
+        {
+            get => _enableWeightFactors;
+            set => SetProperty(ref _enableWeightFactors, value);
+        }
+
 
 
         private void CreateHtmlFile()
@@ -315,10 +361,12 @@ namespace CruiseProcessing.ViewModel
             //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
             dal.OpenConnection();
 
-            var datalayer = new CPbusinessLayer(dal, dal_v3, cruiseID);
+            var datalayer = new CPbusinessLayer(dal, dal_v3, cruiseID, isTemplate);
 
             if (!isTemplate)
             {
+                Region = int.TryParse(datalayer.getRegion(), out var r) ? r : 0;
+
                 if (datalayer.saleWithNullSpecies())
                 {
                     //One or more records contain incomplete data which affect processing.\n
@@ -328,11 +376,27 @@ namespace CruiseProcessing.ViewModel
                     return;
                 }
             }
+            else
+            {
+                Region = 0;
+            }
 
             DataserviceProvider.DataLayer = datalayer;
             //  add file name to title line at top
             Title = (fileName.Length > 35) ? "..." + fileName.Substring(fileName.Length - 35, 35)
                     : fileName;
+
+            
+
+            EnableVolumeEquations = (Region != 9 || isTemplate) ? true
+                : Region == 9 && dal.From<VolumeEquationDO>().Count() > 0;
+
+            EnableR9Equations = (Region == 9 && !EnableVolumeEquations);
+            EnableR8Equations = (Region == 8);
+            EnableValueEquations = !isTemplate;
+            EnableWeightFactors = !isTemplate;
+            EnableMerchRules = (Region != 9 && Region != 8 && !isTemplate);
+
 
             OnPropertyChanged(nameof(DataLayer));
             OnPropertyChanged(nameof(IsCruiseFileOpen));

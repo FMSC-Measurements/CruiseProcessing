@@ -1,64 +1,53 @@
 ﻿<UserControl x:Class="CruiseProcessing.Views.Main_Output"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:CruiseProcessing.Views"
-      mc:Ignorable="d" 
-      d:Height="350"
-      d:Width="323">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CruiseProcessing.Views"
+             xmlns:controls="clr-namespace:CruiseProcessing.Controls"
+             mc:Ignorable="d"
+             d:Height="350"
+             d:Width="323">
 
-    <Grid IsEnabled="{Binding IsFileProcessed}" >
+    <Grid IsEnabled="{Binding IsFileProcessed}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
 
             <StackPanel>
-                <Button Content="Create Text Output File"
-                        Command="{Binding CreateTextOutputFileCommand}"
-                        Template="{StaticResource item}">
-                    <Button.Tag>
-                        <Image Source="{StaticResource outputTextFile}" />
-                    </Button.Tag>
-                </Button>
+                <controls:ButtonItem Text="Create Text Output File"
+                                     Command="{Binding CreateTextOutputFileCommand}"
+                                     Template="{StaticResource item}">
+                    <Image Source="{StaticResource outputTextFile}" />
+                </controls:ButtonItem>
 
-                <Button Content="Create HTML Output File"
-                        Command="{Binding CreateHtmlFileCommand}"
-                        Template="{StaticResource item}">
-                    <Button.Tag>
-                        <Image Source="{StaticResource outputHtml}"/>
-                    </Button.Tag>
-                </Button>
+                <controls:ButtonItem Text="Create HTML Output File"
+                                     Command="{Binding CreateHtmlFileCommand}"
+                                     Template="{StaticResource item}">
+                    <Image Source="{StaticResource outputHtml}" />
+                </controls:ButtonItem>
 
-                <Button Content="Create PDF Output File"
-                        Command="{Binding CreatePdfFileCommand}"
-                        Template="{StaticResource item}">
-                    <Button.Tag>
-                        <Image Source="{StaticResource outputPdf}" />
-                    </Button.Tag>
-                </Button>
+                <controls:ButtonItem Text="Create PDF Output File"
+                            Command="{Binding CreatePdfFileCommand}"
+                            Template="{StaticResource item}">
+                    <Image Source="{StaticResource outputPdf}" />
+                </controls:ButtonItem>
 
-                <Button Content="Create CSV Output File"
-                        Command="{Binding CreateCsvFileCommand}"
-                        Template="{StaticResource item}">
-                    <Button.Tag>
-                        <Image Source="{StaticResource outputCsv}" />
-                    </Button.Tag>
-                </Button>
+                <controls:ButtonItem Text="Create CSV Output File"
+                                     Command="{Binding CreateCsvFileCommand}"
+                                     Template="{StaticResource item}">
+                    <Image Source="{StaticResource outputCsv}" />
+                </controls:ButtonItem>
 
-                <Button Content="Print Preview"
-                        Command="{Binding ShowPrintPreviewCommand}"
-                        Template="{StaticResource item}">
-                    <Button.Tag>
-                        <Image Source="{StaticResource printPreview}" />
-                    </Button.Tag>
-                </Button>
+                <controls:ButtonItem Text="Print Preview"
+                                     Command="{Binding ShowPrintPreviewCommand}"
+                                     Template="{StaticResource item}">
+                    <Image Source="{StaticResource printPreview}" />
+                </controls:ButtonItem>
 
-                <Button Content="Add Local Volume"
-                        Command="{Binding AddLocalVolumeCommand}"
-                        Template="{StaticResource item}">
-                    <Button.Tag>
-                        <Image Source="{StaticResource localVolume}" />
-                    </Button.Tag>
-                </Button>
+                <controls:ButtonItem Text="Add Local Volume"
+                                     Command="{Binding AddLocalVolumeCommand}"
+                                     Template="{StaticResource item}">
+                    <Image Source="{StaticResource localVolume}" />
+                </controls:ButtonItem>
 
             </StackPanel>
         </ScrollViewer>
