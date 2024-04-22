@@ -4,7 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:CruiseProcessing.Views"
-      mc:Ignorable="d" 
+             xmlns:controls="clr-namespace:CruiseProcessing.Controls"
+             mc:Ignorable="d" 
       d:Height="303"
       d:Width="323">
 
@@ -14,21 +15,17 @@
             <StackPanel>
 
 
-                <Button Content="Add Standard Reports"
+                <controls:ButtonItem Text="Add Standard Reports"
                         Template="{StaticResource item}"
                         Command="{Binding AddStandardReportsCommand}">
-                    <Button.Tag>
-                        <Image  Source="{StaticResource standardReports}"/>
-                    </Button.Tag>
-                </Button>
+                    <Image  Source="{StaticResource standardReports}" />
+                </controls:ButtonItem>
 
-                <Button Content="Add Graphical Reports"
+                <controls:ButtonItem Text="Add Graphical Reports"
                         Command="{Binding AddGraphicalReportsCommand}"
                         Template="{StaticResource item}">
-                    <Button.Tag>
-                        <Image  Source="{StaticResource graphReports}"/>
-                    </Button.Tag>
-                </Button>
+                    <Image  Source="{StaticResource graphReports}" />
+                </controls:ButtonItem>
 
             </StackPanel>
         </ScrollViewer>

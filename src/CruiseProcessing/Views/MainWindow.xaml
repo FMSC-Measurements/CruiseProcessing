@@ -48,7 +48,8 @@
                            Width="225"
                            Padding="0,5" />
                 <Grid Grid.Row="1"></Grid>
-                <Button Background="Transparent"
+                <Button Command="{Binding ShowAboutCommand}"
+                        Background="Transparent"
                         BorderBrush="DarkGray"
                         BorderThickness="2"
                         Grid.Row="2"
@@ -66,7 +67,7 @@
 
             <Grid Grid.Row="1">
 
-                <StackPanel Margin="114,0,0,0">
+                <StackPanel Margin="114,0,10,0">
                     <StackPanel.Resources>
                         <ResourceDictionary>
                             <ControlTemplate x:Key="mmButton"
@@ -128,7 +129,7 @@
 
                     <Button Content="OUTPUT"
                             Click="OnOutputClicked"
-                            IsEnabled="{Binding DataLayer.IsProcessed, FallbackValue='False'}"
+                            IsEnabled="{Binding IsFileProcessed, FallbackValue='False'}"
                             d:IsEnabled="False" />
 
                 </StackPanel>

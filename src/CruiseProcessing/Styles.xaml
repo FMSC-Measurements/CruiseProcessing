@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:CruiseProcessing.Controls">
 
     <Style x:Key="PageBase" TargetType="Page">
         <Setter Property="Background"
@@ -11,14 +12,14 @@
     </Style>
 
     <ControlTemplate x:Key="item"
-                     TargetType="Button">
+                     TargetType="controls:ButtonItem">
         <Grid Margin="0,3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0"
-                   Content="{TemplateBinding Content}"
+            <TextBlock Grid.Column="0"
+                   Text="{TemplateBinding Text}"
                    FontFamily="Arial"
                    FontWeight="Bold"
                    FontSize="12"
@@ -27,7 +28,8 @@
                     Width="47"
                     Height="48"
                     Margin="10,0"
-                    Content="{TemplateBinding Tag}" />
+                    Content="{TemplateBinding Content}"
+                    Command="{TemplateBinding Command}"/>
         </Grid>
     </ControlTemplate>
 </ResourceDictionary>

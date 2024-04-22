@@ -14,7 +14,7 @@
             <!-- imported resource -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Colors.xaml" />
-                <!--<ResourceDictionary Source="Converters.xaml" />-->
+                <ResourceDictionary Source="Converters.xaml" />
                 <ResourceDictionary Source="Images.xaml" />
                 <ResourceDictionary Source="Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
