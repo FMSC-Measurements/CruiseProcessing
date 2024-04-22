@@ -60,17 +60,17 @@ namespace CruiseProcessing.Services
 
         public void ShowError(string message)
         {
-            MessageBox.Show(message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(Window, message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         public void ShowWarning(string message)
         {
-            MessageBox.Show(message, "WARNING", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(Window, message, "WARNING", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         public bool ShowWarningAskYesNo(string message)
         {
-            var result = MessageBox.Show(message, "WARNING", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = MessageBox.Show(Window, message, "WARNING", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             return result == System.Windows.MessageBoxResult.Yes;
         }
 
@@ -82,12 +82,12 @@ namespace CruiseProcessing.Services
 
         public void ShowInformation(string message)
         {
-            MessageBox.Show(message, "INFORMATION", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(Window, message, "INFORMATION", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public void ShowMessage(string message, string caption = null)
         {
-            MessageBox.Show(message, caption);
+            MessageBox.Show(Window, message, caption);
         }
 
 
