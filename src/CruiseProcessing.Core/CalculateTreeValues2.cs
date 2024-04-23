@@ -96,10 +96,15 @@ namespace CruiseProcessing
             StringBuilder FORST = new StringBuilder(STRING_BUFFER_SIZE).Append(Forest);
 
             StringBuilder CTYPE = new StringBuilder(256);
-            string vllType = DataLayer.getVLL();
-            if (vllType == "false")
-                CTYPE.Append("C");
-            else CTYPE.Append(vllType);
+            CTYPE.Append("C");
+
+            // older versions my have used this but according to Yingfang CTYPE will always be 'C' for cruise processing.
+            // 'V' is used for FVS
+            //string vllType = DataLayer.getVLL();
+            //if (vllType == "false")
+            //    CTYPE.Append("C");
+            //else CTYPE.Append(vllType);
+
 
             //  loop through individual trees and calculate volume for all equations requested by species/product
             foreach (TreeDO td in strataTrees)
@@ -186,21 +191,7 @@ namespace CruiseProcessing
             float DBTBH = tree.DBHDoubleBarkThickness;
             float BTR = tree.TreeDefaultValue.BarkThicknessRatio;
 
-            List<LogDO> justTreeLogs = DataLayer.getTreeLogs(tree.Tree_CN.Value);
-
-            // TODO there is a possible infinate loop here when initializing LOGLEN
-            // 
-            if (CTYPE.ToString() == "V" && justTreeLogs.Count() > 0)
-            {
-                //  load LOGLEN with values or zeros
-                for (int n = 0; n < justTreeLogs.Count(); n++)
-                    LOGLEN[n] = (float)justTreeLogs[n].Length;
-
-                for (int n = justTreeLogs.Count(); n < 20; n--)
-                    LOGLEN[n] = 0;
-
-                TLOGS = justTreeLogs.Count();
-            }   //  endif
+            List<LogDO> treeLogs = DataLayer.getTreeLogs(tree.Tree_CN.Value);
 
             // log stock list gets regenerated for each volEq,
             // but we only need one set of log stocks.
@@ -295,7 +286,7 @@ namespace CruiseProcessing
                     DataLayer.LogError("Tree", (int)tree.Tree_CN, "W", ERRFLAG.ToString());
 
                 //  Update log stock table with calculated values
-                logStockList = GetLogStockList(justTreeLogs, (int)tree.Tree_CN, LOGVOL, LOGDIA, LOGLEN, TLOGS).ToList();
+                logStockList = GetLogStockList(treeLogs, (int)tree.Tree_CN, LOGVOL, LOGDIA, LOGLEN, TLOGS).ToList();
 
                 //  Next, calculate net volumes
                 netVolumeCalculator.calcNetVol(CTYPE.ToString(), VOL, LOGVOL, logStockList, tree, Region,
