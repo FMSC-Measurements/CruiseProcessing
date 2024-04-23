@@ -1,11 +1,14 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <BitmapImage x:Key="logoXLarge" UriSource="pack://application:,,,/MainLogo.jpg" />
+    <BitmapImage x:Key="logoXLarge"
+                 UriSource="pack://application:,,,/Resources/MainLogo.jpg" />
 
-    <BitmapImage x:Key="mainBackground" UriSource="pack://application:,,,/MainPic.jpg" />
+    <BitmapImage x:Key="mainBackground"
+                 UriSource="pack://application:,,,/Resources/MainPic.jpg" />
 
-    <BitmapImage x:Key="aboutButton" UriSource="pack://application:,,,/About.jpg" />
+    <BitmapImage x:Key="aboutButton"
+                 UriSource="pack://application:,,,/Resources/About.jpg" />
 
 
     <BitmapImage x:Key="outputTextFile" UriSource="pack://application:,,,/Resources/textfile.jpg" />
