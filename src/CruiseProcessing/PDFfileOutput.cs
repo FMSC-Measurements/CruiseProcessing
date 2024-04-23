@@ -159,7 +159,8 @@ namespace CruiseProcessing
             //  disable convert button to avoid accidental double click
             convert_Button.Enabled = false;
             Document PDFdoc = new Document(new iTextSharp.text.Rectangle(792f, 612f));
-            PdfWriter.GetInstance(PDFdoc, new FileStream(PDFoutFile, FileMode.Create));
+            using var fileStream = new FileStream(PDFoutFile, FileMode.Create);
+            PdfWriter.GetInstance(PDFdoc, fileStream);
             outputFileName = outputFileToConvert.Text;
 
             //  make sure output file exists before trying to create the PDF file
