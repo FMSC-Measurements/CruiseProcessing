@@ -89,11 +89,9 @@ namespace CruiseProcessing
                     {
                         tList = DataLayer.getTreesSorted();
                         //  what fields to print?
-                        fieldsToPrint = TreeListMethods.CheckForData(tList);
+                        fieldsToPrint = TreeListMethods.MakeTreeFieldList(tList);
                         //  Build column headings based on fields to print
                         completeHeader = TreeListMethods.BuildColumnHeaders(reportHeaders.A03columns, fieldsToPrint);
-                        fieldLengths = new int[fieldsToPrint.Count];
-                        prtFields.Clear();
                         WriteTree(strWriteOut, ref pageNumb);
 
                         break;
@@ -476,12 +474,13 @@ namespace CruiseProcessing
             }
             else if (currentReport == "A03")
             {
+                
                 //  Output records
                 foreach (TreeDO tdo in tList)
                 {
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 18, ref pageNumb, "");
-                    TreeListMethods.buildPrintArray(tdo, fieldsToPrint, ref fieldLengths, ref prtFields);
+                    prtFields = TreeListMethods.buildPrintArray(tdo, fieldsToPrint, out fieldLengths);
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
                     prtFields.Clear();
                     //  Write remarks after tree data
