@@ -364,7 +364,7 @@ namespace CruiseProcessing
                 {
                     if (!volList.Any(x => x.Species == tree.Species && x.PrimaryProduct == tree.PrimaryProduct))
                     {
-                        errors.AddError("Tree", "E", $"12 {tree.Species} {tree.PrimaryProduct}", tree.RecID, "Species");
+                        errors.AddError("Tree", "E", "12", tree.RecID, "Species");
                     }
                 }
 
