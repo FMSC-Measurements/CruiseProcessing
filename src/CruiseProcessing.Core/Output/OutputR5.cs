@@ -89,7 +89,7 @@ namespace CruiseProcessing
                                     completeHeader, 12, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
-                prtFields.Add(String.Format("{0,6:D0}", Convert.ToInt16(lto.value7)).PadLeft(6, ' '));
+                prtFields.Add(String.Format("{0,6:D0}", (int)(lto.value7)).PadLeft(6, ' '));
                 prtFields.Add(String.Format("{0,8:F1}", lto.value8).PadLeft(8, ' '));
                 prtFields.Add(String.Format("{0,11:F1}", lto.value9).PadLeft(11, ' '));
                 prtFields.Add(String.Format("{0,11:F1}", lto.value10).PadLeft(11, ' '));

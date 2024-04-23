@@ -616,7 +616,7 @@ namespace CruiseProcessing
                 if (currRegn == "6" || currRegn == "06")
                 {
                     //  round diameter first so this matches the old program -- February 2014
-                    roundedSED = Convert.ToInt16(Math.Round(logStockList[n].SmallEndDiameter, 0, MidpointRounding.AwayFromZero));
+                    roundedSED = (int)(Math.Round(logStockList[n].SmallEndDiameter, 0, MidpointRounding.AwayFromZero));
                     roundedSED = (int)(((roundedSED / 3.0) - 0.53) + 0.49);
                     if (roundedSED < 1)
                         logStockList[n].DIBClass = 1;

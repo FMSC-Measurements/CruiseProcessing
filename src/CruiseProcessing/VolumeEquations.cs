@@ -496,7 +496,7 @@ namespace CruiseProcessing
             //  need an array of component titles
             string[] componentArray = new string[7] { "TotalTreeAboveGround", "LiveBranches", "DeadBranches", "Foliage", "PrimaryProd", "SecondaryProd", "StemTip" };
             //  convert region to integer and forest to StringBuilder
-            REGN = Convert.ToInt16(currRegion);
+            REGN = Convert.ToInt32(currRegion);
             StringBuilder FORST = new StringBuilder(256);
             FORST.Append(currForest);
 
@@ -526,7 +526,7 @@ namespace CruiseProcessing
                             WF[0] = 0;
                             WF[1] = 0;
                             WF[2] = 0;
-                            SPCD = Convert.ToInt16(treeList[nthRow].TreeDefaultValue.FIAcode);
+                            SPCD = (int)treeList[nthRow].TreeDefaultValue.FIAcode;
                             CRZSPDFTCS(ref REGN, FORST, ref SPCD, WF, AGTEQ, LBREQ, DBREQ, FOLEQ, TIPEQ,
                                 WF1REF, WF2REF, MCREF, AGTREF, LBRREF, DBRREF, FOLREF, TIPREF,
                                 strlen, strlen, strlen, strlen, strlen, strlen, strlen, strlen,
@@ -702,7 +702,7 @@ namespace CruiseProcessing
             //  need an array of component titles
             string[] componentArray = new string[7] { "TotalTreeAboveGround", "LiveBranches", "DeadBranches", "Foliage", "PrimaryProd", "SecondaryProd", "StemTip" };
             //  convert region to integer and forest to StringBuilder
-            REGN = Convert.ToInt16(currRegion);
+            REGN = int.Parse(currRegion);
             StringBuilder FORST = new StringBuilder(256);
             FORST.Append(currForest);
 
@@ -721,7 +721,7 @@ namespace CruiseProcessing
                         WF[0] = 0;
                         WF[1] = 0;
                         WF[2] = 0;
-                        SPCD = Convert.ToInt16(treeDef[nthRow].FIAcode);
+                        SPCD = (int)treeDef[nthRow].FIAcode;
                         CRZSPDFTCS(ref REGN, FORST, ref SPCD, WF, AGTEQ, LBREQ, DBREQ, FOLEQ, TIPEQ,
                                 WF1REF, WF2REF, MCREF, AGTREF, LBRREF, DBRREF, FOLREF, TIPREF,
                                 strlen, strlen, strlen, strlen, strlen, strlen, strlen, strlen,
