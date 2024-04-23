@@ -31,7 +31,7 @@ namespace CruiseProcessing
             {
                 PercentRemovedGrid.Rows[nextRow].Cells[0].Value = pr.bioSpecies;
                 PercentRemovedGrid.Rows[nextRow].Cells[1].Value = pr.bioProduct;
-                int PCremoved = Convert.ToInt16(pr.bioPCremoved);
+                int PCremoved = Convert.ToInt32(pr.bioPCremoved);
                 if (PCremoved > 0)
                     PercentRemovedGrid.Rows[nextRow].Cells[2].Value = pr.bioPCremoved;
                 else PercentRemovedGrid.Rows[nextRow].Cells[2].Value = "95";

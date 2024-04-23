@@ -478,8 +478,6 @@ namespace CruiseProcessing
         }   //  end BuildColumnHeaders
 
         //  build print array for A03 report -- individual tree listing
-        public static void buildPrintArray(TreeDO tdo, List<string> fieldsToPrint, ref int[] fieldLengths,
-                                            ref List<string> prtFields)
         {
             for (int k = 0; k < fieldsToPrint.Count; k++)
             {

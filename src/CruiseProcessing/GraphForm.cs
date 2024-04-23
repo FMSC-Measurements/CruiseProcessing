@@ -152,7 +152,7 @@ namespace CruiseProcessing
                         graphList.Add(lsd.DIBClass, lsd.NetCubicFoot, lsd.DIBClass / 5);
                     legendTitle = "NUMBER OF LOGS";
                     currPane.XAxis.Scale.Min = 0;
-                    maxDBH = Convert.ToInt16(logStockList.Max(l => l.DIBClass));
+                    maxDBH = Math.Floor(logStockList.Max(l => l.DIBClass));
                     currPane.XAxis.Scale.Max = maxDBH;
                     currPane.XAxis.Scale.MajorStep = 2;                   
                     break;
@@ -160,7 +160,7 @@ namespace CruiseProcessing
                     foreach (TreeDO td in treeList)
                         graphList.Add(td.DBH,td.ExpansionFactor);
                     legendTitle = "NUMBER OF TREES";
-                    maxDBH = Convert.ToInt16(treeList.Max(t => t.DBH));
+                    maxDBH = Math.Floor(treeList.Max(t => t.DBH));
                     currPane.XAxis.Scale.Max = maxDBH + 1;
                     //  find first dbh class with value
                     foreach (TreeDO t in treeList)
@@ -178,14 +178,14 @@ namespace CruiseProcessing
                     foreach (ReportGeneratorBase.ReportSubtotal gd in graphData)
                         graphList.Add(gd.Value4, gd.Value3);
                     legendTitle = "NUMBER OF TREES";
-                    double MaxKPI = Convert.ToInt16(graphData.Max(g => g.Value4));
+                    double MaxKPI = Math.Floor(graphData.Max(g => g.Value4));
                     currPane.XAxis.Scale.Max = MaxKPI + 1;
                     break;
                 case 11:
                     foreach (TreeDO td in treeList)
                         graphList.Add(td.DBH, td.TreeCount);
                     legendTitle = "BASAL AREA PER ACRE";
-                    maxDBH = Convert.ToInt16(treeList.Max(t=>t.DBH));
+                    maxDBH = Math.Floor(treeList.Max(t=>t.DBH));
                     currPane.XAxis.Scale.Max = maxDBH + 1;
                     //  find first dbh class with value
                     foreach(TreeDO t in treeList)

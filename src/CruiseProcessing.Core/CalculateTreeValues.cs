@@ -154,7 +154,7 @@ namespace CruiseProcessing
             currCruise = DataLayer.getCruiseNumber();
 
             //  convert district  to integer for library call
-            IDIST = Convert.ToInt16(currDist);
+            IDIST = int.Parse(currDist);
 
             //  Calculate volumes by stratum
             List<BiomassEquationDO> bioList = DataLayer.getBiomassEquations();
@@ -425,7 +425,7 @@ namespace CruiseProcessing
             PROD.Remove(0, PROD.Length);
             LIVE.Remove(0, LIVE.Length);
 
-            REGN = Convert.ToInt16(currRegion);
+            REGN = int.Parse(currRegion);
             FORST.Append(currForest);
             VOLEQ.Append(ved.VolumeEquationNumber);
 
@@ -556,8 +556,8 @@ namespace CruiseProcessing
             if (nthRow >= 0)
                 WF[1] = justSpecies[nthRow].WeightFactorSecondary;
             FORST.Append(currForest);
-            int SPCD = Convert.ToInt16(currFIA);
-            int iRegn = Convert.ToInt16(currRegion);
+            int SPCD = Convert.ToInt32(currFIA);
+            int iRegn = Convert.ToInt32(currRegion);
             StringBuilder sForest = new StringBuilder(256);
             sForest.Append(currForest);
             //  WHY?                            //if(currRegion == "9" || currRegion == "09")
@@ -1046,7 +1046,7 @@ namespace CruiseProcessing
                     if (currRegion == "04")
                     {
                         //  convert clearface to integer for use in calculation
-                        int clearFace = Convert.ToInt16(tdo.ClearFace);
+                        int clearFace = Convert.ToInt32(tdo.ClearFace);
                         if (clearFace < 0 || clearFace > 9) clearFace = 0;
 
                         //  Calculate ratio

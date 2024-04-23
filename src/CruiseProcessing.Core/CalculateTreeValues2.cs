@@ -91,8 +91,8 @@ namespace CruiseProcessing
 
 
             // todo do something for convert exceptions thrown here 
-            int REGN = Convert.ToInt16(Region);
-            int IDIST = Convert.ToInt16(District);
+            int REGN = int.Parse(Region);
+            int IDIST = int.Parse(District);
             StringBuilder FORST = new StringBuilder(STRING_BUFFER_SIZE).Append(Forest);
 
             StringBuilder CTYPE = new StringBuilder(256);
@@ -436,8 +436,8 @@ namespace CruiseProcessing
 
 
             StringBuilder FORST = new StringBuilder(STRING_BUFFER_SIZE).Append(forest);
-            int SPCD = Convert.ToInt16(currFIA);
-            int iRegn = Convert.ToInt16(region);
+            int SPCD = (int)currFIA;
+            int iRegn = int.Parse(region);
             int ERRFLAG = 0;
             float[] WF = new float[3];
 
@@ -805,7 +805,7 @@ namespace CruiseProcessing
                     if (currRegion == "04")
                     {
                         //  convert clearface to integer for use in calculation
-                        int clearFace = Convert.ToInt16(tdo.ClearFace);
+                        int clearFace = int.Parse(tdo.ClearFace);
                         if (clearFace < 0 || clearFace > 9) clearFace = 0;
 
                         //  Calculate ratio
