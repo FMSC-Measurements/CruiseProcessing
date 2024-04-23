@@ -47,7 +47,7 @@ namespace CruiseProcessing
 
             //  set primary and secondary number of logs to integer for loop but must round not truncate them
             NOLOGP = (float)Math.Round(NOLOGP);
-            NOLOGS = (float)Math.Round(NOLOGS + .5);
+            NOLOGS = (float)Math.Round(NOLOGS + .5); // might need to do ceiling instead of round see issue #32
 
             //  set percent sound based on region
             if (currRegion == "05") soundDefault = 0.25;
