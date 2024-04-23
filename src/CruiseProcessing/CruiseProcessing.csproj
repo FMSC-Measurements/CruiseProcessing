@@ -16,12 +16,7 @@
 
 	<ItemGroup>
 		<Resource Include="Resources\*.jpg" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Remove="About.jpg" />
-		<None Remove="MainLogo.jpg" />
-		<None Remove="MainPic.jpg" />
+		<Content Include="Resources\equation.bmp" />
 	</ItemGroup>
 
 	<!--<Compile Update="MainMenu.cs" />
@@ -308,12 +303,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="cruisetree_trees.ico" />
-		<Resource Include="About.jpg" />
-		<Resource Include="MainLogo.jpg" />
-		<Resource Include="MainPic.jpg" />
 		<None Include="Properties\DataSources\CruiseDAL.DataObjects.LogMatrixDO.datasource" />
 		<None Include="Properties\DataSources\RegressGroups.datasource" />
-		<Content Include="Resources\equation.bmp" />
 	</ItemGroup>
 
 
