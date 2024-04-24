@@ -382,10 +382,9 @@ namespace CruiseProcessing
                 .Read(currTreeCN).ToList();
         }   //  getTreeLogs
 
-
+        // only used for EX1 report
         public List<LogDO> getTreeLogs()
         {
-            // TODO check calling code, original query should have thrown exception
             //StringBuilder sb = new StringBuilder();
             //sb.Clear();
             //sb.Append("JOIN Log ON Log.Tree_CN = Tree.Tree_CN");
