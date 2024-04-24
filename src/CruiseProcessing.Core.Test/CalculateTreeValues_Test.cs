@@ -20,7 +20,7 @@ namespace CruiseProcessing.Test
         public void Vollib_VERNUM2()
         {
             CalculateTreeValues2.VERNUM2(out var num);
-            num.Should().Be(20240410); // this number changes for each version 
+            num.Should().Be(20240423); // this number changes for each version 
         }
 
 
