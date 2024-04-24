@@ -191,6 +191,9 @@ namespace CruiseProcessing
 
             List<LogDO> treeLogs = DataLayer.getTreeLogs(tree.Tree_CN.Value);
             var numLogs = treeLogs.Count;
+
+            // CType of V is for Varable Log Length. This hasn't been used since V1
+            // and at the time isn't settable by the user
             if (CTYPE.ToString() == "V" && numLogs > 0)
             {
                 //  load LOGLEN with values or zeros
