@@ -90,20 +90,18 @@ namespace CruiseProcessing
             var hasRecoverablePrimary = strataTrees.Any(t => t.RecoverablePrimary > 0);
 
 
-            // todo do something for convert exceptions thrown here 
+            // EditChecks will catch values that shouldn't parse
             int REGN = int.Parse(Region);
             int IDIST = int.Parse(District);
             StringBuilder FORST = new StringBuilder(STRING_BUFFER_SIZE).Append(Forest);
 
             StringBuilder CTYPE = new StringBuilder(256);
-            CTYPE.Append("C");
 
-            // older versions my have used this but according to Yingfang CTYPE will always be 'C' for cruise processing.
-            // 'V' is used for FVS
-            //string vllType = DataLayer.getVLL();
-            //if (vllType == "false")
-            //    CTYPE.Append("C");
-            //else CTYPE.Append(vllType);
+            // Varable LogLength hasn't been used since V1 so this behavior might be stale
+            string vllType = DataLayer.getVLL();
+            if (vllType == "false")
+                CTYPE.Append("C");
+            else CTYPE.Append(vllType);
 
 
             //  loop through individual trees and calculate volume for all equations requested by species/product
@@ -192,6 +190,18 @@ namespace CruiseProcessing
             float BTR = tree.TreeDefaultValue.BarkThicknessRatio;
 
             List<LogDO> treeLogs = DataLayer.getTreeLogs(tree.Tree_CN.Value);
+            var numLogs = treeLogs.Count;
+            if (CTYPE.ToString() == "V" && numLogs > 0)
+            {
+                //  load LOGLEN with values or zeros
+                for (int n = 0; n < numLogs; n++)
+                    LOGLEN[n] = (float)treeLogs[n].Length;
+
+                for (int n = numLogs; n < I20; n++)
+                    LOGLEN[n] = 0;
+
+                TLOGS = numLogs;
+            }
 
             // log stock list gets regenerated for each volEq,
             // but we only need one set of log stocks.
