@@ -343,7 +343,7 @@ namespace CruiseProcessing
             }
         }
 
-        private static void ValidateVolumeEqs(string isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateVolumeEqs(bool isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             
 
@@ -414,7 +414,7 @@ namespace CruiseProcessing
 
                 }
 
-                if (isVLL == "true")
+                if (isVLL)
                 {
                     foreach (VolumeEquationDO ved in volList)
                     {
