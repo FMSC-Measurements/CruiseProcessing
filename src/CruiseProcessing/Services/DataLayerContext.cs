@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+
+#nullable enable
 
 namespace CruiseProcessing.Services
 {
-    public class DataLayerContext
+    public class DataLayerContext : ObservableObject
     {
-        private CPbusinessLayer _dataLayer;
+        private CPbusinessLayer? _dataLayer;
 
-        public CPbusinessLayer DataLayer
+        public CPbusinessLayer? DataLayer
         {
             get => _dataLayer;
-            set => _dataLayer = value;
+            set => SetProperty(ref _dataLayer, value);
         }
     }
 }

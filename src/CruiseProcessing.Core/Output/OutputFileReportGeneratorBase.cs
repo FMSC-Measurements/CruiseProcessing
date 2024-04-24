@@ -317,7 +317,7 @@ namespace CruiseProcessing.Output
 
         protected static string fillReportTitle(string currReport)
         {
-            string currTitle = allReportsArray.findReportTitle(currReport);
+            string currTitle = ReportsDataservice.findReportTitle(currReport);
             //  Add report number to title
             currTitle = currTitle.Insert(0, ": ");
             currTitle = currTitle.Insert(0, currReport);

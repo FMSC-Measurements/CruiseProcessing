@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="CruiseProcessing.Views.Main_EquationsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CruiseProcessing.Views"
+             xmlns:controls="clr-namespace:CruiseProcessing.Controls"
+             mc:Ignorable="d"
+             d:Height="303"
+             d:Width="323">
+
+    <Grid>
+        <ScrollViewer  VerticalScrollBarVisibility="Auto">
+
+            <StackPanel>
+
+
+                <controls:ButtonItem Text="Enter Volume Equations"
+                                     Command="{Binding ShowVolumeEquationsCommand}"
+                                     Template="{StaticResource item}"
+                                     Visibility="{Binding EnableVolumeEquations, Converter={StaticResource isVisableConverter}}">
+                    <Image Source="{StaticResource volumeEquations}" />
+                </controls:ButtonItem>
+
+                <controls:ButtonItem Text="Enter Value Equations"
+                                     Command="{Binding ShowValueEquationsCommand}"
+                                     Template="{StaticResource item}"
+                                     Visibility="{Binding EnableValueEquations, Converter={StaticResource isVisableConverter}}">
+                    <Image Source="{StaticResource valueEquations}" />
+                </controls:ButtonItem>
+
+                <controls:ButtonItem Text="Enter Region 8 Volume Equations"
+                                     Command="{Binding ShowR8VolumeEquationsCommand}"
+                                     Template="{StaticResource item}"
+                                     Visibility="{Binding EnableR8Equations, Converter={StaticResource isVisableConverter}}">
+                    <Image Source="{StaticResource region8}" />
+                </controls:ButtonItem>
+
+                <controls:ButtonItem Text="Enter Region 9 Volume Equations"
+                                     Command="{Binding ShowR9VolumeEquationsCommand}"
+                                     Template="{StaticResource item}"
+                                     Visibility="{Binding EnableR9Equations, Converter={StaticResource isVisableConverter}}">
+                    <Image  Source="{StaticResource region9}" />
+                </controls:ButtonItem>
+
+                <Button Content="Modify Merch Rules"
+                        Command="{Binding ShowModifyMerchRulesCommand}"
+                        Visibility="{Binding EnableMerchRules, Converter={StaticResource isVisableConverter}}"/>
+                <Button Content="Modify Weight Factors"
+                        Command="{Binding ShowModifyWeightFactorsCommand}"
+                        Visibility="{Binding EnableWeightFactors, Converter={StaticResource isVisableConverter}}"/>
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>

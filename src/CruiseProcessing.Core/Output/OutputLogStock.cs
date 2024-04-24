@@ -622,9 +622,9 @@ namespace CruiseProcessing
         private void loadDIBclasses(List<LogStockDO> justCutLogs, List<ReportSubtotal> listToLoad)
         {
             //  loads classes into specified list to load
-            int maxDBH = Convert.ToInt16(justCutLogs.Max(j => j.SmallEndDiameter));
+            int maxDBH = (int)Math.Floor(justCutLogs.Max(j => j.SmallEndDiameter));
             if (maxDBH > 48) maxDBH = 48;
-            int numClasses = Convert.ToInt16(Math.Floor((maxDBH - 3) + 0.5));
+            int numClasses = (int)(Math.Floor((maxDBH - 3) + 0.5));
             // load classes into list to load
             if (numClasses < 0)
             {

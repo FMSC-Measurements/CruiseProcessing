@@ -19,7 +19,7 @@ namespace CruiseProcessing
             dataLayer.DeleteCruiseProcessingErrorMessages();
 
             string currentRegion = dataLayer.getRegion();
-            string isVLL = "";
+            bool isVLL = dataLayer.getVLL() == "V";
             //string isVLL = bslyr.getVLL();
 
 
@@ -274,7 +274,7 @@ namespace CruiseProcessing
             return true;
         }
 
-        private static void ValidateLogs(string currentRegion, string isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateLogs(string currentRegion, bool isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             List<LogDO> logList = dataLayer.getLogs();
             if (logList.Count > 0) { return; }
@@ -302,8 +302,9 @@ namespace CruiseProcessing
                     }
                 }
 
-                // TODO isVLL is never true
-                if (isVLL == "true")
+                // note: Vertical Log Length can't be enabled by user and hasn't been used since V1
+                // VLL is typicaly just used for export grade/high value stuff. 
+                if (isVLL)
                 {
                     foreach (LogDO ld in treeLogs)
                     {
@@ -342,7 +343,7 @@ namespace CruiseProcessing
             }
         }
 
-        private static void ValidateVolumeEqs(string isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateVolumeEqs(bool isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
         {
             
 
@@ -364,7 +365,7 @@ namespace CruiseProcessing
                 {
                     if (!volList.Any(x => x.Species == tree.Species && x.PrimaryProduct == tree.PrimaryProduct))
                     {
-                        errors.AddError("Tree", "E", $"12 {tree.Species} {tree.PrimaryProduct}", tree.RecID, "Species");
+                        errors.AddError("Tree", "E", "12", tree.RecID, "Species");
                     }
                 }
 
@@ -413,7 +414,7 @@ namespace CruiseProcessing
 
                 }
 
-                if (isVLL == "true")
+                if (isVLL)
                 {
                     foreach (VolumeEquationDO ved in volList)
                     {

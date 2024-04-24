@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="CruiseProcessing.Views.Main_Reports"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:CruiseProcessing.Views"
+             xmlns:controls="clr-namespace:CruiseProcessing.Controls"
+             mc:Ignorable="d" 
+      d:Height="303"
+      d:Width="323">
+
+    <Grid>
+        <ScrollViewer  VerticalScrollBarVisibility="Auto">
+
+            <StackPanel>
+
+
+                <controls:ButtonItem Text="Add Standard Reports"
+                        Template="{StaticResource item}"
+                        Command="{Binding AddStandardReportsCommand}">
+                    <Image  Source="{StaticResource standardReports}" />
+                </controls:ButtonItem>
+
+                <controls:ButtonItem Text="Add Graphical Reports"
+                        Command="{Binding AddGraphicalReportsCommand}"
+                        Template="{StaticResource item}">
+                    <Image  Source="{StaticResource graphReports}" />
+                </controls:ButtonItem>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>
