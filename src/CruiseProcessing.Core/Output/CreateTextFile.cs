@@ -141,7 +141,7 @@ namespace CruiseProcessing
             foreach (ReportsDO rdo in selectedReports)
             {
 
-                if (allReportsArray.GRAPH_REPORTS.Contains(rdo.ReportID))
+                if (ReportsDataservice.GRAPH_REPORTS.Contains(rdo.ReportID))
                 {
                     graphReports.Add(rdo.ReportID);
                     string graphFile = Path.GetDirectoryName(FilePath);
@@ -511,7 +511,7 @@ namespace CruiseProcessing
                 {
                     sb.Append(eld.TableName);
                     sb.Append("  ---------    ");
-                    sb.Append(WarnMessages[Convert.ToInt16(eld.Message)]);
+                    sb.Append(WarnMessages[int.Parse(eld.Message)]);
                 }
                 else if (eld.TableName == "Stratum" || eld.TableName == "VolumeEquation")
                 {
@@ -530,7 +530,7 @@ namespace CruiseProcessing
                     }
                     else if (eld.Message.Length > 4)
                         sb.Append(eld.Message);
-                    else sb.Append(WarnMessages[Convert.ToInt16(eld.Message)]);
+                    else sb.Append(WarnMessages[int.Parse(eld.Message)]);
                 }   //  endif
                 strWriteOut.WriteLine(sb.ToString());
                 numOlines++;

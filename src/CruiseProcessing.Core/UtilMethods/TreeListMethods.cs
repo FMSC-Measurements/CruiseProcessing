@@ -109,8 +109,11 @@ namespace CruiseProcessing
             return insuranceTrees;
         } //  end GetInsuranceTrees
 
-        public static List<string> CheckForData(List<TreeDO> tList)
+        public static List<string> MakeTreeFieldList(List<TreeDO> tList)
         {
+            // populates a list of tree fields with common fields
+            // as well as any fields that contain measurements. 
+
             var fieldsToPrint = new List<string>();
             double summedValue = 0;
             int numRows = tList.Count();
@@ -391,7 +394,7 @@ namespace CruiseProcessing
             {
                 for (int k = 0; k < FieldsToPrint.Count; k++)
                 {
-                    sb.Append(reportColumns[Convert.ToInt16(FieldsToPrint[k])].Substring(nthPosition, 1));
+                    sb.Append(reportColumns[int.Parse(FieldsToPrint[k])].Substring(nthPosition, 1));
                     //  append appropriate spaces here
                     switch (FieldsToPrint[k].ToString())
                     {
@@ -478,12 +481,14 @@ namespace CruiseProcessing
         }   //  end BuildColumnHeaders
 
         //  build print array for A03 report -- individual tree listing
-        public static void buildPrintArray(TreeDO tdo, List<string> fieldsToPrint, ref int[] fieldLengths,
-                                            ref List<string> prtFields)
+        public static List<string> buildPrintArray(TreeDO tdo, List<string> fieldsToPrint, out int[] fieldLengths)
         {
+            var prtFields = new List<string>();
+            fieldLengths = new int[fieldsToPrint.Count];
+
             for (int k = 0; k < fieldsToPrint.Count; k++)
             {
-                int fieldNumber = Convert.ToInt16(fieldsToPrint[k]);
+                int fieldNumber = Convert.ToInt32(fieldsToPrint[k]);
                 switch (fieldNumber)
                 {
                     case 0:         //  stratum
@@ -762,7 +767,7 @@ namespace CruiseProcessing
                 }   //  end switch
             }   //  end for k loop
 
-            return;
+            return prtFields;
         }   //  end buildPrintArray for A03 report
 
         //  Builds print array for remarks in the A03 report

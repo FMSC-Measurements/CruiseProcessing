@@ -60,7 +60,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal, null, null);
+            var dataLayer = new CPbusinessLayer(dal);
 
 
             var errors = EditChecks.CheckErrors(dataLayer);

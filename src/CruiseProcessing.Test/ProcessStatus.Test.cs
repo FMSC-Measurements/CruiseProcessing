@@ -2,6 +2,7 @@
 using CruiseProcessing.Services;
 using DiffPlex.DiffBuilder;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -16,8 +17,19 @@ namespace CruiseProcessing.Test
 {
     public class ProcessStatus_Test : TestBase
     {
+
         public ProcessStatus_Test(ITestOutputHelper output) : base(output)
         {
+            
+        }
+
+        private Mock<IServiceProvider> GetServiceProviderMock(CPbusinessLayer datalayer)
+        {
+            var mockServiceProvider = new Mock<IServiceProvider>();
+            mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
+                .Returns(new CalculateTreeValues2(datalayer));
+
+            return mockServiceProvider;
         }
 
         [Theory]
@@ -64,12 +76,13 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal, null, null);
+            var dataLayer = new CPbusinessLayer(dal);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
+            var mockServiceProvider = GetServiceProviderMock(dataLayer);
 
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object);
+            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
 
             var result = processStatus.DoPreProcessChecks();
             result.Should().BeTrue();
@@ -120,22 +133,24 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal, null, null);
+            var dataLayer = new CPbusinessLayer(dal);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
 
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object);
+            var mockServiceProvider = GetServiceProviderMock(dataLayer);
+
+            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
 
             var result = processStatus.DoPreProcessChecks();
             if(!result)
             { throw new Exception("Skip"); }
 
-
+            dal.TransactionDepth.Should().Be(0, "Before Process");
             var mockProgress = new Mock<IProgress<string>>();
             processStatus.ProcessCore(mockProgress.Object);
 
-
+            dal.TransactionDepth.Should().Be(0, "After Process");
 
         }
 
@@ -185,21 +200,22 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal, null, null);
+            var dataLayer = new CPbusinessLayer(dal);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
 
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object);
+            var mockServiceProvider = GetServiceProviderMock(dataLayer);
+
+            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
 
             var result = processStatus.DoPreProcessChecks();
             if (!result)
             { throw new Exception("Skip"); }
 
-
+            
             var mockProgress = new Mock<IProgress<string>>();
             processStatus.ProcessCore(mockProgress.Object);
-
 
             var ctf = new CreateTextFile(dataLayer);
 

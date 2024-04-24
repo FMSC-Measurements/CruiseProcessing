@@ -59,7 +59,7 @@ namespace CruiseProcessing
                 //  need region
                 string regText = DataLayer.getRegion();
                 //  convert to integer for call to volume library
-                int currReg = Convert.ToInt16(regText);
+                int currReg = Convert.ToInt32(regText);
                 //  then fill vList with values from volume library
                 foreach (VolumeEquationDO ve in vList)
                 {

@@ -149,7 +149,7 @@ namespace CruiseProcessing
                 return;
             }   //  endif group is log level reports
 
-            var reportsArray = allReportsArray.reportsArray;
+            var reportsArray = ReportsDataservice.reportsArray;
             for (int k = 0; k < reportsArray.GetLength(0); k++)
             {
                 if (reportsArray[k, 0].StartsWith(selectedGroup))

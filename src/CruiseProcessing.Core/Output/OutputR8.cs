@@ -107,7 +107,7 @@ namespace CruiseProcessing
                 int rowToLoad = findDBHindex(jt.Tree.DBH);
 
                 //  need to convert species code to a number for finding less than and greater than
-                int speciesCode = Convert.ToInt16(jt.Tree.Species);
+                int speciesCode = int.Parse(jt.Tree.Species);
                 //  load volumes
                 if (speciesCode < 300)
                 {

@@ -9,27 +9,6 @@ namespace CruiseProcessing
 {
     public static class ReportMethods
     {
-        public static List<ReportsDO> fillReportsList()
-        {
-            //  this would be used to fill the list with reports when there are none in the database
-            List<ReportsDO> rList = new List<ReportsDO>();
-
-            //  need the reports array to loop through
-            var reportsArray = allReportsArray.reportsArray;
-            for (int k = 0; k < reportsArray.GetLength(0); k++)
-            {
-                ReportsDO rl = new ReportsDO();
-                rl.ReportID = reportsArray[k, 0];
-                //  since this is an initial list where none exists, selected will always be zero or false
-                rl.Selected = false;
-                rl.Title = reportsArray[k, 1];
-                rList.Add(rl);
-            }   //  end for k loop
-
-            return rList;
-        }   //  end fillReportsList
-
-
         public static List<ReportsDO> updateReportsList(List<ReportsDO> rList, string[,] reportsArray)
         {
             //  convert old reports ID to new reportsID
@@ -266,7 +245,7 @@ namespace CruiseProcessing
         }   //  end addReports
 
 
-        public static List<ReportsDO> deleteReports(List<ReportsDO> rList, CPbusinessLayer bslyr)
+        public static void deleteCSVReports(List<ReportsDO> rList, CPbusinessLayer bslyr)
         {
             //  probably used infrequently
             //  currently deletes CSV reports from the reports list
@@ -283,7 +262,6 @@ namespace CruiseProcessing
                         rr.Delete();
                 }   //  end foreach loop
             }   //  end for j loop
-            return rList;
         }   //  end deleteReports
 
     }

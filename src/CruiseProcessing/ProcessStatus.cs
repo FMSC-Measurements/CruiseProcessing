@@ -14,6 +14,8 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using System.Collections;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
 {
@@ -25,6 +27,7 @@ namespace CruiseProcessing
         protected IProgress<string> ProcessProgress { get; }
 
         protected ILogger Logger { get; }
+        public IServiceProvider Services { get; }
 
         private void ProcessProgress_OnProgressChanged(string obj)
         {
@@ -46,12 +49,13 @@ namespace CruiseProcessing
             ProcessProgress = new Progress<string>(ProcessProgress_OnProgressChanged);
         }
 
-        public ProcessStatus(CPbusinessLayer dataLayer, IDialogService dialogService, ILogger<ProcessStatus> logger)
+        public ProcessStatus(CPbusinessLayer dataLayer, IDialogService dialogService, ILogger<ProcessStatus> logger, IServiceProvider services)
     : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         private async void on_GO(object sender, EventArgs e)
@@ -73,10 +77,12 @@ namespace CruiseProcessing
                 await ProcessCoreAsync(ProcessProgress);
 
                 volumeCheck.Enabled = true;
+                DialogResult = DialogResult.OK;
             }
             catch (Exception ex) 
             {
                 DialogService.ShowError("Processing Error: " + ex.GetType().Name);
+                DialogResult = DialogResult.Abort;
             }
             finally
             {
@@ -198,14 +204,11 @@ namespace CruiseProcessing
             DefaultSecondaryProduct();
 
             //  next show preparation of data
-            progress.Report("Preparing data for processing.");
+            progress?.Report("Preparing data for processing.");
             var dal = DataLayer.DAL;
             dal.BeginTransaction();
             try
             {
-                
-                DataLayer.DAL.BeginTransaction();
-
                 CalculatedValues calcVal = new CalculatedValues(DataLayer);
                 calcVal.CalcValues();
 
@@ -219,30 +222,33 @@ namespace CruiseProcessing
                 List<TreeDO> tList = DataLayer.getTrees();
 
                 //  show preparation of data is complete
-                progress.Report("Preparation of data complete");
+                progress?.Report("Preparation of data complete");
                 //  now loop through strata and show status message updating for each stratum
                 List<StratumDO> sList = DataLayer.GetStrata();
                 foreach (StratumDO sdo in sList)
                 {
 
                     //  update status message for next stratum
-                    progress.Report("Calculating stratum " + sdo.Code);
+                    progress?.Report("Calculating stratum " + sdo.Code);
 
-                    CalculateTreeValues calcTreeVal = new CalculateTreeValues(DataLayer);
+                    var calcTreeVal = Services.GetRequiredService<ICalculateTreeValues>();
+
                     ProcessStratum(sdo, calcTreeVal, calcVal, lcdList, popList, proList, ctList, pList, tList);
 
                 }   //  end foreach stratum
 
                 dal.CommitTransaction();
 
+                DataLayer.IsProcessed = true;
                 //  show volume calculation is finished
-                progress.Report("Processing is DONE");
+                progress?.Report("Processing is DONE");
 
             }
             catch(Exception ex)
             {
                 dal.RollbackTransaction();
                 Logger.LogError(ex, "Processing Error: {FilePath}", dal.Path);
+                DataLayer.IsProcessed = false;
 
                 //  show volume calculation is finished
                 progress.Report("Processing Error");
@@ -255,7 +261,7 @@ namespace CruiseProcessing
 
         private void ProcessStratum(
             StratumDO sdo,
-            CalculateTreeValues calcTreeVal,
+            ICalculateTreeValues calcTreeVal,
             CalculatedValues calcVal,
             List<LCDDO> lcdList,
             List<POPDO> popList,

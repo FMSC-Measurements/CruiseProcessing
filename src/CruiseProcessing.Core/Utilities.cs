@@ -99,7 +99,7 @@ namespace CruiseProcessing
             {
                 //  Get current DLL version from volume library
                 int iCurrentDate = 0;
-                CalculateTreeValues.VERNUM2(ref iCurrentDate);
+                CalculateTreeValues2.VERNUM2(out iCurrentDate);
 
                 //  Convert to a string to reformat date
                 string sTemp = Convert.ToString(iCurrentDate);

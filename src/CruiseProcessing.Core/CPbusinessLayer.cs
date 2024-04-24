@@ -7,11 +7,15 @@ using CruiseDAL;
 using System;
 using CruiseProcessing.Output;
 using System.Reflection;
+using CruiseProcessing.Data;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace CruiseProcessing
 {
-    public class CPbusinessLayer
+    public class CPbusinessLayer : ObservableObject, IErrorLogDataService
     {
+        private bool _isProcessed;
+
         protected string CruiseID { get; } // for v3 files
         public string FilePath { get; }
         public DAL DAL { get; }
@@ -19,19 +23,33 @@ namespace CruiseProcessing
         public string CPVersion { get; }
         public string VolLibVersion { get; }
 
-        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID)
+        public bool IsTemplateFile { get; }
+
+        public bool IsProcessed
         {
-            if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }
+            get => _isProcessed;
+            set => SetProperty(ref _isProcessed, value);
+        }
 
+        public CPbusinessLayer(DAL dal, bool isTemplateFile = false)
+        {
             DAL = dal;
-            DAL_V3 = dal_V3;
-            CruiseID = cruiseID; 
             FilePath = DAL.Path;
-
+            IsTemplateFile = isTemplateFile;
 
             var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
             CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");
             VolLibVersion = Utilities.CurrentDLLversion();
+            IsTemplateFile = isTemplateFile;
+        }
+
+        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID, bool isTemplateFile = false)
+            : this(dal, isTemplateFile)
+        {
+            if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }
+
+            DAL_V3 = dal_V3;
+            CruiseID = cruiseID;
         }
 
         public HeaderFieldData GetReportHeaderData()
@@ -325,7 +343,7 @@ namespace CruiseProcessing
             return DAL.From<TreeCalculatedValuesDO>()
                 .Join("Tree AS t", "USING (Tree_CN)")
                 .Join("Stratum", "USING (Stratum_CN)")
-                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)") 
+                .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
                 .Where("sg.CutLeave = @p1")
                 .OrderBy(orderBy)
                 .Read(currCL)
@@ -364,10 +382,9 @@ namespace CruiseProcessing
                 .Read(currTreeCN).ToList();
         }   //  getTreeLogs
 
-
+        // only used for EX1 report
         public List<LogDO> getTreeLogs()
         {
-            // TODO check calling code, original query should have thrown exception
             //StringBuilder sb = new StringBuilder();
             //sb.Clear();
             //sb.Append("JOIN Log ON Log.Tree_CN = Tree.Tree_CN");
@@ -645,7 +662,7 @@ namespace CruiseProcessing
         }
 
         public string getCruiseNumber()
-        { 
+        {
             var sale = GetSale();
             return sale.SaleNumber;
         }
@@ -776,7 +793,7 @@ namespace CruiseProcessing
         {
             // rewritten Dec 2020 - Ben
 
-            StringBuilder sb = new StringBuilder();;
+            StringBuilder sb = new StringBuilder(); ;
             switch (currRPT)
             {
                 case 1:         //  VSM1
@@ -1080,7 +1097,19 @@ namespace CruiseProcessing
             return;
         }   //  end SaveTrees
 
+        public void SaveLogStock(IEnumerable<LogStockDO> lsList)
+        {
+            foreach (var ls in lsList)
+            {
+                if (ls.DAL == null)
+                {
+                    ls.DAL = DAL;
+                }   //  endif
+                ls.Save();
+            }
+        }
 
+        [Obsolete]
         public void SaveLogStock(List<LogStockDO> lsList, int totLogs)
         {
             LogStockDO ls = new LogStockDO();
@@ -1096,8 +1125,6 @@ namespace CruiseProcessing
             }   //  end for k loop
             return;
         }   //  end SaveLogStock
-
-
 
         public void SaveLogMatrix(List<LogMatrixDO> lmList, string currReport)
         {
@@ -1164,7 +1191,7 @@ namespace CruiseProcessing
         }   //  end SaveVolumeEquations
 
 
-       
+
         public void SaveValueEquations(List<ValueEquationDO> valList)
         {
             //  need to delete equations in order to update the database
@@ -1295,7 +1322,7 @@ namespace CruiseProcessing
             errList.Add(eldo);
 
             SaveErrorMessages(errList);
-        } 
+        }
 
 
         public void SaveLCD(List<LCDDO> LCDlist)
@@ -1612,7 +1639,7 @@ namespace CruiseProcessing
 
         public List<TreeDO> getPOPtrees(POPDO currPOP, string cntMeas)
         {
-            StringBuilder sb = new StringBuilder();;
+            StringBuilder sb = new StringBuilder(); ;
             sb.Append("JOIN Stratum JOIN SampleGroup WHERE Stratum.Stratum_CN = Tree.Stratum_CN AND ");
             sb.Append("Tree.SampleGroup_CN = SampleGroup.SampleGroup_CN AND ");
             sb.Append("SampleGroup.Code = @p1 AND Stratum.Code = @p2 AND Tree.CountOrMeasure = @p3 AND Tree.STM = @p4");
@@ -1987,7 +2014,7 @@ namespace CruiseProcessing
                 //make sure the reports is empty.
                 DAL_V3.Execute("DELETE FROM REPORTS");
 
-                var reportsArray = allReportsArray.reportsArray;
+                var reportsArray = ReportsDataservice.reportsArray;
                 for (int k = 0; k < reportsArray.GetLength(0); k++)
                 {
                     //  since this is an initial list where none exists, selected will always be zero or false
@@ -2198,13 +2225,13 @@ namespace CruiseProcessing
                 DAL_V3.RollbackTransaction();
                 throw;
             }
-    
+
 
         }//end sync vol equation
 
         public void syncBiomassEquationToV3()
         {
-            List<BiomassEquationDO> myBE = this.getBiomassEquations();            
+            List<BiomassEquationDO> myBE = this.getBiomassEquations();
 
             //delete all from V3 file
             DAL_V3.BeginTransaction();
@@ -2435,7 +2462,7 @@ namespace CruiseProcessing
             //DAL.Read<TreeDO>("SELECT * FROM Tree Where Species is null;", ).ToList();
             List<TreeDO> myList = DAL.From<TreeDO>().Where("Species is null").Read().ToList();
 
-            if(myList.Count() > 0)
+            if (myList.Count() > 0)
             {
                 nullSpecies = true;
             }
