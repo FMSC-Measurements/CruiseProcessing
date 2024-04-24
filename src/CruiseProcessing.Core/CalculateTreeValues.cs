@@ -278,18 +278,19 @@ namespace CruiseProcessing
 
                     //  find logs for this tree
                     List<LogDO> justTreeLogs = DataLayer.getTreeLogs((long)td.Tree_CN);
+                    var numLogs  = justTreeLogs.Count;
                     List<LogStockDO> logStockList = new List<LogStockDO>();
-                    if (CTYPE.ToString() == "V" && justTreeLogs.Count() > 0)
+                    if (CTYPE.ToString() == "V" && numLogs > 0)
                     {
                         //  load LOGLEN with values or zeros
-                        for (int n = 0; n < justTreeLogs.Count(); n++)
+                        for (int n = 0; n < numLogs; n++)
                             LOGLEN[n] = (float)justTreeLogs[n].Length;
 
-                        for (int n = justTreeLogs.Count(); n < 20; n--)
+                        for (int n = justTreeLogs.Count(); n < 20; n++)
                             LOGLEN[n] = 0;
 
-                        TLOGS = justTreeLogs.Count();
-                    }   //  endif
+                        TLOGS = numLogs;
+                    }  
 
 
                     //  Is this a FBS tree?  process separately and skip volume calculation
