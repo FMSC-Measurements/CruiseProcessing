@@ -1,3 +1,12 @@
+# Version 04.23.2024
+## Changes
+ - Volume Library Updates 
+     - Add R6 Equations A16CURW351, NVBM240351
+     - Replace Several R3 Equations 
+## Fixes 
+ - Fix issue opening V3 if file has plots missing strata errors
+
+
 # Version 03.13.2024
 
 ## Enhancements
