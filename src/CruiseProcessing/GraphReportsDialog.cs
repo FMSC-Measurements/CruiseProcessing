@@ -179,26 +179,14 @@ namespace CruiseProcessing
 
         private void addGraphReports()
         {
-            string[,] graphReports = new string[11,2] {{"GR01","Scatter plot of DBH and Total Height by Species"},
-                                                      {"GR02","Species Distribution for the Sale (pie chart)"},
-                                                      {"GR03","Volume by Species - Sawtimber Only (pie chart)"},
-                                                      {"GR04","Volume by Product(pie chart)"},
-                                                      {"GR05","Number of 16-foot Logs by DIB Class by Species (bar chart)"},
-                                                      {"GR06","Number of Trees by DBH (bar chart)"},
-                                                      {"GR07","Number of Trees by Species (bar chart)"},
-                                                      {"GR08","Number of Trees by DBH by Stratum (bar chart)"},
-                                                      {"GR09","Number of Trees by KPI by Species (bar chart)"},
-                                                      {"GR10","BA/Acre by Species (pie chart)"},
-                                                      {"GR11","BA/Acre by 2-inch DBH Class by Sample Group (bar chart)"}};
-            for (int k = 0; k < 11; k++)
+            foreach(var a in ReportsDataservice.GRAPH_REPORTS)
             {
                 ReportsDO rd = new ReportsDO();
-                rd.ReportID = graphReports[k, 0];
+                rd.ReportID = a[0];
                 rd.Selected = false;
-                rd.Title = graphReports[k, 1];
+                rd.Title = a[1];
                 reportList.Add(rd);
-            }   //  end for k loop
-            return;
+            }
         }
 
         private void GR11check_CheckedChanged(object sender, EventArgs e)

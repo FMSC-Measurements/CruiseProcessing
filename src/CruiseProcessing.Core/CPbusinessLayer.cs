@@ -1676,11 +1676,34 @@ namespace CruiseProcessing
 
             if (DAL_V3 != null)
             {
-                insertReportsV3();
-            }
+                foreach(var report in rList)
+                {
+                    DAL_V3.Execute2(
+@"INSERT INTO Reports (
+    ReportID,
+    CruiseID,
+    Selected,
+    Title )
+VALUES (
+    @ReportID,
+    @CruiseID,
+    @Selected,
+    @Title )
+ON CONFLICT (ReportID, CruiseID) DO UPDATE SET
+    Selected = @Selected,
+    Title = @Title
+WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
+                    new
+                    {
+                        report.ReportID,
+                        CruiseID,
+                        report.Selected,
+                        report.Title
+                    });
+                }
 
-            return;
-        }   //  end InsertReports
+            }
+        }
 
 
         public List<ReportsDO> GetReports()
@@ -1702,34 +1725,32 @@ namespace CruiseProcessing
             // rewritten Dec 2020 - Ben
             //  this updates the reports list after user has selected reports
 
+            foreach (ReportsDO rdo in reportList)
+            {
+                DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
+            }
+
             if (DAL_V3 != null)
             {
                 foreach (ReportsDO rdo in reportList)
                 {
-                    //update both V3 and V2 databases.
-                    DAL_V3.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
-                    //DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
-                }   //  end foreach loop     
-            }//end if
+                    DAL_V3.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2 AND CruiseID = @p3;", rdo.Selected, rdo.ReportID, CruiseID);
+                }   
+            }
+        }
 
-
-            foreach (ReportsDO rdo in reportList)
-            {
-                DAL.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2;", rdo.Selected, rdo.ReportID);
-            }   //  end foreach loop     
-
-            return;
-        }   //  end updateReports
-
-
-
-        public void deleteReport(string reptToDelete)
+        public void DeleteReport(string reportID)
         {
             // rewritten Dec 2020 - Ben
 
             //  deletes the report from the reports table
-            DAL.Execute("DELETE FROM Reports WHERE ReportID= @p1;", reptToDelete);
-        }   //  end deleteReport
+            DAL.Execute("DELETE FROM Reports WHERE ReportID= @p1;", reportID);
+
+            if(DAL_V3 != null)
+            {
+                DAL_V3.Execute("DELETE FROM Reports WHERE ReportID= @p1 AND CruiseID = @p2;", reportID, CruiseID);
+            }
+        }
 
 
         //  Specific to EX reports
@@ -2006,55 +2027,6 @@ namespace CruiseProcessing
 
         #region V3 methods
 
-        public void insertReportsV3()
-        {
-            DAL_V3.BeginTransaction();
-            try
-            {
-                //make sure the reports is empty.
-                DAL_V3.Execute("DELETE FROM REPORTS");
-
-                var reportsArray = ReportsDataservice.reportsArray;
-                for (int k = 0; k < reportsArray.GetLength(0); k++)
-                {
-                    //  since this is an initial list where none exists, selected will always be zero or false
-                    string ReportID = reportsArray[k, 0];
-                    bool Selected = false;
-                    string Title = reportsArray[k, 1];
-                    string CreatedBy = "";
-
-
-                    DAL_V3.Execute2(
-                    @"INSERT INTO Reports (
-                    ReportID,
-                    CruiseID,
-                    Selected,
-                    Title
-                ) VALUES (
-                    @ReportID,
-                    @CruiseID,
-                    @Selected,
-                    @Title
-                );",
-                    new
-                    {
-                        ReportID,
-                        CruiseID,
-                        Selected,
-                        Title
-                    });
-
-                }//  end for k loop
-
-                DAL_V3.CommitTransaction();
-            }
-            catch
-            {
-                DAL_V3.RollbackTransaction();
-                throw;
-            }
-
-        }
 
         public void syncVolumeEquationToV3()
         {

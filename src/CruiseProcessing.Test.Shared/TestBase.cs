@@ -75,8 +75,14 @@ public class TestBase
 
     public string GetTempFilePath(string extention, string fileName = null)
     {
+        var testTempPath = TestTempPath;
+        if(Directory.Exists(testTempPath) is false)
+        {
+            Directory.CreateDirectory(testTempPath);
+        }
+
         // note since Rand is using a fixed see the guid generated will
-        var tempFilePath = Path.Combine(TestTempPath, (fileName ?? Rand.Guid().ToString()) + extention);
+        var tempFilePath = Path.Combine(testTempPath, (fileName ?? Rand.Guid().ToString()) + extention);
         Output.WriteLine($"Temp File Path Generated: {tempFilePath}");
         return tempFilePath;
     }
