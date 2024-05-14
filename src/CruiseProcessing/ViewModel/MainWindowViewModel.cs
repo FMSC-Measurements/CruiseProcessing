@@ -205,7 +205,7 @@ namespace CruiseProcessing.ViewModel
             }
         }
 
-        private void AddStandardReports()
+        public void AddStandardReports()
         {
             //  calls routine to add standard and regional reports
             List<ReportsDO> currentReports = DataLayer.GetReports();
@@ -216,7 +216,6 @@ namespace CruiseProcessing.ViewModel
                 currentReports = ReportsDataservice.GetDefaultReports();
                 DataLayer.SaveReports(currentReports);
 
-
             }//end if
             else if (currentReports.Count < ReportsDataservice.reportsArray.GetLength(0))
             {
@@ -224,15 +223,12 @@ namespace CruiseProcessing.ViewModel
                 if (currentReports[0].Title == "" || currentReports[0].Title == null)
                 {
                     //  old reports -- update list
-                    currentReports = ReportMethods.updateReportsList(currentReports, ReportsDataservice.reportsArray);
+                    currentReports = ReportsDataservice.UpdateReportIDAndTitles(currentReports);
                     DataLayer.SaveReports(currentReports);
                 }
-                else
-                {
-                    //  new reports -- just add
-                    currentReports = ReportMethods.addReports(currentReports, ReportsDataservice.reportsArray);
-                    DataLayer.SaveReports(currentReports);
-                }   //  endif
+
+                currentReports = ReportsDataservice.AddMissingReports(currentReports);
+                DataLayer.SaveReports(currentReports);
 
             }   //  endif
                 //  now get reports selected
