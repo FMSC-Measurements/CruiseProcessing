@@ -2,7 +2,10 @@
 ## Changes
  - Volume Library Updates 
      - Add R6 Equations A16CURW351, NVBM240351
-     - Replace Several R3 Equations 
+     - Modify R3 Equations 
+       - Remove Forest Level Equations
+       - Update equations for White fir, White Pine, Engelmann's Spruce, and Quaking Aspen to NVB
+       - Remove Douglas Fir equation
 ## Fixes 
  - Fix issue opening V3 if file has plots missing strata errors
 
