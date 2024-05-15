@@ -2108,57 +2108,10 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
             try
             {
                 //make sure the reports is empty.
-                DAL_V3.Execute("DELETE FROM BiomassEquation");
+                DAL_V3.Execute("DELETE FROM BiomassEquation WHERE CruiseID = @p1", CruiseID);
 
                 foreach (BiomassEquationDO bioEq in myBE)
                 {
-                    //Species TEXT NOT NULL,
-                    string Species;
-                    Species = bioEq.Species;
-
-                    //Product TEXT NOT NULL,
-                    string Product;
-                    Product = bioEq.Product;
-
-                    //Component TEXT NOT NULL,
-                    string Component;
-                    Component = bioEq.Component;
-
-                    //LiveDead TEXT NOT NULL,
-                    string LiveDead;
-                    LiveDead = bioEq.LiveDead;
-
-                    //FIAcode INTEGER NOT NULL,
-                    long FIAcode;
-                    FIAcode = bioEq.FIAcode;
-
-                    //Equation TEXT,
-                    string Equation;
-                    Equation = bioEq.Equation;
-
-                    //PercentMoisture REAL Default 0.0,
-                    float PercentMoisture;
-                    PercentMoisture = bioEq.PercentMoisture;
-
-                    //PercentRemoved REAL Default 0.0,
-                    float PercentRemoved;
-                    PercentRemoved = bioEq.PercentRemoved;
-
-                    //MetaData TEXT,
-                    string MetaData;
-                    MetaData = bioEq.MetaData;
-
-                    //WeightFactorPrimary REAL Default 0.0,
-                    float WeightFactorPrimary;
-                    WeightFactorPrimary = bioEq.WeightFactorPrimary;
-
-                    //WeightFactorSecondary REAL Default 0.0,
-                    float WeightFactorSecondary;
-                    WeightFactorSecondary = bioEq.WeightFactorSecondary;
-
-
-
-
                     DAL_V3.Execute2(
                    @"INSERT INTO BiomassEquation (
                     CruiseID,
@@ -2191,17 +2144,17 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
                     new
                     {
                         CruiseID,
-                        Species,
-                        Product,
-                        Component,
-                        LiveDead,
-                        FIAcode,
-                        Equation,
-                        PercentMoisture,
-                        PercentRemoved,
-                        MetaData,
-                        WeightFactorPrimary,
-                        WeightFactorSecondary
+                        bioEq.Species,
+                        bioEq.Product,
+                        bioEq.Component,
+                        bioEq.LiveDead,
+                        bioEq.FIAcode,
+                        bioEq.Equation,
+                        bioEq.PercentMoisture,
+                        bioEq.PercentRemoved,
+                        bioEq.MetaData,
+                        bioEq.WeightFactorPrimary,
+                        bioEq.WeightFactorSecondary
                     });
 
                 }//end foreach
@@ -2225,51 +2178,11 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
             try
             {
                 //make sure the reports is empty.
-                DAL_V3.Execute("DELETE FROM ValueEquation");
+                DAL_V3.Execute("DELETE FROM ValueEquation WHERE CruiseID = @p1;", CruiseID);
 
 
                 foreach (ValueEquationDO ve in myVE)
                 {
-                    //Species TEXT NOT NULL,
-                    string Species = "";
-                    Species = ve.Species;
-
-                    //PrimaryProduct TEXT NOT NULL,
-                    string PrimaryProduct;
-                    PrimaryProduct = ve.PrimaryProduct;
-
-                    //ValueEquationNumber TEXT,
-                    string ValueEquationNumber;
-                    ValueEquationNumber = ve.ValueEquationNumber;
-
-                    //Grade TEXT,
-                    string Grade;
-                    Grade = ve.Grade;
-
-                    //Coefficient1 REAL Default 0.0,
-                    float Coefficient1;
-                    Coefficient1 = ve.Coefficient1;
-
-                    //Coefficient2 REAL Default 0.0,
-                    float Coefficient2;
-                    Coefficient2 = ve.Coefficient2;
-
-                    //Coefficient3 REAL Default 0.0,
-                    float Coefficient3;
-                    Coefficient3 = ve.Coefficient3;
-
-                    //Coefficient4 REAL Default 0.0,
-                    float Coefficient4;
-                    Coefficient4 = ve.Coefficient4;
-
-                    //Coefficient5 REAL Default 0.0,
-                    float Coefficient5;
-                    Coefficient5 = ve.Coefficient5;
-
-                    //Coefficient6 REAL Default 0.0,
-                    float Coefficient6;
-                    Coefficient6 = ve.Coefficient6;
-
                     DAL_V3.Execute2(
                     @"INSERT INTO ValueEquation (
                     CruiseID,
@@ -2300,17 +2213,16 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
                     new
                     {
                         CruiseID,
-                        Species,
-                        PrimaryProduct,
-                        ValueEquationNumber,
-                        Grade,
-                        Coefficient1,
-                        Coefficient2,
-                        Coefficient3,
-                        Coefficient4,
-                        Coefficient5,
-                        Coefficient6
-
+                        ve.Species,
+                        ve.PrimaryProduct,
+                        ve.ValueEquationNumber,
+                        ve.Grade,
+                        ve.Coefficient1,
+                        ve.Coefficient2,
+                        ve.Coefficient3,
+                        ve.Coefficient4,
+                        ve.Coefficient5,
+                        ve.Coefficient6
                     });
 
 
@@ -2327,18 +2239,7 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
 
         public bool saleWithNullSpecies()
         {
-            bool nullSpecies = false;
-
-            //DAL.Read<TreeDO>("SELECT * FROM Tree Where Species is null;", ).ToList();
-            List<TreeDO> myList = DAL.From<TreeDO>().Where("Species is null").Read().ToList();
-
-            if (myList.Count() > 0)
-            {
-                nullSpecies = true;
-            }
-
-            return nullSpecies;
-
+            return DAL.From<TreeDO>().Where("Species is null").Count() > 0;
         }
 
         #endregion
