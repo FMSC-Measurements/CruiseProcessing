@@ -16,7 +16,7 @@ namespace CruiseProcessing
     {
         private bool _isProcessed;
 
-        protected string CruiseID { get; } // for v3 files
+        public string CruiseID { get; } // for v3 files
         public string FilePath { get; }
         public DAL DAL { get; }
         public CruiseDatastore_V3 DAL_V3 { get; }
@@ -1165,30 +1165,108 @@ namespace CruiseProcessing
             List<VolumeEquationDO> volList = getVolumeEquations();
             foreach (VolumeEquationDO vdo in volList)
             {
-                int nthRow = volumeEquationList.FindIndex(
-                    delegate (VolumeEquationDO ve)
-                    {
-                        return ve.VolumeEquationNumber == vdo.VolumeEquationNumber && ve.Species == vdo.Species &&
-                                ve.PrimaryProduct == vdo.PrimaryProduct;
-                    });
-                if (nthRow < 0)
+                // if volumeEquationList doesn't contain vdo then delete it from the db
+                if (!volumeEquationList.Any(ve => ve.VolumeEquationNumber == vdo.VolumeEquationNumber && ve.Species == vdo.Species &&
+                                ve.PrimaryProduct == vdo.PrimaryProduct))
                 {
-                    vdo.Delete();
-                }//end if
-            }   //  end foreach loop
+                    DAL.Delete(vdo);
+                    DAL_V3.Execute("DELETE FROM VolumeEquation WHERE CruiseID = @p1 AND VolumeEquationNumber = @p2 AND Species = @p3 AND PrimaryProduct = @p4;",
+                        CruiseID, vdo.VolumeEquationNumber, vdo.Species, vdo.PrimaryProduct);
+                }
+
+            }
 
             foreach (VolumeEquationDO veq in volumeEquationList)
             {
-                if (veq.DAL == null)
+                DAL.Save(veq, option: Backpack.SqlBuilder.OnConflictOption.Replace);
+
+                if(DAL_V3 != null)
                 {
-                    veq.DAL = DAL;
+                    DAL_V3.Execute2(
+@"INSERT OR REPLACE INTO VolumeEquation (
+                    CruiseID,
+                    Species,
+                    PrimaryProduct,
+                    VolumeEquationNumber,
+                    StumpHeight,
+                    TopDIBPrimary,
+                    TopDIBSecondary,
+                    CalcTotal,
+                    CalcBoard,
+                    CalcCubic,
+                    CalcCord,
+                    CalcTopwood,
+                    CalcBiomass,
+                    Trim,
+                    SegmentationLogic,
+                    MinLogLengthPrimary,
+                    MaxLogLengthPrimary,
+                    MinMerchLength,
+                    Model,
+                    CommonSpeciesName,
+                    MerchModFlag,
+                    EvenOddSegment
+                ) VALUES (
+                    @CruiseID,
+                    @Species,
+                    @PrimaryProduct,
+                    @VolumeEquationNumber,
+                    @StumpHeight,
+                    @TopDIBPrimary,
+                    @TopDIBSecondary,
+                    @CalcTotal,
+                    @CalcBoard,
+                    @CalcCubic,
+                    @CalcCord,
+                    @CalcTopwood,
+                    @CalcBiomass,
+                    @Trim,
+                    @SegmentationLogic,
+                    @MinLogLengthPrimary,
+                    @MaxLogLengthPrimary,
+                    @MinMerchLength,
+                    @Model,
+                    @CommonSpeciesName,
+                    @MerchModFlag,
+                    @EvenOddSegment
+                );",
+new
+{
+    CruiseID,
+    veq.Species,
+    veq.PrimaryProduct,
+    veq.VolumeEquationNumber,
+    veq.StumpHeight,
+    veq.TopDIBPrimary,
+    veq.TopDIBSecondary,
+    veq.CalcTotal,
+    veq.CalcBoard,
+    veq.CalcCubic,
+    veq.CalcCord,
+    veq.CalcTopwood,
+    veq.CalcBiomass,
+    veq.Trim,
+    veq.SegmentationLogic,
+    veq.MinLogLengthPrimary,
+    veq.MaxLogLengthPrimary,
+    veq.MinMerchLength,
+    veq.Model,
+    veq.CommonSpeciesName,
+    veq.MerchModFlag,
+    veq.EvenOddSegment
+});
                 }
-                veq.Save();
-            }   //  end foreach loop
+            }
+        }
 
+        public void deleteVolumeEquations()
+        {
+            //  used only in region 8 volume equations to reset volEqs
 
-            return;
-        }   //  end SaveVolumeEquations
+            DAL.Execute("DELETE FROM VolumeEquation");
+
+            DAL_V3.Execute("DELETE FROM VolumeEquation WHERE CruiseID = @p1;", CruiseID);
+        }
 
 
 
@@ -1956,13 +2034,7 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
         }   //  end deleteErrorMessages
 
 
-        public void deleteVolumeEquations()
-        {
-            //  used only in region 8 volume equations to reset volEqs
 
-            DAL.Execute("DELETE FROM VolumeEquation");
-
-        }
 
 
         //  Regression table
@@ -2026,180 +2098,6 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
 
 
         #region V3 methods
-
-
-        public void syncVolumeEquationToV3()
-        {
-            List<VolumeEquationDO> myVE = this.getVolumeEquations();
-
-            //delete all from V3 file
-            DAL_V3.BeginTransaction();
-            try
-            {
-                //make sure the reports is empty.
-                DAL_V3.Execute("DELETE FROM VolumeEquation");
-
-                foreach (VolumeEquationDO volEq in myVE)
-                {
-                    int VolumeEquation_CN;  //   VolumeEquation_CN INTEGER PRIMARY KEY AUTOINCREMENT,
-
-                    string Species;                 //Species TEXT NOT NULL,
-                    Species = volEq.Species;
-
-                    string PrimaryProduct;          //PrimaryProduct TEXT NOT NULL,
-                    PrimaryProduct = volEq.PrimaryProduct;
-
-                    string VolumeEquationNumber;    //VolumeEquationNumber TEXT NOT NULL,
-                    VolumeEquationNumber = volEq.VolumeEquationNumber;
-
-                    float StumpHeight;              //StumpHeight REAL Default 0.0,
-                    StumpHeight = volEq.StumpHeight;
-
-                    float TopDIBPrimary;            //TopDIBPrimary REAL Default 0.0,
-                    TopDIBPrimary = volEq.TopDIBPrimary;
-
-                    float TopDIBSecondary;          //TopDIBSecondary REAL Default 0.0,
-                    TopDIBSecondary = volEq.TopDIBSecondary;
-
-                    long CalcTotal;                  //CalcTotal INTEGER Default 0,
-                    CalcTotal = volEq.CalcTotal;
-
-                    long CalcBoard;                  //CalcBoard INTEGER Default 0,
-                    CalcBoard = volEq.CalcBoard;
-
-                    long CalcCubic;                  //CalcCubic INTEGER Default 0,
-                    CalcCubic = volEq.CalcCubic;
-
-                    long CalcCord;                   //CalcCord INTEGER Default 0,
-                    CalcCord = volEq.CalcCord;
-
-                    long CalcTopwood;                //CalcTopwood INTEGER Default 0,
-                    CalcTopwood = volEq.CalcTopwood;
-
-                    long CalcBiomass;                //CalcBiomass INTEGER Default 0,
-                    CalcBiomass = volEq.CalcBiomass;
-
-                    float Trim;                     //Trim REAL Default 0.0,
-                    Trim = volEq.Trim;
-
-                    long SegmentationLogic;          //SegmentationLogic INTEGER Default 0,
-                    SegmentationLogic = volEq.SegmentationLogic;
-
-                    float MinLogLengthPrimary;      //MinLogLengthPrimary REAL Default 0.0,
-                    MinLogLengthPrimary = volEq.MinLogLengthPrimary;
-
-                    float MaxLogLengthPrimary;      //MaxLogLengthPrimary REAL Default 0.0,
-                    MaxLogLengthPrimary = volEq.MaxLogLengthPrimary;
-
-                    //float MinLogLengthSecondary;    no longer used in the data objects. //MinLogLengthSecondary REAL Default 0.0,
-
-                    //float MaxLogLengthSecondary;    No longer used //MaxLogLengthSecondary REAL Default 0.0, 
-                    //MaxLogLengthSecondary = volEq.MaxLogLengthSecondary;
-
-                    float MinMerchLength;           //MinMerchLength REAL Default 0.0,
-                    MinMerchLength = volEq.MinMerchLength;
-
-                    string Model;                   //Model TEXT,
-                    Model = volEq.Model;
-
-                    string CommonSpeciesName;       //CommonSpeciesName TEXT,
-                    CommonSpeciesName = volEq.CommonSpeciesName;
-
-                    long MerchModFlag;               //MerchModFlag INTEGER Default 0,
-                    MerchModFlag = volEq.MerchModFlag;
-
-                    long EvenOddSegment;             //EvenOddSegment INTEGER Default 0,
-                    EvenOddSegment = volEq.EvenOddSegment;
-
-
-                    DAL_V3.Execute2(
-                    @"INSERT INTO VolumeEquation (
-                    CruiseID,
-                    Species,
-                    PrimaryProduct,
-                    VolumeEquationNumber,
-                    StumpHeight,
-                    TopDIBPrimary,
-                    TopDIBSecondary,
-                    CalcTotal,
-                    CalcBoard,
-                    CalcCubic,
-                    CalcCord,
-                    CalcTopwood,
-                    CalcBiomass,
-                    Trim,
-                    SegmentationLogic,
-                    MinLogLengthPrimary,
-                    MaxLogLengthPrimary,
-                    MinMerchLength,
-                    Model,
-                    CommonSpeciesName,
-                    MerchModFlag,
-                    EvenOddSegment
-                ) VALUES (
-                    @CruiseID,
-                    @Species,
-                    @PrimaryProduct,
-                    @VolumeEquationNumber,
-                    @StumpHeight,
-                    @TopDIBPrimary,
-                    @TopDIBSecondary,
-                    @CalcTotal,
-                    @CalcBoard,
-                    @CalcCubic,
-                    @CalcCord,
-                    @CalcTopwood,
-                    @CalcBiomass,
-                    @Trim,
-                    @SegmentationLogic,
-                    @MinLogLengthPrimary,
-                    @MaxLogLengthPrimary,
-                    @MinMerchLength,
-                    @Model,
-                    @CommonSpeciesName,
-                    @MerchModFlag,
-                    @EvenOddSegment
-                );",
-                    new
-                    {
-                        CruiseID,
-                        Species,
-                        PrimaryProduct,
-                        VolumeEquationNumber,
-                        StumpHeight,
-                        TopDIBPrimary,
-                        TopDIBSecondary,
-                        CalcTotal,
-                        CalcBoard,
-                        CalcCubic,
-                        CalcCord,
-                        CalcTopwood,
-                        CalcBiomass,
-                        Trim,
-                        SegmentationLogic,
-                        MinLogLengthPrimary,
-                        MaxLogLengthPrimary,
-                        MinMerchLength,
-                        Model,
-                        CommonSpeciesName,
-                        MerchModFlag,
-                        EvenOddSegment
-                    });
-
-
-
-                }//end for each
-
-                DAL_V3.CommitTransaction();
-            }
-            catch
-            {
-                DAL_V3.RollbackTransaction();
-                throw;
-            }
-
-
-        }//end sync vol equation
 
         public void syncBiomassEquationToV3()
         {

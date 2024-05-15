@@ -424,7 +424,6 @@ namespace CruiseProcessing
             if (DataLayer.DAL_V3 != null)
             {
                 //on finish sync biomass and volume eq.
-                DataLayer.syncVolumeEquationToV3();
 
                 DataLayer.syncBiomassEquationToV3();
             }//end if
