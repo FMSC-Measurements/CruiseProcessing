@@ -34,7 +34,7 @@ namespace CruiseProcessing
         public void setupDialog()
         {
             //  Get unique species list from trees
-            ArrayList uniqueSpecies = DataLayer.GetJustSpecies("Tree");
+            var uniqueSpecies = DataLayer.GetDistinctTreeSpeciesCodes();
 
             //  any volume equations??
             List<VolumeEquationDO> volList = DataLayer.getVolumeEquations();
@@ -42,64 +42,41 @@ namespace CruiseProcessing
             {
                 //  Initialize dibs as zero
                 jstDIB.Clear();
-                for (int k = 0; k < uniqueSpecies.Count; k++)
+
+                foreach(var sp in uniqueSpecies)
                 {
+                    var species = sp ?? "";
+
                     JustDIBs jd = new JustDIBs();
-
-                    string species = "";
-
-                    if (uniqueSpecies[k] != null)
-                    {
-                        species = uniqueSpecies[k].ToString();
-                    }//end if
-                    else
-                    { 
-                        species = "";
-                    }//end else
-
                     jd.speciesDIB = species;
                     jd.productDIB = "01";
                     jd.primaryDIB = 0.0F;
                     jd.secondaryDIB = 0.0F;
                     jstDIB.Add(jd);
-                }   //  end for k loop
+                }
             }
             else if(volList.Count > 0)
             {
                 //  Initialize dibs from volume equations
                 jstDIB.Clear();
-                for (int k = 0; k < uniqueSpecies.Count; k++)
+
+
+                foreach (var sp in uniqueSpecies)
                 {
-                    JustDIBs jd = new JustDIBs();
+                    var species = sp ?? "";
 
-                    string species = "";
-
-                    if (uniqueSpecies[k] != null)
+                    var vol = volList.FirstOrDefault(x => x.Species == species);
+                    if (vol != null)
                     {
-                        species = uniqueSpecies[k].ToString();
-                    }//end if
-                    else
-                    {
-                        species = "";
-                    }//end else
-
-                    string currentSpecies = species;
-
-                    int nthRow = volList.FindIndex(
-                        delegate(VolumeEquationDO v)
-                        {
-                            //return v.Species == currentSpecies && v.PrimaryProduct == "01";
-                            return v.Species == currentSpecies;
-                        });
-                    if (nthRow >= 0)
-                    {
-                        jd.speciesDIB = currentSpecies;
-                        jd.productDIB = volList[nthRow].PrimaryProduct.ToString();
-                        jd.primaryDIB = (float)volList[nthRow].TopDIBPrimary;
-                        jd.secondaryDIB = (float)volList[nthRow].TopDIBSecondary;
+                        JustDIBs jd = new JustDIBs();
+                        jd.speciesDIB = species;
+                        jd.productDIB = vol.PrimaryProduct.ToString();
+                        jd.primaryDIB = (float)vol.TopDIBPrimary;
+                        jd.secondaryDIB = (float)vol.TopDIBSecondary;
                         jstDIB.Add(jd);
-                    }   //  endif nthRow
-                }   //  end for k loop
+                    }
+                }
+
             }   //  endif volumes
 
             //  Now the list can be loaded into the data grid -- it is not bound

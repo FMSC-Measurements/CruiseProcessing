@@ -13,6 +13,7 @@ using CruiseDAL.Schema;
 using System.Runtime.InteropServices;
 using CruiseProcessing.Services;
 using CruiseProcessing.Data;
+using CruiseProcessing.Models;
 
 namespace CruiseProcessing
 {

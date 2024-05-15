@@ -244,7 +244,7 @@
             // 
             // regressGroupsBindingSource
             // 
-            this.regressGroupsBindingSource.DataSource = typeof(CruiseProcessing.RegressGroups);
+            this.regressGroupsBindingSource.DataSource = typeof(CruiseProcessing.Models.RegressGroups);
             // 
             // LocalVolume
             // 

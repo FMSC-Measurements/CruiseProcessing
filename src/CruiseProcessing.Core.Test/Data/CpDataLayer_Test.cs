@@ -14,13 +14,27 @@ using Reports = CruiseDAL.V3.Models.Reports;
 
 namespace CruiseProcessing.Test.Data
 {
-    public class CPbusinessLayer_Test : TestBase
+    public class CpDataLayer_Test : TestBase
     {
-        public CPbusinessLayer_Test(ITestOutputHelper output) : base(output)
+        public CpDataLayer_Test(ITestOutputHelper output) : base(output)
         {
         }
 
+        [Fact]
+        public void GetStratumCodesByUnit()
+        {
+            var init = new DatabaseInitializer_V2();
 
+            var v2db = init.CreateDatabase();
+
+            var dataLayer = new CpDataLayer(v2db);
+
+            var units = dataLayer.getCuttingUnits();
+
+            var unitCode = units.First().Code;
+            var stCodes = dataLayer.GetStratumCodesByUnit(unitCode);
+            stCodes.Should().HaveSameCount(init.UnitStrata.Where(x => x.UnitCode == unitCode));
+        }
 
         [Fact]
         public void SaveReports()
