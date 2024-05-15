@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
@@ -18,7 +19,7 @@ namespace CruiseProcessing
         // TODO this should be pretty easy to remove as class field
         private int tableCounter = 0;
 
-        public OutputR5(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR5(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

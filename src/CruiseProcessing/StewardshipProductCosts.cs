@@ -8,20 +8,21 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
     public partial class StewardshipProductCosts : Form
     {
         public List<StewProductCosts> StewList { get; } = new List<StewProductCosts>();
-        public CPbusinessLayer DataLayer { get; }
+        public CpDataLayer DataLayer { get; }
 
         protected StewardshipProductCosts()
         {
             InitializeComponent();
         }
 
-        public StewardshipProductCosts(CPbusinessLayer dataLayer)
+        public StewardshipProductCosts(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

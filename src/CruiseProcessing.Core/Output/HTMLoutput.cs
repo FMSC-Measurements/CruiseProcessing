@@ -7,6 +7,7 @@ using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using CruiseProcessing.Services;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -19,10 +20,10 @@ namespace CruiseProcessing
 	                                                   "<H2><A name=XXXX>XX</A></H2>",
 	                                                   "<H2><A href=\"#Index\">Back to Index</A></H2>",
 	                                                   "</pre>"};
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IDialogService DialogService { get; }
 
-        public HTMLoutput(CPbusinessLayer dataLayer, IDialogService dialogService)
+        public HTMLoutput(CpDataLayer dataLayer, IDialogService dialogService)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));

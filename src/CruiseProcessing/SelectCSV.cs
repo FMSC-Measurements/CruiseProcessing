@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CruiseProcessing.Services;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -30,7 +31,7 @@ namespace CruiseProcessing
                                                         "TimberTheft.csv",
                                                         "ReportVSM4.csv"};
         
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IDialogService DialogService { get; }
 
         protected SelectCSV()
@@ -38,7 +39,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public SelectCSV(CPbusinessLayer dataLayer, IDialogService dialogService)
+        public SelectCSV(CpDataLayer dataLayer, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

@@ -6,6 +6,7 @@ using System.Text;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using static CruiseProcessing.Output.ReportGeneratorBase;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -185,7 +186,7 @@ namespace CruiseProcessing
         }   //  end GetCutOnlyMultipleValue
 
 
-        public static List<LCDDO> GetCutGroupedBy(string currST, string currPP, int groupBy, CPbusinessLayer bslyr)
+        public static List<LCDDO> GetCutGroupedBy(string currST, string currPP, int groupBy, CpDataLayer bslyr)
         {
             List<LCDDO> LCDlist = new List<LCDDO>();
             if (currST != "")
@@ -227,7 +228,7 @@ namespace CruiseProcessing
         }   //  end GetCutGroupedBy
 
 
-        public static List<LCDDO> GetStratumGroupedBy(string currentST, CPbusinessLayer dataLayer)
+        public static List<LCDDO> GetStratumGroupedBy(string currentST, CpDataLayer dataLayer)
         {
             List<LCDDO> justStratum = new List<LCDDO>();
             justStratum = dataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2  GROUP BY ","SampleGroup,Species,STM","C",currentST);

@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
@@ -16,7 +17,7 @@ namespace CruiseProcessing
         private List<ReportSubtotal> totalToOutput = new List<ReportSubtotal>();
         private double totalSaleAcres = 0;
 
-        public OutputR3(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR3(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

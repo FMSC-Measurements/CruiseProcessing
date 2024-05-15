@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Services;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -20,10 +21,10 @@ namespace CruiseProcessing
         private string currSaleName;
         private string currDate;
         private StringBuilder ReportTitle = new StringBuilder();
-        public CPbusinessLayer DataLayer { get; }
+        public CpDataLayer DataLayer { get; }
         public IDialogService DialogService { get; }
 
-        public LocalVolumeReports(CPbusinessLayer dataLayer, IDialogService dialogService)
+        public LocalVolumeReports(CpDataLayer dataLayer, IDialogService dialogService)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));

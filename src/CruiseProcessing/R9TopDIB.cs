@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -16,7 +17,7 @@ namespace CruiseProcessing
     {
         public List<JustDIBs> jstDIB = new List<JustDIBs>();
         private int selectedRow;
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
 
         protected R9TopDIB()
@@ -24,7 +25,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R9TopDIB(CPbusinessLayer dataLayer)
+        public R9TopDIB(CpDataLayer dataLayer)
             :this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

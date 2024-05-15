@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
 using System.Collections;
@@ -37,7 +38,7 @@ namespace CruiseProcessing
         private long currSTcn;
         private long currCUcn;
 
-        public OutputR9(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR9(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

@@ -8,12 +8,13 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
     public partial class GraphReportsDialog : Form
     {
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         private List<ReportsDO> reportList = new List<ReportsDO>();
 
         protected GraphReportsDialog()
@@ -21,7 +22,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public GraphReportsDialog(CPbusinessLayer dataLayer)
+        public GraphReportsDialog(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

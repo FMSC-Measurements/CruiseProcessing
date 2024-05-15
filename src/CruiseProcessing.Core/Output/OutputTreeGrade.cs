@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -18,7 +19,7 @@ namespace CruiseProcessing
         private List<ReportSubtotal> saleTotal = new List<ReportSubtotal>();
         private List<ReportSubtotal> eachLine = new List<ReportSubtotal>();
 
-        public OutputTreeGrade(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputTreeGrade(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

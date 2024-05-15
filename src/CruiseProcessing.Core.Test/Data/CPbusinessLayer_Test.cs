@@ -1,5 +1,6 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using FluentAssertions;
 using NSubstitute.Extensions;
 using System;
@@ -28,7 +29,7 @@ namespace CruiseProcessing.Test.Data
 
             var v2db = init.CreateDatabase();
 
-            var dataLayer = new CPbusinessLayer(v2db);
+            var dataLayer = new CpDataLayer(v2db);
 
             dataLayer.GetReports().Should().BeEmpty();
 
@@ -59,7 +60,7 @@ namespace CruiseProcessing.Test.Data
             var migrator = new DownMigrator();
             migrator.MigrateFromV3ToV2(initV3.CruiseID, v3db, v2db);
 
-            var dataLayer = new CPbusinessLayer(v2db, v3db, initV3.CruiseID);
+            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID);
 
             dataLayer.GetReports().Should().BeEmpty();
 

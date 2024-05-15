@@ -1,5 +1,6 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
@@ -60,7 +61,7 @@ namespace CruiseProcessing.Test.Output
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal);
+            var dataLayer = new CpDataLayer(dal);
 
             List<TreeDO> tList = dataLayer.getTrees();
             double summedEF = tList.Sum(t => t.ExpansionFactor);

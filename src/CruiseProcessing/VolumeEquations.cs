@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -28,7 +29,7 @@ namespace CruiseProcessing
             StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref,
             int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
 
-        public CPbusinessLayer DataLayer { get; }
+        public CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
         protected VolumeEquations()
@@ -36,7 +37,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public VolumeEquations(CPbusinessLayer dataLayer, IServiceProvider services)
+        public VolumeEquations(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

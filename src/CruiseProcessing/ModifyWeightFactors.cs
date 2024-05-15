@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
@@ -15,7 +16,7 @@ namespace CruiseProcessing
     public partial class ModifyWeightFactors : Form
     {
         public List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
         protected ModifyWeightFactors()
@@ -23,7 +24,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public ModifyWeightFactors(CPbusinessLayer dataLayer, IServiceProvider services)
+        public ModifyWeightFactors(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
@@ -20,7 +21,7 @@ namespace CruiseProcessing
         private string[] columnHeader = new string[] { "" };
         private double weightFraction = 0;
 
-        public OutputR2(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR2(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

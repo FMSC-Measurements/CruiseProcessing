@@ -7,12 +7,11 @@ using CruiseDAL;
 using System;
 using CruiseProcessing.Output;
 using System.Reflection;
-using CruiseProcessing.Data;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 
-namespace CruiseProcessing
+namespace CruiseProcessing.Data
 {
-    public class CPbusinessLayer : ObservableObject, IErrorLogDataService
+    public class CpDataLayer : ObservableObject, IErrorLogDataService
     {
         private bool _isProcessed;
 
@@ -31,7 +30,7 @@ namespace CruiseProcessing
             set => SetProperty(ref _isProcessed, value);
         }
 
-        public CPbusinessLayer(DAL dal, bool isTemplateFile = false)
+        public CpDataLayer(DAL dal, bool isTemplateFile = false)
         {
             DAL = dal;
             FilePath = DAL.Path;
@@ -43,7 +42,7 @@ namespace CruiseProcessing
             IsTemplateFile = isTemplateFile;
         }
 
-        public CPbusinessLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID, bool isTemplateFile = false)
+        public CpDataLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID, bool isTemplateFile = false)
             : this(dal, isTemplateFile)
         {
             if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }

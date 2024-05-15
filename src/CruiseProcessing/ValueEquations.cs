@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 
 namespace CruiseProcessing
@@ -21,14 +22,14 @@ namespace CruiseProcessing
         private string equationPrefix = "VLPP";
         private List<ValueEquationDO> valList = new List<ValueEquationDO>();
         private int trackRow = -1;
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
         protected ValueEquations()
         {
             InitializeComponent();
         }
 
-        public ValueEquations(CPbusinessLayer dataLayer)
+        public ValueEquations(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

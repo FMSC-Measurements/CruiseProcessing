@@ -7,6 +7,7 @@ using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Services;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -14,11 +15,11 @@ namespace CruiseProcessing
     {
         public string currentRegion { get; }
         public string textFile { get; }
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         protected string FilePath => DataLayer.FilePath;
         protected SaleDO Sale { get; }
 
-        public CreateTextFile(CPbusinessLayer dataLayer)
+        public CreateTextFile(CpDataLayer dataLayer)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             textFile = System.IO.Path.ChangeExtension(FilePath, "out");

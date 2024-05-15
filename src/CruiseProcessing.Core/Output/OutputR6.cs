@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace CruiseProcessing
         private string volumeType = "***** CCF *****";
         private int tableNumber = 1;
 
-        public OutputR6(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR6(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

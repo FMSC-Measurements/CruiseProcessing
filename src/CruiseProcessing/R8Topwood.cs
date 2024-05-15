@@ -7,13 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Collections;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
     public partial class R8Topwood : Form
     {
         public string[] checkStatus = new string[30];
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
 
         protected R8Topwood()
@@ -21,7 +22,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R8Topwood(CPbusinessLayer dataLayer)
+        public R8Topwood(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
