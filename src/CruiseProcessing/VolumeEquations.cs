@@ -123,13 +123,17 @@ namespace CruiseProcessing
             volumeEquationList.DataSource = volumeEquationDOBindingSource;
 
             //  also add species and product to combo boxes at bottom
-            ArrayList justSpecies = DataLayer.GetJustSpecies("TreeDefaultValue");
-            for (int n = 0; n < justSpecies.Count; n++)
-                speciesList.Items.Add(justSpecies[n].ToString());
+            var justSpecies = DataLayer.GetAllSpeciesCodes();
+            foreach(var sp in justSpecies)
+            {
+                speciesList.Items.Add(sp);
+            }
 
-            ArrayList justProduct = DataLayer.GetJustPrimaryProduct();
-            for (int n = 0; n < justProduct.Count; n++)
-                productList.Items.Add(justProduct[n].ToString());
+            var justProduct = DataLayer.GetDistincePrimaryProductCodes();
+            foreach(var prod in  justProduct)
+            {
+                productList.Items.Add(prod);
+            }
 
             volRegion.Enabled = false;
             volForest.Enabled = false;

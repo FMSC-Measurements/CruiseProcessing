@@ -145,23 +145,14 @@ namespace CruiseProcessing
                 checkStatus[k] = "0";
 
             // Add species code to checkbox text area and set check to true
-            ArrayList justSpecies = DataLayer.GetJustSpecies("Tree");
-            
-            for (int k = 0; k < justSpecies.Count; k++)
+            var justSpecies = DataLayer.GetDistinctTreeSpeciesCodes();
+
+            foreach(var (sp, i) in justSpecies.Select((sp, i) => (sp,i)))
             {
-                string species = "";
-                if(justSpecies[k] != null)
-                {
-                    species = justSpecies[k].ToString();
-                }//end if
-                else
-                {
-                    species = "";//null
-                }
-
-                loadCheckBox(k + 1, species);
-
-            }   //  end for k loop
+                var species = sp ?? "";
+                loadCheckBox(i + 1, species);
+            }
+            
         }   //  end setupDialog
 
 

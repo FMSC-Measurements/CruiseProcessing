@@ -926,11 +926,11 @@ namespace CruiseProcessing
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
             //  or sample groups for UC6
-            ArrayList groupsToProcess = new ArrayList();
+            IEnumerable<string> groupsToProcess = Enumerable.Empty<string>();
             if (currentReport == "UC5" || currentReport == "LV05")
-                groupsToProcess = DataLayer.GetJustSpecies("Tree");
+                groupsToProcess = DataLayer.GetDistinctTreeSpeciesCodes();
             else if (currentReport == "UC6")
-                groupsToProcess = DataLayer.GetJustSampleGroups();
+                groupsToProcess = DataLayer.GetDistinctSampleGroupCodes();
             foreach (string gtp in groupsToProcess)
             {
                 //  pull data based on strata method and species

@@ -199,8 +199,7 @@ namespace CruiseProcessing
             //  overloaded to properly print UC5-UC6
             //  pull distinct species from measured trees in Tree to get species groups for each unit for UC5
             //  or sample groups for UC6
-            ArrayList groupsToProcess = new ArrayList();
-            groupsToProcess = DataLayer.GetJustSpecies("Tree");
+            var groupsToProcess = DataLayer.GetDistinctTreeSpeciesCodes();
             foreach (string gtp in groupsToProcess)
             {
                 //  pull data based on strata method and species

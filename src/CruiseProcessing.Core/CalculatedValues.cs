@@ -90,7 +90,7 @@ namespace CruiseProcessing
                 //  Load LCD population IDs
                 //  Need unique species, livedead and grade from Tree table
                 // not sure about the count table -- need IDs from there?  11/2012
-                List<TreeDO> distinctSpecies = DataLayer.GetDistinctSpecies((long)sgd.SampleGroup_CN);
+                List<TreeDO> distinctSpecies = DataLayer.GetDistinctSpeciesLiveDeadGradeStm((long)sgd.SampleGroup_CN);
                 foreach(TreeDO t in distinctSpecies)
                 {
                     LCDDO lcd = new LCDDO();

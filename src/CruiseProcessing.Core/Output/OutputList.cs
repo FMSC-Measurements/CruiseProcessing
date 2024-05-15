@@ -295,18 +295,17 @@ namespace CruiseProcessing
                     {
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.A01payment, 9, ref pageNumb, "");
                         //  need stratum for each cutting unit
-                        ArrayList strataList = DataLayer.GetUnitStrata(cud.Code);
-                        if (strataList.Count > 0)
+                        var strataList = DataLayer.GetStratumCodesByUnit(cud.Code);
+                        if (strataList.Count() > 0)
                         {
-                            foreach (object obj in strataList)
+                            foreach (string stratumCode in strataList)
                             {
-                                string stratumCode = Convert.ToString(obj);
                                 prtFields = CuttingUnitMethods.buildPrintArray(cud, HeaderData[3].ToString(),
                                                                                 stratumCode);
                                 printOneRecord(fieldLengths, prtFields, strWriteOut);
                             }   //  end foreach stratum
                         }
-                        else if (strataList.Count == 0)
+                        else if (strataList.Count() == 0)
                         {
                             prtFields = CuttingUnitMethods.buildPrintArray(cud, HeaderData[3].ToString(), "  ");
                             printOneRecord(fieldLengths, prtFields, strWriteOut);
