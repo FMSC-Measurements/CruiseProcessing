@@ -236,11 +236,6 @@ namespace CruiseProcessing
             //  save volume equation list
             DataLayer.SaveVolumeEquations(vList);
 
-            if (DataLayer.DAL_V3 != null)
-            {
-                DataLayer.syncVolumeEquationToV3();
-            }//end if
-
             Close();
             return;
         }
