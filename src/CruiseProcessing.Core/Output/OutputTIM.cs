@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -19,7 +20,7 @@ namespace CruiseProcessing
         private List<SumFields> sumList = new List<SumFields>();
         #endregion
 
-        public OutputTIM(CPbusinessLayer dataLayer, HeaderFieldData headerData) : base(dataLayer) // no report id
+        public OutputTIM(CpDataLayer dataLayer, HeaderFieldData headerData) : base(dataLayer) // no report id
         {
             currentVersion = headerData.Version;
             cruiseNum = headerData.CruiseName;

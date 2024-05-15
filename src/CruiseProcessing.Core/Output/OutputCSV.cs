@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
@@ -25,7 +26,7 @@ namespace CruiseProcessing
 
         public IDialogService DialogService { get; }
 
-        public OutputCSV(CPbusinessLayer dataLayer, IDialogService dialogService, string reportID) : base(dataLayer, reportID)
+        public OutputCSV(CpDataLayer dataLayer, IDialogService dialogService, string reportID) : base(dataLayer, reportID)
         {
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }

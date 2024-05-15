@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
@@ -60,7 +61,7 @@ namespace CruiseProcessing
                                                        " TABLE                                                                                   IDENTIFICATION",
                                                        " NAME               ERROR                                                                ST CU  PL   TR   LG  SP     SG PR EQ"};
 
-        public ErrorReport(CPbusinessLayer dataLayer, HeaderFieldData headerData) 
+        public ErrorReport(CpDataLayer dataLayer, HeaderFieldData headerData) 
             : base(dataLayer, headerData) // this report has its own writeHeaders method so it doesn't use HeaderFieldData
         {
             Sale = DataLayer.GetSale();

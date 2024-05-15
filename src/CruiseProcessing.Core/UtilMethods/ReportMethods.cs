@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -12,7 +13,7 @@ namespace CruiseProcessing
         public static readonly string[] CSV_REPORTS = new string[6] { "CSV1", "CSV2", "CSV3", "CSV4", "CSV5", "CSV6" };
 
         // I dont think csv reports 
-        public static void deleteCSVReports(List<ReportsDO> rList, CPbusinessLayer bslyr)
+        public static void deleteCSVReports(List<ReportsDO> rList, CpDataLayer bslyr)
         {
             //  probably used infrequently
             //  currently deletes CSV reports from the reports list

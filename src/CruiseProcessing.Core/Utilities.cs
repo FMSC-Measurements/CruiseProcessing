@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -11,7 +12,7 @@ namespace CruiseProcessing
     {
 
         //  AcresLookup will go away once the updated ReturnCorrectAcres is tested and complete
-        public static double AcresLookup(long currStrCN, CPbusinessLayer bslyr, string currStratum)
+        public static double AcresLookup(long currStrCN, CpDataLayer bslyr, string currStratum)
         {
             //  Need call to CP business layer to get all CUs for this stratum
             List<StratumDO> stratumList = bslyr.GetCurrentStratum(currStratum);
@@ -28,7 +29,7 @@ namespace CruiseProcessing
         }   //  end AcresLookup
 
 
-        public static double ReturnCorrectAcres(string currentStratum, CPbusinessLayer bslyr, long currStrCN)
+        public static double ReturnCorrectAcres(string currentStratum, CpDataLayer bslyr, long currStrCN)
         {
             string currentMethod = MethodLookup(currentStratum, bslyr);
             if (currentMethod == "100" || currentMethod == "STR" ||
@@ -63,7 +64,7 @@ namespace CruiseProcessing
         }   //  end ReturnCorrectAcres
         */
 
-        public static double unitAcres(List<CuttingUnitStratumDO> justStratum, CPbusinessLayer bslyr)
+        public static double unitAcres(List<CuttingUnitStratumDO> justStratum, CpDataLayer bslyr)
         {
             List<CuttingUnitDO> cutList = bslyr.getCuttingUnits();
             double acresSum = 0;
@@ -83,7 +84,7 @@ namespace CruiseProcessing
         }   //  end unitAcres
 
 
-        public static string MethodLookup(string currentStratum, CPbusinessLayer bslyr)
+        public static string MethodLookup(string currentStratum, CpDataLayer bslyr)
         {
             //  Need to call CP business layer to get stratum list
             List<StratumDO> stratumList = bslyr.GetCurrentStratum(currentStratum);
@@ -118,7 +119,7 @@ namespace CruiseProcessing
             }
         }   //  end CurrentDLLversion
 
-        public static string GetIdentifier(string tableName, long CNtoFind, CPbusinessLayer bslyr)
+        public static string GetIdentifier(string tableName, long CNtoFind, CpDataLayer bslyr)
         {
             StringBuilder ident = new StringBuilder();
             int ithRow = -1;

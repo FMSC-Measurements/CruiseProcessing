@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace CruiseProcessing
         private double totalGrsS = 0.0;
         private double totalNetS = 0.0;
 
-        public OutputLiveDead(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputLiveDead(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

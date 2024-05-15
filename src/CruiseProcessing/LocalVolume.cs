@@ -12,6 +12,7 @@ using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using System.Runtime.InteropServices;
 using CruiseProcessing.Services;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -43,7 +44,7 @@ namespace CruiseProcessing
         private static StringBuilder MainTitle_TW = new StringBuilder(256);
         
 
-        protected CPbusinessLayer DataLayer {get;}
+        protected CpDataLayer DataLayer {get;}
         public IDialogService DialogService { get; }
 
         protected LocalVolume()
@@ -51,7 +52,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public LocalVolume(CPbusinessLayer dataLayer, IDialogService dialogService)
+        public LocalVolume(CpDataLayer dataLayer, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

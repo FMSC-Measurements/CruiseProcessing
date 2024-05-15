@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace CruiseProcessing
 {
     public class OutputEquationTables : OutputFileReportGeneratorBase
     {
-        public OutputEquationTables(CPbusinessLayer dataLayer, HeaderFieldData headerData) : base(dataLayer, headerData)
+        public OutputEquationTables(CpDataLayer dataLayer, HeaderFieldData headerData) : base(dataLayer, headerData)
         {
         }
 

@@ -1,5 +1,6 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -59,7 +60,7 @@ namespace CruiseProcessing.ViewModel
             
         }
 
-        public CPbusinessLayer? DataLayer => DataserviceProvider.DataLayer;
+        public CpDataLayer? DataLayer => DataserviceProvider.DataLayer;
 
         public IServiceProvider Services { get; }
         public DataLayerContext DataserviceProvider { get; }
@@ -385,7 +386,7 @@ namespace CruiseProcessing.ViewModel
             //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
             dal.OpenConnection();
 
-            var datalayer = new CPbusinessLayer(dal, dal_v3, cruiseID, isTemplate);
+            var datalayer = new CpDataLayer(dal, dal_v3, cruiseID, isTemplate);
 
             if (!isTemplate)
             {

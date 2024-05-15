@@ -1,4 +1,5 @@
-﻿using CruiseProcessing.Services;
+﻿using CruiseProcessing.Data;
+using CruiseProcessing.Services;
 using CruiseProcessing.Services.Logging;
 using CruiseProcessing.ViewModel;
 using CruiseProcessing.Views;
@@ -133,7 +134,7 @@ namespace CruiseProcessing
             services.AddSingleton<DialogService>();
             services.AddTransient<IDialogService>(x => x.GetRequiredService<DialogService>());
             services.AddSingleton<DataLayerContext>();
-            services.AddTransient<CPbusinessLayer>(x => x.GetRequiredService<DataLayerContext>().DataLayer);
+            services.AddTransient<CpDataLayer>(x => x.GetRequiredService<DataLayerContext>().DataLayer);
         }
     }
 }

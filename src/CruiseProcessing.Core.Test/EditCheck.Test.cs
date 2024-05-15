@@ -1,4 +1,5 @@
 ﻿using CruiseDAL;
+using CruiseProcessing.Data;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
@@ -60,7 +61,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal);
+            var dataLayer = new CpDataLayer(dal);
 
 
             var errors = EditChecks.CheckErrors(dataLayer);

@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,7 +38,7 @@ namespace CruiseProcessing
             public double tpValSqRP { get; set; }
         }   //  end class TempPOPvalues
 
-        public static void SumAllValues(CPbusinessLayer dataLayer, StratumDO st, List<PlotDO> pList,
+        public static void SumAllValues(CpDataLayer dataLayer, StratumDO st, List<PlotDO> pList,
                                         List<LCDDO> justCurrentLCD, List<POPDO> justCurrentPOP, List<PRODO> justCurrentPRO)
         {
             var currMeth = st.Method;
@@ -371,7 +372,7 @@ namespace CruiseProcessing
             return;
         }   //  end SumUpJustFixcnt
 
-        private static void CalculateRatios(IList<TempPOPvalues> tpopList, CPbusinessLayer dataLayer, List<TreeCalculatedValuesDO> tcvList, string currMethod,
+        private static void CalculateRatios(IList<TempPOPvalues> tpopList, CpDataLayer dataLayer, List<TreeCalculatedValuesDO> tcvList, string currMethod,
                                                 POPDO pdo, double recvSum)
         {
             //  need to capture plot number as methods such as 3P will have a plot_cn of zero instead a blank plot number
@@ -616,7 +617,7 @@ namespace CruiseProcessing
             return;
         }   //  end CalcAndStoreRecovered
 
-        private static void CalculatePlotValues(IList<TempPOPvalues> tpopList, CPbusinessLayer dataLayer,
+        private static void CalculatePlotValues(IList<TempPOPvalues> tpopList, CpDataLayer dataLayer,
             string currMethod, POPDO pdo, double recvSum, List<TreeCalculatedValuesDO> tcvList, List<PlotDO> justPlots, double theExpanFac)
         {
 

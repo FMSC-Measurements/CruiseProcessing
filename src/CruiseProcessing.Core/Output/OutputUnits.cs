@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -41,7 +42,7 @@ namespace CruiseProcessing
         private long currSTcn;
         private long currCUcn;
 
-        public OutputUnits(string currCL, CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputUnits(string currCL, CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
             this.currCL = currCL;
         }

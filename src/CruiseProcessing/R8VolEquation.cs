@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -69,7 +70,7 @@ namespace CruiseProcessing
                                                          {"13","04","5","29"},
                                                          {"13","07","5","28"}};
 
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
         protected R8VolEquation()
@@ -77,7 +78,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R8VolEquation(CPbusinessLayer dataLayer, IServiceProvider services)
+        public R8VolEquation(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

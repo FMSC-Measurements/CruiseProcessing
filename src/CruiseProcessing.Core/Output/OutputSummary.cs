@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -24,7 +25,7 @@ namespace CruiseProcessing
         private int[] sourceFlag = new int[3];
         private List<ReportSubtotal> rptSubtotal = new List<ReportSubtotal>();
 
-        public OutputSummary(string currCL, CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputSummary(string currCL, CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
             this.currCL = currCL;
         }

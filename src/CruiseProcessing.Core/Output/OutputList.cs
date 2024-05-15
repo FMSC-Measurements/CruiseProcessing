@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
 using System.Collections;
@@ -20,7 +21,7 @@ namespace CruiseProcessing
         private List<LogStockDO> lsList = new List<LogStockDO>();
         private List<PlotDO> pList = new List<PlotDO>();
 
-        public OutputList(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputList(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

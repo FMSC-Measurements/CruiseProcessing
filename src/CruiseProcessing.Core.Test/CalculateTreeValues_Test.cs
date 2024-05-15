@@ -1,4 +1,5 @@
 ﻿using CruiseDAL;
+using CruiseProcessing.Data;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
@@ -66,7 +67,7 @@ namespace CruiseProcessing.Test
 
 
             var dal = new DAL(filePath);
-            var dataLayer = new CPbusinessLayer(dal);
+            var dataLayer = new CpDataLayer(dal);
             var ctv = new CalculateTreeValues(dataLayer);
 
             var trees = dataLayer.getTrees();

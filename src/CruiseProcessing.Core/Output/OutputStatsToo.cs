@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 
 namespace CruiseProcessing
@@ -26,7 +27,7 @@ namespace CruiseProcessing
         private List<ReportSubtotal> totalStrata = new List<ReportSubtotal>();
         private List<StatSums> groupSums = new List<StatSums>();
 
-        public OutputStatsToo(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputStatsToo(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

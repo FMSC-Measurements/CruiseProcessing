@@ -1,4 +1,5 @@
 ﻿using CruiseDAL;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using DiffPlex.DiffBuilder;
 using FluentAssertions;
@@ -23,7 +24,7 @@ namespace CruiseProcessing.Test
             
         }
 
-        private Mock<IServiceProvider> GetServiceProviderMock(CPbusinessLayer datalayer)
+        private Mock<IServiceProvider> GetServiceProviderMock(CpDataLayer datalayer)
         {
             var mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
@@ -76,7 +77,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal);
+            var dataLayer = new CpDataLayer(dal);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -133,7 +134,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal);
+            var dataLayer = new CpDataLayer(dal);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -200,7 +201,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
 
-            var dataLayer = new CPbusinessLayer(dal);
+            var dataLayer = new CpDataLayer(dal);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();

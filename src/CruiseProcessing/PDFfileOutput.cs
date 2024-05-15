@@ -13,6 +13,7 @@ using iTextSharp.text.pdf;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using Microsoft.Extensions.DependencyInjection;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -22,7 +23,7 @@ namespace CruiseProcessing
         private string PDFoutFile;
         private ArrayList graphReports = new ArrayList();
         private string[] graphFlag = new string[9];
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
         protected PDFfileOutput()
@@ -30,7 +31,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public PDFfileOutput(CPbusinessLayer dataLayer, IServiceProvider services)
+        public PDFfileOutput(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

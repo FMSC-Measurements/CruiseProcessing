@@ -5,14 +5,15 @@ using System.Text;
 using CruiseDAL.DataObjects;
 using CruiseDAL;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
     public class CalculatedValues
     {
-        private CPbusinessLayer DataLayer;
+        private CpDataLayer DataLayer;
 
-        public CalculatedValues(CPbusinessLayer dataLayer)
+        public CalculatedValues(CpDataLayer dataLayer)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }

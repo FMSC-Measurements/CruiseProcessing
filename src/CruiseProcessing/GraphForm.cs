@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using ZedGraph;
 
@@ -28,14 +29,14 @@ namespace CruiseProcessing
         public List<LogStockDO> logStockList = new List<LogStockDO>();
         public List<LCDDO> lcdList = new List<LCDDO>();
 
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
         public GraphForm()
         {
             InitializeComponent();
         }
 
-        public GraphForm(CPbusinessLayer dataLayer)
+        public GraphForm(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
