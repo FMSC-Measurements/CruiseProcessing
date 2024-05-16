@@ -1,7 +1,9 @@
 ﻿using CruiseDAL;
 using CruiseDAL.V3.Models;
 using System;
+using System.Drawing;
 using System.Linq;
+using System.Web.UI.WebControls;
 
 namespace CruiseProcessing.Test
 {
@@ -10,7 +12,7 @@ namespace CruiseProcessing.Test
         public string CruiseID { get; set; }
         public string SaleID { get; set; }
         public string SaleNumber { get; set; }
-
+        public string Region { get; set; }
         public string[] Units { get; set; }
         public Stratum[] Strata { get; set; }
         public CuttingUnit_Stratum[] UnitStrata { get; set; }
@@ -27,6 +29,7 @@ namespace CruiseProcessing.Test
             CruiseID = Guid.NewGuid().ToString();
             var saleID = SaleID = Guid.NewGuid().ToString();
             SaleNumber = (saleID.GetHashCode() % 10000).ToString();
+            Region = "01";
 
             if (includeDesign)
             {
@@ -35,51 +38,51 @@ namespace CruiseProcessing.Test
 
                 var plotStrata = PlotStrata = new[]
                 {
-                new Stratum{ StratumCode = "st1", Method = "PNT" },
-                new Stratum{ StratumCode = "st2", Method = "PCM" },
+                    new Stratum{ StratumCode = "st1", Method = "PNT" },
+                    new Stratum{ StratumCode = "st2", Method = "PCM" },
                 };
 
                 var nonPlotStrata = NonPlotStrata = new[]
                 {
-                new Stratum{ StratumCode = "st3", Method = "STR" },
-                new Stratum{ StratumCode = "st4", Method = "STR" },
+                    new Stratum{ StratumCode = "st3", Method = "STR" },
+                    new Stratum{ StratumCode = "st4", Method = "STR" },
                 };
 
                 var strata = Strata = plotStrata.Concat(nonPlotStrata).ToArray();
 
                 UnitStrata = new[]
                 {
-                new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = plotStrata[0].StratumCode },
-                new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = plotStrata[1].StratumCode},
-                new CuttingUnit_Stratum {CuttingUnitCode = units[1], StratumCode = plotStrata[1].StratumCode},
+                    new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = plotStrata[0].StratumCode },
+                    new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = plotStrata[1].StratumCode},
+                    new CuttingUnit_Stratum {CuttingUnitCode = units[1], StratumCode = plotStrata[1].StratumCode},
 
-                new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = nonPlotStrata[0].StratumCode },
-                new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = nonPlotStrata[1].StratumCode},
-                new CuttingUnit_Stratum {CuttingUnitCode = units[1], StratumCode = nonPlotStrata[1].StratumCode},
+                    new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = nonPlotStrata[0].StratumCode },
+                    new CuttingUnit_Stratum {CuttingUnitCode = units[0], StratumCode = nonPlotStrata[1].StratumCode},
+                    new CuttingUnit_Stratum {CuttingUnitCode = units[1], StratumCode = nonPlotStrata[1].StratumCode},
                 };
 
                 var species = Species = new string[] { "sp1", "sp2", "sp3" };
 
                 var spProds = SpProds = new string[][] {
-                new[] { "sp1", "sp1" },
-                new[] { "sp2", "sp2" },
-                new[] { "sp3", "sp3" }
+                    new[] { "sp1", "sp1" },
+                    new[] { "sp2", "sp2" },
+                    new[] { "sp3", "sp3" }
                 };
 
                 var sampleGroups = SampleGroups = new[]
                 {
-                new SampleGroup {SampleGroupCode = "sg1", StratumCode = plotStrata[0].StratumCode, SamplingFrequency = 101, TallyBySubPop = true},
-                new SampleGroup {SampleGroupCode = "sg2", StratumCode = plotStrata[1].StratumCode, SamplingFrequency = 102, TallyBySubPop = false},
+                    new SampleGroup {SampleGroupCode = "sg1", StratumCode = plotStrata[0].StratumCode, SamplingFrequency = 101, TallyBySubPop = true},
+                    new SampleGroup {SampleGroupCode = "sg2", StratumCode = plotStrata[1].StratumCode, SamplingFrequency = 102, TallyBySubPop = false},
 
-                new SampleGroup {SampleGroupCode = "sg1", StratumCode = nonPlotStrata[0].StratumCode, SamplingFrequency = 101, TallyBySubPop = true},
-                new SampleGroup {SampleGroupCode = "sg2", StratumCode = nonPlotStrata[1].StratumCode, SamplingFrequency = 102, TallyBySubPop = false},
+                    new SampleGroup {SampleGroupCode = "sg1", StratumCode = nonPlotStrata[0].StratumCode, SamplingFrequency = 101, TallyBySubPop = true},
+                    new SampleGroup {SampleGroupCode = "sg2", StratumCode = nonPlotStrata[1].StratumCode, SamplingFrequency = 102, TallyBySubPop = false},
                 };
 
                 TreeDefaults = new[]
                 {
-                new TreeDefaultValue {SpeciesCode = species[0], PrimaryProduct = "01"},
-                new TreeDefaultValue {SpeciesCode = species[1], PrimaryProduct = "01"},
-                new TreeDefaultValue {SpeciesCode = species[2], PrimaryProduct = "01"},
+                    new TreeDefaultValue {SpeciesCode = species[0], PrimaryProduct = "01"},
+                    new TreeDefaultValue {SpeciesCode = species[1], PrimaryProduct = "01"},
+                    new TreeDefaultValue {SpeciesCode = species[2], PrimaryProduct = "01"},
                 };
 
                 Subpops = new[]
@@ -170,68 +173,33 @@ namespace CruiseProcessing.Test
 
         public void PopulateDatabase(CruiseDatastore database, string cruiseID = null, string saleID = null, string saleNumber = null)
         {
-            cruiseID = cruiseID ?? CruiseID;
-            saleID = saleID ?? SaleID;
-            saleNumber = saleNumber ?? SaleNumber;
-
-            var units = Units;
-
-            var strata = Strata;
-
-            var unitStrata = UnitStrata;
-
-            var sampleGroups = SampleGroups;
-
-            var species = Species;
-
-            var tdvs = TreeDefaults;
-
-            var subPops = Subpops;
-
-            InitializeDatabase(database, cruiseID, saleID, saleNumber, units, strata, unitStrata, sampleGroups, species, tdvs, subPops);
+            PopulateCruiseInfo(database, cruiseID, saleID, saleNumber);
+            PopulateDesign(database, cruiseID: cruiseID);
         }
 
         public void PopulateDatabaseWithAllTables(CruiseDatastore database, string cruiseID = null, string saleID = null, string saleNumber = null)
         {
+            PopulateCruiseInfo(database, cruiseID, saleID, saleNumber);
+            PopulateDesign(database, cruiseID: cruiseID);
+            PopulateTemplateInfo(database, cruiseID: cruiseID);
+
+            PopulatePlotFieldData(database, cruiseID: cruiseID);
+            PopulateStrFieldData(database, cruiseID: cruiseID);
+        }
+
+        public void PopulateCruiseInfo(CruiseDatastore db, string cruiseID = null, string saleID = null, string saleNumber = null)
+        {
             cruiseID = cruiseID ?? CruiseID;
             saleID = saleID ?? SaleID;
             saleNumber = saleNumber ?? SaleNumber;
 
-            var units = Units;
-
-            var strata = Strata;
-
-            var unitStrata = UnitStrata;
-
-            var sampleGroups = SampleGroups;
-
-            var species = Species;
-
-            var tdvs = TreeDefaults;
-
-            var subPops = Subpops;
-
-            InitializeDatabaseAllTables(database, cruiseID, saleID, saleNumber, units, strata, unitStrata, sampleGroups, species, tdvs, subPops);
-        }
-
-        public static void InitializeDatabase(CruiseDatastore db,
-            string cruiseID,
-            string saleID,
-            string saleNumber,
-            string[] units,
-            CruiseDAL.V3.Models.Stratum[] strata,
-            CruiseDAL.V3.Models.CuttingUnit_Stratum[] unitStrata,
-            CruiseDAL.V3.Models.SampleGroup[] sampleGroups,
-            string[] species,
-            CruiseDAL.V3.Models.TreeDefaultValue[] tdvs,
-            CruiseDAL.V3.Models.SubPopulation[] subPops,
-            string[][] spProds = null)
-        {
             db.Insert(new Sale()
             {
-                SaleID = saleID,
+                SaleID = SaleID,
                 SaleNumber = saleNumber,
-                Region = "01",
+                Region = Region,
+                Forest = "01",
+                District = "01",
             });
 
             db.Insert(new Cruise()
@@ -242,9 +210,14 @@ namespace CruiseProcessing.Test
                 SaleNumber = saleNumber,
                 DefaultUOM = "01",
             });
+        }
+
+        public void PopulateDesign(CruiseDatastore db, string cruiseID = null)
+        {
+            cruiseID ??= CruiseID;
 
             //Cutting Units
-            foreach (var unit in units.OrEmpty())
+            foreach (var unit in Units.OrEmpty())
             {
                 var unitID = Guid.NewGuid().ToString();
                 db.Execute(
@@ -255,7 +228,7 @@ namespace CruiseProcessing.Test
             }
 
             //Strata
-            foreach (var st in strata.OrEmpty())
+            foreach (var st in Strata.OrEmpty())
             {
                 st.CruiseID = cruiseID;
                 st.StratumID = Guid.NewGuid().ToString();
@@ -263,14 +236,14 @@ namespace CruiseProcessing.Test
             }
 
             //Unit - Strata
-            foreach (var cust in unitStrata.OrEmpty())
+            foreach (var cust in UnitStrata.OrEmpty())
             {
                 cust.CruiseID = cruiseID;
                 db.Insert(cust);
             }
 
             //Sample Groups
-            foreach (var sg in sampleGroups.OrEmpty())
+            foreach (var sg in SampleGroups.OrEmpty())
             {
                 sg.SampleGroupID = Guid.NewGuid().ToString();
                 sg.CruiseID = cruiseID;
@@ -278,23 +251,23 @@ namespace CruiseProcessing.Test
                 db.Insert(sg);
             }
 
-            foreach (var sp in species.OrEmpty())
+            foreach (var sp in Species.OrEmpty())
             {
                 db.Execute($"INSERT INTO Species (CruiseID, SpeciesCode) VALUES ('{cruiseID}', '{sp}');");
             }
 
-            foreach (var spProd in spProds.OrEmpty())
+            foreach (var spProd in SpProds.OrEmpty())
             {
                 db.Insert(new Species_Product { CruiseID = cruiseID, SpeciesCode = spProd[0], ContractSpecies = spProd[1] });
             }
 
-            foreach (var tdv in tdvs.OrEmpty())
+            foreach (var tdv in TreeDefaults.OrEmpty())
             {
                 tdv.CruiseID = cruiseID;
                 db.Insert(tdv);
             }
 
-            foreach (var sub in subPops.OrEmpty())
+            foreach (var sub in Subpops.OrEmpty())
             {
                 sub.SubPopulationID = Guid.NewGuid().ToString();
                 sub.CruiseID = cruiseID;
@@ -302,33 +275,11 @@ namespace CruiseProcessing.Test
             }
         }
 
-        public static void InitializeDatabaseAllTables(CruiseDatastore db,
-            string cruiseID,
-            string saleID,
-            string saleNumber,
-            string[] units,
-            CruiseDAL.V3.Models.Stratum[] strata,
-            CruiseDAL.V3.Models.CuttingUnit_Stratum[] unitStrata,
-            CruiseDAL.V3.Models.SampleGroup[] sampleGroups,
-            string[] species,
-            CruiseDAL.V3.Models.TreeDefaultValue[] tdvs,
-            CruiseDAL.V3.Models.SubPopulation[] subPops,
-            string[][] spProds = null)
+        public void PopulateTemplateInfo(CruiseDatastore db, string cruiseID = null, bool fieldSetup = true, bool auditRules = true)
         {
-            InitializeDatabase(db,
-                cruiseID,
-                saleID,
-                saleNumber,
-                units,
-                strata,
-                unitStrata,
-                sampleGroups,
-                species,
-                tdvs,
-                subPops,
-                spProds);
+            cruiseID ??= CruiseID;
 
-            foreach (var st in strata)
+            foreach (var st in Strata)
             {
                 var treeFieldSetup = new TreeFieldSetup()
                 {
@@ -370,142 +321,18 @@ namespace CruiseProcessing.Test
                 CruiseID = cruiseID,
                 Grade = "01",
                 DefectMax = 1,
-                SpeciesCode = "sp1",
+                SpeciesCode = Species.First(),
             };
             db.Insert(lgar);
 
-
-            var unit = units[0];
-
-            var plotNumber = 1;
-            var plot = new Plot()
+            var volumeEquation = new VolumeEquation()
             {
                 CruiseID = cruiseID,
-                CuttingUnitCode = unit,
-                PlotID = Guid.NewGuid().ToString(),
-                PlotNumber = plotNumber,
+                VolumeEquationNumber = "something",
+                Species = Species.First(),
+                PrimaryProduct = "01",
             };
-            db.Insert(plot);
-
-            var plotLocation = new PlotLocation()
-            {
-                PlotID = plot.PlotID,
-                Latitude = 1.1,
-                Longitude = 2.2,
-            };
-            db.Insert(plotLocation);
-
-            var stratumCode = "st1";
-            var plotStratum = new Plot_Stratum()
-            {
-                CruiseID = cruiseID,
-                CuttingUnitCode = unit,
-                PlotNumber = plotNumber,
-                StratumCode = stratumCode,
-            };
-            db.Insert(plotStratum);
-
-            var plotTreeNumber = 1;
-            var plotTree = new Tree()
-            {
-                CruiseID = cruiseID,
-                CuttingUnitCode = unit,
-                PlotNumber = plotNumber,
-                TreeID = Guid.NewGuid().ToString(),
-                TreeNumber = plotTreeNumber,
-                StratumCode = stratumCode,
-                SampleGroupCode = "sg1",
-                SpeciesCode = "sp1",
-
-
-            };
-            db.Insert(plotTree);
-
-            var treeBasedStratumCode = "st3";
-            var treeNumber = 1;
-            var tree = new Tree()
-            {
-                CruiseID = cruiseID,
-                CuttingUnitCode = unit,
-                TreeID = Guid.NewGuid().ToString(),
-                TreeNumber = treeNumber,
-                StratumCode = treeBasedStratumCode,
-                SampleGroupCode = "sg1",
-                SpeciesCode = "sp1",
-            };
-            db.Insert(tree);
-
-            var tallyLedger = new TallyLedger()
-            {
-                CruiseID = cruiseID,
-                TallyLedgerID = Guid.NewGuid().ToString(),
-                CuttingUnitCode = unit,
-                StratumCode = treeBasedStratumCode,
-                SampleGroupCode = "sg1",
-                SpeciesCode = "sp1",
-                TreeID = tree.TreeID,
-                TreeCount = 1,
-            };
-            db.Insert(tallyLedger);
-
-            var treeLocation = new TreeLocation()
-            {
-                TreeID = tree.TreeID,
-                Latitude = 1.1,
-                Longitude = 2.2,
-            };
-            db.Insert(treeLocation);
-
-            var treeMeasurment = new TreeMeasurment()
-            {
-                TreeID = tree.TreeID,
-
-            };
-            db.Insert(treeMeasurment);
-
-            //var treeField = new TreeField()
-            //{
-            //    Field = "something",
-            //    DbType = "TEXT",
-            //    DefaultHeading = "something",
-            //};
-            //db.Insert(treeField);
-
-            //var treeFieldValue = new TreeFieldValue()
-            //{
-            //    TreeID = tree.TreeID,
-            //    Field = "something",
-            //    ValueText = "somevalue",
-            //};
-            //db.Insert(treeFieldValue);
-
-            var tares = new TreeAuditResolution()
-            {
-                CruiseID = cruiseID,
-                TreeAuditRuleID = tar.TreeAuditRuleID,
-                TreeID = tree.TreeID,
-                Initials = "so",
-            };
-            db.Insert(tares);
-
-            var logNumber = "1";
-            var log = new Log()
-            {
-                CruiseID = cruiseID,
-                TreeID = tree.TreeID,
-                LogID = Guid.NewGuid().ToString(),
-                LogNumber = logNumber,
-            };
-            db.Insert(log);
-
-            var stem = new Stem
-            {
-                CruiseID = cruiseID,
-                TreeID = tree.TreeID,
-                StemID = Guid.NewGuid().ToString(),
-                Diameter = 1.1,
-            };
-            db.Insert(stem);
+            db.Insert(volumeEquation);
 
             var report = new Reports()
             {
@@ -513,15 +340,6 @@ namespace CruiseProcessing.Test
                 ReportID = Guid.NewGuid().ToString(),
             };
             db.Insert(report);
-
-            var volumeEquation = new VolumeEquation()
-            {
-                CruiseID = cruiseID,
-                VolumeEquationNumber = "something",
-                Species = "sp1",
-                PrimaryProduct = "01",
-            };
-            db.Insert(volumeEquation);
 
             var stratumTemplate = new StratumTemplate()
             {
@@ -545,6 +363,175 @@ namespace CruiseProcessing.Test
                 Field = "Grade",
             };
             db.Insert(stlfs);
+        }
+
+        public void PopulatePlotFieldData(CruiseDatastore db, string cruiseID = null, int numTreesPerPlot = 1)
+        {
+            var plotStrataCodes = PlotStrata.Select(x => x.StratumCode).ToArray();
+
+            var unitStrata = UnitStrata.Where(x => plotStrataCodes.Contains(x.StratumCode))
+                .OrderBy(x => x.CuttingUnitCode)
+                .ToArray();
+
+            foreach (var uSt in unitStrata)
+            {
+                var stratumCode = uSt.StratumCode;
+                var unit = uSt.CuttingUnitCode;
+
+                var plotNumber = 1;
+                var plot = new Plot()
+                {
+                    CruiseID = cruiseID,
+                    CuttingUnitCode = unit,
+                    PlotID = Guid.NewGuid().ToString(),
+                    PlotNumber = plotNumber,
+                };
+                db.Insert(plot);
+
+                var plotLocation = new PlotLocation()
+                {
+                    PlotID = plot.PlotID,
+                    Latitude = 1.1,
+                    Longitude = 2.2,
+                };
+                db.Insert(plotLocation);
+
+
+                var plotStratum = new Plot_Stratum()
+                {
+                    CruiseID = cruiseID,
+                    CuttingUnitCode = unit,
+                    PlotNumber = plotNumber,
+                    StratumCode = stratumCode,
+                };
+                db.Insert(plotStratum);
+
+                var speciesCode = Species.First();
+                var sampleGroupCode = SampleGroups.First().SampleGroupCode;
+
+                foreach (var treeNum in Enumerable.Range(1, numTreesPerPlot))
+                {
+                    var plotTreeNumber = 1;
+                    var plotTree = new Tree()
+                    {
+                        CruiseID = cruiseID,
+                        CuttingUnitCode = unit,
+                        PlotNumber = plotNumber,
+                        TreeID = Guid.NewGuid().ToString(),
+                        TreeNumber = treeNum,
+                        StratumCode = stratumCode,
+                        SampleGroupCode = sampleGroupCode,
+                        SpeciesCode = speciesCode,
+                    };
+                    db.Insert(plotTree);
+                }
+
+            }
+        }
+
+        public void PopulateStrFieldData(CruiseDatastore db, string cruiseID, int numTreesPerUnit = 1)
+        {
+            var strStratumCodes = Strata.Where(x => x.Method == "STR").Select(x => x.StratumCode).ToArray();
+
+            var unitStrata = UnitStrata.Where(x => strStratumCodes.Contains(x.StratumCode))
+                .OrderBy(x => x.CuttingUnitCode)
+                .ToArray();
+
+            var tar = db.From<TreeAuditRule>().Where("CruiseID = @p1").Query(cruiseID).FirstOrDefault();
+
+            foreach (var uSt in unitStrata)
+            {
+                var statumCode = uSt.StratumCode;
+                var unit = uSt.CuttingUnitCode;
+
+                foreach(var treeNumber in Enumerable.Range(0, numTreesPerUnit))
+                {
+                    var tree = new Tree()
+                    {
+                        CuttingUnitCode = unit,
+                        TreeNumber = treeNumber,
+                        StratumCode = statumCode,
+                        SampleGroupCode = "sg1",
+                        SpeciesCode = "sp1",
+                    };
+
+                    AddTreeRecord(db, tree);
+
+                    if (tar != null)
+                    {
+                        var tares = new TreeAuditResolution()
+                        {
+                            CruiseID = cruiseID,
+                            TreeAuditRuleID = tar.TreeAuditRuleID,
+                            TreeID = tree.TreeID,
+                            Initials = "so",
+                        };
+                        db.Insert(tares);
+                    }
+                }
+            }
+
+            
+        }
+
+        public void AddTreeRecord(CruiseDatastore db, Tree tree)
+        {
+            var cruiseID = CruiseID;
+
+            tree.CruiseID = cruiseID;
+            if(tree.TreeID == null)
+            {
+                tree.TreeID = Guid.NewGuid().ToString();
+            }
+            db.Insert(tree);
+
+            var tallyLedger = new TallyLedger()
+            {
+                CruiseID = cruiseID,
+                TallyLedgerID = Guid.NewGuid().ToString(),
+                CuttingUnitCode = tree.CuttingUnitCode,
+                StratumCode = tree.StratumCode,
+                SampleGroupCode = tree.SampleGroupCode,
+                SpeciesCode = tree.SpeciesCode,
+                TreeID = tree.TreeID,
+                TreeCount = 1,
+            };
+            db.Insert(tallyLedger);
+
+            var treeLocation = new TreeLocation()
+            {
+                TreeID = tree.TreeID,
+                Latitude = 1.1,
+                Longitude = 2.2,
+            };
+            db.Insert(treeLocation);
+
+            var treeMeasurment = new TreeMeasurment()
+            {
+                TreeID = tree.TreeID,
+            };
+            db.Insert(treeMeasurment);
+
+            var logNumber = "1";
+            var log = new Log()
+            {
+                CruiseID = cruiseID,
+                TreeID = tree.TreeID,
+                LogID = Guid.NewGuid().ToString(),
+                LogNumber = logNumber,
+            };
+            db.Insert(log);
+
+            var stem = new Stem
+            {
+                CruiseID = cruiseID,
+                TreeID = tree.TreeID,
+                StemID = Guid.NewGuid().ToString(),
+                Diameter = 1.1,
+            };
+            db.Insert(stem);
+
+            
         }
 
     }

@@ -6,6 +6,10 @@ namespace CruiseProcessing.Test
 {
     public class DatabaseInitializer_V2
     {
+        public string SaleNumber { get; set; }
+        public string Region { get; set; }
+
+
         public string[] Units { get; set; }
         public Stratum[] Strata { get; set; }
         public (string UnitCode, string StCode)[] UnitStrata { get; set; }
@@ -16,6 +20,9 @@ namespace CruiseProcessing.Test
 
         public DatabaseInitializer_V2()
         {
+            SaleNumber = (Guid.NewGuid().GetHashCode() % 10000).ToString();
+            Region = "01";
+
             var units = Units = new string[] { "u1", "u2" };
 
             var plotStrata = PlotStrata = new[]
@@ -105,6 +112,16 @@ namespace CruiseProcessing.Test
             (string SgCode, string StCode, int Freq)[] sampleGroups,
             CruiseDAL.V2.Models.TreeDefaultValue[] tdvs)
         {
+            var sale = new Sale()
+            {
+                SaleNumber = SaleNumber,
+                Name = "something",
+                Region = Region,
+                Forest = "02",
+                District = "03",
+            };
+            db.Insert(sale);
+
             //Cutting Units
             foreach (var unit in units.OrEmpty())
             {

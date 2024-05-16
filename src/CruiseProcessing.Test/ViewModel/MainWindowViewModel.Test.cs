@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using CruiseProcessing.ViewModel;
 using FluentAssertions;
@@ -25,9 +26,13 @@ namespace CruiseProcessing.Test.ViewModel
 
         public MainWindowViewModelTest(ITestOutputHelper output) : base(output)
         {
-            MockServiceProvider = Substitute.For<IServiceProvider>();
+            
             MockDialogService = Substitute.For<IDialogService>();
             MockLogger = Substitute.For<ILogger<MainWindowViewModel>>();
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var mockSp = MockServiceProvider = Substitute.For<IServiceProvider>();
+
+            mockSp.GetService<ILogger<CpDataLayer>>().Returns(mockDlLogger);
 
         }
 

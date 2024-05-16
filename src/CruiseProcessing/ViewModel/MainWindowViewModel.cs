@@ -386,7 +386,7 @@ namespace CruiseProcessing.ViewModel
             //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
             dal.OpenConnection();
 
-            var datalayer = new CpDataLayer(dal, dal_v3, cruiseID, isTemplate);
+            var datalayer = new CpDataLayer(dal, dal_v3, cruiseID, Services.GetRequiredService<ILogger<CpDataLayer>>(), isTemplate);
 
             if (!isTemplate)
             {

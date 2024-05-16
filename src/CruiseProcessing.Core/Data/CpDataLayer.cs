@@ -9,6 +9,7 @@ using CruiseProcessing.Output;
 using System.Reflection;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using CruiseProcessing.Models;
+using Microsoft.Extensions.Logging;
 
 namespace CruiseProcessing.Data
 {
@@ -25,17 +26,20 @@ namespace CruiseProcessing.Data
 
         public bool IsTemplateFile { get; }
 
+        protected ILogger Log { get; }
+
         public bool IsProcessed
         {
             get => _isProcessed;
             set => SetProperty(ref _isProcessed, value);
         }
 
-        public CpDataLayer(DAL dal, bool isTemplateFile = false)
+        public CpDataLayer(DAL dal, ILogger<CpDataLayer> logger, bool isTemplateFile = false)
         {
             DAL = dal;
             FilePath = DAL.Path;
             IsTemplateFile = isTemplateFile;
+            Log = logger;
 
             var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
             CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");
@@ -43,8 +47,8 @@ namespace CruiseProcessing.Data
             IsTemplateFile = isTemplateFile;
         }
 
-        public CpDataLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID, bool isTemplateFile = false)
-            : this(dal, isTemplateFile)
+        public CpDataLayer(DAL dal, CruiseDatastore_V3 dal_V3, string cruiseID, ILogger<CpDataLayer> logger, bool isTemplateFile = false)
+            : this(dal, logger, isTemplateFile)
         {
             if (DAL_V3 != null && string.IsNullOrEmpty(cruiseID)) { throw new InvalidOperationException("v3 DAL was set, expected CruiseID"); }
 
