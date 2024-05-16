@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,46 +20,15 @@ namespace CruiseProcessing.Data
             foreach (BiomassEquationDO beq in bioList)
             {
                 DAL.Save(beq);
-            }   //  end foreach loop
+            }
 
-            return;
-        }   //  end SaveBiomassEquations
 
-        public void ClearBiomassEquations()
-        {
-            //  make sure filename is complete
-            //fileName = checkFileName(fileName);
-
-            //  open connection and delete data
-            //using (SQLiteConnection sqlconn = new SQLiteConnection(fileName))
-            //{
-            //sqlconn.Open();
-            //SQLiteCommand sqlcmd = sqlconn.CreateCommand();
-
-            //  delete all rows
-            //sqlcmd.CommandText = "DELETE FROM BiomassEquation WHERE rowid>=0";
-            DAL.Execute("DELETE FROM BiomassEquation WHERE rowid >= 0");
-            //sqlcmd.ExecuteNonQuery();
-            //sqlconn.Close();
-            //}   //  end using
-            return;
-        }   //  end clearBiomassEquations
-
-        public void syncBiomassEquationToV3()
-        {
-            List<BiomassEquationDO> myBE = this.getBiomassEquations();
-
-            //delete all from V3 file
-            DAL_V3.BeginTransaction();
-            try
+            foreach (var bioEq in bioList)
             {
-                //make sure the reports is empty.
-                DAL_V3.Execute("DELETE FROM BiomassEquation WHERE CruiseID = @p1", CruiseID);
-
-                foreach (BiomassEquationDO bioEq in myBE)
+                if (DAL_V3 != null)
                 {
                     DAL_V3.Execute2(
-@"INSERT INTO BiomassEquation (
+    @"INSERT INTO BiomassEquation (
     CruiseID,
     Species,
     Product,
@@ -85,33 +55,49 @@ VALUES (
     @MetaData,
     @WeightFactorPrimary,
     @WeightFactorSecondary
-);",
-                    new
-                    {
-                        CruiseID,
-                        bioEq.Species,
-                        bioEq.Product,
-                        bioEq.Component,
-                        bioEq.LiveDead,
-                        bioEq.FIAcode,
-                        bioEq.Equation,
-                        bioEq.PercentMoisture,
-                        bioEq.PercentRemoved,
-                        bioEq.MetaData,
-                        bioEq.WeightFactorPrimary,
-                        bioEq.WeightFactorSecondary
-                    });
-
-                }//end foreach
-
-                DAL_V3.CommitTransaction();
+) 
+ON CONFLICT (CruiseID, Species, Product, Component, LiveDead) DO
+UPDATE SET
+    FIAcode = @FIAcode,
+    Equation = @Equation,
+    PercentMoisture = @PercentMoisture,
+    PercentRemoved = @PercentRemoved,
+    MetaData = @MetaData,
+    WeightFactorPrimary = @WeightFactorPrimary,
+    WeightFactorSecondary = @WeightFactorSecondary
+;",
+                        new
+                        {
+                            CruiseID,
+                            bioEq.Species,
+                            bioEq.Product,
+                            bioEq.Component,
+                            bioEq.LiveDead,
+                            bioEq.FIAcode,
+                            bioEq.Equation,
+                            bioEq.PercentMoisture,
+                            bioEq.PercentRemoved,
+                            bioEq.MetaData,
+                            bioEq.WeightFactorPrimary,
+                            bioEq.WeightFactorSecondary
+                        });
+                }
             }
-            catch
+        }   //  end SaveBiomassEquations
+
+        public void ClearBiomassEquations()
+        {
+            DAL.Execute("DELETE FROM BiomassEquation");
+
+            try
             {
-                DAL_V3.RollbackTransaction();
-                throw;
+                DAL_V3.Execute("DELETE FROM BiomassEquation WHERE CruiseID = @p1", CruiseID);
+            }
+            catch (Exception ex) 
+            {
+                Log.LogError(ex, nameof(ClearBiomassEquations));
             }
 
-        }//end sync biomass
+        }
     }
 }

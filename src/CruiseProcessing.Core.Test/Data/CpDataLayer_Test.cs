@@ -98,5 +98,35 @@ namespace CruiseProcessing.Test.Data
 
             v3db.From<Reports>().Count().Should().Be(reports.Count);
         }
+
+        [Fact]
+        public void SaveBiomassEquations_V3()
+        {
+            var v2Path = GetTempFilePath("SaveReports_WithV3.cruise");
+            var v3Path = GetTempFilePath("SaveReports_WithV3.crz3");
+
+            var initV3 = new DatabaseInitializer(false);
+            var v3db = initV3.CreateDatabaseFile(v3Path);
+
+            var v2db = new CruiseDAL.DAL(v2Path, true);
+            var migrator = new DownMigrator();
+            migrator.MigrateFromV3ToV2(initV3.CruiseID, v3db, v2db);
+
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockLogger);
+
+            var bioEqs = new[]
+            {
+                new BiomassEquationDO{ Species = "sp1", Product = "01", Component = "something", LiveDead = "L" },
+                new BiomassEquationDO{ Species = "sp2", Product = "01", Component = "something", LiveDead = "L" },
+                new BiomassEquationDO{ Species = "sp3", Product = "01", Component = "something", LiveDead = "L" },
+            };
+
+            dataLayer.SaveBiomassEquations(bioEqs.ToList());
+
+            mockLogger.DidNotReceive().Log(LogLevel.Error, default);
+
+            v3db.From<CruiseDAL.V3.Models.BiomassEquation>().Count().Should().Be(bioEqs.Length);
+        }
     }
 }
