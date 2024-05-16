@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,9 +26,11 @@ namespace CruiseProcessing.Data
 
             if (DAL_V3 != null)
             {
-                foreach (var report in rList)
+                try
                 {
-                    DAL_V3.Execute2(
+                    foreach (var report in rList)
+                    {
+                        DAL_V3.Execute2(
 @"INSERT INTO Reports (
     ReportID,
     CruiseID,
@@ -42,15 +45,19 @@ ON CONFLICT (ReportID, CruiseID) DO UPDATE SET
     Selected = @Selected,
     Title = @Title
 WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
-                    new
-                    {
-                        report.ReportID,
-                        CruiseID,
-                        report.Selected,
-                        report.Title
-                    });
+                        new
+                        {
+                            report.ReportID,
+                            CruiseID,
+                            report.Selected,
+                            report.Title
+                        });
+                    }
                 }
-
+                catch(Exception ex)
+                {
+                    Log.LogError(ex, nameof(SaveReports));
+                }
             }
         }
 
@@ -81,9 +88,16 @@ WHERE ReportID = @ReportID AND CruiseID = @CruiseID;",
 
             if (DAL_V3 != null)
             {
-                foreach (ReportsDO rdo in reportList)
+                try
                 {
-                    DAL_V3.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2 AND CruiseID = @p3;", rdo.Selected, rdo.ReportID, CruiseID);
+                    foreach (ReportsDO rdo in reportList)
+                    {
+                        DAL_V3.Execute("UPDATE Reports SET Selected =  @p1 WHERE ReportID = @p2 AND CruiseID = @p3;", rdo.Selected, rdo.ReportID, CruiseID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError(ex, nameof(updateReports));
                 }
             }
         }

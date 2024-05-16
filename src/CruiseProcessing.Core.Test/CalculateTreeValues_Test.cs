@@ -1,6 +1,8 @@
 ﻿using CruiseDAL;
 using CruiseProcessing.Data;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,9 +67,9 @@ namespace CruiseProcessing.Test
         {
             var filePath = GetTestFile(fileName);
 
-
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
             var dal = new DAL(filePath);
-            var dataLayer = new CpDataLayer(dal);
+            var dataLayer = new CpDataLayer(dal, mockLogger);
             var ctv = new CalculateTreeValues(dataLayer);
 
             var trees = dataLayer.getTrees();

@@ -2,6 +2,8 @@
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using NSubstitute.Extensions;
 using System;
 using System.Collections.Generic;
@@ -27,7 +29,8 @@ namespace CruiseProcessing.Test.Data
 
             var v2db = init.CreateDatabase();
 
-            var dataLayer = new CpDataLayer(v2db);
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(v2db, mockLogger);
 
             var units = dataLayer.getCuttingUnits();
 
@@ -41,9 +44,10 @@ namespace CruiseProcessing.Test.Data
         {
             var init = new DatabaseInitializer_V2();
 
+            
             var v2db = init.CreateDatabase();
-
-            var dataLayer = new CpDataLayer(v2db);
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(v2db, mockLogger);
 
             dataLayer.GetReports().Should().BeEmpty();
 
@@ -74,7 +78,8 @@ namespace CruiseProcessing.Test.Data
             var migrator = new DownMigrator();
             migrator.MigrateFromV3ToV2(initV3.CruiseID, v3db, v2db);
 
-            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID);
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockLogger);
 
             dataLayer.GetReports().Should().BeEmpty();
 

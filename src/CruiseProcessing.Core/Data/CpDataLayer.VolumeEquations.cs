@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,91 +52,102 @@ namespace CruiseProcessing.Data
                                 ve.PrimaryProduct == vdo.PrimaryProduct))
                 {
                     DAL.Delete(vdo);
-                    DAL_V3.Execute("DELETE FROM VolumeEquation WHERE CruiseID = @p1 AND VolumeEquationNumber = @p2 AND Species = @p3 AND PrimaryProduct = @p4;",
-                        CruiseID, vdo.VolumeEquationNumber, vdo.Species, vdo.PrimaryProduct);
-                }
 
+                    try
+                    {
+                        DAL_V3?.Execute("DELETE FROM VolumeEquation WHERE CruiseID = @p1 AND VolumeEquationNumber = @p2 AND Species = @p3 AND PrimaryProduct = @p4;",
+                            CruiseID, vdo.VolumeEquationNumber, vdo.Species, vdo.PrimaryProduct);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.LogError(ex, nameof(getVolumeEquations));
+                    }
+                }
             }
 
             foreach (VolumeEquationDO veq in volumeEquationList)
             {
                 DAL.Save(veq, option: Backpack.SqlBuilder.OnConflictOption.Replace);
 
-                if (DAL_V3 != null)
+                try
                 {
-                    DAL_V3.Execute2(
-@"INSERT OR REPLACE INTO VolumeEquation (
-                    CruiseID,
-                    Species,
-                    PrimaryProduct,
-                    VolumeEquationNumber,
-                    StumpHeight,
-                    TopDIBPrimary,
-                    TopDIBSecondary,
-                    CalcTotal,
-                    CalcBoard,
-                    CalcCubic,
-                    CalcCord,
-                    CalcTopwood,
-                    CalcBiomass,
-                    Trim,
-                    SegmentationLogic,
-                    MinLogLengthPrimary,
-                    MaxLogLengthPrimary,
-                    MinMerchLength,
-                    Model,
-                    CommonSpeciesName,
-                    MerchModFlag,
-                    EvenOddSegment
-                ) VALUES (
-                    @CruiseID,
-                    @Species,
-                    @PrimaryProduct,
-                    @VolumeEquationNumber,
-                    @StumpHeight,
-                    @TopDIBPrimary,
-                    @TopDIBSecondary,
-                    @CalcTotal,
-                    @CalcBoard,
-                    @CalcCubic,
-                    @CalcCord,
-                    @CalcTopwood,
-                    @CalcBiomass,
-                    @Trim,
-                    @SegmentationLogic,
-                    @MinLogLengthPrimary,
-                    @MaxLogLengthPrimary,
-                    @MinMerchLength,
-                    @Model,
-                    @CommonSpeciesName,
-                    @MerchModFlag,
-                    @EvenOddSegment
-                );",
-new
-{
+                    DAL_V3?.Execute2(
+    @"INSERT OR REPLACE INTO VolumeEquation (
     CruiseID,
-    veq.Species,
-    veq.PrimaryProduct,
-    veq.VolumeEquationNumber,
-    veq.StumpHeight,
-    veq.TopDIBPrimary,
-    veq.TopDIBSecondary,
-    veq.CalcTotal,
-    veq.CalcBoard,
-    veq.CalcCubic,
-    veq.CalcCord,
-    veq.CalcTopwood,
-    veq.CalcBiomass,
-    veq.Trim,
-    veq.SegmentationLogic,
-    veq.MinLogLengthPrimary,
-    veq.MaxLogLengthPrimary,
-    veq.MinMerchLength,
-    veq.Model,
-    veq.CommonSpeciesName,
-    veq.MerchModFlag,
-    veq.EvenOddSegment
-});
+    Species,
+    PrimaryProduct,
+    VolumeEquationNumber,
+    StumpHeight,
+    TopDIBPrimary,
+    TopDIBSecondary,
+    CalcTotal,
+    CalcBoard,
+    CalcCubic,
+    CalcCord,
+    CalcTopwood,
+    CalcBiomass,
+    Trim,
+    SegmentationLogic,
+    MinLogLengthPrimary,
+    MaxLogLengthPrimary,
+    MinMerchLength,
+    Model,
+    CommonSpeciesName,
+    MerchModFlag,
+    EvenOddSegment
+) VALUES (
+    @CruiseID,
+    @Species,
+    @PrimaryProduct,
+    @VolumeEquationNumber,
+    @StumpHeight,
+    @TopDIBPrimary,
+    @TopDIBSecondary,
+    @CalcTotal,
+    @CalcBoard,
+    @CalcCubic,
+    @CalcCord,
+    @CalcTopwood,
+    @CalcBiomass,
+    @Trim,
+    @SegmentationLogic,
+    @MinLogLengthPrimary,
+    @MaxLogLengthPrimary,
+    @MinMerchLength,
+    @Model,
+    @CommonSpeciesName,
+    @MerchModFlag,
+    @EvenOddSegment
+);",
+                        new
+                        {
+                            CruiseID,
+                            veq.Species,
+                            veq.PrimaryProduct,
+                            veq.VolumeEquationNumber,
+                            veq.StumpHeight,
+                            veq.TopDIBPrimary,
+                            veq.TopDIBSecondary,
+                            veq.CalcTotal,
+                            veq.CalcBoard,
+                            veq.CalcCubic,
+                            veq.CalcCord,
+                            veq.CalcTopwood,
+                            veq.CalcBiomass,
+                            veq.Trim,
+                            veq.SegmentationLogic,
+                            veq.MinLogLengthPrimary,
+                            veq.MaxLogLengthPrimary,
+                            veq.MinMerchLength,
+                            veq.Model,
+                            veq.CommonSpeciesName,
+                            veq.MerchModFlag,
+                            veq.EvenOddSegment
+                        });
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError(ex, nameof(SaveVolumeEquations));
                 }
             }
         }
@@ -146,7 +158,12 @@ new
 
             DAL.Execute("DELETE FROM VolumeEquation");
 
-            DAL_V3.Execute("DELETE FROM VolumeEquation WHERE CruiseID = @p1;", CruiseID);
+            try
+            {
+                DAL_V3?.Execute("DELETE FROM VolumeEquation WHERE CruiseID = @p1;", CruiseID);
+            }
+            catch (Exception ex)
+            { Log.LogError(ex, nameof(deleteVolumeEquations)); }
         }
     }
 }

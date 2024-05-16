@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,8 +77,8 @@ namespace CruiseProcessing.Test
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-
-            var dataLayer = new CpDataLayer(dal);
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -133,8 +134,8 @@ namespace CruiseProcessing.Test
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-
-            var dataLayer = new CpDataLayer(dal);
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -200,8 +201,8 @@ namespace CruiseProcessing.Test
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-
-            var dataLayer = new CpDataLayer(dal);
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();

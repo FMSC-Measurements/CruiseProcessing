@@ -18,11 +18,7 @@ namespace CruiseProcessing.Data
         {
             foreach (BiomassEquationDO beq in bioList)
             {
-                if (beq.DAL == null)
-                {
-                    beq.DAL = DAL;
-                }
-                beq.Save();
+                DAL.Save(beq);
             }   //  end foreach loop
 
             return;
@@ -62,34 +58,34 @@ namespace CruiseProcessing.Data
                 foreach (BiomassEquationDO bioEq in myBE)
                 {
                     DAL_V3.Execute2(
-                   @"INSERT INTO BiomassEquation (
-                    CruiseID,
-                    Species,
-                    Product,
-                    Component,
-                    LiveDead,
-                    FIAcode,
-                    Equation,
-                    PercentMoisture,
-                    PercentRemoved,
-                    MetaData,
-                    WeightFactorPrimary,
-                    WeightFactorSecondary
-                ) 
-                VALUES ( 
-                    @CruiseID,
-                    @Species,
-                    @Product,
-                    @Component,
-                    @LiveDead,
-                    @FIAcode,
-                    @Equation,
-                    @PercentMoisture,
-                    @PercentRemoved,
-                    @MetaData,
-                    @WeightFactorPrimary,
-                    @WeightFactorSecondary
-                );",
+@"INSERT INTO BiomassEquation (
+    CruiseID,
+    Species,
+    Product,
+    Component,
+    LiveDead,
+    FIAcode,
+    Equation,
+    PercentMoisture,
+    PercentRemoved,
+    MetaData,
+    WeightFactorPrimary,
+    WeightFactorSecondary
+) 
+VALUES ( 
+    @CruiseID,
+    @Species,
+    @Product,
+    @Component,
+    @LiveDead,
+    @FIAcode,
+    @Equation,
+    @PercentMoisture,
+    @PercentRemoved,
+    @MetaData,
+    @WeightFactorPrimary,
+    @WeightFactorSecondary
+);",
                     new
                     {
                         CruiseID,
