@@ -426,13 +426,6 @@ namespace CruiseProcessing
                 DataLayer.ClearBiomassEquations();
             }     //  endif
 
-            if (DataLayer.DAL_V3 != null)
-            {
-                //on finish sync biomass and volume eq.
-
-                DataLayer.syncBiomassEquationToV3();
-            }//end if
-
             Close();
             return;
         }   //  end onFinished

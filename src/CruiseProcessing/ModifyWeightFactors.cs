@@ -42,7 +42,7 @@ namespace CruiseProcessing
                 Close();
                 return -1;
             }
-            
+
             //  Show this message box until security question is OKd by measurement specialists.  04/2013
             //MessageBox.Show("In the future, a security question will be displayed here.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -81,12 +81,7 @@ namespace CruiseProcessing
                 //  
                 DataLayer.SaveBiomassEquations(bioList);
 
-                if (DataLayer.DAL_V3 != null)
-                {
-                    DataLayer.syncBiomassEquationToV3();
-                }//end if
-
-                    Cursor.Current = this.Cursor;
+                Cursor.Current = this.Cursor;
             }   //  endif nResult
             Close();
             return;
