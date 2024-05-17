@@ -29,7 +29,7 @@ namespace CruiseProcessing.Test
         {
             var mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
-                .Returns(new CalculateTreeValues2(datalayer));
+                .Returns(() => new CalculateTreeValues2(datalayer));
 
             return mockServiceProvider;
         }
@@ -274,7 +274,7 @@ namespace CruiseProcessing.Test
             using var v3db = new CruiseDatastore_V3(filePath);
             var cruiseID = v3db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
 
-            var v2Path = GetTempFilePath(".cruise", Path.GetFileNameWithoutExtension(testFileName) + ".ProcessAndVerityOutput_V3");
+            var v2Path = GetTempFilePath(".process", Path.GetFileNameWithoutExtension(testFileName) + ".ProcessAndVerityOutput_V3");
             using var dal = new DAL(v2Path, true);
 
             var migrator = new DownMigrator();
@@ -322,7 +322,8 @@ namespace CruiseProcessing.Test
             var expectedOutputPath = GetTestFile(expectedOutputFileName);
             var expectedOutput = File.OpenText(expectedOutputPath).ReadToEnd();
 
-            var diff = InlineDiffBuilder.Diff(expectedOutput, stringWriter.ToString());
+            var resultOutput = stringWriter.ToString();
+            var diff = InlineDiffBuilder.Diff(expectedOutput, resultOutput);
 
             var changedLines = diff.Lines
                 .Where((x) =>
