@@ -165,7 +165,7 @@ namespace CruiseProcessing
             float HTTOT = tree.TotalHeight;
             int HTLOG = (int)tree.TreeDefaultValue.MerchHeightLogLength;
             float HT1PRD = tree.MerchHeightPrimary;
-            float HT2PRD = default(float);
+            float HT2PRD = tree.MerchHeightSecondary;
             float UPSHT1 = tree.UpperStemHeight;
             float UPSHT2 = 0.0f;
             int HTTFLL = (int)tree.HeightToFirstLiveLimb;

@@ -128,7 +128,7 @@ namespace CruiseProcessing
             topDIB.Enabled = false;
         }
 
-        private void onFinished(object sender, EventArgs e)
+        public void onFinished(object sender, EventArgs e)
         {
             //  Remove all equations as they are rebuilt with either of these calls
             volList.Clear();
