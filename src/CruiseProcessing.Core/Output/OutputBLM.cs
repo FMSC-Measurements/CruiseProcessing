@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using CruiseProcessing.Services;
 using System;
@@ -55,7 +56,7 @@ namespace CruiseProcessing
 
         #endregion
 
-        public OutputBLM(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputBLM(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
@@ -177,14 +178,13 @@ namespace CruiseProcessing
                     numOlines = 0;
                     completeHeader = createCompleteHeader();
                     fieldLengths = new int[] { 1, 4, 9, 9, 9, 9, 9, 9, 11, 8, 9, 11, 7, 11, 7, 9 };
-                    ArrayList justSpecies = DataLayer.GetJustSpecies("Tree");
+                    var justSpecies = DataLayer.GetDistinctTreeSpeciesCodes();
                     //  load log DIBs into output list
                     List<LogStockDO> justDIBs = DataLayer.getLogDIBs();
                     //  process by species
-                    foreach (object js in justSpecies)
+                    foreach (string currSP in justSpecies)
                     {
                         LoadLogDIBclasses(justDIBs, listToOutput);
-                        currSP = Convert.ToString(js);
                         extraLine = "    SPECIES:  ";
                         extraLine += currSP.PadLeft(6, ' ');
                         SetReportTitles(currentTitle, 6, 0, 0, reportConstants.FCTO, "");

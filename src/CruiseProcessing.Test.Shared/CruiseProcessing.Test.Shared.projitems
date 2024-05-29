@@ -9,6 +9,10 @@
     <Import_RootNamespace>CruiseProcessing.Test.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DatabaseInitializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DatabaseInitializer_V2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IEnumerableExtentions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TemplateDatabaseInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestBase.cs" />
   </ItemGroup>
 </Project>

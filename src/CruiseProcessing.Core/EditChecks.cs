@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace CruiseProcessing
     public class EditChecks
     {
 
-        public static ErrorLogCollection CheckErrors(CPbusinessLayer dataLayer)
+        public static ErrorLogCollection CheckErrors(CpDataLayer dataLayer)
         {
             var errors = new ErrorLogCollection();
 
@@ -44,7 +45,7 @@ namespace CruiseProcessing
             return errors;
         }
 
-        private static void ValidateSale(CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateSale(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<SaleDO> saleList = dataLayer.GetAllSaleRecords();
             var saleCount = saleList.Count;
@@ -70,7 +71,7 @@ namespace CruiseProcessing
             
         }
 
-        private static void ValidateCountTrees(CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateCountTrees(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strList = dataLayer.GetStrata();
 
@@ -80,7 +81,7 @@ namespace CruiseProcessing
                     errors.AddError("CountTree", "E", "Cannot tally by sample group for 3P strata.", (long)st.Stratum_CN, "TreeDefaultValue");
             }
 
-            bool Has3PcountsMissingTDV(CPbusinessLayer dataLayer, StratumDO currStratum)
+            bool Has3PcountsMissingTDV(CpDataLayer dataLayer, StratumDO currStratum)
             {
                 //  is this a 3P stratum?
                 if (currStratum.Method == "3P")
@@ -104,14 +105,14 @@ namespace CruiseProcessing
             }
         }
 
-        private static void ValidateUnits(CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateUnits(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<CuttingUnitDO> cuList = dataLayer.getCuttingUnits();
             if (cuList.Count == 0)
                 errors.AddError("Cutting Unit", "E", "25", 0, "NoName"); // cruise has no units
         }
 
-        private static void ValidateStrata(CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateStrata(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strList = dataLayer.GetStrata();
             if (strList.Count == 0)
@@ -126,7 +127,7 @@ namespace CruiseProcessing
             }
         }
 
-        private static void ValidateStratum(StratumDO sdo, CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateStratum(StratumDO sdo, CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             //  check for valid fixed plot size or BAF for each stratum
             double BAForFPSvalue = StratumMethods.GetBafOrFps(sdo);
@@ -155,7 +156,7 @@ namespace CruiseProcessing
                 errors.AddError("Stratum", "W", "Yield Component has invalid code", (long)sdo.Stratum_CN, "YieldComponent");
         }
 
-        private static void ValidateSampleGroups(CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateSampleGroups(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strList = dataLayer.GetStrata();
             List<SampleGroupDO> sampGroups = dataLayer.getSampleGroups();
@@ -184,7 +185,7 @@ namespace CruiseProcessing
             }   //  end foreach loop
         }
 
-        private static bool ValidateTrees(CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static bool ValidateTrees(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             var currRegion = dataLayer.getRegion();
             var trees = dataLayer.getTrees().ToArray();
@@ -274,7 +275,7 @@ namespace CruiseProcessing
             return true;
         }
 
-        private static void ValidateLogs(string currentRegion, bool isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateLogs(string currentRegion, bool isVLL, CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<LogDO> logList = dataLayer.getLogs();
             if (logList.Count > 0) { return; }
@@ -343,7 +344,7 @@ namespace CruiseProcessing
             }
         }
 
-        private static void ValidateVolumeEqs(bool isVLL, CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static void ValidateVolumeEqs(bool isVLL, CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             
 
@@ -447,7 +448,7 @@ namespace CruiseProcessing
         }
 
 
-        public static int CheckCruiseMethods(CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        public static int CheckCruiseMethods(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strata = dataLayer.GetStrata();
             
@@ -602,7 +603,7 @@ namespace CruiseProcessing
             return totalErrs;
         }
 
-        private static int CheckForMeasuredTrees(IEnumerable<TreeDO> treeList, long currST_CN, string currMeth, CPbusinessLayer dataLayer, ErrorLogCollection errors)
+        private static int CheckForMeasuredTrees(IEnumerable<TreeDO> treeList, long currST_CN, string currMeth, CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             int numErrs = 0;
             //ErrorLogMethods elm = new ErrorLogMethods(dataLayer); // TODO fix this instantiating a new elm. I think we can just use the current instance. We may need to create a class level accumulator to count errors. 

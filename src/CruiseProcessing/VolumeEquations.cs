@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -28,7 +29,7 @@ namespace CruiseProcessing
             StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref,
             int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
 
-        public CPbusinessLayer DataLayer { get; }
+        public CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
         protected VolumeEquations()
@@ -36,7 +37,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public VolumeEquations(CPbusinessLayer dataLayer, IServiceProvider services)
+        public VolumeEquations(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
@@ -122,13 +123,17 @@ namespace CruiseProcessing
             volumeEquationList.DataSource = volumeEquationDOBindingSource;
 
             //  also add species and product to combo boxes at bottom
-            ArrayList justSpecies = DataLayer.GetJustSpecies("TreeDefaultValue");
-            for (int n = 0; n < justSpecies.Count; n++)
-                speciesList.Items.Add(justSpecies[n].ToString());
+            var justSpecies = DataLayer.GetAllSpeciesCodes();
+            foreach(var sp in justSpecies)
+            {
+                speciesList.Items.Add(sp);
+            }
 
-            ArrayList justProduct = DataLayer.GetJustPrimaryProduct();
-            for (int n = 0; n < justProduct.Count; n++)
-                productList.Items.Add(justProduct[n].ToString());
+            var justProduct = DataLayer.GetDistincePrimaryProductCodes();
+            foreach(var prod in  justProduct)
+            {
+                productList.Items.Add(prod);
+            }
 
             volRegion.Enabled = false;
             volForest.Enabled = false;
@@ -420,14 +425,6 @@ namespace CruiseProcessing
                 //  remove all biomass equations
                 DataLayer.ClearBiomassEquations();
             }     //  endif
-
-            if (DataLayer.DAL_V3 != null)
-            {
-                //on finish sync biomass and volume eq.
-                DataLayer.syncVolumeEquationToV3();
-
-                DataLayer.syncBiomassEquationToV3();
-            }//end if
 
             Close();
             return;

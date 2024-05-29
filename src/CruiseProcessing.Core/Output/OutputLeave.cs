@@ -1,4 +1,5 @@
-﻿using CruiseProcessing.Output;
+﻿using CruiseProcessing.Data;
+using CruiseProcessing.Output;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ namespace CruiseProcessing
     {
         public List<string> mainHeaderFields;
 
-        public OutputLeave(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, reportID)
+        public OutputLeave(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, reportID)
         {
             HeaderData = headerData;
         }

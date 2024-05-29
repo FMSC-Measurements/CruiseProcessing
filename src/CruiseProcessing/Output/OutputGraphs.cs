@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -17,10 +18,10 @@ namespace CruiseProcessing
         private List<LCDDO> speciesTotal = new List<LCDDO>();
         private List<TreeDO> treesByDBH = new List<TreeDO>();
         private List<TreeDO> justMeasured = new List<TreeDO>();
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
-        public OutputGraphs(CPbusinessLayer dataLayer, IServiceProvider services)
+        public OutputGraphs(CpDataLayer dataLayer, IServiceProvider services)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));

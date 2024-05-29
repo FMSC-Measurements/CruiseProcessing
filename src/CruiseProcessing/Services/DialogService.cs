@@ -182,7 +182,10 @@ namespace CruiseProcessing.Services
             else
             {
                 int nResult = volEqObj.setupDialog();
-                if (nResult != -1) volEqObj.ShowDialog();
+                if (nResult != -1)
+                {
+                    volEqObj.ShowDialog();
+                }
             }
         }
 

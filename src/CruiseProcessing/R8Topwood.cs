@@ -7,13 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Collections;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
     public partial class R8Topwood : Form
     {
         public string[] checkStatus = new string[30];
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
 
         protected R8Topwood()
@@ -21,7 +22,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R8Topwood(CPbusinessLayer dataLayer)
+        public R8Topwood(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
@@ -144,23 +145,14 @@ namespace CruiseProcessing
                 checkStatus[k] = "0";
 
             // Add species code to checkbox text area and set check to true
-            ArrayList justSpecies = DataLayer.GetJustSpecies("Tree");
-            
-            for (int k = 0; k < justSpecies.Count; k++)
+            var justSpecies = DataLayer.GetDistinctTreeSpeciesCodes();
+
+            foreach(var (sp, i) in justSpecies.Select((sp, i) => (sp,i)))
             {
-                string species = "";
-                if(justSpecies[k] != null)
-                {
-                    species = justSpecies[k].ToString();
-                }//end if
-                else
-                {
-                    species = "";//null
-                }
-
-                loadCheckBox(k + 1, species);
-
-            }   //  end for k loop
+                var species = sp ?? "";
+                loadCheckBox(i + 1, species);
+            }
+            
         }   //  end setupDialog
 
 

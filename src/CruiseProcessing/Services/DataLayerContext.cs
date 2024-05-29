@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using CruiseProcessing.Data;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 #nullable enable
 
@@ -6,9 +7,9 @@ namespace CruiseProcessing.Services
 {
     public class DataLayerContext : ObservableObject
     {
-        private CPbusinessLayer? _dataLayer;
+        private CpDataLayer? _dataLayer;
 
-        public CPbusinessLayer? DataLayer
+        public CpDataLayer? DataLayer
         {
             get => _dataLayer;
             set => SetProperty(ref _dataLayer, value);

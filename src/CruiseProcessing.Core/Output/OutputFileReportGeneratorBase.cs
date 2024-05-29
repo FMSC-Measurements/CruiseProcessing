@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +20,7 @@ namespace CruiseProcessing.Output
         [Obsolete("Use HeaderData instead")]
         protected string currentVersion => HeaderData.Version; // only used in OutputTim
 
-        public OutputFileReportGeneratorBase(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID = "") : base(dataLayer, reportID)
+        public OutputFileReportGeneratorBase(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID = "") : base(dataLayer, reportID)
         {
             HeaderData = headerData;
         }

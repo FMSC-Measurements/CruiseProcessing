@@ -19,10 +19,10 @@ namespace CruiseProcessing
         private string District { get; }
         private string CruiseNumber { get; }
 
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public List<VolumeEquationDO> VolumeEquations { get; }
 
-        public CalculateTreeValues2(CPbusinessLayer dataLayer)
+        public CalculateTreeValues2(CpDataLayer dataLayer)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
 
@@ -165,7 +165,7 @@ namespace CruiseProcessing
             float HTTOT = tree.TotalHeight;
             int HTLOG = (int)tree.TreeDefaultValue.MerchHeightLogLength;
             float HT1PRD = tree.MerchHeightPrimary;
-            float HT2PRD = default(float);
+            float HT2PRD = tree.MerchHeightSecondary;
             float UPSHT1 = tree.UpperStemHeight;
             float UPSHT2 = 0.0f;
             int HTTFLL = (int)tree.HeightToFirstLiveLimb;

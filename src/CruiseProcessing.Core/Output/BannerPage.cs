@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 
 namespace CruiseProcessing
@@ -67,7 +68,7 @@ namespace CruiseProcessing
                                                    "FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM"};
 
         public void outputBannerPage(string fileName, TextWriter strWriteOut, string currentDate,
-                                        string currentVersion, string DLLversion, CPbusinessLayer bslyr)
+                                        string currentVersion, string DLLversion, CpDataLayer bslyr)
         {
             //  Data arrays for the banner page
             var sale = bslyr.GetSale();

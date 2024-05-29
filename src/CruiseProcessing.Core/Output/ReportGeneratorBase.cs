@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CruiseProcessing.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,14 @@ namespace CruiseProcessing.Output
 
         protected string currentReport { get; private set; }
 
-        protected ReportGeneratorBase(CPbusinessLayer dataLayer, string reportID = "")
+        protected ReportGeneratorBase(CpDataLayer dataLayer, string reportID = "")
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
 
             currentReport = reportID;
         }
 
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
         protected string FilePath => DataLayer.FilePath;
 
