@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
 using System.Collections;
@@ -20,7 +21,7 @@ namespace CruiseProcessing
         private List<LogStockDO> lsList = new List<LogStockDO>();
         private List<PlotDO> pList = new List<PlotDO>();
 
-        public OutputList(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputList(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 
@@ -294,18 +295,17 @@ namespace CruiseProcessing
                     {
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.A01payment, 9, ref pageNumb, "");
                         //  need stratum for each cutting unit
-                        ArrayList strataList = DataLayer.GetUnitStrata(cud.Code);
-                        if (strataList.Count > 0)
+                        var strataList = DataLayer.GetStratumCodesByUnit(cud.Code);
+                        if (strataList.Count() > 0)
                         {
-                            foreach (object obj in strataList)
+                            foreach (string stratumCode in strataList)
                             {
-                                string stratumCode = Convert.ToString(obj);
                                 prtFields = CuttingUnitMethods.buildPrintArray(cud, HeaderData[3].ToString(),
                                                                                 stratumCode);
                                 printOneRecord(fieldLengths, prtFields, strWriteOut);
                             }   //  end foreach stratum
                         }
-                        else if (strataList.Count == 0)
+                        else if (strataList.Count() == 0)
                         {
                             prtFields = CuttingUnitMethods.buildPrintArray(cud, HeaderData[3].ToString(), "  ");
                             printOneRecord(fieldLengths, prtFields, strWriteOut);

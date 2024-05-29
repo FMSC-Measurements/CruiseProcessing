@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -17,14 +18,14 @@ namespace CruiseProcessing
         public ArrayList speciesList = new ArrayList();
         public ArrayList flagList = new ArrayList();
 
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
         public R9Topwood()
         {
             InitializeComponent();
         }
 
-        public R9Topwood(CPbusinessLayer dataLayer)
+        public R9Topwood(CpDataLayer dataLayer)
             :this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

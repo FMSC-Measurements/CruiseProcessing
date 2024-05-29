@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
@@ -21,7 +22,7 @@ namespace CruiseProcessing
         private List<ReportsDO> allReports = new List<ReportsDO>();
 
         public IServiceProvider Services { get; }
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
 
         protected ReportsDialog()
@@ -29,7 +30,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public ReportsDialog(CPbusinessLayer dataLayer, IServiceProvider services)
+        public ReportsDialog(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             Services = services ?? throw new ArgumentNullException(nameof(services));

@@ -1,6 +1,9 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,8 +62,8 @@ namespace CruiseProcessing.Test.Output
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-
-            var dataLayer = new CPbusinessLayer(dal);
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockLogger);
 
             List<TreeDO> tList = dataLayer.getTrees();
             double summedEF = tList.Sum(t => t.ExpansionFactor);

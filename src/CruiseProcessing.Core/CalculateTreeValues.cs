@@ -5,6 +5,7 @@ using System.Text;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using System.Runtime.InteropServices;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -40,9 +41,9 @@ namespace CruiseProcessing
         private  StringBuilder LIVE = new StringBuilder(256);
         private  StringBuilder CONSPEC = new StringBuilder(256);
         private  MRules mRules;
-        protected  CPbusinessLayer DataLayer { get; }
+        protected  CpDataLayer DataLayer { get; }
 
-        public CalculateTreeValues(CPbusinessLayer dataLayer)
+        public CalculateTreeValues(CpDataLayer dataLayer)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }

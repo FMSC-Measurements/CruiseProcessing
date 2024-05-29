@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -12,7 +13,7 @@ namespace CruiseProcessing
 {
     public partial class R9VolEquation : Form 
     {
-        public CPbusinessLayer DataLayer { get; }
+        public CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
@@ -28,7 +29,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R9VolEquation(CPbusinessLayer dataLayer, IServiceProvider services)
+        public R9VolEquation(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
@@ -127,7 +128,7 @@ namespace CruiseProcessing
             topDIB.Enabled = false;
         }
 
-        private void onFinished(object sender, EventArgs e)
+        public void onFinished(object sender, EventArgs e)
         {
             //  Remove all equations as they are rebuilt with either of these calls
             volList.Clear();

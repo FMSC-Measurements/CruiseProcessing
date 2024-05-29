@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 
 namespace CruiseProcessing
@@ -21,14 +22,14 @@ namespace CruiseProcessing
         private string equationPrefix = "VLPP";
         private List<ValueEquationDO> valList = new List<ValueEquationDO>();
         private int trackRow = -1;
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
 
         protected ValueEquations()
         {
             InitializeComponent();
         }
 
-        public ValueEquations(CPbusinessLayer dataLayer)
+        public ValueEquations(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
@@ -59,22 +60,26 @@ namespace CruiseProcessing
             }   //  endif list is empty
 
             //  Fill lists at bottom with unique species and primary products
-            ArrayList justSpecies = DataLayer.GetJustSpecies("Tree");
-            for (int n = 0; n < justSpecies.Count; n++)
-                speciesList.Items.Add(justSpecies[n].ToString());
+            var justSpecies = DataLayer.GetDistinctTreeSpeciesCodes();
+            foreach(var sp in justSpecies)
+            {
+                speciesList.Items.Add(sp);
+            }
 
             //  If there are no species/products in tree default values, it's wrong
             //  tell user to check the file design in CSM --  June 2013
-            if (justSpecies.Count == 0)
+            if (!justSpecies.Any())
             {
                 MessageBox.Show("No species/product combinations found in Tree records.\nPlease enter tree records before continuing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return -1;
             }   //  endif
 
-            ArrayList justProducts = DataLayer.GetJustPrimaryProduct();
-            for (int n = 0; n < justProducts.Count; n++)
-                primaryProdList.Items.Add(justProducts[n].ToString());
+            var justProducts = DataLayer.GetDistincePrimaryProductCodes();
+            foreach(var prod in  justProducts)
+            {
+                primaryProdList.Items.Add(prod);
+            }
 
             regionNum.Enabled = false;
             equationNumber.Enabled = false;

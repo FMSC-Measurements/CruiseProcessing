@@ -7,6 +7,7 @@ using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
 using System.Collections.ObjectModel;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -20,7 +21,7 @@ namespace CruiseProcessing
         private string threeHeader = "STRATUM:  ";
         private int footFlag = 0;
 
-        public OutputStemCounts(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputStemCounts(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

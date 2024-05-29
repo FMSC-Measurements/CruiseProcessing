@@ -1,5 +1,6 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -48,7 +50,7 @@ namespace CruiseProcessing.ViewModel
         private bool _enableMerchRules;
         private bool _enableWeightFactors;
 
-        public MainWindowViewModel(IServiceProvider services, DialogService dialogService, DataLayerContext dataserviceProvider, ILogger<MainWindowViewModel> logger)
+        public MainWindowViewModel(IServiceProvider services, IDialogService dialogService, DataLayerContext dataserviceProvider, ILogger<MainWindowViewModel> logger)
         {
             Services = services;
             DataserviceProvider = dataserviceProvider;
@@ -58,12 +60,12 @@ namespace CruiseProcessing.ViewModel
             
         }
 
-        public CPbusinessLayer? DataLayer => DataserviceProvider.DataLayer;
+        public CpDataLayer? DataLayer => DataserviceProvider.DataLayer;
 
         public IServiceProvider Services { get; }
         public DataLayerContext DataserviceProvider { get; }
         public ILogger Logger { get; }
-        public DialogService DialogService { get; }
+        public IDialogService DialogService { get; }
 
         public string AppVerson { get; }
 
@@ -96,10 +98,19 @@ namespace CruiseProcessing.ViewModel
 
         public ICommand OpenFileCommand => _openFileCommand ??= new RelayCommand(OpenFile);
 
-        public ICommand ShowVolumeEquationsCommand => _showVolumeEquationsCommand ??= new RelayCommand(() => DialogService.ShowVolumeEquations(IsFileTemplate));
+        public ICommand ShowVolumeEquationsCommand => _showVolumeEquationsCommand ??= new RelayCommand(ShowVolumeEquations);
+
+
+
         public ICommand ShowValueEquationsCommand => _showValueEquationsCommand ??= new RelayCommand(DialogService.ShowValueEquations);
-        public ICommand ShowR8VolumeEquationsCommand => _showR8VolumeEquationsCommand ??= new RelayCommand(DialogService.ShowR8VolumeEquations);
-        public ICommand ShowR9VolumeEquationsCommand => _showR9VolumeEquationsCommand ??= new RelayCommand(DialogService.ShowR9VolumeEquations);
+        public ICommand ShowR8VolumeEquationsCommand => _showR8VolumeEquationsCommand ??= new RelayCommand(ShowR8VolumeEquations);
+
+
+
+        public ICommand ShowR9VolumeEquationsCommand => _showR9VolumeEquationsCommand ??= new RelayCommand(ShowR9VolumeEquations);
+
+
+
         public ICommand ShowModifyMerchRulesCommand => _showModifyMerchRulesCommand ??= new RelayCommand(DialogService.ShowModifyMerchRules);
         public ICommand ShowModifyWeightFactorsCommand => _showModifyWeightFactorsCommand ??= new RelayCommand(DialogService.ShowModifyWeightFactors);
 
@@ -149,6 +160,24 @@ namespace CruiseProcessing.ViewModel
         {
             get => _enableWeightFactors;
             set => SetProperty(ref _enableWeightFactors, value);
+        }
+
+        private void ShowVolumeEquations()
+        {
+            DialogService.ShowVolumeEquations(IsFileTemplate);
+            RefreshVolumeEquationStatus();
+        }
+
+        private void ShowR8VolumeEquations()
+        {
+            DialogService.ShowR8VolumeEquations();
+            RefreshVolumeEquationStatus();
+        }
+
+        private void ShowR9VolumeEquations()
+        {
+            DialogService.ShowR9VolumeEquations();
+            RefreshVolumeEquationStatus();
         }
 
 
@@ -205,7 +234,7 @@ namespace CruiseProcessing.ViewModel
             }
         }
 
-        private void AddStandardReports()
+        public void AddStandardReports()
         {
             //  calls routine to add standard and regional reports
             List<ReportsDO> currentReports = DataLayer.GetReports();
@@ -216,7 +245,6 @@ namespace CruiseProcessing.ViewModel
                 currentReports = ReportsDataservice.GetDefaultReports();
                 DataLayer.SaveReports(currentReports);
 
-
             }//end if
             else if (currentReports.Count < ReportsDataservice.reportsArray.GetLength(0))
             {
@@ -224,15 +252,12 @@ namespace CruiseProcessing.ViewModel
                 if (currentReports[0].Title == "" || currentReports[0].Title == null)
                 {
                     //  old reports -- update list
-                    currentReports = ReportMethods.updateReportsList(currentReports, ReportsDataservice.reportsArray);
+                    currentReports = ReportsDataservice.UpdateReportIDAndTitles(currentReports);
                     DataLayer.SaveReports(currentReports);
                 }
-                else
-                {
-                    //  new reports -- just add
-                    currentReports = ReportMethods.addReports(currentReports, ReportsDataservice.reportsArray);
-                    DataLayer.SaveReports(currentReports);
-                }   //  endif
+
+                currentReports = ReportsDataservice.AddMissingReports(currentReports);
+                DataLayer.SaveReports(currentReports);
 
             }   //  endif
                 //  now get reports selected
@@ -361,7 +386,7 @@ namespace CruiseProcessing.ViewModel
             //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
             dal.OpenConnection();
 
-            var datalayer = new CPbusinessLayer(dal, dal_v3, cruiseID, isTemplate);
+            var datalayer = new CpDataLayer(dal, dal_v3, cruiseID, Services.GetRequiredService<ILogger<CpDataLayer>>(), isTemplate);
 
             if (!isTemplate)
             {
@@ -388,20 +413,28 @@ namespace CruiseProcessing.ViewModel
 
             
 
-            EnableVolumeEquations = (Region != 9 || isTemplate) ? true
-                : Region == 9 && dal.From<VolumeEquationDO>().Count() > 0;
-
-            EnableR9Equations = (Region == 9 && !EnableVolumeEquations);
+            
             EnableR8Equations = (Region == 8);
             EnableValueEquations = !isTemplate;
             EnableWeightFactors = !isTemplate;
             EnableMerchRules = (Region != 9 && Region != 8 && !isTemplate);
 
+            RefreshVolumeEquationStatus();
 
             OnPropertyChanged(nameof(DataLayer));
             OnPropertyChanged(nameof(IsCruiseFileOpen));
             OnPropertyChanged(nameof(IsFileOpen));
             OnPropertyChanged(nameof(IsFileTemplate));
+
+
+        }
+
+        protected void RefreshVolumeEquationStatus()
+        {
+            EnableVolumeEquations = (Region != 9 || IsFileTemplate) ? true
+                : Region == 9 && DataLayer.DAL.From<VolumeEquationDO>().Count() > 0;
+
+            EnableR9Equations = (Region == 9 && !EnableVolumeEquations);
         }
 
         public static bool EnsurePathValid(string path, ILogger logger, IDialogService dialogService)

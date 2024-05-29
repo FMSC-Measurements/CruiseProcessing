@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -69,19 +70,21 @@ namespace CruiseProcessing
                                                          {"13","04","5","29"},
                                                          {"13","07","5","28"}};
 
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
+        public IDialogService DialogService { get; }
 
         protected R8VolEquation()
         {
             InitializeComponent();
         }
 
-        public R8VolEquation(CPbusinessLayer dataLayer, IServiceProvider services)
+        public R8VolEquation(CpDataLayer dataLayer, IServiceProvider services, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
 
@@ -96,6 +99,11 @@ namespace CruiseProcessing
 
 
         private void onOK(object sender, EventArgs e)
+        {
+            Finish();
+        }
+
+        public void Finish()
         {
             //  open volume equation table and remove all before building and saving equations
             DataLayer.deleteVolumeEquations();
@@ -134,14 +142,14 @@ namespace CruiseProcessing
             //  if geocode and group code are still blank, means forest or district are incorrect
             if (currGeoCode == "" || currGrpCode == "")
             {
-                MessageBox.Show("Could not find Forest and/or District number.\nCannot complete equations.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogService.ShowError("Could not find Forest and/or District number.\nCannot complete equations.");
                 Close();
                 return;
             }   //  endif
 
             //  get unique species/product combinations
             string[,] speciesProduct = DataLayer.GetUniqueSpeciesProduct();
-            for(int k=0;k<speciesProduct.GetLength(0);k++)
+            for (int k = 0; k < speciesProduct.GetLength(0); k++)
             {
                 //  need species and product
                 string currentSpecies = speciesProduct[k, 0];
@@ -154,7 +162,7 @@ namespace CruiseProcessing
                     //  so commented out the call to build those equations
                     //  October 2015
                     //if (currentProduct == "01")
-                      //  buildVolumeEquation(currGrpCode, currentSpecies, currentProduct);
+                    //  buildVolumeEquation(currGrpCode, currentSpecies, currentProduct);
                     //  Build Clark equations -- old or new -- July 2017
                     if (newClarkCheckBox.Checked == true)
                         buildNewClarkEquations(currGeoCode, currentSpecies, currentProduct);
@@ -162,7 +170,7 @@ namespace CruiseProcessing
                     {
                         if (pulpwoodHeight >= 0)
                             buildClarkEquation(currGeoCode, currentSpecies, currentProduct, pulpwoodHeight);
-                        else if(pulpwoodHeight < 0)
+                        else if (pulpwoodHeight < 0)
                         {
                             Close();
                             return;
@@ -181,7 +189,7 @@ namespace CruiseProcessing
             }   //  endif calculate biomass
             Close();
             return;
-        }   //  end onOK
+        }
 
 
         private void buildVolumeEquation(string currGrpCode, string currentSpecies, string currentProduct)

@@ -161,42 +161,5 @@ namespace CruiseProcessing
             return egList;
         }   //  end createDefaultList
 
-
-        public StringBuilder createInsertQuery(exportGrades eg,string sortOrGrade)
-        {
-            StringBuilder queryString = new StringBuilder();
-            queryString.Append("INSERT INTO ExportValues ");
-            queryString.Append("(exportSort,exportGrade,exportCode,exportName,minDiam,minLength,minBDFT,maxDefect)");
-
-            //  enter the actual values for the record
-            queryString.Append(" VALUES ('");
-            if (sortOrGrade == "sort")
-            {
-                queryString.Append(eg.exportSort);
-                queryString.Append("','','");          //  blank exportGrade
-            }
-            else if (sortOrGrade == "grade")
-            {
-                queryString.Append("','");        //  blank exportSort
-                queryString.Append(eg.exportGrade);
-                queryString.Append("','");
-            }   //  endif sortOrGrade
-            
-            queryString.Append(eg.exportCode);
-            queryString.Append("','");
-            queryString.Append(eg.exportName);
-            queryString.Append("','");
-            queryString.Append(eg.minDiam);
-            queryString.Append("','");
-            queryString.Append(eg.minLength);
-            queryString.Append("','");
-            queryString.Append(eg.minBDFT);
-            queryString.Append("','");
-            queryString.Append(eg.maxDefect);
-            queryString.Append("');");
-
-            return queryString;
-        }   //  end createInsertQuery
-
     }
 }

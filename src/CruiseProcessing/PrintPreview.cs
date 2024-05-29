@@ -7,6 +7,7 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -20,13 +21,13 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public PrintPreview(CPbusinessLayer dataLayer)
+        public PrintPreview(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         protected string FilePath => DataLayer.FilePath;
 
 

@@ -8,6 +8,7 @@ using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using CruiseProcessing.Services;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 
 namespace CruiseProcessing
@@ -29,7 +30,7 @@ namespace CruiseProcessing
         private double convFactor = 100.0;
         private string[] completeHeader;
 
-        public OutputR4(CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputR4(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
         }
 

@@ -1,10 +1,12 @@
 ﻿using CruiseDAL;
+using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using DiffPlex.DiffBuilder;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,11 +25,11 @@ namespace CruiseProcessing.Test
             
         }
 
-        private Mock<IServiceProvider> GetServiceProviderMock(CPbusinessLayer datalayer)
+        private Mock<IServiceProvider> GetServiceProviderMock(CpDataLayer datalayer)
         {
             var mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
-                .Returns(new CalculateTreeValues2(datalayer));
+                .Returns(() => new CalculateTreeValues2(datalayer));
 
             return mockServiceProvider;
         }
@@ -75,8 +77,8 @@ namespace CruiseProcessing.Test
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-
-            var dataLayer = new CPbusinessLayer(dal);
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -132,8 +134,8 @@ namespace CruiseProcessing.Test
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-
-            var dataLayer = new CPbusinessLayer(dal);
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -194,13 +196,15 @@ namespace CruiseProcessing.Test
 
         //[InlineData("Version3Testing\\27504PCM_Spruce East_Timber_Sale.cruise")] no out file
         //[InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")] no out file
+
+        
         public void ProcessAndVerityOutput(string testFileName, string expectedOutputFileName, string expectedFailingReports = "")
         {
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-
-            var dataLayer = new CPbusinessLayer(dal);
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -251,6 +255,89 @@ namespace CruiseProcessing.Test
                 .ToArray();
 
             foreach(var line in changedLines)
+            {
+                Output.WriteLine(line.Position.ToString().PadLeft(5) + ":" + line.Text);
+            }
+
+            changedLines.Should().HaveCount(0);
+
+
+
+        }
+
+        [Theory]
+        [InlineData("Issues\\20383_Jiffy Stewardship_TS.crz3", "Issues\\20383_Jiffy Stewardship_TS.04.15.2023.out")]
+        public void ProcessAndVerityOutput_V3(string testFileName, string expectedOutputFileName, string expectedFailingReports = "")
+        {
+            var filePath = GetTestFile(testFileName);
+
+            using var v3db = new CruiseDatastore_V3(filePath);
+            var cruiseID = v3db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
+
+            var v2Path = GetTempFilePath(".process", Path.GetFileNameWithoutExtension(testFileName) + ".ProcessAndVerityOutput_V3");
+            using var dal = new DAL(v2Path, true);
+
+            var migrator = new DownMigrator();
+            migrator.MigrateFromV3ToV2(cruiseID, v3db, dal);
+
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger);
+
+            var mockDialogService = new Mock<IDialogService>();
+            var mockLogger = new Mock<ILogger<ProcessStatus>>();
+            var mockServiceProvider = GetServiceProviderMock(dataLayer);
+            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
+
+            if (dataLayer.getRegion() == "09"
+                && dataLayer.getValueEquations().Count == 0)
+            {
+                var r9VolEq = new R9VolEquation(dataLayer, mockServiceProvider.Object);
+                r9VolEq.onFinished(null, null);
+            }
+
+            var result = processStatus.DoPreProcessChecks();
+            if (!result)
+            { throw new Exception("Skip"); }
+
+
+            var mockProgress = new Mock<IProgress<string>>();
+            processStatus.ProcessCore(mockProgress.Object);
+
+            var ctf = new CreateTextFile(dataLayer);
+
+            var stringWriter = new StringWriter();
+
+            var reports = dataLayer.GetSelectedReports();
+            var headerData = dataLayer.GetReportHeaderData();
+            _ = ctf.CreateOutFile(reports, headerData, stringWriter, out var failedReports, out var hasWarnings);
+
+            if (expectedFailingReports.Any() || expectedFailingReports != string.Empty)
+            {
+                var expectedFailReportsArray = expectedFailingReports.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                failedReports.Should().Contain(expectedFailReportsArray);
+            }
+            //hasWarnings.Should().BeFalse();
+
+
+            var expectedOutputPath = GetTestFile(expectedOutputFileName);
+            var expectedOutput = File.OpenText(expectedOutputPath).ReadToEnd();
+
+            var resultOutput = stringWriter.ToString();
+            var diff = InlineDiffBuilder.Diff(expectedOutput, resultOutput);
+
+            var changedLines = diff.Lines
+                .Where((x) =>
+                {
+                    return x.Type != DiffPlex.DiffBuilder.Model.ChangeType.Unchanged
+                        && !x.Text.StartsWith("SALENAME:")
+                        && !x.Text.StartsWith("RUN DATE")
+                        && !x.Text.StartsWith("USDA FOREST SERVICE")
+                        && !x.Text.StartsWith("WASHINGTON")
+                        && !x.Text.StartsWith("FILENAME:");
+                })
+                .ToArray();
+
+            foreach (var line in changedLines)
             {
                 Output.WriteLine(line.Position.ToString().PadLeft(5) + ":" + line.Text);
             }

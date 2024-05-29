@@ -16,12 +16,13 @@ using System.Collections;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
     public partial class ProcessStatus : Form
     {
-        public CPbusinessLayer DataLayer { get; }
+        public CpDataLayer DataLayer { get; }
         public IDialogService DialogService { get; }
 
         protected IProgress<string> ProcessProgress { get; }
@@ -49,7 +50,7 @@ namespace CruiseProcessing
             ProcessProgress = new Progress<string>(ProcessProgress_OnProgressChanged);
         }
 
-        public ProcessStatus(CPbusinessLayer dataLayer, IDialogService dialogService, ILogger<ProcessStatus> logger, IServiceProvider services)
+        public ProcessStatus(CpDataLayer dataLayer, IDialogService dialogService, ILogger<ProcessStatus> logger, IServiceProvider services)
     : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));

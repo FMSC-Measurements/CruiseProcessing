@@ -6,6 +6,7 @@ using System.Text;
 using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -19,7 +20,7 @@ namespace CruiseProcessing
         private List<StatList> stage1Stats = new List<StatList>();
         private List<StatList> stage2Stats = new List<StatList>();
 
-        public OutputStats(string currCL, CPbusinessLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputStats(string currCL, CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
             this.currCL = currCL;
         }

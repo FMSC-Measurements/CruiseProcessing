@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
@@ -35,14 +36,14 @@ namespace CruiseProcessing
         private int EVOD;
        
 
-        public CPbusinessLayer DataLayer { get; }
+        public CpDataLayer DataLayer { get; }
 
         protected ModifyMerchRules()
         {
             InitializeComponent();
         }
 
-        public ModifyMerchRules(CPbusinessLayer dataLayer)
+        public ModifyMerchRules(CpDataLayer dataLayer)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
@@ -235,11 +236,6 @@ namespace CruiseProcessing
             updateVolumeList();
             //  save volume equation list
             DataLayer.SaveVolumeEquations(vList);
-
-            if (DataLayer.DAL_V3 != null)
-            {
-                DataLayer.syncVolumeEquationToV3();
-            }//end if
 
             Close();
             return;

@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Build_Installer.cmd = Build_Installer.cmd
 		Build_Release.cmd = Build_Release.cmd
 		Build_ZipArtifact.cmd = Build_ZipArtifact.cmd
+		..\doc\changeLog.md = ..\doc\changeLog.md
 		CruiseProcessingIntro.txt = CruiseProcessingIntro.txt
 		CruiseProcessingSetupScript.iss = CruiseProcessingSetupScript.iss
 		Directory.Build.props = Directory.Build.props
@@ -28,6 +29,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruiseProcessing.Test", "CruiseProcessing.Test\CruiseProcessing.Test.csproj", "{2BD277A7-E1FB-4FE9-9D3E-49258F2D4135}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CruiseProcessing.Test.Shared", "CruiseProcessing.Test.Shared\CruiseProcessing.Test.Shared.shproj", "{6B6D1FD2-26E5-46B1-A035-4DFC55B921EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A10D1093-67D3-4362-AAB4-F1BC61AB6CE2}"
+	ProjectSection(SolutionItems) = preProject
+		..\doc\changeLog.md = ..\doc\changeLog.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +101,7 @@ Global
 		{5BF9E5D0-2D53-4511-A1C5-92B7CD9A60B4} = {F4BD9ABC-14DA-4E2F-95A9-4D4407BAC405}
 		{2BD277A7-E1FB-4FE9-9D3E-49258F2D4135} = {F4BD9ABC-14DA-4E2F-95A9-4D4407BAC405}
 		{6B6D1FD2-26E5-46B1-A035-4DFC55B921EB} = {F4BD9ABC-14DA-4E2F-95A9-4D4407BAC405}
+		{A10D1093-67D3-4362-AAB4-F1BC61AB6CE2} = {4899172A-8293-4CE8-B78F-EC24FD8AF09A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A3A53648-673B-4CCE-A8D7-C2A7980D95CC}

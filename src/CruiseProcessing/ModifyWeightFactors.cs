@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseProcessing.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
@@ -15,7 +16,7 @@ namespace CruiseProcessing
     public partial class ModifyWeightFactors : Form
     {
         public List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
-        protected CPbusinessLayer DataLayer { get; }
+        protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
 
         protected ModifyWeightFactors()
@@ -23,7 +24,7 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public ModifyWeightFactors(CPbusinessLayer dataLayer, IServiceProvider services)
+        public ModifyWeightFactors(CpDataLayer dataLayer, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
@@ -41,7 +42,7 @@ namespace CruiseProcessing
                 Close();
                 return -1;
             }
-            
+
             //  Show this message box until security question is OKd by measurement specialists.  04/2013
             //MessageBox.Show("In the future, a security question will be displayed here.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -80,12 +81,7 @@ namespace CruiseProcessing
                 //  
                 DataLayer.SaveBiomassEquations(bioList);
 
-                if (DataLayer.DAL_V3 != null)
-                {
-                    DataLayer.syncBiomassEquationToV3();
-                }//end if
-
-                    Cursor.Current = this.Cursor;
+                Cursor.Current = this.Cursor;
             }   //  endif nResult
             Close();
             return;
