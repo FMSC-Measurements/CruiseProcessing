@@ -2,11 +2,11 @@
 
 ## Fixes
    - Fixed Volume Equations button not showing up after adding R9 equations
-   - Fixed volume not being calculated on trees using MerchHeightPrimary
+   - Fixed volume not being calculated on trees using MerchHeightSecondary
    - Fixed V3 file Biomass Equation not persisting from R8, R8 setup 
    - Fixed V3 file Volume Equations not persisting in V3 file sometimes
    - Fixed editing selected report or using add standard reports clears selected report next time V3 file is opened
-   - Fixed contract species bing applied to all population with a given product when design has contract species mapped to specific species/product 
+   - Fixed contract species being applied to all population with a given product when design has contract species mapped to specific species/product 
 
 
 
