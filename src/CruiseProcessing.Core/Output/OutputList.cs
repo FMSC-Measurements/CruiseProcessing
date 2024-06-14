@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseDAL.Schema;
 using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using System;
@@ -12,6 +13,116 @@ namespace CruiseProcessing
 {
     public class OutputList : OutputFileReportGeneratorBase
     {
+        #region headers
+        //  A Reports
+        public readonly string[] A01unit = new string[3] {"                              CUTTING   CUTTING",
+                                                "     CRUISE       CUTTING     UNIT      UNIT                        LOG      PAYMENT",
+                                                "     NO.          UNIT NO.    ACRES     DESCRIPTION                 METHOD   UNIT NO."};
+        public readonly string[] A01stratum = new string[2] {"     CRUISE   STRATA   CRUISE   STRATA          PLOT  NO. OF STRATA                     DATE",
+                                                   "     NO.      NO.      METHOD   ACRES   BAF     SIZE  PLOTS  DESCRIPTION                MMYYYY"};
+        public readonly string[] A02plot = new string[2] {"     CRUISE   PLOT     CUTTING  STRATA    SLOPE           PLOT   NULL",
+                                                 "     NO.      NO.      UNIT NO. NO.         %     ASPECT  KPI    PLOT?"};
+        public readonly string[] A01payment = new string[2] {"     CRUISE     CUTTING             PAYMENT",
+                                                    "     NO.        UNIT     STRATUM    UNIT"};
+        public readonly string[] A01samplegroup = new string[2] {"          SAMPLE                 BIG   SMALL",
+                                                        " STRATUM  GROUP    FREQ   KZ     BAF   FPS      DESCRIPTION"};
+        public readonly string[] A03columns = new string[49] {"    STRATA","      UNIT","      PLOT","      TREE","   SPECIES",
+                                                    "  PROD PRI","  PROD SEC","   SMP GRP"," CUT/LEAVE","  CNT/MEAS",
+                                                    "TREE COUNT"," U OF MEAS","  ESTIMATE","P CULL&BRK",
+                                                    " P HID DEF","P SEEN DEF","  P REC PD","S CULL&BRK"," S HID DEF",
+                                                    "S SEEN DEF","   SLOPE %","MRKR INITL","  YLD COMP"," LIVE/DEAD",
+                                                    "CONTR SPEC","TREE GRADE","  HT 1 LMB","  POLE LEN","CLEAR FACE",
+                                                    " CROWN RAT","    DBH-OB","    DRC-OB","    TOT HT"," MRHT TYPE",
+                                                    "MRHT LG LN","MRHT PR PD","MRHT SE PD","  REFER HT","FORM CLASS",
+                                                    "Z FORM FAC"," U STM DIA"," HT U STEM","   DBH BTR","DBH DBL BT",
+                                                    "TDIB PR PD","TDIB SE PD","T DEF CODE","TDIA@DF PT",
+                                                    "    VOID %"};
+        public readonly string[] A04counts = new string[4] {"THE FOLLOWING INFORMATION IS PROVIDED FOR TREE-BASED METHODS AND REPRESENTS WHAT ONCE WERE COUNT RECORDS",
+                                                  " ",
+                                                  " CUTTING            SAMPLE                        KZ      TALLY",
+                                                  "   UNIT   STRATUM   GROUP   SPECIES   FREQUENCY   VALUE   COUNT   KPI      DESCRIPTION"};
+        //public static readonly string[] A03remarks = new string[2] {"           CUTTING",
+        //                                           "   STRATUM    UNIT   PLOT   TREE   SPECIES   REMARK"};
+
+        public readonly string[] A08columns = new string[7] {"                     /L      %   %     /L      %   %     /L      %   %     /L      %   %     /L      %   %",
+                                                   "  S                  /O      D         /O      D         /O      D         /O      D         /O      D    ",
+                                                   "  T                  /G   G  E   R     /G   G  E   R     /G   G  E   R     /G   G  E   R     /G   G  E   R",
+                                                   "  R  U    P   T      /    R  F   E     /    R  F   E     /    R  F   E     /    R  F   E     /    R  F   E",
+                                                   "  A  N    L   R      /N   A  E   C     /N   A  E   C     /N   A  E   C     /N   A  E   C     /N   A  E   C",
+                                                   "  T  I    O   E      /U   D  C   V     /U   D  C   V     /U   D  C   V     /U   D  C   V     /U   D  C   V",
+                                                   "  A  T    T   E      /M   E  T   B     /M   E  T   B     /M   E  T   B     /M   E  T   B     /M   E  T   B"};
+        public readonly string[] A09columns = new string[7] {"                   L                                                            %    %",
+                                                   "  S                O      S     L     L                                              D",
+                                                   "  T                G      M     G     E  G                                      R    E",
+                                                   "  R  U    P   T                       N  R                                      E    F",
+                                                   "  A  N    L   R    N      D     D     G  A   GROSS VOLUME     NET VOLUME        C    E",
+                                                   "  T  I    O   E    U      I     I     T  D                                      V    C",
+                                                   "  A  T    T   E    M      A     A     H  E   BDFT    CUFT     BDFT    CUFT      B    T"};
+        public readonly string[] A05A07columns = new string[10] {"                               K   Z",
+                                                        "                               K   Z",
+                                                        "                               K   Z",
+                                                        "                  S            K   Z",
+                                                        "  S               P       D    K   Z",
+                                                        "  T               E       B    K   Z",
+                                                        "  R  U    P   T   C       H    K   Z   ************ PER TREE ************                           ***** PER ACRE/PER STRATA *****",
+                                                        "  A  N    L   R   I       -    K   Z   *** PRIMARY ***    ** SECONDARY **                           ** PRIMARY **   ** SECONDARY **",
+                                                        "  T  I    O   E   E       O    K   Z    GROSS    NET      GROSS   NET      TREE    CHAR      EXP     GROSS   NET      GROSS    NET",
+                                                        "  A  T    T   E   S       B    K   Z    VVVV     VVVV     VVVV    VVVV      FAC     FAC      FAC     VVVV    VVVV     VVVV     VVVV"};
+        public readonly string[] A06columns = new string[10] {"                               K   Z",
+                                                     "                               K   Z",
+                                                     "                               K   Z",
+                                                     "                  S            K   Z",
+                                                     "  S               P        D   K   Z",
+                                                     "  T               E        B   K   Z  ************ PER TREE ************                         ******* PER ACRE/PER STRATA *******",
+                                                     "  R  U  P    T    C        H   K   Z",
+                                                     "  A  N  L    R    I        -   K   Z          ***** VALUE *****                                          ***** VALUE *****  ",
+                                                     "  T  I  O    E    E        O   K   Z      PRIMARY        SECONDARY       TREE     CHAR     EXP        PRIMARY        SECONDARY ",
+                                                     "  A  T  T    E    S        B   K   Z      PRODUCT        PRODUCT         FAC      FAC      FAC        PRODUCT        PRODUCT  "};
+        public readonly string[] A10columns = new string[10] {"                                 K   Z",
+                                                     "                                 K   Z",
+                                                     "                                 K   Z",
+                                                     "                    S            K   Z",
+                                                     "  S                 P      D     K   Z",
+                                                     "  T                 E      B     K   Z",
+                                                     "  R  U    P    T    C      H     K   Z   ****************************** PER TREE GREEN POUNDS **********************************",
+                                                     "  A  N    L    R    I      -     K   Z       **************** COMPONENT *******************************     ",
+                                                     "  T  I    O    E    E      O     K   Z    PRIMARY  SECONDARY          LIVE     DEAD      STEM     TOTAL    TREE     CHAR     EXP",
+                                                     "  A  T    T    E    S      B     K   Z    PRODUCT  PRODUCT   FOLIAGE  BRANCHES BRANCHES  TIP      TREE     FAC      FAC      FAC "};
+        //public static readonly string A10footer = "NOTE:  PERCENT MOISTURE AND PERCENT REMOVED HAVE BEEN APPLIED TO BIOMASS COMPONENT WEIGHTS.";
+        
+        public readonly string[] A13plot = new string[6] {"             S",
+                                                 "             T",
+                                                 "    P   U    R",
+                                                 "    L   N    A",
+                                                 "    O   I    T",
+                                                 "    T   T    A     X-METERS     Y-METERS    Z-UNIT   METADATA"};
+        public readonly string[] A13tree = new string[6] {"  S",
+                                                 "  T",
+                                                 "  R    U     P      T",
+                                                 "  A    N     L      R",
+                                                 "  T    I     O      E",
+                                                 "  A    T     T      E  SG     X-METERS     Y-METERS    Z-UNIT  METADATA"};
+
+
+        //  new modified merch rules report (A15)
+        private string[] A15columns = new string[2] {"  VOLUME                    MIN LOG LENGTH    MAX LOG LENGTH   SEGMENTATION    MIN MERCH    EVEN/ODD",
+                                                    " EQUATION   PRODUCT   TRIM     PRIMARY           PRIMARY           LOGIC        LENGTH      SEGMENT     MODIFIED?"};
+
+        //  Log level reports
+        //  L1 report
+        private readonly string[] L1columns = new string[9] {"                             U",
+                                                   "                                                                %",
+                                                   "                     S    P  O   L     S      L                      %",
+                                                   "   S                 P    R  F   O     M      G      L          D",
+                                                   "   T                 E    O      G                   E      G   E    R",
+                                                   "   R   U   P    T    C    D  M         D      D      N      R   F    E",
+                                                   "   A   N   L    R    I    U  E   N     I      I      G      A   E    C",
+                                                   "   T   I   O    E    E    C  A   U     A      A      T      D   C    V    GROSS  BDFT   NET     GROSS  CUBIC  NET    DIB  TOTAL",
+                                                   "   A   T   T    E    S    T  S   M     M      M      H      E   T    B    BDFT   REMVD  BDFT    CUBIC  REMVD  CUBIC  CLS  EXPANS"};
+
+        #endregion headers
+
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private string[] completeHeader;
@@ -92,7 +203,7 @@ namespace CruiseProcessing
                         //  what fields to print?
                         fieldsToPrint = TreeListMethods.MakeTreeFieldList(tList);
                         //  Build column headings based on fields to print
-                        completeHeader = TreeListMethods.BuildColumnHeaders(reportHeaders.A03columns, fieldsToPrint);
+                        completeHeader = TreeListMethods.BuildColumnHeaders(A03columns, fieldsToPrint);
                         WriteTree(strWriteOut, ref pageNumb);
 
                         break;
@@ -277,7 +388,7 @@ namespace CruiseProcessing
                     int jIndex = 0;
                     foreach (CuttingUnitDO cul in cList)
                     {
-                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.A01unit, 10, ref pageNumb, "");
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], A01unit, 10, ref pageNumb, "");
                         prtFields = CuttingUnitMethods.buildPrintArray(cul, HeaderData[3]);
                         printOneRecord(fieldLengths, prtFields, strWriteOut);
                         //  save acres for totaling
@@ -293,7 +404,7 @@ namespace CruiseProcessing
                 case 2:     //  page three -- payment units
                     foreach (CuttingUnitDO cud in cList)
                     {
-                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.A01payment, 9, ref pageNumb, "");
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], A01payment, 9, ref pageNumb, "");
                         //  need stratum for each cutting unit
                         var strataList = DataLayer.GetStratumCodesByUnit(cud.Code);
                         if (strataList.Count() > 0)
@@ -322,7 +433,7 @@ namespace CruiseProcessing
             {
                 sdo.CuttingUnits.Populate();
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.A01stratum, 9, ref pageNumb, "");
+                                A01stratum, 9, ref pageNumb, "");
                 //  need true stratum acres not used for expansion
                 var totalStrataAcres = sdo.CuttingUnits.Sum(cu => cu.Area);
                 //  and number of plots for the stratum
@@ -366,7 +477,7 @@ namespace CruiseProcessing
             //  output count table (was originally in the old A2 report as a separate page)
             foreach (CountTreeDO cdo in ctList)
             {
-                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.A04counts, 11, ref pageNumb, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], A04counts, 11, ref pageNumb, "");
                 prtFields = CountTreeMethods.buildPrintArray(cdo, cdo.SampleGroup.Stratum.Code);
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
@@ -382,13 +493,13 @@ namespace CruiseProcessing
             string[] headerToPrint = new string[10];
             if (volType == "CUFT" || volType == "BDFT")
             {
-                headerToPrint = updateHeightHeader(hgtOne, hgtTwo, "", reportHeaders.A05A07columns);
+                headerToPrint = updateHeightHeader(hgtOne, hgtTwo, "", A05A07columns);
                 headerToPrint[9] = headerToPrint[9].Replace("VVVV", volType);
             }
             else if (volType == "VALUE")
-                headerToPrint = updateHeightHeader(hgtOne, hgtTwo, "", reportHeaders.A06columns);
+                headerToPrint = updateHeightHeader(hgtOne, hgtTwo, "", A06columns);
             else if (volType == "BIOMASS")
-                headerToPrint = updateHeightHeader(hgtOne, hgtTwo, "", reportHeaders.A10columns);
+                headerToPrint = updateHeightHeader(hgtOne, hgtTwo, "", A10columns);
 
             //  print lines
             foreach (TreeDO tl in tList)
@@ -432,7 +543,7 @@ namespace CruiseProcessing
                 foreach (PlotDO pl in pList)
                 {
                     WriteReportHeading(strWriteOut, reportTitles[0], "PLOT TABLE INFORMATION",
-                                    reportTitles[2], reportHeaders.A13plot, 7, ref pageNumb, "");
+                                    reportTitles[2], A13plot, 7, ref pageNumb, "");
                     prtFields = PlotMethods.buildPrintArray(pl, pl.Stratum.Code, pl.CuttingUnit.Code);
                     if (prtFields.Count > 0)
                     {
@@ -447,7 +558,7 @@ namespace CruiseProcessing
                 {
                     if (pl.Stratum_CN != null && pl.Stratum_CN != 0)
                     {
-                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.A02plot, 9, ref pageNumb, "");
+                        WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], A02plot, 9, ref pageNumb, "");
                         prtFields = PlotMethods.buildPrintArray(pl, HeaderData.CruiseName,
                                                                 pl.Stratum.Code, pl.CuttingUnit.Code);
                         printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -492,7 +603,7 @@ namespace CruiseProcessing
                 foreach (TreeDO tdo in tList)
                 {
                     WriteReportHeading(strWriteOut, reportTitles[0], "TREE TABLE INFORMATION",
-                                        reportTitles[2], reportHeaders.A13tree, 7, ref pageNumb, "");
+                                        reportTitles[2], A13tree, 7, ref pageNumb, "");
                     prtFields = TreeListMethods.buildPrintArray(tdo);
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
                 }   //  end foreach loop
@@ -541,7 +652,7 @@ namespace CruiseProcessing
                     for (int n = 0; n < numIts; n++)
                     {
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            reportHeaders.A08columns, 10, ref pageNumb, "");
+                                            A08columns, 10, ref pageNumb, "");
                         switch (n)
                         {
                             case 0:     //  logs 1-5
@@ -567,7 +678,7 @@ namespace CruiseProcessing
                     if (remainLogs > 0)
                     {
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            reportHeaders.A08columns, 10, ref pageNumb, "");
+                                            A08columns, 10, ref pageNumb, "");
                         prtFields = LogMethods.buildPrintArray(currentLogs, numbLogs - remainLogs, numbLogs - 1);
                         printOneRecord(fieldLengths, prtFields, strWriteOut);
                     }   //  endif remaining logs
@@ -593,7 +704,7 @@ namespace CruiseProcessing
                     foreach (LogStockDO lsd in fbsLogs)
                     {
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            reportHeaders.A09columns, 10, ref pageNumb, "");
+                                            A09columns, 10, ref pageNumb, "");
                         prtFields = LogMethods.buildPrintArray(lsd);
                         printOneRecord(fieldLengths, prtFields, strWriteOut);
                     }   //  end foreach loop
@@ -610,7 +721,7 @@ namespace CruiseProcessing
             {
                 if (numOlines >= 48) numOlines = 0;
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.L1columns, 10, ref pageNumb, "");
+                                    L1columns, 10, ref pageNumb, "");
                 //  calulate total expansion factor -- expansion factor times strata acres
                 double STacres = Utilities.ReturnCorrectAcres(lsdo.Tree.Stratum.Code, DataLayer, (long)lsdo.Tree.Stratum_CN);
                 if (STacres == 0.0) STacres = 1.0;
@@ -627,7 +738,7 @@ namespace CruiseProcessing
             foreach (SampleGroupDO sg in sgList)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.A01samplegroup, 9, ref pageNumb, "");
+                                    A01samplegroup, 9, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields = SampleGroupMethods.buildPrintArray(sg);
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -640,7 +751,7 @@ namespace CruiseProcessing
             //  output merch rules
             foreach (VolumeEquationDO ce in currEQ)
             {
-                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.A15columns, 11, ref pageNum, "");
+                WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], A15columns, 11, ref pageNum, "");
                 prtFields.Clear();
                 prtFields = VolumeEqMethods.buildMerchArray(ce);
                 printOneRecord(fieldLengths, prtFields, strWriteOut);

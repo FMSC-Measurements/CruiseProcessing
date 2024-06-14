@@ -13,6 +13,28 @@ namespace CruiseProcessing
 {
     class OutputStatsToo : OutputFileReportGeneratorBase
     {
+        //  ST(DS) reports
+        private readonly string[] ST3columns = new string[7] {"     P         ******** ZZZZZZZZZZZZZZZZZ GROSS VOLUME **********       ******* ZZZZZZZZZZZZZZZZZ NET VOLUME ********",
+                                                    "  S  R   U",
+                                                    "  T  O                            ****** 95% CONFIDENCE *****                        ****** 95% CONFIDENCE ******",
+                                                    "  R  D   O",
+                                                    "  A  U   F                                    INTERVAL                                           INTERVAL",
+                                                    "  T  C",
+                                                    "  A  T   M      VOLUME*     ERROR       FROM            TO                VOLUME*   ERROR      FROM            TO"};
+        private readonly string[] ST4columns = new string[7] {"                                      P",
+                                                   "                                  S   R    U",
+                                                   "                                  T   O",
+                                                   "                                  R   D    O                            **** 95% CONFIDENCE ****",
+                                                   "                                  A   U    F                                    INTERVAL",
+                                                   "                                  T   C",
+                                                   "                                  A   T    M       VALUE       ERROR           FROM              TO"};
+        private readonly string[] STfooters = new string[3] {"WARNING:  PRODUCTS WITH MORE THAN ONE UNIT OF MEASURE ARE NOT CALCULATED.",
+                                                   "* FOR SECONDARY PRODUCT, IF PRIMARY PRODUCT UNIT OF MEASURE IS BOARD FOOT, THEN CUBIC FOOT VOLUME IS USED FOR SECONDARY PRODUCT.",
+                                                   "* UOM DETERMINES VALUES USED IN CALCULATION UNDER VOLUME"};
+        private readonly string[] STsubtotals = new string[3] {"                                       ------------  AGGREGATED BY PRODUCT  ------------",
+                                                     "                                       --------  AGGREGATED BY UNIT OF MEASURE  --------",
+                                                     "                                       ------------  AGGREGATED BY STRATA   ------------"};
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private string[] completeHeader = new string[7];
@@ -87,9 +109,9 @@ namespace CruiseProcessing
                 List<LCDDO> justGroups = DataLayer.GetLCDgroup(FilePath,"Stratum,PrimaryProduct,UOM");
                 // primary product pages
                 if (currentReport == "ST3")
-                    finishColumnHeaders(reportHeaders.ST3columns, "PRIMARY PRODUCT");
+                    finishColumnHeaders(ST3columns, "PRIMARY PRODUCT");
                 else if (currentReport == "ST4")
-                    finishColumnHeaders(reportHeaders.ST4columns, "");
+                    finishColumnHeaders(ST4columns, "");
                 numOlines = 0;
                 aggProduct.Clear();
                 aggUOM.Clear();
@@ -112,7 +134,7 @@ namespace CruiseProcessing
                 }   //  end switch on current report
                 // output footer statement
                 strWriteOut.WriteLine("");
-                strWriteOut.WriteLine(reportHeaders.STfooters[2]);
+                strWriteOut.WriteLine(STfooters[2]);
                 numOlines++;
             }   //  endif
             if (pagesToPrint[1] == 1)
@@ -123,12 +145,12 @@ namespace CruiseProcessing
                 if(currentReport == "ST3")
                 {
                     fieldLengths = new int[] { 1, 5, 4, 4, 13, 11, 15, 19, 12, 10, 14, 10 };
-                    finishColumnHeaders(reportHeaders.ST3columns, "SECONDARY PRODUCT");
+                    finishColumnHeaders(ST3columns, "SECONDARY PRODUCT");
                 }
                 else if (currentReport == "ST4")
                 {
                     fieldLengths = new int[] { 33, 5, 4, 4, 13, 12, 16, 12 };
-                    finishColumnHeaders(reportHeaders.ST4columns, "");
+                    finishColumnHeaders(ST4columns, "");
                 }   //  endif on report
 
                 // secondary product pages
@@ -143,7 +165,7 @@ namespace CruiseProcessing
                 OutputSubtotal(strWriteOut, ref pageNumb, 3, aggStrata, "SECONDARY PRODUCT VOLUME");
                 // output footer statement
                 strWriteOut.WriteLine("");
-                strWriteOut.WriteLine(reportHeaders.STfooters[2]);
+                strWriteOut.WriteLine(STfooters[2]);
                 numOlines++;
             }   //  endif
             if (pagesToPrint[2] == 1)
@@ -154,12 +176,12 @@ namespace CruiseProcessing
                 if (currentReport == "ST3")
                 {
                     fieldLengths = new int[] { 1, 5, 4, 4, 13, 11, 15, 19, 12, 10, 14, 10 };
-                    finishColumnHeaders(reportHeaders.ST3columns, "RECOVERED PRODUCT");
+                    finishColumnHeaders(ST3columns, "RECOVERED PRODUCT");
                 }
                 else if (currentReport == "ST4")
                 {
                     fieldLengths = new int[] { 33, 5, 4, 4, 13, 12, 16, 12 };
-                    finishColumnHeaders(reportHeaders.ST4columns, "");
+                    finishColumnHeaders(ST4columns, "");
                 }   //  endif on report
 
                 //  recovered product pages
@@ -174,7 +196,7 @@ namespace CruiseProcessing
                 OutputSubtotal(strWriteOut, ref pageNumb, 3, aggStrata, "RECOVERED PRODUCT VOLUME");
                 // output footer statement
                 strWriteOut.WriteLine("");
-                strWriteOut.WriteLine(reportHeaders.STfooters[2]);
+                strWriteOut.WriteLine(STfooters[2]);
                 numOlines++;
             }   //  endif
 
@@ -182,7 +204,7 @@ namespace CruiseProcessing
             numOlines = 0;
             if (currentReport == "ST3")
             {
-                finishColumnHeaders(reportHeaders.ST3columns, "******* TOTAL");
+                finishColumnHeaders(ST3columns, "******* TOTAL");
                 OutputSubtotal(strWriteOut, ref pageNumb, 1, totalProduct, "TOTAL VOLUME");
                 OutputSubtotal(strWriteOut, ref pageNumb, 2, totalUOM, "TOTAL VOLUME");
                 OutputSubtotal(strWriteOut, ref pageNumb, 3, totalStrata, "TOTAL VOLUME"); 
@@ -195,7 +217,7 @@ namespace CruiseProcessing
             }   //  endif on report
 
             strWriteOut.WriteLine("");
-            strWriteOut.WriteLine(reportHeaders.STfooters[2]);
+            strWriteOut.WriteLine(STfooters[2]);
 
             return;
         }   //  end OutputStatReports
@@ -967,7 +989,7 @@ namespace CruiseProcessing
                     else if (currentReport == "ST4")
                         fieldLengths = new int[] { 38, 4, 4, 13, 12, 16, 12 };
                     strWriteOut.WriteLine("");
-                    strWriteOut.WriteLine(reportHeaders.STsubtotals[0]);
+                    strWriteOut.WriteLine(STsubtotals[0]);
                     numOlines += 2;
                     break;
                 case 2:     //  UOM
@@ -976,7 +998,7 @@ namespace CruiseProcessing
                     else if (currentReport == "ST4")
                         fieldLengths = new int[] { 42, 4, 13, 12, 16, 12 };
                     strWriteOut.WriteLine("");
-                    strWriteOut.WriteLine(reportHeaders.STsubtotals[1]);
+                    strWriteOut.WriteLine(STsubtotals[1]);
                     numOlines += 2;
                     break;
                 case 3: //  strata
@@ -985,7 +1007,7 @@ namespace CruiseProcessing
                     else if (currentReport == "ST4")
                         fieldLengths = new int[] { 33, 9, 4, 13, 12, 16, 12 };
                     strWriteOut.WriteLine("");
-                    strWriteOut.WriteLine(reportHeaders.STsubtotals[2]);
+                    strWriteOut.WriteLine(STsubtotals[2]);
                     numOlines += 2;
                     break;
             }   //  end switch
