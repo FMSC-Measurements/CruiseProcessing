@@ -328,13 +328,38 @@ namespace CruiseProcessing
                 //  and number of plots for the stratum
                 var totalPlots = DataLayer.GetStrataPlots(sdo.Code).Count;
 
-                prtFields = StratumMethods.buildPrintArray(sdo, HeaderData.CruiseName,
+                prtFields = BuildStratumPrintArray(sdo, HeaderData.CruiseName,
                                                             totalStrataAcres, totalPlots);
                 printOneRecord(fieldLengths, prtFields, strWriteOut);
             }   //  end foreach loop
 
             return;
         }   //  end WriteStratum
+
+        private static List<string> BuildStratumPrintArray(StratumDO stl, string cruiseName, double totalAcres,
+                                            double numPlots)
+        {
+            var baf = (CruiseMethods.VARIABLE_RADIUS_METHODS.Contains(stl.Method)) ? stl.BasalAreaFactor : 0;
+            var fps = (CruiseMethods.FIXED_SIZE_PLOT_METHODS.Contains(stl.Method)) ? stl.FixedPlotSize : 0;
+
+            //  parameter list will have two other fields -- strata acres and number of plots
+            var stratumArray = new List<string>() {
+                "   ",
+                cruiseName.PadRight(5, ' '),
+                stl.Code.PadLeft(2, ' '),
+
+                stl.Method.PadRight(6, ' '),
+                String.Format("{0,6:F2}", totalAcres).PadLeft(6, ' '),
+                String.Format("{0,7:F2}", baf).PadLeft(7, ' '),
+                String.Format("{0,4:F0}", fps).PadLeft(3, ' '),
+                String.Format("{0,3:F0}", numPlots).PadLeft(3, ' '),
+                stl.Description ?? (" ").PadRight(25, ' '),
+                String.Format("{0,2:F0}", stl.Month),
+                String.Format("{0,4:F0}", stl.Year),
+            };
+
+            return stratumArray;
+        }   //  end buildPrintArray
 
         private void WriteCountTrees(TextWriter strWriteOut, List<CountTreeDO> ctList, ref int pageNumb)
         {
