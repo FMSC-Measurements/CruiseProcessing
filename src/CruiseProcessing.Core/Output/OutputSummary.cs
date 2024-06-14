@@ -12,6 +12,163 @@ namespace CruiseProcessing
 {
     class OutputSummary : OutputFileReportGeneratorBase
     {
+        #region report headers
+        //  Summary reports right side (VSM1(B1), VSM2(CP1), VSM3(CS1))
+        private readonly string[] SummaryColumns = new string[14] {"             K     Z         ",
+                                                         "             K     Z         ",
+                                                         "             K     Z         ",
+                                                         "             K     Z         ",
+                                                         "             K     Z         ",
+                                                         "             K     Z         ",
+                                                         "        M    K     Z     AVG",
+                                                         "        E    K     Z     DEFT   GROSS NET",
+                                                         "        A    K     Z     %   %               **************** STRATA LEVEL ****************",
+                                                         "  QUAD  N    K     Z            BDFT  BDFT   EST.",
+                                                         "             K     Z     B   C                        ********** VOLUME ************",
+                                                         "  MEAN  D    K     Z     D   U  CUFT  CUFT   # OF",
+                                                         "        B    K     Z     F   F                        *** GROSS ***    **** NET ****",
+                                                         "  DBH   H    K     Z     T   T  RATIO RATIO  TREES    BDFT     CUFT    BDFT     CUFT  CORDS"};
+
+        //  Summary by strata reports right side (VPA1(B2), VPA2(CP2), VPA3(CS2))
+        private readonly string[] StrataSummaryColumns = new string[11] {"  ",
+                                                               "  ",
+                                                               "  ",
+                                                               "  ",
+                                                               "  ",
+                                                               " ************************************PER ACRE ************************************",
+                                                               "EST.",
+                                                               "  ",
+                                                               "NO. OF",
+                                                               "            *******GROSS*******       *******NET********",
+                                                               "TREES        BDFT        CUFT           BDFT       CUFT        CORDS"};
+
+        //  Summary value/weight reports right side (VAL1(B3), VAL2(CP3), VAL3(CS3))
+        private readonly string[] ValueWeightColumns = new string[11] {"  ",
+                                                             "  ",
+                                                             "  ",
+                                                             "  ",
+                                                             "  ",
+                                                             "  ",
+                                                             "  ",
+                                                             "******* VALUE *******      ******* WEIGHT ******      ***** TOTAL CUFT ****",
+                                                             "  ",
+                                                             "STRATA                     STRATA                     STRATA",
+                                                             "LEVEL       PER ACRE       LEVEL       PER ACRE       LEVEL       PER ACRE"};
+        //  The following works for VSM1(B1) only
+        private readonly string[] LowLevelColumns = new string[14] {"                                           ",
+                                                          "                                           ",
+                                                          "                                           ",
+                                                          "              P                            ",
+                                                          "              R                  C         ",
+                                                          "              O                  O         ",
+                                                          "              D        Y       T N         ",
+                                                          "      S    P           L  S    R T         ",
+                                                          " S    P    R  S U      D  A    E R         ",
+                                                          " T    E    O  O      L    M    E      # OF ",
+                                                          " R    C    D  U O  L E C         S         ",
+                                                          " A    I    U  R F  I A O  G  S G P    MEAS ",
+                                                          " T    E    C  C    V V M  R  T R E         ",
+                                                          " A    S    T  E M  E E P  P  M D C    TREES"};
+        //  Works for VSM2(CP1) only -- left side
+        private readonly string[] VSM2columns = new string[14] {"                             ",
+                                                      "                             ",
+                                                      "                             ",
+                                                      "       P                     ",
+                                                      "       R              # OF   ",
+                                                      "       O              TREES  ",
+                                                      "       D              M      ",
+                                                      "    P        S        E     T",
+                                                      " S  R  S U   A        A     A",
+                                                      " T  O  O     M        S     L",
+                                                      " R  D  U O            U     L",
+                                                      " A  U  R F   G  S     R     I",
+                                                      " T  C  C     R  T     E     E",
+                                                      " A  T  E M   P  M     D     D"};
+        private readonly string[] VPA1VAL1columns = new string[11] {"              P                            ",
+                                                          "              R                  C         ",
+                                                          "              O                  O         ",
+                                                          "              D        Y       T N         ",
+                                                          "      S    P           L  S    R T         ",
+                                                          " S    P    R  S U      D  A    E R         ",
+                                                          " T    E    O  O      L    M    E           ",
+                                                          " R    C    D  U O  L E C         S         ",
+                                                          " A    I    U  R F  I A O  G  S G P         ",
+                                                          " T    E    C  C    V V M  R  T R E         ",
+                                                          " A    S    T  E M  E E P  P  M D C         "};
+        //  Works for VPA2(CP2)/VAL2(CP3)--left side
+        private readonly string[] VPA2VAL2columns = new string[11] {"            P                             ",
+                                                          "            R                             ",
+                                                          "            O                             ",
+                                                          "            D                             ",
+                                                          "       P             S                    ",
+                                                          "   S   R    S   U    M                    ",
+                                                          "   T   O    O        P                    ",
+                                                          "   R   D    U   O                         ",
+                                                          "   A   U    R   F    G    S               ",
+                                                          "   T   C    C        R    T               ",
+                                                          "   A   T    E   M    P    M               "};
+
+        private readonly string[] VSM6leftSide = new string[14] {"                                         ",
+                                                          "                                      ",
+                                                          "                                      ",
+                                                          "              P                       ",
+                                                          "              R                  C    ",
+                                                          "              O                  O    ",
+                                                          "              D        Y       T N    ",
+                                                          "      S    P           L  S    R T    ",
+                                                          " S    P    R  S U      D  A    E R    ",
+                                                          " T    E    O  O      L    M    E      ",
+                                                          " R    C    D  U O  L E C         S    ",
+                                                          " A    I    U  R F  I A O  G  S G P    ",
+                                                          " T    E    C  C    V V M  R  T R E    ",
+                                                          " A    S    T  E M  E E P  P  M D C    "};
+        //  Works for VSM6 only
+        private readonly string[] VSM6columns = new string[14] {" ",
+                                                      " ",
+                                                      " ",
+                                                      " ",
+                                                      " ",
+                                                      " ",
+                                                      " ",
+                                                      " GROSS   NET                                                 ",
+                                                      "               **************** STRATA LEVEL ****************",
+                                                      " CUFT    CUFT                                                ",
+                                                      "               ********** VOLUME ************                ",
+                                                      " TON     TON                                                 ",
+                                                      "                      GROSS          NET                     ",
+                                                      " RAIO    RATIO        CUFT           CUFT       TONS         "};
+
+        //  Works for VSM3(CS1) only
+        private readonly string[] VSM3columns = new string[14] {"                           ",
+                                                      "                           ",
+                                                      "                           ",
+                                                      "       P                   ",
+                                                      "       R         # OF      ",
+                                                      "       O         TREES     ",
+                                                      "       D         M         ",
+                                                      "    P            E    T    ",
+                                                      " S  R  S  U      A    A    ",
+                                                      " T  O  O         S    L    ",
+                                                      " R  D  U  O      U    L    ",
+                                                      " A  U  R  F      R    I    ",
+                                                      " T  C  C         E    E    ",
+                                                      " A  T  E  M      D    D    "};
+        //  Works for VPA3(CS2)/VAL3(CS3)
+        private readonly string[] VPA3VAL3columns = new string[11] {"              P             ",
+                                                          "              R             ",
+                                                          "              O             ",
+                                                          "              D             ",
+                                                          "         P                  ",
+                                                          "   S     R    S    U        ",
+                                                          "   T     O    O             ",
+                                                          "   R     D    U    O        ",
+                                                          "   A     U    R    F        ",
+                                                          "   T     C    C             ",
+                                                          "   A     T    E    M        "};
+
+        #endregion report headers
+
+
         private string currCL { get; }
         private double totalPerAcres;
         private double valueGrandTotal;
@@ -144,22 +301,22 @@ namespace CruiseProcessing
                         SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCLT, "");
                         if (currentReport == "VSM1")
                         {
-                            finishColumnHeaders(reportHeaders.LowLevelColumns, reportHeaders.SummaryColumns, tList);
+                            finishColumnHeaders(LowLevelColumns, SummaryColumns, tList);
                             fieldLengths = new int[] { 1, 3, 7, 3, 2, 3, 2, 2, 3, 3, 2, 2, 5, 6, 6, 5, 6, 6, 4, 4, 6, 6, 7, 9, 8, 9, 8, 7, 9 };
                         }
                         else if (currentReport == "VSM6")
                         {
-                            finishColumnHeaders(reportHeaders.VSM6leftSide, reportHeaders.VSM6columns);
+                            finishColumnHeaders(VSM6leftSide, VSM6columns);
                             fieldLengths = new int[] { 1, 3, 6, 4, 2, 3, 2, 2, 3, 3, 2, 2, 6, 8, 12, 14, 10, 10 };
                         }
                         else if (currentReport == "VPA1")
                         {
-                            finishColumnHeaders(reportHeaders.VPA1VAL1columns, reportHeaders.StrataSummaryColumns);
+                            finishColumnHeaders(VPA1VAL1columns, StrataSummaryColumns);
                             fieldLengths = new int[] { 1, 3, 7, 3, 2, 3, 2, 2, 3, 3, 2, 2, 5, 12, 12, 15, 11, 13, 10, 9 };
                         }
                         else if (currentReport == "VAL1")
                         {
-                            finishColumnHeaders(reportHeaders.VPA1VAL1columns, reportHeaders.ValueWeightColumns);
+                            finishColumnHeaders(VPA1VAL1columns, ValueWeightColumns);
                             fieldLengths = new int[] { 1, 3, 7, 3, 2, 3, 2, 2, 3, 3, 2, 2, 6, 12, 15, 12, 15, 12, 10, 9 };
                         }   //  endif currentReport
 
@@ -191,15 +348,15 @@ namespace CruiseProcessing
                         {
                             case "VSM2":
                             case "LV01":
-                                finishColumnHeaders(reportHeaders.VSM2columns, reportHeaders.SummaryColumns, tList);
+                                finishColumnHeaders(VSM2columns, SummaryColumns, tList);
                                 fieldLengths = new int[] { 1, 3, 3, 2, 3, 4, 2, 6, 6, 6, 6, 6, 5, 4, 4, 6, 6, 7, 9, 8, 9, 8, 7, 9 };
                                 break;
                             case "VPA2":
-                                finishColumnHeaders(reportHeaders.VPA2VAL2columns, reportHeaders.StrataSummaryColumns);
+                                finishColumnHeaders(VPA2VAL2columns, StrataSummaryColumns);
                                 fieldLengths = new int[] { 3, 4, 5, 4, 5, 5, 12, 13, 11, 15, 11, 12, 10, 9 };
                                 break;
                             case "VAL2":
-                                finishColumnHeaders(reportHeaders.VPA2VAL2columns, reportHeaders.ValueWeightColumns);
+                                finishColumnHeaders(VPA2VAL2columns, ValueWeightColumns);
                                 fieldLengths = new int[] { 3, 4, 5, 4, 5, 5, 13, 12, 15, 12, 15, 12, 10, 9 };
                                 break;
                         }   //  end switch on currentReport
@@ -231,15 +388,15 @@ namespace CruiseProcessing
                         {
                             case "VSM3":
                             case "LV02":
-                                finishColumnHeaders(reportHeaders.VSM3columns, reportHeaders.SummaryColumns, tList);
+                                finishColumnHeaders(VSM3columns, SummaryColumns, tList);
                                 fieldLengths = new int[] { 1, 3, 3, 3, 3, 6, 9, 6, 5, 6, 6, 4, 4, 6, 6, 7, 9, 8, 9, 8, 7, 9 };
                                 break;
                             case "VPA3":
-                                finishColumnHeaders(reportHeaders.VPA3VAL3columns, reportHeaders.StrataSummaryColumns);
+                                finishColumnHeaders(VPA3VAL3columns, StrataSummaryColumns);
                                 fieldLengths = new int[] { 3, 6, 5, 5, 6, 12, 12, 14, 11, 13, 10, 9 };
                                 break;
                             case "VAL3":
-                                finishColumnHeaders(reportHeaders.VPA3VAL3columns, reportHeaders.ValueWeightColumns);
+                                finishColumnHeaders(VPA3VAL3columns, ValueWeightColumns);
                                 fieldLengths = new int[] { 3, 6, 5, 5, 7, 12, 15, 12, 15, 12, 10, 9 };
                                 break;
                         }   //  end switch on currentReport

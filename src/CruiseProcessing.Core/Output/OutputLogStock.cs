@@ -11,6 +11,18 @@ namespace CruiseProcessing
 {
     public class OutputLogStock : OutputFileReportGeneratorBase
     {
+
+        //  L2 report
+        public static readonly string[] L2columns = new string[3] {" LOG    ********************************* NET VOLUMES **********************************    TOTAL                        TOTAL NET",
+                                                   " DIB                                                                                        NET      CULL LOG   DEFECT   + CULL LOG",
+                                                   " CLASS   GRADE 0   GRADE 1   GRADE 2   GRADE 3   GRADE 4   GRADE 5   GRADE 6   GRADE 7      VOLUME   GRD=8,9    GRD=1-7  + DEFECT"};
+        //  L8 report
+        public static readonly string[] L8columns = new string[3] {"    LOG     ****************** PRIMARY PRODUCT *****************     **** SECONDARY PRODUCT *****     ********** TOTAL ***********",
+                                                   "    DIB     # OF       GROSS         NET       GROSS         NET     # OF       GROSS         NET     # OF       GROSS         NET",
+                                                   "  CLASS     LOGS        BDFT        BDFT        CUFT        CUFT     LOGS        CUFT        CUFT     LOGS        CUFT        CUFT"};
+        //  L10 report
+        public static readonly string[] L10columns = { " LENGTH|    8'  |   10'  |   12'  |   14'  |   16'  |   18'  |   20'  |   22'  |   24'  |   26'  |   28'  |   30'  |   32'  | TOTALS" };
+
         public List<ReportSubtotal> ListToOutput = new List<ReportSubtotal>();
         public List<ReportSubtotal> ListToOutputCCF = new List<ReportSubtotal>();
         public List<ReportSubtotal> ListToOutputMBF = new List<ReportSubtotal>();
@@ -94,7 +106,7 @@ namespace CruiseProcessing
                     //  output table for current species
                     extraHeadingLine = LoadExtraHeading(0);
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            reportHeaders.L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
+                                            L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
                     writeCurrentGroup(strWriteOut, ref pageNumb, "{0,9:F2}", "{0,10:F2}", ListToOutput, 1000);
                     //  clear ListToOutput for next species
                     clearOutputList(ListToOutput);
@@ -164,7 +176,7 @@ namespace CruiseProcessing
             //  output table for current species
             extraHeadingLine = LoadExtraHeading(0);
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
+                                    L2columns, 11, ref pageNumb, extraHeadingLine.ToString());
             writeCurrentGroup(strWriteOut, ref pageNumb, "{0,9:F2}", "{0,10:F2}", ListToOutput, 1000);
             return;
         }   //  end LoadAndPrintByGrade
@@ -184,7 +196,7 @@ namespace CruiseProcessing
                     //  output table for current species
                     extraHeadingLine = LoadExtraHeading(0);
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        reportHeaders.L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
+                                        L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
                     writeCurrentGroup(strWriteOut, ref pageNumb, "{0,8:F1}", "{0,11:F1}", ListToOutput, 1);
                     //  clear ListToOutput for next species
                     clearOutputList(ListToOutput);
@@ -225,7 +237,7 @@ namespace CruiseProcessing
             //  output table for current species
             extraHeadingLine = LoadExtraHeading(0);
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
+                                L8columns, 11, ref pageNumb, extraHeadingLine.ToString());
             writeCurrentGroup(strWriteOut, ref pageNumb, "{0,8:F1}", "{0,11:F1}", ListToOutput, 1);
             return;
         }   //  end LoadAndPrintByProduct
@@ -244,14 +256,14 @@ namespace CruiseProcessing
                     //  log counts
                     extraHeadingLine = LoadExtraHeading(1);
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                                        L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
                     writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutput, 1);
                     //  CCF list
                     if (ListToOutputCCF.Sum(l => l.Value16) > 0)
                     {
                         extraHeadingLine = LoadExtraHeading(2);
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                                            L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
                         writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputCCF, 100);
                     }   //  endif CCF to print
                     //  MBF list
@@ -259,7 +271,7 @@ namespace CruiseProcessing
                     {
                         extraHeadingLine = LoadExtraHeading(3);
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                                            L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
                         writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputMBF, 1000);
                     }   //  endif MBF to print
                     //  clear output lists for next species
@@ -388,14 +400,14 @@ namespace CruiseProcessing
             //  log counts
             extraHeadingLine = LoadExtraHeading(1);
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                                L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
             writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutput, 1);
             //  CCF list
             if (ListToOutputCCF.Sum(l => l.Value16) > 0)
             {
                 extraHeadingLine = LoadExtraHeading(2);
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                                    L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
                 writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputCCF, 100);
             }   //  endif CCF to print
             //  MBF list
@@ -403,7 +415,7 @@ namespace CruiseProcessing
             {
                 extraHeadingLine = LoadExtraHeading(3);
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
+                                    L10columns, 17, ref pageNumb, extraHeadingLine.ToString());
                 writeCurrentGroup(strWriteOut, ref pageNumb, "{0,5:F0}", "{0,6:F0}", ListToOutputMBF, 1000);
             }   //  endif MBF to print
             return;

@@ -716,15 +716,19 @@ namespace CruiseProcessing
             switch (currentReport)
             {
                 case "R401":        case "R403":
-                    finnishHeader[5] = finnishHeader[5].Replace("XX", "BF");
-                    finnishHeader[6] = finnishHeader[6].Replace("XX", "BF");
-                    finnishHeader[6] = finnishHeader[6].Replace("ZZZ", "MBF");
-                    break;
+                    {
+                        finnishHeader[5] = finnishHeader[5].Replace("XX", "BF");
+                        finnishHeader[6] = finnishHeader[6].Replace("XX", "BF");
+                        finnishHeader[6] = finnishHeader[6].Replace("ZZZ", "MBF");
+                        break;
+                    }
                 case "R402":        case "R404":
-                    finnishHeader[5] = finnishHeader[5].Replace("XX", "CF");
-                    finnishHeader[6] = finnishHeader[6].Replace("XX", "CF");
-                    finnishHeader[6] = finnishHeader[6].Replace("ZZZ", "CCF");
-                    break;
+                    {
+                        finnishHeader[5] = finnishHeader[5].Replace("XX", "CF");
+                        finnishHeader[6] = finnishHeader[6].Replace("XX", "CF");
+                        finnishHeader[6] = finnishHeader[6].Replace("ZZZ", "CCF");
+                        break;
+                    }
             }   //  end switch on current report
             return finnishHeader;
         }   //  end createCompleteHeader
