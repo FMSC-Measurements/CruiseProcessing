@@ -44,26 +44,7 @@ namespace CruiseProcessing
         }   //  end GetStratumCN
 
 
-        public static List<string> buildPrintArray(StratumDO stl, string cruiseName, double totalAcres,
-                                                    double numPlots)
-        {
-            //  parameter list will have two other fields -- strata acres and number of plots
-            var stratumArray = new List<string>();
-            stratumArray.Add("   ");
-            stratumArray.Add(cruiseName.PadRight(5, ' '));
-            stratumArray.Add(stl.Code.PadLeft(2, ' '));
 
-            stratumArray.Add(stl.Method.PadRight(6, ' '));
-            stratumArray.Add(String.Format("{0,6:F2}", totalAcres).PadLeft(6, ' '));
-            stratumArray.Add(String.Format("{0,7:F2}", stl.BasalAreaFactor).PadLeft(7, ' '));
-            stratumArray.Add(String.Format("{0,4:F0}", stl.FixedPlotSize).PadLeft(3, ' '));
-            stratumArray.Add(String.Format("{0,3:F0}", numPlots).PadLeft(3, ' '));
-            stratumArray.Add(stl.Description ?? (" ").PadRight(25, ' '));
-            stratumArray.Add(String.Format("{0,2:F0}", stl.Month));
-            stratumArray.Add(String.Format("{0,4:F0}", stl.Year));
-
-            return stratumArray;
-        }   //  end buildPrintArray
 
 
         public static List<string> buildPrintArray(TreeCalculatedValuesDO tcv, string currUOM, ref int firstLine)
