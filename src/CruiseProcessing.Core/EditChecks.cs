@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
+using CruiseDAL.V3.Models;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using System;
@@ -11,7 +12,6 @@ namespace CruiseProcessing
 {
     public class EditChecks
     {
-
         public static ErrorLogCollection CheckErrors(CpDataLayer dataLayer)
         {
             var errors = new ErrorLogCollection();
@@ -22,7 +22,6 @@ namespace CruiseProcessing
             string currentRegion = dataLayer.getRegion();
             bool isVLL = dataLayer.getVLL() == "V";
             //string isVLL = bslyr.getVLL();
-
 
             ValidateSale(dataLayer, errors);
 
@@ -67,8 +66,6 @@ namespace CruiseProcessing
                     errors.AddError("Sale", "E", " Sale District Not a Number", sale.Sale_CN.Value, "District");
                 }
             }
-
-            
         }
 
         private static void ValidateCountTrees(CpDataLayer dataLayer, ErrorLogCollection errors)
@@ -116,8 +113,9 @@ namespace CruiseProcessing
         {
             List<StratumDO> strList = dataLayer.GetStrata();
             if (strList.Count == 0)
-            { errors.AddError("Stratum", "E", "25", 25, "NoName"); } // cruise has no strata 
-
+            {
+                errors.AddError("Stratum", "E", "25", 25, "NoName"); // cruise has no strata
+            } 
             else
             {
                 foreach (StratumDO sdo in strList)
@@ -131,29 +129,59 @@ namespace CruiseProcessing
         {
             //  check for valid fixed plot size or BAF for each stratum
             double BAForFPSvalue = StratumMethods.GetBafOrFps(sdo);
-            if ((sdo.Method == "PNT" || sdo.Method == "P3P" || sdo.Method == "PCM" ||
-                 sdo.Method == "PCMTRE" || sdo.Method == "3PPNT") && BAForFPSvalue == 0)
+            if ((sdo.Method == "PNT"
+                || sdo.Method == "P3P"
+                || sdo.Method == "PCM"
+                || sdo.Method == "PCMTRE"
+                || sdo.Method == "3PPNT") // is variable radius cruise method
+                && BAForFPSvalue == 0)
+            {
                 errors.AddError("Stratum", "E", "22", (long)sdo.Stratum_CN, "BasalAreaFactor");
-            else if ((sdo.Method == "FIX" || sdo.Method == "F3P" || sdo.Method == "FIXCNT" ||
-                      sdo.Method == "FCM") && BAForFPSvalue == 0)
+            }
+            else if ((sdo.Method == "FIX"
+                || sdo.Method == "F3P"
+                || sdo.Method == "FIXCNT"
+                || sdo.Method == "FCM") // is fixed size plot method
+                && BAForFPSvalue == 0)
+            {
                 errors.AddError("Stratum", "E", "23", (long)sdo.Stratum_CN, "FixedPlotSize");
+            }
 
             //  check for acres on area based methods
             double currAcres = Utilities.AcresLookup((long)sdo.Stratum_CN, dataLayer, sdo.Code);
-            if ((sdo.Method == "PNT" || sdo.Method == "FIX" || sdo.Method == "P3P" ||
-                sdo.Method == "F3P" || sdo.Method == "PCM" || sdo.Method == "3PPNT" ||
-                sdo.Method == "FCM" || sdo.Method == "PCMTRE") && currAcres == 0)
+
+            if ((sdo.Method == "PNT"
+                || sdo.Method == "FIX"
+                || sdo.Method == "P3P"
+                || sdo.Method == "F3P"
+                || sdo.Method == "PCM"
+                || sdo.Method == "3PPNT"
+                || sdo.Method == "FCM"
+                || sdo.Method == "PCMTRE")
+                && currAcres == 0)
+            {
                 errors.AddError("Stratum", "E", "24", (long)sdo.Stratum_CN, "NoName");
-            else if ((sdo.Method == "100" || sdo.Method == "3P" ||
-                sdo.Method == "S3P" || sdo.Method == "STR") && currAcres == 0)
+            }
+            else if ((sdo.Method == "100"
+                || sdo.Method == "3P"
+                || sdo.Method == "S3P"
+                || sdo.Method == "STR")
+                && currAcres == 0)
+            {
                 errors.AddError("Stratum", "W", "Stratum has no acres", (long)sdo.Stratum_CN, "NoName");
+            }
 
             //  August 2017 -- added check for valid yield component code
-            if (sdo.YieldComponent != "CL" && sdo.YieldComponent != "CD" &&
-               sdo.YieldComponent != "ND" && sdo.YieldComponent != "NL" &&
-               sdo.YieldComponent != "" && sdo.YieldComponent != " " &&
-               sdo.YieldComponent != null)
+            if (sdo.YieldComponent != "CL"
+                && sdo.YieldComponent != "CD"
+                && sdo.YieldComponent != "ND"
+                && sdo.YieldComponent != "NL"
+                && sdo.YieldComponent != ""
+                && sdo.YieldComponent != " "
+                && sdo.YieldComponent != null)
+            {
                 errors.AddError("Stratum", "W", "Yield Component has invalid code", (long)sdo.Stratum_CN, "YieldComponent");
+            }
         }
 
         private static void ValidateSampleGroups(CpDataLayer dataLayer, ErrorLogCollection errors)
@@ -178,7 +206,6 @@ namespace CruiseProcessing
                     errors.AddError("SampleGroup", "E", $"Sg: {sg.Code} Invalid CutLeave Value", sg.SampleGroup_CN.Value, nameof(SampleGroupDO.CutLeave));
                 }
 
-
                 //  check length of sample group code and issue a warning message if more than 2 characters
                 if (sg.Code.Length > 2)
                     dataLayer.LogError("SampleGroup", (int)sg.SampleGroup_CN, "W", "Sample Group is too long. Results may not be as expected.");
@@ -195,9 +222,20 @@ namespace CruiseProcessing
                 errors.AddError("Tree", "E", "25", 0, "NoName");
             }
 
+            foreach (var t in trees.Where(x => String.IsNullOrEmpty(x.Species)))
+            {
+                errors.AddError("Tree", "E", "21", t.Tree_CN.Value, "Species");
+            }
+
+            foreach (var t in trees.Where(x => x.TreeDefaultValue_CN == null))
+            {
+                errors.AddError("Tree", "E", "31", t.Tree_CN.Value, "TreeDefaultValue");
+            }
+
+            // validate measure trees
             var allMeasureTrees = dataLayer.JustMeasuredTrees();
 
-            //  March 2016 -- if the entire cruisde has no measured trees, that uis a critical erro
+            //  March 2016 -- if the entire cruise has no measured trees, that is a critical error
             //  and should stop the program.  Since no report can be generated, a message box appears to warn the user
             //  of the condition.
             // TODO verify comment
@@ -207,27 +245,16 @@ namespace CruiseProcessing
             }
 
             var strata = dataLayer.GetStrata();
-
             foreach (var st in strata)
             {
-                if (st.Method == CruiseMethods.FIXCNT) continue;
+                // fixcnt is not required to have height and typically doesn't have any measurements other than dbh
+                var isFixCNT = st.Method == CruiseMethods.FIXCNT;
+                if(isFixCNT) { continue; }
 
-                var stratumMeasureTrees = allMeasureTrees.Where(x => x.Stratum_CN == st.Stratum_CN)
-                    .ToArray();
+                var stratumMeasureTrees = dataLayer.JustMeasuredTrees(st.Stratum_CN.Value);
 
                 foreach (var tree in stratumMeasureTrees)
                 {
-                    if (String.IsNullOrEmpty(tree.Species) && (tree.TreeCount > 0 || tree.DBH > 0))
-                    {
-                        errors.AddError("Tree", "E", "21", tree.Tree_CN.Value, "Species");
-                    }
-
-                    if (tree.TreeDefaultValue_CN == null)
-                    {
-                        errors.AddError("Tree", "E", "31", tree.Tree_CN.Value, "TreeDefaultValue");
-                    }
-
-
                     if (tree.UpperStemDiameter > tree.DBH)
                     {
                         errors.AddError("Tree", "E", "18", tree.Tree_CN.Value, "UpperStemDiameter");
@@ -269,7 +296,6 @@ namespace CruiseProcessing
                         errors.AddError("Tree", "E", "8", tree.Tree_CN.Value, "Tree Grade");
                     }
                 }
-
             }
 
             return true;
@@ -304,7 +330,7 @@ namespace CruiseProcessing
                 }
 
                 // note: Vertical Log Length can't be enabled by user and hasn't been used since V1
-                // VLL is typicaly just used for export grade/high value stuff. 
+                // VLL is typicaly just used for export grade/high value stuff.
                 if (isVLL)
                 {
                     foreach (LogDO ld in treeLogs)
@@ -346,15 +372,12 @@ namespace CruiseProcessing
 
         private static void ValidateVolumeEqs(bool isVLL, CpDataLayer dataLayer, ErrorLogCollection errors)
         {
-            
-
             List<VolumeEquationDO> volList = dataLayer.getVolumeEquations();
             //  pull region
             if (volList.Count == 0)
                 errors.AddError("VolumeEquation", "E", "25", 0, "NoName");
             else //  means the table is not empty and checks can proceed
             {
-
                 // check all sp prod combos have a volume equation
                 var spProdTrees = dataLayer.DAL.Query<SpeciesProduct>("SELECT t.Tree_CN as RecID,  t.Species, sg.PrimaryProduct " +
                     "FROM Tree as t " +
@@ -411,8 +434,6 @@ namespace CruiseProcessing
                     {
                         errors.AddError("VolumeEquation", "E", "5", volEq.rowID.Value, "VolumeEquationNumber");
                     }
-
-
                 }
 
                 if (isVLL)
@@ -440,18 +461,17 @@ namespace CruiseProcessing
             }
         }
 
-        class SpeciesProduct
+        private class SpeciesProduct
         {
             public long RecID { get; set; }
             public string Species { get; set; }
             public string PrimaryProduct { get; set; }
         }
 
-
         public static int CheckCruiseMethods(CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             List<StratumDO> strata = dataLayer.GetStrata();
-            
+
             int errsFound = 0;
             //  pull trees by stratum for cruise method checks
             foreach (StratumDO st in strata)
@@ -513,17 +533,17 @@ namespace CruiseProcessing
 
                         //  Check for more than one sample group in the stratum
                         var sampleGroups = dataLayer.getSampleGroups(st.Stratum_CN.Value);
-                        if(sampleGroups.Count > 1)
+                        if (sampleGroups.Count > 1)
                         {
                             errors.AddError("Stratum", "E", "17", st.Stratum_CN.Value, "NoName");
                         }
 
                         // Check for plot only has Count or Measure trees
                         var plots = dataLayer.GetStrataPlots(st.Code);
-                        foreach(var plot in plots)
+                        foreach (var plot in plots)
                         {
                             var plotCMcodes = stratumTrees.Where(x => x.Plot_CN == plot.Plot_CN).Select(x => x.CountOrMeasure).Distinct();
-                            if(plotCMcodes.Count() > 1)
+                            if (plotCMcodes.Count() > 1)
                             {
                                 errors.AddError("Plot", "E", "15", plot.Plot_CN.Value, "NoName");
                             }
@@ -606,7 +626,7 @@ namespace CruiseProcessing
         private static int CheckForMeasuredTrees(IEnumerable<TreeDO> treeList, long currST_CN, string currMeth, CpDataLayer dataLayer, ErrorLogCollection errors)
         {
             int numErrs = 0;
-            //ErrorLogMethods elm = new ErrorLogMethods(dataLayer); // TODO fix this instantiating a new elm. I think we can just use the current instance. We may need to create a class level accumulator to count errors. 
+            //ErrorLogMethods elm = new ErrorLogMethods(dataLayer); // TODO fix this instantiating a new elm. I think we can just use the current instance. We may need to create a class level accumulator to count errors.
             //  if the tree list is empty, could be the strata just doesn't have any trees.
             //  this is probably a cruise in process so return no errors on this stratum.
             //  October 2014
