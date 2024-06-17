@@ -158,12 +158,12 @@ namespace CruiseProcessing.Services
             return null;
         }
 
-        public bool ShowProcess()
+        public void ShowProcess()
         {
             ProcessStatus statusDlg = Services.GetRequiredService<ProcessStatus>();
             statusDlg.ShowDialog();
 
-            return statusDlg.DialogResult == DialogResult.OK;
+            return;
         }
 
         public void ShowVolumeEquations(bool isTemplateFile)

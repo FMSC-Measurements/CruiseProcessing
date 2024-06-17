@@ -78,12 +78,12 @@ namespace CruiseProcessing
                 await ProcessCoreAsync(ProcessProgress);
 
                 volumeCheck.Enabled = true;
-                DialogResult = DialogResult.OK;
+                //DialogResult = DialogResult.OK; // setting DialogResult will automaticly close form, also we don't really need to use dialogResult. 
             }
             catch (Exception ex) 
             {
                 DialogService.ShowError("Processing Error: " + ex.GetType().Name);
-                DialogResult = DialogResult.Abort;
+                //DialogResult = DialogResult.Abort;
             }
             finally
             {
