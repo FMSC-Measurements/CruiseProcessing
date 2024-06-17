@@ -152,10 +152,6 @@ namespace CruiseProcessing
 
         private void CreateEquations(string eqnPrefix)
         {
-
-            string currentProduct;
-            string currentSpecies;
-
             //  Need to capture DIBs before creating equations
             List<JustDIBs> oldDIBs = DataLayer.GetJustDIBs();
 
@@ -163,12 +159,15 @@ namespace CruiseProcessing
             string[,] speciesProduct;
             speciesProduct = DataLayer.GetUniqueSpeciesProduct();
 
-            StringBuilder sb = new StringBuilder();
+            
             double updatedPrimaryDIB = 0.0;
             double updatedSecondaryDIB = 0.0;
             for(int k=0;k<speciesProduct.GetLength(0);k++)
             {
-                if (speciesProduct[k, 0] != null)
+                string currentProduct = speciesProduct[k, 1];
+                string currentSpecies = speciesProduct[k, 0];
+
+                if (currentSpecies != null)
                 {
                     VolumeEquationDO vel = new VolumeEquationDO();
                     //  Per Mike VanDyck --  cords flag is on for everything including sawtimber
@@ -185,11 +184,8 @@ namespace CruiseProcessing
                     vel.MinLogLengthPrimary = 0;
                     vel.MinMerchLength = 0;
 
-                    currentProduct = speciesProduct[k, 1];
-                    currentSpecies = speciesProduct[k, 0];
-
                     //  build equation
-                    sb.Clear();
+                    StringBuilder sb = new StringBuilder();
                     sb.Append(eqnPrefix);
                     //  Fix species code as needed
                     if (currentSpecies.Length == 2)
