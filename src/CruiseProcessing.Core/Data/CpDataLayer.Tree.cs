@@ -162,7 +162,10 @@ namespace CruiseProcessing.Data
         {
             // TODO optimize
 
-            List<TreeDO> tList = DAL.From<TreeDO>().GroupBy("Species", "SampleGroup_CN").Read().ToList();
+            List<TreeDO> tList = DAL.From<TreeDO>()
+                .Where("Species IS NOT NULL AND SampleGroup_CN IS NOT NULL")
+                .GroupBy("Species", "SampleGroup_CN").Query().ToList();
+
             int numSpecies = tList.Count();
             string[,] speciesProduct = new string[numSpecies, 2];
             int nthRow = -1;
