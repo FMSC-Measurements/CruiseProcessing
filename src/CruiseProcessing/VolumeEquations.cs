@@ -708,17 +708,19 @@ namespace CruiseProcessing
                 if (el.CalcBiomass == 1)
                 {
                     // find species/product in tree default values for FIA code
-                    int nthRow = treeDef.FindIndex(
-                        delegate (TreeDefaultValueDO td)
-                        {
-                            return td.Species == el.Species && td.PrimaryProduct == el.PrimaryProduct;
-                        });
-                    if (nthRow >= 0)
+                    //int nthRow = treeDef.FindIndex(
+                    //    delegate (TreeDefaultValueDO td)
+                    //    {
+                    //        return td.Species == el.Species && td.PrimaryProduct == el.PrimaryProduct;
+                    //    });
+
+                    var treeDefault = treeDef.FirstOrDefault(td => td.Species == el.Species && td.PrimaryProduct == el.PrimaryProduct);
+                    if (treeDefault != null)
                     {
                         WF[0] = 0;
                         WF[1] = 0;
                         WF[2] = 0;
-                        SPCD = (int)treeDef[nthRow].FIAcode;
+                        SPCD = (int)treeDefault.FIAcode;
                         CRZSPDFTCS(ref REGN, FORST, ref SPCD, WF, AGTEQ, LBREQ, DBREQ, FOLEQ, TIPEQ,
                                 WF1REF, WF2REF, MCREF, AGTREF, LBRREF, DBRREF, FOLREF, TIPREF,
                                 strlen, strlen, strlen, strlen, strlen, strlen, strlen, strlen,
@@ -735,8 +737,8 @@ namespace CruiseProcessing
                         for (int k = 0; k < 7; k++)
                         {
                             BiomassEquationDO bedo = new BiomassEquationDO();
-                            bedo.FIAcode = treeDef[nthRow].FIAcode;
-                            bedo.LiveDead = treeDef[nthRow].LiveDead;
+                            bedo.FIAcode = treeDefault.FIAcode;
+                            bedo.LiveDead = treeDefault.LiveDead;
                             bedo.Product = el.PrimaryProduct;
                             bedo.Species = el.Species;
                             bedo.PercentMoisture = WF[2];
@@ -774,19 +776,27 @@ namespace CruiseProcessing
                                     bedo.Equation = "";
                                     if (currRegion == "05" || currRegion == "5")
                                     {
-                                        //  setip array for FFIA codes for applicable species
+                                        //  setup array for FFIA codes for applicable species
                                         long[] FIAcodes = new long[8] { 122, 116, 117, 015, 020, 202, 081, 108 };
                                         if (el.PrimaryProduct == "20")
                                         {
                                             for (int j = 0; j < 8; j++)
                                             {
-                                                if (treeDef[nthRow].FIAcode == FIAcodes[j])
+                                                if (treeDefault.FIAcode == FIAcodes[j])
                                                     bedo.WeightFactorPrimary = WF[1];
                                             }
                                         }
                                         else bedo.WeightFactorPrimary = WF[0];
                                     }
-                                    else bedo.WeightFactorPrimary = WF[0];
+                                    else if (REGN == 1 && el.PrimaryProduct != "01")
+                                    {
+                                        bedo.WeightFactorPrimary = WF[1];
+                                    }
+                                    else
+                                    {
+                                        bedo.WeightFactorPrimary = WF[0];
+                                    }
+
                                     bedo.MetaData = WF1REF.ToString();
                                     break;
 
