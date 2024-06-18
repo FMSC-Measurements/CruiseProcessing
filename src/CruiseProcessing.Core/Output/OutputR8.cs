@@ -12,6 +12,39 @@ namespace CruiseProcessing
 {
     public class OutputR8 : OutputFileReportGeneratorBase
     {
+        //  Region 8 reports
+        //  R801 report
+        private readonly string[] R801columns = new string[5] {"SALE CUT ACRES:  XXXXX",
+                                                     " ",
+                                                     "       PINE (SOFTWOOD) SAWTIMBER  HARDWOOD SAWTIMBER       PINE PRODUCT 08  HARDWOOD PRODUCT 08  PINE PULPWOOD     HARDWOOD PULPWOOD",
+                                                     "       EST. #                     EST. #                   EST. #           EST. #               EST. #            EST. #           ",
+                                                     " DBH   OF TREES    MBF      CCF   OF TREES   MBF     CCF   OF TREES    CCF  OF TREES    CCF      OF TREES   CCF    OF TREES   CCF   "};
+        private readonly string[] R801subtotal = new string[2] {"                                                                                         TOPWOOD:       ",
+                                                      "                                                                        TOTAL TOPWOOD & PULPWOOD:       "};
+        private readonly string[] R801summary = new string[3] {"                                                                        ******** PER/ACRE ********",
+                                                     "                        AVG      AVG     AVG     AVG      AVG UPPER     EST. #",
+                                                     "                      BF/TREE  CF/TREE   DBH    SWT HT     STEM HT      OF TREES    MBF      CCF"};
+        private readonly string[] R801lines = new string[7] {"     PINE SAWTIMBER: ",
+                                                   " HARDWOOD SAWTIMBER: ",
+                                                   "      PINE PRODUCTS: ",
+                                                   "  HARDWOOD PRODUCTS: ",
+                                                   "      PINE PULPWOOD: ",
+                                                   "  HARDWOOD PULPWOOD: ",
+                                                   "      TOTAL/AVERAGE: "};
+        //  R802 report
+        private readonly string[] R802sawtimber = new string[4] {"                                  *********************  SAWTIMBER  *********************",
+                                                       " ",
+                                                       "                                  SAMPLE          EST. #                         TOPWOOD",
+                                                       "                                  GROUP  SPECIES  OF TREES    MBF        CCF       CCF"};
+        private readonly string[] R802product08 = new string[4] {"                                  *********************  PRODUCT 8  *********************",
+                                                       " ",
+                                                       "                                  SAMPLE          EST. #                TOPWOOD",
+                                                       "                                  GROUP  SPECIES  OF TREES      CCF       CCF"};
+        private readonly string[] R802pulpwood = new string[4] {"                                           ************  PULPWOOD  ************",
+                                                      " ",
+                                                      "                                           SAMPLE             EST. #",
+                                                      "                                           GROUP    SPECIES   OF TREES   CCF"};
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -59,7 +92,7 @@ namespace CruiseProcessing
                     for (int j = 0; j < 7; j++)
                     {
                         RegionalReports r = new RegionalReports();
-                        r.value1 = regionalReportHeaders.R801lines[j];
+                        r.value1 = R801lines[j];
                         reportSummary.Add(r);
                     }   //  end for j loop
 
@@ -239,11 +272,11 @@ namespace CruiseProcessing
             strWriteOut.WriteLine(String.Format("{0,7:F2}", listToOutput.Sum(l => l.value20) / ccfFactor).PadLeft(8, ' '));
 
             //  output subtotal lines
-            strWriteOut.Write(regionalReportHeaders.R801subtotal[0]);
+            strWriteOut.Write(R801subtotal[0]);
             strWriteOut.Write(String.Format("{0,7:F2}", pineTop / ccfFactor).PadLeft(7, ' '));
             strWriteOut.WriteLine(String.Format("{0,7:F2}", hardwoodTop / ccfFactor).PadLeft(18, ' '));
 
-            strWriteOut.Write(regionalReportHeaders.R801subtotal[1]);
+            strWriteOut.Write(R801subtotal[1]);
             double calcValue = 0;
             calcValue = listToOutput.Sum(l => l.value18);
             calcValue += pineTop;
@@ -258,7 +291,7 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("");
             for (int h = 0; h < 3; h++)
             {
-                strWriteOut.WriteLine(regionalReportHeaders.R801summary[h]);
+                strWriteOut.WriteLine(R801summary[h]);
             }   //  end for loop
             double calcTrees = 0;
             double boardFoot = 0;
@@ -415,7 +448,7 @@ namespace CruiseProcessing
                     });
 
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                           regionalReportHeaders.R802sawtimber, 14, ref pageNumb, "");
+                                           R802sawtimber, 14, ref pageNumb, "");
 
                 //  accumulate data by species
                 string prevST = "*";
@@ -471,7 +504,7 @@ namespace CruiseProcessing
                     foreach (RegionalReports lto in listToOutput)
                     {
                         WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                                            regionalReportHeaders.R802sawtimber, 14, ref pageNumb, "");
+                                                            R802sawtimber, 14, ref pageNumb, "");
                         prtFields.Clear();
                         prtFields.Add("");
                         prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -532,7 +565,7 @@ namespace CruiseProcessing
                             });
 
                             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                                    regionalReportHeaders.R802product08, 14, ref pageNumb, "");
+                                                    R802product08, 14, ref pageNumb, "");
                            
                     //  accumulate data by species
                     string prevST = "*";
@@ -588,7 +621,7 @@ namespace CruiseProcessing
                         foreach (RegionalReports lto in listToOutput)
                         {
                             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                                    regionalReportHeaders.R802product08, 14, ref pageNumb, "");
+                                                    R802product08, 14, ref pageNumb, "");
                             prtFields.Clear();
                             prtFields.Add("");
                             prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -652,7 +685,7 @@ namespace CruiseProcessing
                                         l.PrimaryProduct != "01" && l.PrimaryProduct != "08";
                             });
                             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            regionalReportHeaders.R802pulpwood, 14, ref pageNumb, "");
+                                            R802pulpwood, 14, ref pageNumb, "");
 
                     //  accumulate data by species
                     string prevST = "*";
@@ -708,7 +741,7 @@ namespace CruiseProcessing
                         foreach (RegionalReports lto in listToOutput)
                         {
                             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                                    regionalReportHeaders.R802pulpwood, 14, ref pageNumb, "");
+                                                    R802pulpwood, 14, ref pageNumb, "");
                             prtFields.Clear();
                             prtFields.Add("");
                             prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -805,7 +838,7 @@ namespace CruiseProcessing
 
         private string[] createCompleteHeader(double saleAcres)
         {
-            string[] finnishHeader = regionalReportHeaders.R801columns;
+            string[] finnishHeader = R801columns;
             finnishHeader[0] = finnishHeader[0].Replace("XXXXX", String.Format("{0,6:F2}", saleAcres).PadLeft(6, ' '));
             return finnishHeader;
         }   //  end createCompleteHeader

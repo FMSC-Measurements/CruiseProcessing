@@ -15,6 +15,27 @@ namespace CruiseProcessing
 {
     public class OutputR4 : OutputFileReportGeneratorBase
     {
+
+        //  Region 4 reports
+        //  R401/R402 reports
+        //  Replace X's and Z's with BDFT (BF or MBF) or CUFT (CF or CCF) terms as needed
+        private readonly string[] R401R402columns = new string[7] {"   S     P",
+                                                         "   P     R",
+                                                         "   E     O",
+                                                         "   C     D                                                                                                                  NET LOG",
+                                                         "   I     U                                                  GROSS      NET                QUAD              NET   16'LOGS/  SCALE",
+                                                         "   E     C      GROSS     TOTAL        NET       ESTIM      XX/        XX/     TREES/     MEAN     MEAN     XX/   GROSS     VALUE/",
+                                                         "   S     T      XX        DEF%         XX        TREES      ACRE       ACRE    ACRE       DBH      HT1      TREE  ZZZ       ZZZ"};
+        //  R403/R404 reports
+        //  Replace X's and Z's with BDFT (BF or MBF) or CUFT (CF or CCF) terms as needed
+        private readonly string[] R403R404columns = new string[7] {"   L    P",
+                                                         "   O    R",
+                                                         "   G    O",
+                                                         "        D",
+                                                         "   M    U                                                   GROSS      NET                QUAD            NET    16'LOGS/",
+                                                         "   T    C       GROSS     TOTAL        NET       ESTIM      XX/        XX/     TREES/     MEAN     MEAN   XX/    GROSS",
+                                                         "   H    T       XX        DEF%         XX        TREES      ACRE       ACRE    ACRE       DBH      HT1    TREE   ZZZ       ACRES"};
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -710,9 +731,9 @@ namespace CruiseProcessing
         {
             string[] finnishHeader = new string[7];
             if (currentReport == "R401" || currentReport == "R402")
-                finnishHeader = regionalReportHeaders.R401R402columns;
+                finnishHeader = R401R402columns;
             else if (currentReport == "R403" || currentReport == "R404")
-                finnishHeader = regionalReportHeaders.R403R404columns;
+                finnishHeader = R403R404columns;
             switch (currentReport)
             {
                 case "R401":        case "R403":
