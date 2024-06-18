@@ -455,13 +455,16 @@ namespace CruiseProcessing
 
         private string getErrorMessage(string errNumber)
         {
-            for (int k = 0; k < 32; k++)
+            if(errNumber.Length <= 2 )
             {
-                if (errNumber == messages[k, 0])
-                    return messages[k, 1];
-            }   //  end for k loop
+                for (int k = 0; k < messages.Length; k++)
+                {
+                    if (errNumber == messages[k, 0])
+                        return messages[k, 1];
+                }   //  end for k loop
+            }
 
-            return "OOPS";
+            return errNumber; // errNumber is not a number and not in messages, then we can assume it is the error message
         }   //  end getErrorMessage
 
         private void WriteCurrentError(TextWriter strWriteOut, ref int pageNumber, string line)

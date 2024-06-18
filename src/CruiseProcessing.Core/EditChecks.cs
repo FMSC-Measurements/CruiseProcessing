@@ -375,12 +375,15 @@ namespace CruiseProcessing
             List<VolumeEquationDO> volList = dataLayer.getVolumeEquations();
             //  pull region
             if (volList.Count == 0)
+            {
                 errors.AddError("VolumeEquation", "E", "25", 0, "NoName");
+            }
             else //  means the table is not empty and checks can proceed
             {
                 // check all sp prod combos have a volume equation
                 var spProdTrees = dataLayer.DAL.Query<SpeciesProduct>("SELECT t.Tree_CN as RecID,  t.Species, sg.PrimaryProduct " +
                     "FROM Tree as t " +
+                    "WHERE Species IS NOT NULL AND SampleGroup_CN IS NOT NULL " +
                     "JOIN SampleGroup AS sg USING (SampleGroup_CN) " +
                     "GROUP BY t.Species, sg.PrimaryProduct;").ToArray();
 
@@ -433,6 +436,14 @@ namespace CruiseProcessing
                     }))
                     {
                         errors.AddError("VolumeEquation", "E", "5", volEq.rowID.Value, "VolumeEquationNumber");
+                    }
+
+
+                    if(volEq.CalcBiomass > 0
+                        && !dataLayer.GetBiomassEquations(volEq.Species, volEq.PrimaryProduct).Any())
+                    {
+                        errors.AddError("VolumeEquation", "W", "VolumeEquation has Calculate Biomass Flag but biomass equations haven't been defined", volEq.rowID.Value, "NoName");
+
                     }
                 }
 
