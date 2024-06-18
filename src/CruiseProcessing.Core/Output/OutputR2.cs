@@ -12,6 +12,27 @@ namespace CruiseProcessing
 {
     public class OutputR2 : OutputFileReportGeneratorBase
     {
+        //  Region 2 reports
+        //  R201 report
+        private readonly string[] R201columns = new string[3] {"                                                                 PRIMARY PRODUCT        SECONDARY PRODUCT",
+                                                     "                   PRIMARY  SECONDARY    EST.       TREES           NET CUBIC              NET CUBIC              STRATUM",
+                                                     " STRATUM  SPECIES  PRODUCT  PRODUCT      # TREES    PER ACRE     VOLUME   PER ACRE      VOLUME   PER ACRE         ACRES"};
+        //  R203 through R205 are like stand tables so headers are created on the fly from species in the data
+        //  R206 report
+        private readonly string[] R206columns = new string[3] {"                               NET        BDFT/CUFT",
+                                                     "  CONTRACT                     CUFT       RATIO BY   QMD BY CONTRACT    AVG DBH BY",
+                                                     "  SPECIES   SPECIES            VOLUME     CONTR SPP      SPECIES      CONTRACT SPECIES"};
+        //  R207 report
+        private readonly string[] R207columns = new string[3] {"                             FIXED                                    TREES",
+                                                     " CUTTING             # OF    PLOT                          TOTAL      PER       AVG",
+                                                     " UNIT      STRATUM   PLOTS   SIZE    SPECIES    PRODUCT    STEMS      ACRE      DRC"};
+
+        //  R208 report
+        private readonly string[] R208columns = new string[4] {"                                                  NET              % NET        LBS PER      WEIGHT",
+                                                     "          UNIT         SPECIES    PRODUCT       CF VOLUME          VOLUME         CF         FRACTION",
+                                                     "                                SCALING     ADJUSTED WEIGHT     LBS PER   LBS PER   TONS PER    COST PER",
+                                                     "        SPECIES      PRODUCT    DEFECT %    FACTOR LBS PER CF      CF        CCF       CCF        TON"};
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -715,7 +736,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    regionalReportHeaders.R201columns, 13, ref pageNumb, "");
+                                    R201columns, 13, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add(" ");
                 if (firstLine == 1)
@@ -769,7 +790,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        regionalReportHeaders.R207columns, 13, ref pageNumb, "");
+                                        R207columns, 13, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add(" ");
                 prtFields.Add(lto.value1.PadLeft(3, ' '));
@@ -802,7 +823,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    regionalReportHeaders.R206columns, 13, ref pageNumb, "");
+                                    R206columns, 13, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add(" ");
                 prtFields.Add(lto.value1.PadRight(4, ' '));
@@ -899,8 +920,8 @@ namespace CruiseProcessing
             //  R208
             // outputs top portion of the report
             string[] headerPortion = new string[2];
-            headerPortion[0] = regionalReportHeaders.R208columns[0];
-            headerPortion[1] = regionalReportHeaders.R208columns[1];
+            headerPortion[0] = R208columns[0];
+            headerPortion[1] = R208columns[1];
             double totalVolume = listToOutput.Sum(l => l.value7);
             double percentNet = 0;
             double calcValue = 0;
@@ -944,8 +965,8 @@ namespace CruiseProcessing
             double calcValue = 0;
             fieldLengths = new int[] { 8, 15, 10, 15, 17, 9, 12, 10, 5 };
             //  write header
-            strWriteOut.WriteLine(regionalReportHeaders.R208columns[2]);
-            strWriteOut.WriteLine(regionalReportHeaders.R208columns[3]);
+            strWriteOut.WriteLine(R208columns[2]);
+            strWriteOut.WriteLine(R208columns[3]);
             strWriteOut.WriteLine(reportConstants.longLine);
             foreach (StewProductCosts jg in justGroups)
             {
@@ -1049,7 +1070,7 @@ namespace CruiseProcessing
         {
             //  R201
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R201columns, 13, ref pageNumb, "");
+                                R201columns, 13, ref pageNumb, "");
             strWriteOut.WriteLine("                                      _____________________________________________________________________________________");
             strWriteOut.Write(subtotalList[0].Value1.PadLeft(7, ' '));
             strWriteOut.Write(subtotalList[0].Value2.PadLeft(7, ' '));
@@ -1080,7 +1101,7 @@ namespace CruiseProcessing
         {
             //  R207
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                            regionalReportHeaders.R207columns, 13, ref pageNumb, "");
+                            R207columns, 13, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.Write(subtotalList[0].Value1);
             strWriteOut.Write(subtotalList[0].Value2);
@@ -1096,7 +1117,7 @@ namespace CruiseProcessing
             //  R206 - contract species
             double calcValue = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        regionalReportHeaders.R206columns, 13, ref pageNumb, "");
+                                        R206columns, 13, ref pageNumb, "");
             strWriteOut.WriteLine(" ");
             strWriteOut.Write(" CONTRACT SPECIES ");
             strWriteOut.Write(subtotalList[0].Value1.PadRight(4, ' '));
@@ -1160,7 +1181,7 @@ namespace CruiseProcessing
         {
             //  R201
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        regionalReportHeaders.R201columns, 13, ref pageNumb, "");
+                                        R201columns, 13, ref pageNumb, "");
             strWriteOut.Write("                      ");
             strWriteOut.Write(totalToOutput[0].Value1);
             strWriteOut.Write("             ");

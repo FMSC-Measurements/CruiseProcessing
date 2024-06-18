@@ -11,6 +11,50 @@ namespace CruiseProcessing
 {
     public class OutputR1 : OutputFileReportGeneratorBase
     {
+        //  Region 1 reports
+        //  R101 report
+        private readonly string[] R101columns = new string[10] {"  C                      ******************************************** PRIMARY PRODUCT *********************************************",
+                                                      "  O",
+                                                      "  N                        AVGDEF",
+                                                      "  T     S       P                       GROSS      NET",
+                                                      "  R     P       R   U     %      %                         ************************** CONTRACT SPECIES  ***************************",
+                                                      "        E       O                       BDFT       BDFT                                                             16'LOGS 16'LOGS",
+                                                      "  S     C       D   O     B      C",
+                                                      "  P     I       U   F     D      U      CUFT       CUFT       AVG       ** GROSS VOLUME **     **  NET VOLUME **     GROSS   GROSS",
+                                                      "  E     E       C         F      F",
+                                                      "  C     S       T   M     T      T      RATIO      RATIO      DBH         BDFT       CUFT       BDFT       CUFT       CCF     MBF"};
+        //  R102/R103 reports
+        //  BDFT OR CUFT
+        private readonly string[] R102R103columns = new string[7] {"  L  P",
+                                                          "  O  R",
+                                                          "  G  O",
+                                                          "     D",
+                                                          "  M  U                                                 GROSS       NET                              NET   16'LOGS/",
+                                                          "  T  C          GROSS    TOTAL    NET       ESTIM      XX/         XX/   TREES/   MEAN     MEAN     XX/   GROSS    AVG",
+                                                          "  H  T          XX       DEF%     XX        TREES      ACRE        ACRE  ACRE     DBH      HGT      TREE  XXX      SLOPE     ACRES"};
+        //  R104 report
+        private readonly string[] R104columns = new string[2] {"           CUTTING               SAMPLE    PRIMARY     CUT/      AVG      BASAL",
+
+                                                     " STRATA    UNIT        SPECIES   GROUP     PRODUCT     LEAVE     DBH      AREA"};
+        private readonly string[] R105sectionOne = new string[7] {"                    *************** SAWTIMBER **************   ************* NON-SAWTIMBER ****************",
+                                                        "                             (PROD = 01   UM = 01, 03)            (PROD NOT = 01   UM = 01, 02, 03)",
+                                                        "        A                                                     (AND ALL SECONDARY & RECOVERED PRODUCT VOLUMES)",
+                                                        "  U     C      ",
+                                                        "  N     R            ** GROSS VOLUME **    ** NET VOLUME **      ***   GROSS    ***   ***   NET    ***",
+                                                        "  I     E    ",
+                                                        "  T     S            BDFT       CUFT       BDFT       CUFT          BDFT      CUFT       BDFT      CUFT  "};
+        private readonly string[] R105sectionTwo = new string[5] {" ",
+                                                        " S U B T O T A L S    **************SAWTIMBER**************     ************NON-SAWTIMBER**************",
+                                                        " ",
+                                                        "                    ** GROSS VOLUME **     ** NET VOLUME **        GROSS     GROSS      NET       NET",
+                                                        "          SPECIES     BDFT       CUFT       BDFT       CUFT        BDFT      CUFT       BDFT      CUFT "};
+        private readonly string[] R105sectionThree = new string[5]{" ",
+                                                           "T O T A L S",
+                                                           "                      GROSS         NET             ************** VOLUME  ***************",
+                                                           "           PRODUCT    BF/CF         BF/CF           ***** GROSS *****     *****  NET *****",
+                                                           "  PRODUCT  SOURCE     RATIO         RATIO           BDFT         CUFT     BDFT        CUFT "};
+
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -642,7 +686,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    regionalReportHeaders.R101columns, 13, ref pageNum, "");
+                                    R101columns, 13, ref pageNum, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(lto.value1.PadRight(4, ' '));
@@ -865,7 +909,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    regionalReportHeaders.R104columns, 10, ref pageNum, "");
+                                    R104columns, 10, ref pageNum, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(lto.value1.PadLeft(2, ' '));
@@ -1129,7 +1173,7 @@ namespace CruiseProcessing
             //  writes subtotal line for any subtotal in R101
             double calcValue = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    regionalReportHeaders.R101columns, 13, ref pageNum, "");
+                                    R101columns, 13, ref pageNum, "");
             switch (lineType)
             {
                 case 1:         //  product subtotal
@@ -1647,7 +1691,7 @@ namespace CruiseProcessing
         {
             //  R105
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1],
-                            reportTitles[2], regionalReportHeaders.R105sectionOne, 7, ref pagenumber, "");
+                            reportTitles[2], R105sectionOne, 7, ref pagenumber, "");
             strWriteOut.WriteLine("_________________________________________________________________________________________________________");
             prtFields.Clear();
             foreach (RegionalReports lto in listToOutput)
@@ -1676,7 +1720,7 @@ namespace CruiseProcessing
             //  write section two headings only
             for (int j = 0; j < 5; j++)
             {
-                strWriteOut.WriteLine(regionalReportHeaders.R105sectionTwo[j]);
+                strWriteOut.WriteLine(R105sectionTwo[j]);
                 numOlines++;
             }   //  end for j loop
             strWriteOut.WriteLine("_________________________________________________________________________________________________________");
@@ -1714,7 +1758,7 @@ namespace CruiseProcessing
             //  write section two headings only
             for (int j = 0; j < 5; j++)
             {
-                strWriteOut.WriteLine(regionalReportHeaders.R105sectionThree[j]);
+                strWriteOut.WriteLine(R105sectionThree[j]);
                 numOlines++;
             }   //  end for j loop
             strWriteOut.WriteLine("_________________________________________________________________________________________________________");
@@ -1796,7 +1840,7 @@ namespace CruiseProcessing
             //  R104
             double calcValue = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R104columns, 10, ref pageNum, "");
+                                R104columns, 10, ref pageNum, "");
             strWriteOut.WriteLine("            _________________________________________________________________________________________________________________________");
             strWriteOut.Write("  SUBTOTAL                                               ");
             strWriteOut.Write(currCL);
@@ -1819,7 +1863,7 @@ namespace CruiseProcessing
             //  R104
             double calcValue = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R104columns, 10, ref pageNum, "");
+                                R104columns, 10, ref pageNum, "");
             strWriteOut.WriteLine("            _________________________________________________________________________________________________________________________");
 
             switch (whichSubtotal)
@@ -1878,7 +1922,7 @@ namespace CruiseProcessing
         private string[] createCompleteHeader()
         {
             string[] finnishHeader = new string[7];
-            finnishHeader = regionalReportHeaders.R102R103columns;
+            finnishHeader = R102R103columns;
             switch (currentReport)
             {
                 case "R102":
