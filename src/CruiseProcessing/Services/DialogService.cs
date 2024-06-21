@@ -158,6 +158,31 @@ namespace CruiseProcessing.Services
             return null;
         }
 
+        public IReadOnlyCollection<PercentRemoved> ShowPercentRemovedDialog(IEnumerable<VolumeEquationDO> volumeEquations)
+        {
+            List<PercentRemoved> prList = new List<PercentRemoved>();
+            foreach (VolumeEquationDO vdo in volumeEquations)
+            {
+                PercentRemoved pr = new PercentRemoved();
+                if (vdo.CalcBiomass == 1)
+                {
+                    pr.bioSpecies = vdo.Species;
+                    pr.bioProduct = vdo.PrimaryProduct;
+                    prList.Add(pr);
+                }   //  endif biomass flag checked
+            }   //  end foreach
+            if (prList.Count > 0)
+            {
+                CapturePercentRemoved cpr = new CapturePercentRemoved();
+                cpr.prList = prList;
+                cpr.setupDialog();
+                cpr.ShowDialog();
+                prList = cpr.prList;
+            }   //  endif nthRow
+
+            return prList;
+        }
+
         public void ShowProcess()
         {
             ProcessStatus statusDlg = Services.GetRequiredService<ProcessStatus>();

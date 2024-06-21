@@ -23,7 +23,7 @@ namespace CruiseProcessing.Test
         public void Vollib_VERNUM2()
         {
             CalculateTreeValues2.VERNUM2(out var num);
-            num.Should().Be(20240423); // this number changes for each version 
+            num.Should().Be(20240531); // this number changes for each version 
         }
 
 
@@ -94,7 +94,7 @@ namespace CruiseProcessing.Test
             var logStocks = dataLayer.getLogStock();
 
 
-            var ctv2 = new CalculateTreeValues2(dataLayer);
+            var ctv2 = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();
@@ -189,7 +189,7 @@ namespace CruiseProcessing.Test
             var logStocks = dataLayer.getLogStock();
 
 
-            var ctv2 = new CalculateTreeValues2(dataLayer);
+            var ctv2 = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();
