@@ -383,8 +383,8 @@ namespace CruiseProcessing
                 // check all sp prod combos have a volume equation
                 var spProdTrees = dataLayer.DAL.Query<SpeciesProduct>("SELECT t.Tree_CN as RecID,  t.Species, sg.PrimaryProduct " +
                     "FROM Tree as t " +
-                    "WHERE Species IS NOT NULL AND SampleGroup_CN IS NOT NULL " +
                     "JOIN SampleGroup AS sg USING (SampleGroup_CN) " +
+                    "WHERE Species IS NOT NULL AND SampleGroup_CN IS NOT NULL " +
                     "GROUP BY t.Species, sg.PrimaryProduct;").ToArray();
 
                 // TODO should this only check measure trees? Would this be better to do the check at the SG level?
