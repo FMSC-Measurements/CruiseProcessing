@@ -18,7 +18,7 @@ namespace CruiseProcessing.Data
         public List<BiomassEquationDO> GetBiomassEquations(string species, string primaryProduct)
         {
             return DAL.From<BiomassEquationDO>()
-                .Where("Species = @p1 AND PrimaryProduct = @p2")
+                .Where("Species = @p1 AND Product = @p2")
                 .Read(species, primaryProduct).ToList();
         }
 
