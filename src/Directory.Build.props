@@ -30,7 +30,7 @@
 		<PackageReference Include="NSubstitute" Version="5.1.0" />
 		<PackageReference Include="xunit" Version="2.4.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
-		<DotNetCliToolReference Include="dotnet-xunit" Version="2.4.0" />
+		<!--<DotNetCliToolReference Include="dotnet-xunit" Version="2.4.0" />-->
 	</ItemGroup>
 
 		<!-- when targeting net461 SqlitePCL.Raw cant find e_sqlite3 because of xunit's shadow copy feature
