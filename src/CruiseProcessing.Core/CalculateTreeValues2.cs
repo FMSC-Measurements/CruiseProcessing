@@ -694,7 +694,7 @@ namespace CruiseProcessing
                 if (recvDef > (cullDef + hidDef + seenDef) && currRegion != "10")
                 {
                     checkRecv = cullDef + hidDef + seenDef;
-                    errorLogDataService.LogError("TREE", (int)tcv.Tree_CN, "W", "18");
+                    errorLogDataService.LogError("TREE", (int)tcv.Tree_CN, "W", "18", "Volume");
                 }   //  endif
 
                 //  calculate recovered volume based on region
