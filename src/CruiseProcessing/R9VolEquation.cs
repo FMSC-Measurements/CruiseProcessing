@@ -7,7 +7,9 @@ using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
+using FMSC.ORM.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 
 namespace CruiseProcessing
@@ -246,7 +248,9 @@ namespace CruiseProcessing
                                 }
                                 else
                                 {
-                                    DialogService.ShowError("Expected species to be FIA code but found " + currentSpecies + ". Unable to get default top DIB from species");
+                                    var errorMessage = "Expected species to be FIA code but found " + currentSpecies + ". Unable to get default top DIB from species";
+                                    DialogService.ShowError(errorMessage);
+                                    Services.GetService<ILogger<R9VolEquation>>()?.LogWarning(errorMessage);
                                     continue;
                                 }
                             }
