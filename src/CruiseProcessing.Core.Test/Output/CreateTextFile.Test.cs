@@ -90,6 +90,13 @@ namespace CruiseProcessing.Test.Output
 
             strWriteOut.ToString().Should().NotBeNullOrEmpty();
 
+            if(hasWarnings)
+            {
+                Output.WriteLine("INFO::::Output Has Warnings");
+            }
+
+            Output.WriteLine(strWriteOut.ToString());
+
         }
     }
 }
