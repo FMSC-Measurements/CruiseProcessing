@@ -140,9 +140,25 @@ namespace CruiseProcessing
             StringBuilder prod, ref int httfll, StringBuilder live, ref int ba, ref int si, StringBuilder ctype, ref int errflg,
             ref int indeb, ref int pmtflg, ref MRules mRules, ref int dist, int ll1, int ll2, int ll3, int ll4, int ll5, int ll6, int ll7, int charLen);
 
-        [DllImportAttribute("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
-         static extern void CRZBIOMASSCS(ref int regn, StringBuilder forst, ref int spcd, ref float dbhob, ref float drcob, ref float httot, 
-                                        ref int fclass, float[] vol, float[] wf, float[] bms, ref int errflg, int i1);
+        //[DllImportAttribute("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
+        // static extern void CRZBIOMASSCS(ref int regn, StringBuilder forst, ref int spcd, ref float dbhob, ref float drcob, ref float httot, 
+        //                                ref int fclass, float[] vol, float[] wf, float[] bms, ref int errflg, int i1);
+
+        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void CRZBIOMASSCS(ref int regn,
+                    StringBuilder forst,
+                    ref int spcd,
+                    ref float dbhob,
+                    ref float drcob,
+                    ref float httot,
+                    ref int fclass,
+                    float[] vol,
+                    float[] wf,
+                    float[] bms,
+                    ref int errflg,
+                    StringBuilder prod,
+                    int i1,
+                    int i2);
 
         #endregion
 
@@ -565,8 +581,11 @@ namespace CruiseProcessing
             //  WHY?                            //if(currRegion == "9" || currRegion == "09")
             //    CRZBIOMASSCS(ref REGN,FORST,ref SPCD,ref DBHOB,ref HTTOT,VOL,WF,calculatedBiomass,ref ERRFLAG,strlen);
             //else
+
+            var prod = new StringBuilder(256).Append(currPP);
+
             CRZBIOMASSCS(ref iRegn, sForest, ref SPCD, ref currDBH, ref currDRC, ref currHGT, ref currFC, VOL, WF, 
-                                calculatedBiomass, ref ERRFLAG, strlen);
+                                calculatedBiomass, ref ERRFLAG, prod , strlen, strlen);
 
 
             // Apply percent removed if greater than zero
