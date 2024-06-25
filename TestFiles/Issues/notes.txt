@@ -1,0 +1,6 @@
+# 20383_Jiffy Stewardship_TS.crz3
+
+User noticed that volume wasn't being calculated for one of the species.
+
+The issue was due to all the tree for that species had height recorded as MerchHeightSecondary. 
+When I updated the volume library calls I forgot to set the HT2PRD parameter, which is the MerchHeightSecondary value.
