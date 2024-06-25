@@ -460,12 +460,12 @@ namespace CruiseProcessing
             List<ErrorLogDO> fsCrzErrors = DataLayer.getErrorMessages("W", "FScruiser");
             if (cpErrors.Any())
             {
-                WriteWarnings(strWriteOut, cpErrors, ref pageNumber, headerData);
+                ErrorReport.WriteWarnings(strWriteOut, cpErrors, ref pageNumber, headerData, DataLayer);
                 hasWarnings = true;
             }
             if (fsCrzErrors.Any())
             {
-                WriteOtherWarnings(strWriteOut, fsCrzErrors, ref pageNumber, headerData);
+                ErrorReport.WriteWarnings(strWriteOut, fsCrzErrors, ref pageNumber, headerData, DataLayer);
                 hasWarnings = true;
             }
 
@@ -474,117 +474,5 @@ namespace CruiseProcessing
             return graphReports;
         }
 
-        private void WriteWarnings(TextWriter strWriteOut, List<ErrorLogDO> errList, ref int pageNumb, HeaderFieldData headerData)
-        {
-            //  warning messages list
-            string[] WarnMessages = new string[22]  {"   ",
-                                                    "NO VOLUME EQUATION MATCH",
-                                                    "NO FORM CLASS",
-                                                    "DBH LESS THAN ONE",
-                                                    "TREE HEIGHT LESS THAN 4.5",
-                                                    "D2H IS OUT OF BOUNDS",
-                                                    "NO SPECIES MATCH",
-                                                    "ILLEGAL PP LOG HEIGHT",
-                                                    "ILLEGAL SP LOG HEIGHT",
-                                                    "NO UPPER STEM MEASUREMENTS",
-                                                    "ILLEGAL UPPER STEM HEIGHT",
-                                                    "UNABLE TO FIT PROFILE GIVEN DBH, MERCH HT & TOP DIA",
-                                                    "TREE HAS MORE THAN 20 LOGS",
-                                                    "TOP DIAMETER GREATER THAN DBH INSIDE BARK",
-                                                    "BARK EQUATION DOES NOT EXIST OR YIELDS NEGATIVE DBHIB",
-                                                    "INVALID BIOMASS EQUATION",
-                                                    "PRIMARY PRODUCT HEIGHT REQUIRED FOR BIOMASS CALCULATION",
-                                                    "SECONDARY PRODUCT HEIGHT REQUIRED FRO BIOMASS CALCULATION",
-                                                    "RECOVERABLE DEFECT GREATER THAN SUM OF DEFECTS -- SUM OF DEFECTS USED IN CALCULATION",
-                                                    "SECONDARY PRODUCT WAS BLANK IN SAMPLE GROUPS -- DEFAULT VALUE USED",
-                                                    "MORE THAN TWO UOMs DETECTED--THIS FILE WILL NOT LOAD IN TIM",
-                                                    "BIOMASS FLAG NOT CHECKED -- NO WEIGHT CALCULATED"};
-            var numOlines = 0;
-            string[] warningHeader = new string[] { "   IDENTIFIER                        WARNING MESSAGE" };
-
-            foreach (ErrorLogDO eld in errList)
-            {
-                StringBuilder sb = new StringBuilder();
-
-                numOlines = OutputFileReportGeneratorBase.WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "", headerData, numOlines, null);
-                //  build identifier
-                if (eld.TableName == "SUM file")
-                {
-                    sb.Append(eld.TableName);
-                    sb.Append("  ---------    ");
-                    sb.Append(WarnMessages[int.Parse(eld.Message)]);
-                }
-                else if (eld.TableName == "Stratum" || eld.TableName == "VolumeEquation")
-                {
-                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, DataLayer));
-                    sb.Append("   ");
-                    sb.Append(eld.Message);
-                }
-                else
-                {
-                    sb.Append(Utilities.GetIdentifier(eld.TableName, eld.CN_Number, DataLayer));
-                    sb.Append("   ");
-                    if (eld.Message == "30")
-                    {
-                        //  this is just a warning and will never use the record in the error list
-                        sb.Append("Sample group must have at least one measured tree");
-                    }
-                    else if (eld.Message.Length > 4)
-                        sb.Append(eld.Message);
-                    else sb.Append(WarnMessages[int.Parse(eld.Message)]);
-                }   //  endif
-                strWriteOut.WriteLine(sb.ToString());
-                numOlines++;
-            }   //  end foreach loop
-
-            //  output the key for the identifier
-            strWriteOut.WriteLine();
-            strWriteOut.WriteLine("Not all fields are used as identifier information.");
-            strWriteOut.WriteLine("In general, the following order is used.");
-            strWriteOut.WriteLine("Stratum number");
-            strWriteOut.WriteLine("Cutting unit number");
-            strWriteOut.WriteLine("Plot number");
-            strWriteOut.WriteLine("Tree number");
-            strWriteOut.WriteLine("Log number");
-            strWriteOut.WriteLine("Species code");
-            strWriteOut.WriteLine("Sample group");
-            strWriteOut.WriteLine("Primary product");
-            strWriteOut.WriteLine("Equation number");
-            numOlines += 12;
-        }
-
-        private void WriteOtherWarnings(TextWriter strWriteOut, List<ErrorLogDO> errListToo, ref int pageNumb, HeaderFieldData headerData)
-        {
-            //  adds warnings from FScruiser and/or CruiseManager to the bottom of the output text file
-            var numOlines = 0;
-            string[] warningHeader = new string[] { "   IDENTIFIER                        WARNING MESSAGE" };
-
-            foreach (ErrorLogDO elt in errListToo)
-            {
-                StringBuilder sb = new StringBuilder();
-                numOlines = OutputFileReportGeneratorBase.WriteReportHeading(strWriteOut, "WARNING MESSAGES", "", "", warningHeader, 8, ref pageNumb, "", headerData, numOlines, null);
-                //  build identifier
-                sb.Append(Utilities.GetIdentifier(elt.TableName, elt.CN_Number, DataLayer));
-                sb.Append("   ");
-                sb.Append(elt.Message);
-                strWriteOut.WriteLine(sb.ToString());
-                numOlines++;
-            }   //  end foreach loop
-
-            //  output the key for the identifier
-            strWriteOut.WriteLine();
-            strWriteOut.WriteLine("Not all fields are used as identifier information.");
-            strWriteOut.WriteLine("In general, the ised order is used.");
-            strWriteOut.WriteLine("Stratum number");
-            strWriteOut.WriteLine("Cutting unit number");
-            strWriteOut.WriteLine("Plot number");
-            strWriteOut.WriteLine("Tree number");
-            strWriteOut.WriteLine("Log number");
-            strWriteOut.WriteLine("Species code");
-            strWriteOut.WriteLine("Sample group");
-            strWriteOut.WriteLine("Primary product");
-            strWriteOut.WriteLine("Equation number");
-            return;
-        }   //  end WriteOtherWarnings
     }
 }

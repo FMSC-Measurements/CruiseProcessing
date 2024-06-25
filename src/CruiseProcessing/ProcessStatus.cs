@@ -108,7 +108,7 @@ namespace CruiseProcessing
 
 
                 ErrorReport eRpt = new ErrorReport(DataLayer, DataLayer.GetReportHeaderData());
-                var outputFileName = eRpt.PrintFScruiserErrors(fscList);
+                var outputFileName = eRpt.PrintErrorReport(fscList, "FScruiser");
                 string outputMessage = "ERRORS FROM FSCRUISER FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
                 DialogService.ShowError(outputMessage);
                 //  request made to open error report in preview -- May 2015
@@ -158,7 +158,6 @@ namespace CruiseProcessing
             processingStatus.Refresh();
 
 
-
             var errors = EditChecks.CheckErrors(DataLayer);
             if (errors.Any())
             {
@@ -170,22 +169,21 @@ namespace CruiseProcessing
                 }
 
                 DataLayer.SaveErrorMessages(errors);
+
+
+                //  just check the ErrorLog table for entries
+                if (errors.Any(x => x.Level == "E"))
+                {
+                    ErrorReport er = new ErrorReport(DataLayer, DataLayer.GetReportHeaderData());
+                    var outputFileName = er.PrintErrorReport(errors, "CruiseProcessing");
+                    string outputMessage = "ERRORS FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
+                    DialogService.ShowError(outputMessage);
+                    //  request made to open error report in preview -- May 2015
+                    DialogService.ShowPrintPreview();
+
+                    return false;
+                }   //  endif report needed
             }
-
-            //  just check the ErrorLog table for entries
-            // TODO can we just use errList from CheckErrors?
-            List<ErrorLogDO> errList = DataLayer.getErrorMessages("E", "CruiseProcessing");
-            if (errList.Count > 0)
-            {
-                ErrorReport er = new ErrorReport(DataLayer, DataLayer.GetReportHeaderData());
-                var outputFileName = er.PrintErrorReport(errList);
-                string outputMessage = "ERRORS FOUND!\nCorrect data and rerun\nOutput file is:" + outputFileName;
-                DialogService.ShowError(outputMessage);
-                //  request made to open error report in preview -- May 2015
-                DialogService.ShowPrintPreview();
-
-                return false;
-            }   //  endif report needed
 
             return true;
         }

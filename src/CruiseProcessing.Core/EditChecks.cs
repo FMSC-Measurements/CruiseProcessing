@@ -10,6 +10,12 @@ using System.Runtime.InteropServices;
 
 namespace CruiseProcessing
 {
+    // Notes: starting with the addition of VolumeEquation check on biomass equations where CalcBiomas is set
+    // I've started to include warnings as part of the EditCheck. Before EditChecks has only included errors.
+    // The Error Report only gets triggered if a file has errors, as well the Error Report only contains errors.
+    // Warnings are only output in the CreateTestFile. 
+
+
     public class EditChecks
     {
         public static ErrorLogCollection CheckErrors(CpDataLayer dataLayer)
@@ -208,7 +214,9 @@ namespace CruiseProcessing
 
                 //  check length of sample group code and issue a warning message if more than 2 characters
                 if (sg.Code.Length > 2)
-                    dataLayer.LogError("SampleGroup", (int)sg.SampleGroup_CN, "W", "Sample Group is too long. Results may not be as expected.");
+                {
+                    errors.AddError("SampleGroup", "W", "Sample Group is too long. Results may not be as expected.", (int)sg.SampleGroup_CN, "Code");
+                }
             }   //  end foreach loop
         }
 
