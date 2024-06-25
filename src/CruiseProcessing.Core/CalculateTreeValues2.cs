@@ -472,11 +472,21 @@ namespace CruiseProcessing
                 WF[1] = sProdEq.WeightFactorSecondary;
             }
 
+            var prod = new StringBuilder(STRING_BUFFER_SIZE).Append(product);
+
             //  WHY?                            //if(currRegion == "9" || currRegion == "09")
             //    CRZBIOMASSCS(ref REGN,FORST,ref SPCD,ref DBHOB,ref HTTOT,VOL,WF,calculatedBiomass,ref ERRFLAG,strlen);
             //else
-            CRZBIOMASSCS(ref iRegn, FORST, ref SPCD, ref currDBH, ref currDRC, ref currHGT, ref currFC, VOL, WF,
-                                calculatedBiomass, ref ERRFLAG, STRING_BUFFER_SIZE);
+
+            try
+            {
+                CRZBIOMASSCS(ref iRegn, FORST, ref SPCD, ref currDBH, ref currDRC, ref currHGT, ref currFC, VOL, WF,
+                                    calculatedBiomass, ref ERRFLAG, prod, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE);
+            }
+            catch(System.AccessViolationException e)
+            {
+                Log.LogCritical(e, "Tree_CN{TreeCN} fiaCode{fiaCode} prod{prod}", tree.Tree_CN, currFIA, product);
+            }
 
             // Apply percent removed if greater than zero
             // seems like each BioEq for a given species/prod has the same PercentRemoved value
