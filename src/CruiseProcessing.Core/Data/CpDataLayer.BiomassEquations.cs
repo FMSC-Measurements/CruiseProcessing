@@ -98,7 +98,7 @@ UPDATE SET
 
             try
             {
-                DAL_V3.Execute("DELETE FROM BiomassEquation WHERE CruiseID = @p1", CruiseID);
+                DAL_V3?.Execute("DELETE FROM BiomassEquation WHERE CruiseID = @p1", CruiseID);
             }
             catch (Exception ex) 
             {

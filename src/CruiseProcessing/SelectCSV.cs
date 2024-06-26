@@ -46,7 +46,7 @@ namespace CruiseProcessing
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
-        public void setupDialog()
+        public bool setupDialog()
         {
             //  make sure text output file exists as these are generated from the reports in that file
             textFileName = System.IO.Path.ChangeExtension(DataLayer.FilePath, "out");
@@ -54,10 +54,12 @@ namespace CruiseProcessing
             {
                 MessageBox.Show("TEXT OUTPUT FILE COULD NOT BE FOUND.\nPlease create the text output file to continue.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
-                return;
+                return false;
             }   //  endif
             for (int k = 0; k < 10; k++)
                 filesToOutput[k] = 0;
+
+            return true;
         }   //  end setupDialog
 
 
