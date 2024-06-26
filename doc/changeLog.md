@@ -9,6 +9,7 @@
 
 
 ## Fixes
+ - Fix crash that occurs if opening V3 file that is already open in another instance
  - Fixed Crash that can occur in R9 Vol Equations if species is not an FIA code. 
  - Fixed A01 report displaying BAF/FPS when it doesn't apply to cruise method.
    This can happen if BAF or FPS is set on stratum and then the cruise method is changed. 
