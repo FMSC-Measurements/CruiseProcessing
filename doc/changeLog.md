@@ -3,7 +3,7 @@
 ## Changes
  - Add warning (to error report or end of cruise) if Volume Equation has Calc Biomass checked 
    but no biomass equations are associated with it.
- - Added warning message when volume equation with Calc Biomass flag has no Biomass Equations
+ - Change error report to include warnings
  - Remove "Incomplete Data" error when opening file. All necessary file checks are performed before processing. 
  - Change Weight Factor use for R1 non-product 01 biomass
 
