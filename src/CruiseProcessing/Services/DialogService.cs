@@ -247,8 +247,10 @@ namespace CruiseProcessing.Services
         public void ShowCreateCsv()
         {
             SelectCSV sc = Services.GetRequiredService<SelectCSV>();
-            sc.setupDialog();
-            sc.ShowDialog();
+            if(sc.setupDialog())
+            {
+                sc.ShowDialog();
+            }
         }
 
         public void ShowAddLocalVolumes()
