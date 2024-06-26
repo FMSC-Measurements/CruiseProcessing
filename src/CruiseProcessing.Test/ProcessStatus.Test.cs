@@ -29,7 +29,7 @@ namespace CruiseProcessing.Test
         {
             var mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
-                .Returns(() => new CalculateTreeValues2(datalayer));
+                .Returns(() => new CalculateTreeValues2(datalayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
 
             return mockServiceProvider;
         }
@@ -287,13 +287,6 @@ namespace CruiseProcessing.Test
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
             var mockServiceProvider = GetServiceProviderMock(dataLayer);
             var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
-
-            if (dataLayer.getRegion() == "09"
-                && dataLayer.getValueEquations().Count == 0)
-            {
-                var r9VolEq = new R9VolEquation(dataLayer, mockServiceProvider.Object);
-                r9VolEq.onFinished(null, null);
-            }
 
             var result = processStatus.DoPreProcessChecks();
             if (!result)

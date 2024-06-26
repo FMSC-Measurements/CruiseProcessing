@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -14,6 +15,9 @@ namespace CruiseProcessing
 {
     public partial class VolumeEquations : Form
     {
+        private const int CRZSPDFTCS_STRINGLENGTH = 256;
+        public static readonly ReadOnlyCollection<string> BIOMASS_COMPONENTS = Array.AsReadOnly(new[] { "TotalTreeAboveGround", "LiveBranches", "DeadBranches", "Foliage", "PrimaryProd", "SecondaryProd", "StemTip" });
+
         //  list class for volumes
         public List<VolEqList> volList = new List<VolEqList>();
 
@@ -24,24 +28,26 @@ namespace CruiseProcessing
         private int trackRow = -1;
 
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void CRZSPDFTCS(ref int regn, StringBuilder forst, ref int spcd, float[] wf, StringBuilder agteq, StringBuilder lbreq,
+        private static extern void CRZSPDFTCS(ref int regn, StringBuilder forst, out int spcd, float[] wf, StringBuilder agteq, StringBuilder lbreq,
             StringBuilder dbreq, StringBuilder foleq, StringBuilder tipeq, StringBuilder wf1ref, StringBuilder wf2ref, StringBuilder mcref,
             StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref,
             int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
 
         public CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
+        public IDialogService DialogService { get; }
 
         protected VolumeEquations()
         {
             InitializeComponent();
         }
 
-        public VolumeEquations(CpDataLayer dataLayer, IServiceProvider services)
+        public VolumeEquations(CpDataLayer dataLayer, IDialogService dialogService, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         }
 
         public int setupDialog()
@@ -406,8 +412,7 @@ namespace CruiseProcessing
                 DataLayer.SaveVolumeEquations(equationList);
                 Cursor.Current = this.Cursor;
             }   //  endif
-            int sumBiomassFlag = (int)equationList.Sum(eq => eq.CalcBiomass);
-            if (sumBiomassFlag > 0)
+            if (equationList.Any(x => x.CalcBiomass > 0))
             {
                 //  Load biomass information if biomass flag was checked
                 //  But if it's an edited template then capture region and forest
@@ -416,11 +421,14 @@ namespace CruiseProcessing
                 {
                     TemplateRegionForest trf = Services.GetRequiredService<TemplateRegionForest>();
                     trf.ShowDialog();
-                    updateBiomass(equationList, trf.currentRegion, trf.currentForest);
+                    UpdateBiomassTemplate(equationList, trf.currentRegion, trf.currentForest);
                 }
-                else updateBiomass(equationList);
+                else
+                {
+                    UpdateBiomassCruise(equationList);
+                }
             }
-            else if (sumBiomassFlag == 0)
+            else
             {
                 //  remove all biomass equations
                 DataLayer.ClearBiomassEquations();
@@ -440,193 +448,241 @@ namespace CruiseProcessing
             }
         }   //  end onCancel
 
-        public void updateBiomass(List<VolumeEquationDO> equationList)
+        public void UpdateBiomassTemplate(List<VolumeEquationDO> equationList, string currRegion, string currForest)
         {
-            List<TreeDO> treeList = DataLayer.getTrees();
-            //  Are there records in the BiomassEquation table?  Remove all
-            List<BiomassEquationDO> bioList = DataLayer.getBiomassEquations();
-            if (bioList.Count > 0) DataLayer.ClearBiomassEquations();
-            //  need to reset filename
-            string currRegion = DataLayer.getRegion();
-            string currForest = DataLayer.getForest();
-            //  district is not used in the new biomass library call
-            //string currDist = bslyr.getDistrict();
+            //  capture percent removed
+            var prList = DialogService.ShowPercentRemovedDialog(equationList);
 
-            //  if just one volume equation has biomass flag checked, need to capture percent removed for any or all
-            List<PercentRemoved> prList = new List<PercentRemoved>();
-            foreach (VolumeEquationDO vdo in equationList)
+            UpdateBiomassTemplate(DataLayer, equationList, currRegion, currForest, prList);
+        }
+
+        public static void UpdateBiomassTemplate(CpDataLayer dataLayer, IEnumerable<VolumeEquationDO> equationList, string currRegion, string currForest, IReadOnlyCollection<PercentRemoved> prList)
+        {
+            int REGN = Convert.ToInt32(currRegion);
+
+            List<TreeDefaultValueDO> treeDef = dataLayer.getTreeDefaults();
+            List<BiomassEquationDO> biomassEquations = new List<BiomassEquationDO>();
+
+            foreach (VolumeEquationDO volEq in equationList)
             {
-                PercentRemoved pr = new PercentRemoved();
-                if (vdo.CalcBiomass == 1)
+                if (volEq.CalcBiomass == 1)
                 {
-                    pr.bioSpecies = vdo.Species;
-                    pr.bioProduct = vdo.PrimaryProduct;
-                    prList.Add(pr);
-                }   //  endif biomass flag checked
-            }   //  end foreach
-            if (prList.Count > 0)
-            {
-                CapturePercentRemoved cpr = new CapturePercentRemoved();
-                cpr.prList = prList;
-                cpr.setupDialog();
-                cpr.ShowDialog();
-                prList = cpr.prList;
-            }   //  endif nthRow
+                    // find species/product in tree default values for FIA code
 
+                    var treeDefault = treeDef.FirstOrDefault(td => td.Species == volEq.Species && td.PrimaryProduct == volEq.PrimaryProduct);
+                    var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
+                    float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
+                        ? pct : 0.0f;
+                    if (treeDefault != null)
+                    {
+                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, (int)treeDefault.FIAcode, treeDefault.LiveDead, percentRemovedValue);
+
+                        biomassEquations.AddRange(bioEqs);
+                    }   //  endif nthRow
+                }   //  endif
+            }   //  end foreach loop
+
+            //  save list
+            dataLayer.ClearBiomassEquations();
+            dataLayer.SaveBiomassEquations(biomassEquations);
+        }
+
+        public void UpdateBiomassCruise(List<VolumeEquationDO> equationList)
+        {
+            //  if just one volume equation has biomass flag checked, need to capture percent removed for any or all
+            var prList = DialogService.ShowPercentRemovedDialog(equationList);
+            UpdateBiomassCruise(DataLayer, equationList, prList);
+        }
+
+        public static void UpdateBiomassCruise(CpDataLayer dataLayer, IEnumerable<VolumeEquationDO> equationList, IReadOnlyCollection<PercentRemoved> prList)
+        {
+            var treeList = dataLayer.getTrees();
             //  new variables for biomass call
-            int REGN, SPCD;
-            float[] WF = new float[3];
-            StringBuilder AGTEQ = new StringBuilder(256);
-            StringBuilder LBREQ = new StringBuilder(256);
-            StringBuilder DBREQ = new StringBuilder(256);
-            StringBuilder FOLEQ = new StringBuilder(256);
-            StringBuilder TIPEQ = new StringBuilder(256);
-            StringBuilder WF1REF = new StringBuilder(256);
-            StringBuilder WF2REF = new StringBuilder(256);
-            StringBuilder MCREF = new StringBuilder(256);
-            StringBuilder AGTREF = new StringBuilder(256);
-            StringBuilder LBRREF = new StringBuilder(256);
-            StringBuilder DBRREF = new StringBuilder(256);
-            StringBuilder FOLREF = new StringBuilder(256);
-            StringBuilder TIPREF = new StringBuilder(256);
-            const int strlen = 256;
-            //  need an array of component titles
-            string[] componentArray = new string[7] { "TotalTreeAboveGround", "LiveBranches", "DeadBranches", "Foliage", "PrimaryProd", "SecondaryProd", "StemTip" };
-            //  convert region to integer and forest to StringBuilder
-            REGN = Convert.ToInt32(currRegion);
-            StringBuilder FORST = new StringBuilder(256);
-            FORST.Append(currForest);
+            string currRegion = dataLayer.getRegion();
+            string currForest = dataLayer.getForest();
+            int REGN = Convert.ToInt32(currRegion);
+
+            var biomassEquations = new List<BiomassEquationDO>();
 
             //  Region 8 does things so differently -- multiple species could be
             //  in the equation list so need to check for duplicates.  Otherwise, the biomass equations
             //  won't save.  February 2014
-            string prevSP = "**";
-            string prevPP = "**";
+
             //  update biomass equations
-            foreach (VolumeEquationDO vedo in equationList)
+            foreach (VolumeEquationDO volEq in equationList.GroupBy(x => x.Species + ";" + x.PrimaryProduct).Select(x => x.First()))
             {
-                if (vedo.CalcBiomass == 1)
+                if (volEq.CalcBiomass == 1)
                 {
-                    if (prevSP != vedo.Species || (prevSP == vedo.Species && prevPP != vedo.PrimaryProduct))
+                    var tree = treeList.FirstOrDefault(t => t.Species == volEq.Species && t.SampleGroup.PrimaryProduct == volEq.PrimaryProduct);
+                    var treeDefaultValue = tree?.TreeDefaultValue;
+                    var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
+                    float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
+                        ? pct : 0.0f;
+
+                    if (treeDefaultValue != null)
                     {
-                        prevSP = vedo.Species;
-                        prevPP = vedo.PrimaryProduct;
-                        //  find species/product in Tree list
-                        int nthRow = treeList.FindIndex(
-                            delegate (TreeDO t)
-                            {
-                                return t.Species == vedo.Species && t.SampleGroup.PrimaryProduct == vedo.PrimaryProduct;
-                            });
+                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, (int)treeDefaultValue.FIAcode, treeDefaultValue.LiveDead, percentRemovedValue);
 
-                        if (nthRow >= 0)
-                        {
-                            WF[0] = 0;
-                            WF[1] = 0;
-                            WF[2] = 0;
-                            SPCD = (int)treeList[nthRow].TreeDefaultValue.FIAcode;
-                            CRZSPDFTCS(ref REGN, FORST, ref SPCD, WF, AGTEQ, LBREQ, DBREQ, FOLEQ, TIPEQ,
-                                WF1REF, WF2REF, MCREF, AGTREF, LBRREF, DBRREF, FOLREF, TIPREF,
-                                strlen, strlen, strlen, strlen, strlen, strlen, strlen, strlen,
-                                strlen, strlen, strlen, strlen, strlen, strlen);
+                        biomassEquations.AddRange(bioEqs);
+                    }
 
-                            //  get percent removed from list
-                            float currPC = new float();
-                            int ithRow = prList.FindIndex(
-                                delegate (PercentRemoved pr)
-                                {
-                                    return pr.bioSpecies == vedo.Species && pr.bioProduct == vedo.PrimaryProduct;
-                                });
-                            if (ithRow >= 0)
-                                currPC = Convert.ToSingle(prList[ithRow].bioPCremoved);
-                            else currPC = 0;
-
-                            for (int k = 0; k < 7; k++)
-                            {
-                                BiomassEquationDO bedo = new BiomassEquationDO();
-                                bedo.FIAcode = treeList[nthRow].TreeDefaultValue.FIAcode;
-                                bedo.LiveDead = treeList[nthRow].LiveDead;
-                                bedo.Product = vedo.PrimaryProduct;
-                                bedo.Species = vedo.Species;
-                                bedo.PercentMoisture = WF[2];
-                                bedo.PercentRemoved = currPC;
-
-                                //  switch through component array
-                                switch (k)
-                                {
-                                    case 0:     //  Total tree above ground
-                                        bedo.Component = componentArray[k];
-                                        bedo.Equation = AGTEQ.ToString();
-                                        bedo.MetaData = AGTREF.ToString();
-                                        break;
-
-                                    case 1:     //  Live branches
-                                        bedo.Component = componentArray[k];
-                                        bedo.Equation = LBREQ.ToString();
-                                        bedo.MetaData = LBRREF.ToString();
-                                        break;
-
-                                    case 2:     //  Dead branches
-                                        bedo.Component = componentArray[k];
-                                        bedo.Equation = DBREQ.ToString();
-                                        bedo.MetaData = DBRREF.ToString();
-                                        break;
-
-                                    case 3:     //  Foliage
-                                        bedo.Component = componentArray[k];
-                                        bedo.Equation = FOLEQ.ToString();
-                                        bedo.MetaData = FOLREF.ToString();
-                                        break;
-
-                                    case 4:     //  Primary product
-                                        bedo.Component = componentArray[k];
-                                        bedo.Equation = "";
-                                        if (currRegion == "05" || currRegion == "5")
-                                        {
-                                            //  setip array for FIA codes for applicable species
-                                            long[] FIAcodes = new long[8] { 122, 116, 117, 015, 020, 202, 081, 108 };
-                                            int foundIt = 0;
-                                            if (vedo.PrimaryProduct == "20")
-                                            {
-                                                for (int j = 0; j < 8; j++)
-                                                {
-                                                    if (treeList[nthRow].TreeDefaultValue.FIAcode == FIAcodes[j])
-                                                    {
-                                                        bedo.WeightFactorPrimary = WF[1];
-                                                        foundIt = 1;
-                                                    }
-                                                }   //  end for j loop
-                                                if (foundIt == 0)
-                                                    bedo.WeightFactorPrimary = WF[0];
-                                            }
-                                            else bedo.WeightFactorPrimary = WF[0];
-                                        }
-                                        else bedo.WeightFactorPrimary = WF[0];
-                                        bedo.MetaData = WF1REF.ToString();
-                                        break;
-
-                                    case 5:     //  Secondary product
-                                        bedo.Component = componentArray[k];
-                                        bedo.Equation = "";
-                                        bedo.WeightFactorSecondary = WF[1];
-                                        bedo.MetaData = WF2REF.ToString();
-                                        break;
-
-                                    case 6:     //  Stem tip
-                                        bedo.Component = componentArray[k];
-                                        bedo.Equation = TIPEQ.ToString();
-                                        bedo.MetaData = TIPREF.ToString();
-                                        break;
-                                }   //  end switch
-
-                                bioList.Add(bedo);
-                            }   //  end for k loop
-                        }   //  endif nthRow
-                    }   //  endif species and product are not equal
                 }   //  endif biomass checked
             }   //  end foreach loop
             //  save list
-            DataLayer.SaveBiomassEquations(bioList);
-        }   //  end updateBiomass
+
+            dataLayer.ClearBiomassEquations();
+            dataLayer.SaveBiomassEquations(biomassEquations);
+        }
+
+        public static IEnumerable<BiomassEquationDO> MakeBiomassEquations(VolumeEquationDO volEq, int region, string forest, int fiaCode, string liveDead, float percentRemovedValue)
+        {
+            
+
+            var biomassEquations = new List<BiomassEquationDO>();
+
+            float[] WF = new float[3];
+            var FORST = new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(forest);
+            var AGTEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var LBREQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var DBREQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var FOLEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var TIPEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var WF1REF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var WF2REF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var MCREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var AGTREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var LBRREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var DBRREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var FOLREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            var TIPREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
+            int REGN = region;
+            int SPCD = fiaCode;
+            CRZSPDFTCS(ref REGN,
+                       FORST,
+                       out fiaCode,
+                       WF,
+                       AGTEQ,
+                       LBREQ,
+                       DBREQ,
+                       FOLEQ,
+                       TIPEQ,
+                       WF1REF,
+                       WF2REF,
+                       MCREF,
+                       AGTREF,
+                       LBRREF,
+                       DBRREF,
+                       FOLREF,
+                       TIPREF,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH,
+                       CRZSPDFTCS_STRINGLENGTH);
+            // note: fiaCode is both an input and an output variable
+
+            
+            
+
+            foreach(var comp in BIOMASS_COMPONENTS)
+            {
+                BiomassEquationDO bedo = new BiomassEquationDO();
+                bedo.FIAcode = fiaCode;
+                bedo.LiveDead = liveDead; // note: although biomass Eqs have live dead. Since during calculating tree value BioEq's arn't selected by LiveDead it doesn't matter what the LD is
+                bedo.Product = volEq.PrimaryProduct;
+                bedo.Species = volEq.Species;
+                bedo.PercentMoisture = WF[2];
+                bedo.PercentRemoved = percentRemovedValue;
+
+                switch (comp)
+                {
+                    case "TotalTreeAboveGround":
+                        {
+                            bedo.Component = comp;
+                            bedo.Equation = AGTEQ.ToString();
+                            bedo.MetaData = AGTREF.ToString();
+                            break;
+                        }
+                    case "LiveBranches":
+                        {
+                            bedo.Component = comp;
+                            bedo.Equation = LBREQ.ToString();
+                            bedo.MetaData = LBRREF.ToString();
+                            break;
+                        }
+                    case "DeadBranches":
+                        {
+                            bedo.Component = comp;
+                            bedo.Equation = DBREQ.ToString();
+                            bedo.MetaData = DBRREF.ToString();
+                            break;
+                        }
+                    case "Foliage":
+                        {
+                            bedo.Component = comp;
+                            bedo.Equation = FOLEQ.ToString();
+                            bedo.MetaData = FOLREF.ToString();
+                            break;
+                        }
+                    case "PrimaryProd":
+                        {
+                            bedo.Component = comp;
+                            bedo.Equation = "";
+                            bedo.MetaData = WF1REF.ToString();
+
+                            if (region == 5)
+                            {
+                                int[] R5_Prod20_WF_FIAcodes = new int[] { 122, 116, 117, 015, 020, 202, 081, 108 };
+                                if (volEq.PrimaryProduct == "20"
+                                    && R5_Prod20_WF_FIAcodes.Any(x => x == fiaCode))
+                                {
+                                    bedo.WeightFactorPrimary = WF[1];
+                                }
+                                else bedo.WeightFactorPrimary = WF[0];
+                            }
+                            else if (REGN == 1 && volEq.PrimaryProduct != "01")
+                            {
+                                bedo.WeightFactorPrimary = WF[1];
+                            }
+                            else
+                            {
+                                bedo.WeightFactorPrimary = WF[0];
+                            }
+
+                            
+                            break;
+                        }
+                    case "SecondaryProd":
+                        {
+                            bedo.Component = comp;
+                            bedo.Equation = "";
+                            bedo.WeightFactorSecondary = WF[1];
+                            bedo.MetaData = WF2REF.ToString();
+                            break;
+                        }
+                    case "StemTip":
+                        {
+                            bedo.Component = comp;
+                            bedo.Equation = TIPEQ.ToString();
+                            bedo.MetaData = TIPREF.ToString();
+                            break;
+                        }
+                }
+
+                biomassEquations.Add( bedo );
+            }
+
+            return biomassEquations;
+        }
 
         private List<VolumeEquationDO> updateEquationList(string[,] speciesProduct)
         {
@@ -651,169 +707,9 @@ namespace CruiseProcessing
             volumeEquationList.Rows.Remove(row);
         }   //  end onDelete
 
-        public void updateBiomass(List<VolumeEquationDO> equationList, string currRegion, string currForest)
-        {
-            //  function only updates biomass equations in a template file
-            List<TreeDefaultValueDO> treeDef = DataLayer.getTreeDefaults();
-            List<BiomassEquationDO> bioList = DataLayer.getBiomassEquations();
-            if (bioList.Count > 0) DataLayer.ClearBiomassEquations();
+ 
 
-            //  capture percent removed
-            List<PercentRemoved> prList = new List<PercentRemoved>();
-            foreach (VolumeEquationDO vdo in equationList)
-            {
-                PercentRemoved pr = new PercentRemoved();
-                if (vdo.CalcBiomass == 1)
-                {
-                    pr.bioSpecies = vdo.Species;
-                    pr.bioProduct = vdo.PrimaryProduct;
-                    prList.Add(pr);
-                }   //  endif biomass flag checked
-            }   //  end foreach
-            if (prList.Count > 0)
-            {
-                CapturePercentRemoved cpr = new CapturePercentRemoved();
-                cpr.prList = prList;
-                cpr.setupDialog();
-                cpr.ShowDialog();
-                prList = cpr.prList;
-            }   //  endif nthRow
 
-            //  new variables for biomass call
-            int REGN, SPCD;
-            float[] WF = new float[3];
-            StringBuilder AGTEQ = new StringBuilder(256);
-            StringBuilder LBREQ = new StringBuilder(256);
-            StringBuilder DBREQ = new StringBuilder(256);
-            StringBuilder FOLEQ = new StringBuilder(256);
-            StringBuilder TIPEQ = new StringBuilder(256);
-            StringBuilder WF1REF = new StringBuilder(256);
-            StringBuilder WF2REF = new StringBuilder(256);
-            StringBuilder MCREF = new StringBuilder(256);
-            StringBuilder AGTREF = new StringBuilder(256);
-            StringBuilder LBRREF = new StringBuilder(256);
-            StringBuilder DBRREF = new StringBuilder(256);
-            StringBuilder FOLREF = new StringBuilder(256);
-            StringBuilder TIPREF = new StringBuilder(256);
-            const int strlen = 256;
-            //  need an array of component titles
-            string[] componentArray = new string[7] { "TotalTreeAboveGround", "LiveBranches", "DeadBranches", "Foliage", "PrimaryProd", "SecondaryProd", "StemTip" };
-            //  convert region to integer and forest to StringBuilder
-            REGN = int.Parse(currRegion);
-            StringBuilder FORST = new StringBuilder(256);
-            FORST.Append(currForest);
-
-            foreach (VolumeEquationDO el in equationList)
-            {
-                if (el.CalcBiomass == 1)
-                {
-                    // find species/product in tree default values for FIA code
-                    int nthRow = treeDef.FindIndex(
-                        delegate (TreeDefaultValueDO td)
-                        {
-                            return td.Species == el.Species && td.PrimaryProduct == el.PrimaryProduct;
-                        });
-                    if (nthRow >= 0)
-                    {
-                        WF[0] = 0;
-                        WF[1] = 0;
-                        WF[2] = 0;
-                        SPCD = (int)treeDef[nthRow].FIAcode;
-                        CRZSPDFTCS(ref REGN, FORST, ref SPCD, WF, AGTEQ, LBREQ, DBREQ, FOLEQ, TIPEQ,
-                                WF1REF, WF2REF, MCREF, AGTREF, LBRREF, DBRREF, FOLREF, TIPREF,
-                                strlen, strlen, strlen, strlen, strlen, strlen, strlen, strlen,
-                                strlen, strlen, strlen, strlen, strlen, strlen);
-
-                        //  get percent removed from list
-                        float currPC = new float();
-                        int ithRow = prList.FindIndex(
-                            delegate (PercentRemoved pr)
-                            {
-                                return pr.bioSpecies == el.Species && pr.bioProduct == el.PrimaryProduct;
-                            });
-
-                        for (int k = 0; k < 7; k++)
-                        {
-                            BiomassEquationDO bedo = new BiomassEquationDO();
-                            bedo.FIAcode = treeDef[nthRow].FIAcode;
-                            bedo.LiveDead = treeDef[nthRow].LiveDead;
-                            bedo.Product = el.PrimaryProduct;
-                            bedo.Species = el.Species;
-                            bedo.PercentMoisture = WF[2];
-                            bedo.PercentRemoved = currPC;
-
-                            //  switch through component array
-                            switch (k)
-                            {
-                                case 0:     //  Total tree above ground
-                                    bedo.Component = componentArray[k];
-                                    bedo.Equation = AGTEQ.ToString();
-                                    bedo.MetaData = AGTREF.ToString();
-                                    break;
-
-                                case 1:     //  Live branches
-                                    bedo.Component = componentArray[k];
-                                    bedo.Equation = LBREQ.ToString();
-                                    bedo.MetaData = LBRREF.ToString();
-                                    break;
-
-                                case 2:     //  Dead branches
-                                    bedo.Component = componentArray[k];
-                                    bedo.Equation = DBREQ.ToString();
-                                    bedo.MetaData = DBRREF.ToString();
-                                    break;
-
-                                case 3:     //  Foliage
-                                    bedo.Component = componentArray[k];
-                                    bedo.Equation = FOLEQ.ToString();
-                                    bedo.MetaData = FOLREF.ToString();
-                                    break;
-
-                                case 4:     //  Primary product
-                                    bedo.Component = componentArray[k];
-                                    bedo.Equation = "";
-                                    if (currRegion == "05" || currRegion == "5")
-                                    {
-                                        //  setip array for FFIA codes for applicable species
-                                        long[] FIAcodes = new long[8] { 122, 116, 117, 015, 020, 202, 081, 108 };
-                                        if (el.PrimaryProduct == "20")
-                                        {
-                                            for (int j = 0; j < 8; j++)
-                                            {
-                                                if (treeDef[nthRow].FIAcode == FIAcodes[j])
-                                                    bedo.WeightFactorPrimary = WF[1];
-                                            }
-                                        }
-                                        else bedo.WeightFactorPrimary = WF[0];
-                                    }
-                                    else bedo.WeightFactorPrimary = WF[0];
-                                    bedo.MetaData = WF1REF.ToString();
-                                    break;
-
-                                case 5:     //  Secondary product
-                                    bedo.Component = componentArray[k];
-                                    bedo.Equation = "";
-                                    bedo.WeightFactorSecondary = WF[1];
-                                    bedo.MetaData = WF2REF.ToString();
-                                    break;
-
-                                case 6:     //  Stem tip
-                                    bedo.Component = componentArray[k];
-                                    bedo.Equation = TIPEQ.ToString();
-                                    bedo.MetaData = TIPREF.ToString();
-                                    break;
-                            }   //  end switch
-
-                            bioList.Add(bedo);
-                        }   //  end for k loop
-                    }   //  endif nthRow
-                }   //  endif
-            }   //  end foreach loop
-
-            //  save list
-            DataLayer.SaveBiomassEquations(bioList);
-            return;
-        }
 
         private void getTemplateSpecies(object sender, EventArgs e)
         {

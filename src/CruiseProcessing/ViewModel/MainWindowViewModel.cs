@@ -392,14 +392,15 @@ namespace CruiseProcessing.ViewModel
             {
                 Region = int.TryParse(datalayer.getRegion(), out var r) ? r : 0;
 
-                if (datalayer.saleWithNullSpecies())
-                {
-                    //One or more records contain incomplete data which affect processing.\n
+                // don't need to 
+                //if (datalayer.saleWithNullSpecies())
+                //{
+                //    //One or more records contain incomplete data which affect processing.\n
 
-                    Logger.LogWarning("File Has Trees With Null Species: {FileName}", fileName);
-                    DialogService.ShowError("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.");
-                    return;
-                }
+                //    Logger.LogWarning("File Has Trees With Null Species: {FileName}", fileName);
+                //    DialogService.ShowError("One or more records contain incomplete data which affect processing..\nPlease correct before using cruise processing.");
+                //    return;
+                //}
             }
             else
             {

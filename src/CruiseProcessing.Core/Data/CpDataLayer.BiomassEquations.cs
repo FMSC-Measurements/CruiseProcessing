@@ -15,6 +15,13 @@ namespace CruiseProcessing.Data
             return DAL.From<BiomassEquationDO>().Read().ToList();
         }   //  end getBiomassEquations
 
+        public List<BiomassEquationDO> GetBiomassEquations(string species, string primaryProduct)
+        {
+            return DAL.From<BiomassEquationDO>()
+                .Where("Species = @p1 AND Product = @p2")
+                .Read(species, primaryProduct).ToList();
+        }
+
         public void SaveBiomassEquations(List<BiomassEquationDO> bioList)
         {
             foreach (BiomassEquationDO beq in bioList)

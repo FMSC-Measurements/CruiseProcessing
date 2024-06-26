@@ -11,6 +11,17 @@ namespace CruiseProcessing
 {
     public class OutputR5 : OutputFileReportGeneratorBase
     {
+
+        //  Region 5 reports
+        //  R501 report
+        //  Replace X's, Z's and T's with appropriate data
+        public static readonly string[] R501columns = new string[6] {" TABLE XX -  REPORT FOR SPECIES: ZZZZZZ",
+                                                     "                       PRODUCT: TT",
+                                                     " ",
+                                                     "     LOG             #",
+                                                     "     DIB            OF            GROSS             NET           GROSS             NET",
+                                                     "   CLASS          LOGS             BDFT            BDFT            CUFT            CUFT"};
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -132,15 +143,15 @@ namespace CruiseProcessing
         private string[] createCompleteHeader(string currSP, string currPP)
         {
             string[] finnishHeader = new string[6];
-            finnishHeader[0] = regionalReportHeaders.R501columns[0];
+            finnishHeader[0] = R501columns[0];
             finnishHeader[0] = finnishHeader[0].Replace("XX", tableCounter.ToString());
             finnishHeader[0] = finnishHeader[0].Replace("ZZZZZZ", currSP.PadRight(6, ' '));
-            finnishHeader[1] = regionalReportHeaders.R501columns[1];
+            finnishHeader[1] = R501columns[1];
             finnishHeader[1] = finnishHeader[1].Replace("TT", currPP);
-            finnishHeader[2] = regionalReportHeaders.R501columns[2];
-            finnishHeader[3] = regionalReportHeaders.R501columns[3];
-            finnishHeader[4] = regionalReportHeaders.R501columns[4];
-            finnishHeader[5] = regionalReportHeaders.R501columns[5];
+            finnishHeader[2] = R501columns[2];
+            finnishHeader[3] = R501columns[3];
+            finnishHeader[4] = R501columns[4];
+            finnishHeader[5] = R501columns[5];
 
             return finnishHeader;
         }   //  end createCompleteHeader

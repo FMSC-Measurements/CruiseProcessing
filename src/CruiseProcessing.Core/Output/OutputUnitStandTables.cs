@@ -12,6 +12,11 @@ namespace CruiseProcessing
 {
     public class OutputUnitStandTables : OutputFileReportGeneratorBase
     {
+        private readonly string[] UC25columns = new string[2] {"                                PAYMENT            CONTRACT    SAWTIMBER     NON-SAWTIMBER",
+                                                     "                                 UNIT     ACRES    SPECIES        CCF              CCF"};
+        private readonly string[] UC26columns = new string[2] {"                                CUTTING            CONTRACT    SAWTIMBER     NON-SAWTIMBER",
+                                                     "                                 UNIT     ACRES    SPECIES        CCF              CCF"};
+
         private List<string> prtFields = new List<string>();
         private double unitPF = 0;
         private string[] columnHeader = new string[3];
@@ -1222,7 +1227,7 @@ namespace CruiseProcessing
             {
                 case "UC25":
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        reportHeaders.UC25columns, 11, ref pageNumb, "");
+                                        UC25columns, 11, ref pageNumb, "");
                     prtFields.Add("                                 ");
                     if (firstFlag == 1)
                         prtFields.Add(currPU.PadLeft(4, ' '));
@@ -1238,7 +1243,7 @@ namespace CruiseProcessing
                     break;
                 case "UC26":
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.UC26columns, 12, ref pageNumb, "");
+                                    UC26columns, 12, ref pageNumb, "");
                     prtFields.Add("                                 ");
                     if(firstFlag == 1)
                     {
@@ -1271,7 +1276,7 @@ namespace CruiseProcessing
             numOlines++;
             if(currentReport == "UC25")
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.UC25columns, 12, ref pageNumb, "");
+                                UC25columns, 12, ref pageNumb, "");
 
             prtFields.Add("             ");
             prtFields.Add(totalText[0]);

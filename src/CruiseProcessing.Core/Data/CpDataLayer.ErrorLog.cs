@@ -1,4 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
+using FMSC.ORM.EntityModel;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,28 @@ namespace CruiseProcessing.Data
 {
     public partial class CpDataLayer
     {
+
+        public IReadOnlyCollection<ErrorLogDO> GetErrorMessages(string programName)
+        {
+            if (programName == "FScruiser")
+            {
+                return DAL.From<ErrorLogDO>()
+                    .Where("(Program LIKE'%FScruiser%' OR Program LIKE '%CruiseSystemManager%' OR Program LIKE '%CruiseManage%')")
+                    .Read()
+                    .ToList();
+            }
+            else if (programName == "CruiseProcessing")
+            {
+                return DAL.From<ErrorLogDO>()
+                    .Where(" Program = 'CruiseProcessing'")
+                    .Read()
+                    .ToList();
+            }
+            else
+            {
+                return Array.Empty<ErrorLogDO>();
+            }
+        }
 
         public List<ErrorLogDO> getErrorMessages(string errLevel, string errProgram)
         {
@@ -52,27 +76,34 @@ namespace CruiseProcessing.Data
                 {
                     eld.Save();
                 }
-                catch (FMSC.ORM.UniqueConstraintException)
-                { }
+                catch (FMSC.ORM.UniqueConstraintException e)
+                {
+                    Log.LogWarning(e, "Unique Constraint Exception While Saving ErrorLog {TableName}, {Column}, {Message}", eld.TableName, eld.ColumnName, eld.Message);
+                }
             }   //  end foreach loop
 
             return;
         }   //  end SaveErrorMessages
 
-        public void LogError(string tableName, int table_CN, string errLevel, string errMessage)
+        public void LogError(string tableName, int table_CN, string errLevel, string errMessage, string columnName = "Volume")
         {
-            List<ErrorLogDO> errList = new List<ErrorLogDO>();
             ErrorLogDO eldo = new ErrorLogDO();
 
             eldo.TableName = tableName;
             eldo.CN_Number = table_CN;
             eldo.Level = errLevel;
-            eldo.ColumnName = "Volume";
+            eldo.ColumnName = columnName;
             eldo.Message = errMessage;
             eldo.Program = "CruiseProcessing";
-            errList.Add(eldo);
 
-            SaveErrorMessages(errList);
+            try
+            {
+                DAL.Insert(eldo);
+            }
+            catch (FMSC.ORM.UniqueConstraintException e)
+            {
+                Log.LogWarning(e, "Unique Constraint Exception While Saving ErrorLog {TableName}, {Column}, {Message}", eldo.TableName, eldo.ColumnName, eldo.Message);
+            }
         }
     }
 }

@@ -1,3 +1,21 @@
+# Version 06.20.2024
+
+## Changes
+ - Add warning (to error report or end of cruise) if Volume Equation has Calc Biomass checked 
+   but no biomass equations are associated with it.
+ - Change error report to include warnings
+ - Remove "Incomplete Data" error when opening file. All necessary file checks are performed before processing. 
+ - Change Weight Factor use for R1 non-product 01 biomass
+
+
+## Fixes
+ - Fixed Crash that can occur in R9 Vol Equations if species is not an FIA code. 
+ - Fixed A01 report displaying BAF/FPS when it doesn't apply to cruise method.
+   This can happen if BAF or FPS is set on stratum and then the cruise method is changed. 
+ - Fix some reports displaying incorrect heading on fields, if a similar report had been run before it. 
+ - Fix crash when modifying volume equations and species missing FIA code or when Tree Default Value FIA code is blank or 0.
+   
+
 # Version 05.17.2024
 
 ## Fixes
