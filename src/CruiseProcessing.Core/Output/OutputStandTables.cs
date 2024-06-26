@@ -12,6 +12,8 @@ namespace CruiseProcessing
 {
     public class OutputStandTables : OutputFileReportGeneratorBase
     {
+        
+
         private List<string> prtFields = new List<string>();
         private double strAcres = 0;
         private int nthRow = 0;

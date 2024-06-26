@@ -20,6 +20,41 @@ namespace CruiseProcessing
 
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
 
+        #region headers
+        //  Weight reports
+        //  WT1 report
+        private readonly string[] WT1columns = new string[3] {"                                                         (1)             (2)       (3)            (4)            (5)",
+                                                    "           CRUISE    CONTRACT                   GROSS     WEIGHT         POUNDS   PERCENT         POUNDS          TONS",
+                                                    "          SPECIES     SPECIES    PRODUCT         CUFT     FACTOR       STANDING   REMOVED        REMOVED       REMOVED"};
+        private readonly string[] WT1footer = new string[5] {"         (1)  WEIGHT FACTOR = POUNDS PER GROSS CUFT",
+                                                   "         (2)  POUNDS STANDING = GROSS CUFT x WEIGHT FACTOR",
+                                                   "         (3)  PERCENT REMOVED = % MATERIAL HAULED OUT ON TRUCKS",
+                                                   "         (4)  POUNDS REMOVED =  POUNDS STANDING x (PERCENT REMOVED/100)",
+                                                   "         (5)  TONS REMOVED = POUNDS REMOVED / 2,000"};
+        private readonly string[] WT1total = new string[3] {"                                 SUMMARY",
+                                                  "                 CONTRACT                         TONS",
+                                                  "                  SPECIES        PRODUCT       REMOVED"};
+        //  WT2 and WT3 reports
+        //  WT2columns includes line for WT3 header -- rest is the same for WT3
+        private readonly string[] WT2columns = new string[3] {"STRATUM:  XXXX",
+                                                    "SLASH LOAD            SPECIES",
+                                                    "CUTTING UNIT:  XXXX"};
+        private readonly string[] WT2crown = new string[5] { "   NEEDLES |", "  0 - 1/4\" |", "  1/4 - 1\" |", "    1 - 3\" |", "       3\"+ |" };
+        private readonly string[] WT2threeplus = new string[4] { "    TOPWOOD |", "CULL VOLUME |", "     CHUNKS |", "       FLIW |" };
+        //  WT4 report
+        private readonly string[] WT4columns = new string[3] {"                                           SAWTIMBER         NON-SAWTIMBER        NON-SAWTIMBER",
+                                                    "  CUTTING                                  PRIM PROD = 01    OTHER PRIM PROD      SECOND PROD ONLY",
+                                                    "   UNIT         ACRES       SPECIES        GREEN TONS        GREEN TONS           GREEN TONS"};
+        //  WT5 report
+        private readonly string[] WT5columns = new string[4] {"    STRATUM:  XX                      GREEN TONS",
+                                                    "__________________________________________________________________________________________________",
+                                                    "                   PRIMARY    SECONDARY   --------BIOMASS COMPONENTS------- |------STEM WGT-------",
+                                                    " SPECIES       |   PRODUCT    PRODUCT        TIP     BRANCHES     FOLIAGE   |    MERCH*    TOTAL**"};
+        private readonly string[] WT5footer = new string[2] {" * WHOLE TREE (ABOVE GROUND) BIOMASS AS CALCULATED USING THE TOT TREE EQN SPECIFIED IN DEFAULTS (REGIONAL).",
+                                                   " ** TOTAL IS THE ADDITION OF PRIMARY PRODUCT, SECONDARY PRODUCT, TIP, BRANCHES AND FOLIAGE."};
+
+        #endregion headers
+
         #region
         private int[] fieldLengths;
         private List<string> prtFields;
@@ -315,7 +350,7 @@ namespace CruiseProcessing
             foreach (StratumDO sd in sList)
             {
                 double STacres = Utilities.ReturnCorrectAcres(sd.Code, DataLayer, (long)sd.Stratum_CN);
-                finishColumnHeaders(reportHeaders.WT5columns, sd.Code, ref completeHeader);
+                finishColumnHeaders(WT5columns, sd.Code, ref completeHeader);
 
                 //  pull stratum and species groups from LCD
                 List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 GROUP BY ", "Species", "C", sd.Code);
@@ -378,7 +413,7 @@ namespace CruiseProcessing
         {
             //  WT1 only
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                               reportHeaders.WT1columns, 3, ref pageNumb, "");
+                               WT1columns, 3, ref pageNumb, "");
 
             if (currGRS > 0)
             {
@@ -434,7 +469,7 @@ namespace CruiseProcessing
         {
             //  WT4 only
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.WT4columns, 10, ref pageNumb, "");
+                                    WT4columns, 10, ref pageNumb, "");
             prtFields.Add("");
             if (firstLine == 1)
             {
@@ -532,11 +567,11 @@ namespace CruiseProcessing
         private void WriteSubtotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  WT1
-            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], reportHeaders.WT1columns, 3, ref pageNumb, "");
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], WT1columns, 3, ref pageNumb, "");
 
             strWriteOut.WriteLine("\n");
             for (int k = 0; k < 3; k++)
-                strWriteOut.WriteLine(reportHeaders.WT1total[k]);
+                strWriteOut.WriteLine(WT1total[k]);
             strWriteOut.WriteLine(reportConstants.longLine);
             double totalTons = 0;
             foreach (ReportSubtotal rs in rptSubtotals)
@@ -582,7 +617,7 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("\n");
             //  write footer
             for (int k = 0; k < 5; k++)
-                strWriteOut.WriteLine(reportHeaders.WT1footer[k]);
+                strWriteOut.WriteLine(WT1footer[k]);
 
             if (footFlag == 1)
             {
@@ -597,7 +632,7 @@ namespace CruiseProcessing
         {
             //  WT4
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.WT4columns, 10, ref pageNumb, "");
+                                    WT4columns, 10, ref pageNumb, "");
             strWriteOut.WriteLine("                                            __________________________________________________");
             if (whichTotal == 1)
             {
@@ -646,8 +681,8 @@ namespace CruiseProcessing
             double overallTotal = subValue1 + subValue2 + subValue3 + subValue4 + subValue5;
             strWriteOut.WriteLine(String.Format("{0,8:F1}", overallTotal / 2000).PadLeft(8, ' '));
             strWriteOut.WriteLine("");
-            strWriteOut.WriteLine(reportHeaders.WT5footer[0]);
-            strWriteOut.WriteLine(reportHeaders.WT5footer[1]);
+            strWriteOut.WriteLine(WT5footer[0]);
+            strWriteOut.WriteLine(WT5footer[1]);
 
             return;
         }   //  end OutputSubtotal
@@ -658,7 +693,7 @@ namespace CruiseProcessing
             double STacres;
             //  need to finish the header
             string[] completeHeader = new string[4];
-            finishColumnHeaders(reportHeaders.WT5columns, "OVERALL SALE SUMMARY", ref completeHeader);
+            finishColumnHeaders(WT5columns, "OVERALL SALE SUMMARY", ref completeHeader);
             //  Order LCD by species and biomass product
             List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 GROUP BY ", "Species,BiomassProduct", "C", "");
             foreach (LCDDO jg in justGroups)
@@ -1101,7 +1136,7 @@ namespace CruiseProcessing
             for (int n = 0; n < 5; n++)
             {
                 prtFields.Add("         ");
-                prtFields.Add(reportHeaders.WT2crown[n]);
+                prtFields.Add(WT2crown[n]);
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n + 1, bList);
                 //  total column
@@ -1119,7 +1154,7 @@ namespace CruiseProcessing
             {
                 prtFields.Clear();
                 prtFields.Add("        ");
-                prtFields.Add(reportHeaders.WT2threeplus[n]);
+                prtFields.Add(WT2threeplus[n]);
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n + 6, bList);
                 if (n != 3)
@@ -1140,7 +1175,7 @@ namespace CruiseProcessing
             {
                 prtFields.Clear();
                 prtFields.Add("         ");
-                prtFields.Add(reportHeaders.WT2crown[n]);
+                prtFields.Add(WT2crown[n]);
                 prtFields.Add("     ");
                 lineTotal = LoadLine(n + 10, bList);
                 prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
@@ -1347,18 +1382,18 @@ namespace CruiseProcessing
             {
                 case "WT2":
                     if (currType != "SALE")
-                        finnishHeader[0] = reportHeaders.WT2columns[0].Replace("XXXX", currType.PadLeft(2, ' '));
+                        finnishHeader[0] = WT2columns[0].Replace("XXXX", currType.PadLeft(2, ' '));
                     else if (currType == "SALE")
                         finnishHeader[0] = "OVERALL SALE SUMMARY";
                     break;
 
                 case "WT3":
-                    finnishHeader[0] = reportHeaders.WT2columns[2].Replace("XXXX", currType.PadLeft(4, ' '));
+                    finnishHeader[0] = WT2columns[2].Replace("XXXX", currType.PadLeft(4, ' '));
                     break;
             }   //  end switch
 
             //  second line
-            finnishHeader[1] = reportHeaders.WT2columns[1];
+            finnishHeader[1] = WT2columns[1];
             finnishHeader[2] = reportConstants.longLine;
             //  load species columns
             finnishHeader[3] = "CROWNS              |";

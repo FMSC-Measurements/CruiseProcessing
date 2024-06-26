@@ -11,6 +11,55 @@ namespace CruiseProcessing
 {
     internal class OutputLiveDead : OutputFileReportGeneratorBase
     {
+        #region headers
+        //  LD1(CS4) through LD8(CS11) --  broken into right and left sides
+        private readonly string[] LiveDeadRight = new string[8] {" ",
+                                                       " ",
+                                                       " ",
+                                                       " ",
+                                                       "********   LIVE   ********    ********   DEAD   ********    *******   OTHER   ********     *******   TOTAL   ********",
+                                                       "EST.                          EST.                          EST.                           EST.",
+                                                       "NO OF     GROSS     NET       NO OF     GROSS     NET       NO OF     GROSS     NET        NO OF     GROSS     NET",
+                                                       "TREES     XXXX      XXXX      TREES     XXXX      XXXX      TREES     XXXX      XXXX       TREES     XXXX      XXXX"};
+        // LD1(CS4) and LD2(CS5) left side
+        private readonly string[] LD1LD2left = new string[8] {" ",
+                                                    " P   S      ",
+                                                    " R   P      ",
+                                                    " O   E      ",
+                                                    " D   C      ",
+                                                    " U   I      ",
+                                                    " C   E      ",
+                                                    " T   S      "};
+        private readonly string[] LD3LD4left = new string[8] {"C             ",
+                                                    "U  P   S      ",
+                                                    "T  R   P      ",
+                                                    "   O   E      ",
+                                                    "U  D   C      ",
+                                                    "N  U   I      ",
+                                                    "I  C   E      ",
+                                                    "T  T   S      "};
+        private readonly string[] LD5LD6left = new string[8] {" P             ",
+                                                    " A  P   S      ",
+                                                    " Y  R   P      ",
+                                                    "    O   E      ",
+                                                    " U  D   C      ",
+                                                    " N  U   I      ",
+                                                    " I  C   E      ",
+                                                    " T  T   S      "};
+        private readonly string[] LD7LD8left = new string[8] {" L             ",
+                                                    " O  P   S      ",
+                                                    " G  R   P      ",
+                                                    "    O   E      ",
+                                                    " M  D   C      ",
+                                                    " E  U   I      ",
+                                                    " T  C   E      ",
+                                                    " H  T   S      "};
+        private readonly string[] LiveDeadFooter = new string[3] {"NOTE:  Volumes include primary, secondary and recovered for each product number.",
+                                                        "       Net cubic or board includes recovered volume if present.",
+                                                        "       Number of trees includes only primary values even though no volume may appear."};
+        #endregion header
+
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<ReportSubtotal> productSubtotal = new List<ReportSubtotal>();
@@ -85,7 +134,7 @@ namespace CruiseProcessing
                 case "LD1":
                 case "LD2":
                     ldList.Clear();
-                    finishColumnHeaders(reportHeaders.LD1LD2left, reportHeaders.LiveDeadRight);
+                    finishColumnHeaders(LD1LD2left, LiveDeadRight);
                     fieldLengths = new int[] { 1, 3, 7, 9, 10, 12, 9, 10, 12, 9, 10, 12, 9, 10, 8 };
                     AccumulateAllData(justGroups, lcdList);
                     OutputData(strWriteOut, ref pageNumb, "");
@@ -96,7 +145,7 @@ namespace CruiseProcessing
 
                 case "LD3":
                 case "LD4":
-                    finishColumnHeaders(reportHeaders.LD3LD4left, reportHeaders.LiveDeadRight);
+                    finishColumnHeaders(LD3LD4left, LiveDeadRight);
                     fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
                     AccumulateAllData("CUT", justGroups);
                     OutputData(strWriteOut, ref pageNumb, "CUT");
@@ -108,7 +157,7 @@ namespace CruiseProcessing
 
                 case "LD5":
                 case "LD6":
-                    finishColumnHeaders(reportHeaders.LD5LD6left, reportHeaders.LiveDeadRight);
+                    finishColumnHeaders(LD5LD6left, LiveDeadRight);
                     fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
                     AccumulateAllData("PAY", justGroups);
                     OutputData(strWriteOut, ref pageNumb, "PAY");
@@ -134,7 +183,7 @@ namespace CruiseProcessing
                     }   //  end foreach loop
                     if (noMethod != -1)
                     {
-                        finishColumnHeaders(reportHeaders.LD7LD8left, reportHeaders.LiveDeadRight);
+                        finishColumnHeaders(LD7LD8left, LiveDeadRight);
                         fieldLengths = new int[] { 1, 4, 3, 7, 9, 10, 11, 9, 10, 11, 9, 10, 11, 9, 10, 8 };
                         AccumulateAllData("LOG", justGroups);
                         OutputData(strWriteOut, ref pageNumb, "LOG");
@@ -147,9 +196,9 @@ namespace CruiseProcessing
             }   //  end switch on current report
             //  output footer
             strWriteOut.WriteLine("");
-            strWriteOut.WriteLine(reportHeaders.LiveDeadFooter[0]);
-            strWriteOut.WriteLine(reportHeaders.LiveDeadFooter[1]);
-            strWriteOut.WriteLine(reportHeaders.LiveDeadFooter[2]);
+            strWriteOut.WriteLine(LiveDeadFooter[0]);
+            strWriteOut.WriteLine(LiveDeadFooter[1]);
+            strWriteOut.WriteLine(LiveDeadFooter[2]);
 
             return;
         }   // end CreateLiveDead

@@ -514,8 +514,8 @@ namespace CruiseProcessing
                         break;
 
                     case 4:         //  species
-                        if (tdo.Species == "" || tdo.Species == " " || tdo.Species == null)
-                            prtFields.Add(tdo.TreeDefaultValue.Species.PadRight(6, ' '));
+                        if (String.IsNullOrWhiteSpace(tdo.Species))
+                        { prtFields.Add(tdo.TreeDefaultValue.Species.PadRight(6, ' ')); }
                         else prtFields.Add(tdo.Species.PadRight(6, ' '));
                         fieldLengths.SetValue(7, k);
                         break;

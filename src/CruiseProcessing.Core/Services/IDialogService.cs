@@ -29,7 +29,8 @@ namespace CruiseProcessing.Services
 
         string? ShowOutput(List<ReportsDO> reports);
 
-        bool ShowProcess();
+        IReadOnlyCollection<PercentRemoved> ShowPercentRemovedDialog(IEnumerable<VolumeEquationDO> volumeEquations);
+        void ShowProcess();
 
         void ShowStandardReports(List<ReportsDO> reports, bool isTemplate);
 

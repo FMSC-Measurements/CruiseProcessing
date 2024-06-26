@@ -10,6 +10,15 @@ namespace CruiseProcessing
 {
     public class OutputUnitSummary : OutputFileReportGeneratorBase
     {
+        //  new unit summary (A14)
+        public readonly string[] A14columns = new string[7] {"            S    S ",
+                                                  "       S    M    P",
+                                                  "       T    P    E            AVG    EST        NO ",
+                                                  "  U    R         C     P ",
+                                                  "  N    A    G    I     R      BA/    NO OF      SAMP",
+                                                  "  I    T    R    E     O ",
+                                                  "  T    A    P    S     D      ACRE   TREES      TREES"};
+
         private List<RegionalReports> areaBasedOutput = new List<RegionalReports>();
         private List<RegionalReports> treeBasedBySpecies = new List<RegionalReports>();
         private List<RegionalReports> treeBaseBySampleGroup = new List<RegionalReports>();
@@ -370,7 +379,7 @@ namespace CruiseProcessing
             foreach (RegionalReports abo in areaBasedOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.A14columns, 16, ref pageNumb, "");
+                                A14columns, 16, ref pageNumb, "");
                 if (firstLine == 1)
                 {
                     //  write section header
@@ -414,7 +423,7 @@ namespace CruiseProcessing
             foreach (RegionalReports tbo in treeBasedBySpecies)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.A14columns, 16, ref pageNumb, "");
+                                A14columns, 16, ref pageNumb, "");
                 if (firstLine == 1)
                 {
                     //  write section header
@@ -443,7 +452,7 @@ namespace CruiseProcessing
             foreach (RegionalReports tbo in treeBaseBySampleGroup)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.A14columns, 16, ref pageNumb, "");
+                                A14columns, 16, ref pageNumb, "");
                 if (firstLine == 1)
                 {
                     //  write section header

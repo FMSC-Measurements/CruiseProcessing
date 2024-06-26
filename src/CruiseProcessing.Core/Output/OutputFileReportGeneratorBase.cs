@@ -15,11 +15,6 @@ namespace CruiseProcessing.Output
 
         public HeaderFieldData HeaderData { get; set; }
 
-        [Obsolete("Use HeaderData instead")]
-        protected string currentDate => HeaderData.Date; // only used in ErrorReport.cs
-        [Obsolete("Use HeaderData instead")]
-        protected string currentVersion => HeaderData.Version; // only used in OutputTim
-
         public OutputFileReportGeneratorBase(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID = "") : base(dataLayer, reportID)
         {
             HeaderData = headerData;
@@ -335,7 +330,7 @@ namespace CruiseProcessing.Output
             strWriteOut.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         }
 
-        public static string buildPrintLine(int[] fieldLengths, IEnumerable<string> oneLine)
+        public static string buildPrintLine(IReadOnlyList<int> fieldLengths, IEnumerable<string> oneLine)
         {
             StringBuilder printLine = new StringBuilder();
             foreach (var (str, k) in oneLine.Select((x, i) => (x, i)))

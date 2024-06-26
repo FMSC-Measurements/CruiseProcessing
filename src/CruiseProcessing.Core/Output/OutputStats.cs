@@ -12,6 +12,17 @@ namespace CruiseProcessing
 {
     class OutputStats : OutputFileReportGeneratorBase
     {
+        //  ST(DP) reports
+        private readonly string[] ST1ST2columns = new string[9] {"                  S",
+                                                   "                  T",
+                                                   "    P      S      G   *************************************ZZZZZZZZZZ PRODUCT XXXXX VOLUME *****************************************",
+                                                   " S  R  U   A",
+                                                   " T  O      M      S   NO                                     SUM          SUM                     COEFF                     COMBINED",
+                                                   " R  D  O          A",
+                                                   " A  U  F   G   S  M   SAM   BIG  SMALL   t      MEAN         OF           OF          STANDARD     OF     STANDARD SAMPLING SAMPLING",
+                                                   " T  C      R   T",
+                                                   " A  T  M   P   M 1/2 TREES   N     N*  VALUE     X            X         (X * X)       DEVIATION VARIATION  ERROR    ERROR    ERROR"};
+
         protected string currCL { get; }
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -89,7 +100,7 @@ namespace CruiseProcessing
             if (printPrimaryProdPage)
             {
                 //  primary product pages
-                finishColumnHeaders(reportHeaders.ST1ST2columns, volType, "PRIMARY");
+                finishColumnHeaders(ST1ST2columns, volType, "PRIMARY");
                 numOlines = 0;
                 ProcessPrimary(strWriteOut, ref pageNumb, volType);
             }   //  endif primary pages
@@ -97,14 +108,14 @@ namespace CruiseProcessing
             if (printSecondaryProdPage)
             {
                 //  secondary product pages
-                finishColumnHeaders(reportHeaders.ST1ST2columns, volType, "SECONDARY");
+                finishColumnHeaders(ST1ST2columns, volType, "SECONDARY");
                 numOlines = 0;
                 ProcessSecondary(strWriteOut, ref pageNumb, volType);
             }   //  endif secondary pages
 
             if (printRecoveredPage)
             {
-                finishColumnHeaders(reportHeaders.ST1ST2columns, volType, "RECOVERED");
+                finishColumnHeaders(ST1ST2columns, volType, "RECOVERED");
                 numOlines = 0;
                 ProcessRecovered(strWriteOut, ref pageNumb, volType);
             }   //  endif recovered pages

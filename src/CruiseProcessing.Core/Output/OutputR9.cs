@@ -12,6 +12,11 @@ namespace CruiseProcessing
 {
     internal class OutputR9 : OutputFileReportGeneratorBase
     {
+        //  Region 9 Report
+        public static readonly string[] R902columns = new string[3] {"                                    ***TIPWOOD***",
+                                                     "                        ESTIMATED       GROSS",
+                                                     "     UNIT   SPECIES     # OF TREES      CUFT"};
+
         private int[] fieldLengths;
 
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -101,7 +106,7 @@ namespace CruiseProcessing
             //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                     completeHeader, 13, ref pageNumb, "");
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                               regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+                               R902columns, 10, ref pageNumb, "");
             strWriteOut.Write("                  ");
             strWriteOut.WriteLine(reportConstants.subtotalLine1);
             strWriteOut.Write("  UNIT ");
@@ -120,7 +125,7 @@ namespace CruiseProcessing
             //WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                        completeHeader, 13, ref pageNumb, "");
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+                                R902columns, 10, ref pageNumb, "");
             //  works for UC reports
             strWriteOut.WriteLine("");
             strWriteOut.WriteLine("");
@@ -136,7 +141,7 @@ namespace CruiseProcessing
 
             grandTotal.Clear();
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                    regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+                    R902columns, 10, ref pageNumb, "");
             //WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                        completeHeader, 13, ref pageNumb, "");
             //  also output the footer
@@ -151,7 +156,7 @@ namespace CruiseProcessing
             //  WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
             //                      completeHeader, 13, ref pageNumb, "");
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+                                R902columns, 10, ref pageNumb, "");
             strWriteOut.WriteLine("                  _________________________________________________________________________________________________________________");
             strWriteOut.WriteLine("");
             strWriteOut.WriteLine("");
@@ -360,7 +365,7 @@ namespace CruiseProcessing
             string fieldFormat5 = "{0,7:F0}";
 
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R902columns, 10, ref pageNumb, "");
+                                R902columns, 10, ref pageNumb, "");
 
             //  Expansion factor is first
             prtFields.Add(String.Format(fieldFormat5, numTrees));

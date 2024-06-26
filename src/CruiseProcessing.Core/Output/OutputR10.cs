@@ -12,6 +12,68 @@ namespace CruiseProcessing
 {
     public class OutputR10 : OutputFileReportGeneratorBase
     {
+        #region report headers
+        //  Region 10 reports
+        //  R001/R002 report
+        //  January 2017 -- remove references to utility as they no longer sell utility volume
+        private readonly string[] R001R002columns = new string[5] {"           SALE VOLUMES    (XXX)    BY SPECIES",
+                                                         "      ---------------------------------------------",
+                                                         "                   GROSS         NET    ",
+                                                         "                   Sawlog        Sawlog ",
+                                                         "      Species      Removed       Removed"};
+        //public string[] R001R002columns = new string[6] {"                            SALE VOLUMES    (XXX)    BY SPECIES",
+        //                                                 "      ------------------------------------------------------------------",
+        //                                                 "                   Gross         NET                   Gross      NET",
+        //                                                 "                   Standing      Sawlogs               Removed    Sawlogs",
+        //                                                 "                   cut trees     with        Total     without    without",
+        //                                                 "      Species      with utility  utility     utility   utility    utility"};
+        private readonly string R10specialLine = "      ----------   ------------  ------------";
+        private readonly string[] R001R002parTwo = new string[12]{"                       LOGGING CHARACTERISTICS",
+                                                        "     --------------------------------------------------------------------",
+                                                        "      No. of 32-Ft Logs/XXX Gross removed       ",
+                                                        "      Avg. XXX Gross removed per 32 ft. log     ",
+                                                        "      Avg. XXX Net removed per 32 ft. log       ",
+                                                        "      Avg. XXX Gross removed per acre           ",
+                                                        "      Avg. XXX Net removed per acre             ",
+                                                        "      Avg. Scaling Defect %                     ",
+                                                        "      Quad Mean DBH (for cut trees)             ",
+                                                        " ",
+                                                        "      Average cut tree volume, Net xxx          ",
+                                                        "      Sale xxx/zzz conversion                   "};
+
+        //public string[] R001R002parTwo = new string[9] {"                       LOGGING CHARACTERISTICS",
+        //                                              "     --------------------------------------------------------------------",
+        //                                            "      No. of 32-Ft Logs/XXX Gross removed (without utility)      ",
+        //                                          "      Avg. XXX Gross removed (without utility) per 32 ft. log    ",
+        //                                        "      Avg. XXX Gross removed (without utility) per acre          ",
+        //                                      "      Avg. Scaling Defect % (without utility)                    ",
+        //                                    " ",
+        //                                  "      % Woods Defect based on Gross standing (with utility)      ",
+        //                                "      Weighted Ave DBH (for cut trees)                           "};
+        //  R003/R004 report
+        //  These reports build the header from species codes
+        //  R005 report
+        //  Replace X's with MBF or CCF depending on the program
+        private readonly string[] R005columns = new string[7] {"  L    S    P",
+                                                     "  O    P    R",
+                                                     "  G    E    O",
+                                                     "       C    D",
+                                                     "  M    I    U                TOTAL   GROSS/   AVERAGE  TOTAL        NET                                             STANDING",
+                                                     "  T    E    C  SCALE  WOODS  GROSS   ACRE     LOG      NET          CCF/   ESTIM  TREES/    MEAN   MEAN    LOGS/    GROSS/",
+                                                     "  H    S    T  DEF %  DEF %  REMOVED REMOVED  VOLUME   CCF          ACRE   TREES  ACRE      DBH    HGT     CCF      ACRE     ACRES"};
+        //  R006/R007 reports -- flat files
+        //  Replace T's with BOARD or CUBIC, Z's with MBF or CCF, X's with sale number ---  change depends on report requested
+        private readonly string[] R006R007columns = new string[5] {"NET TTTTT FOOT VOLUME (ZZZ) BY DIAMETER GROUP FOR:  XXXXXX",
+                                                         " ",
+                                                         "This report is by small end diameter and log grade (0, 1, 2, 3, 5, 6 and 7)",
+                                                         " ",
+                                                         "Sale#  Species   Diam Group  Peel/Select      #1 Saw       #2 Saw       #3 Saw       #5 Saw     Special Mill    #7"};
+        //  Reports R008 and R009 are going to totally change to allow user to enter exact matrix to use
+        //  Headers may not change but will stay with the report logic instead of here
+
+        #endregion
+
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -508,7 +570,7 @@ namespace CruiseProcessing
             string cruiseNumb = DataLayer.getCruiseNumber();
             //  update headers for output file based on report
             string[] completeHeaders = new string[5];
-            completeHeader = regionalReportHeaders.R006R007columns;
+            completeHeader = R006R007columns;
             switch (currentReport)
             {
                 case "R006":
@@ -776,7 +838,7 @@ namespace CruiseProcessing
             double calcValue = 0;
             //  modify summary labels
             string volType = "";
-            string[] summaryLabels = regionalReportHeaders.R001R002parTwo;
+            string[] summaryLabels = R001R002parTwo;
             switch (currentReport)
             {
                 case "R001":
@@ -1108,7 +1170,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                                regionalReportHeaders.R005columns, 17, ref pageNumb, "");
+                                                R005columns, 17, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 //  method, species, product
@@ -1515,9 +1577,9 @@ namespace CruiseProcessing
         private string[] createCompleteHeader()
         {
             string[] finnishHeader = new string[7];
-            finnishHeader[6] = regionalReportHeaders.R10specialLine;
+            finnishHeader[6] = R10specialLine;
             for (int k = 0; k < 5; k++)
-                finnishHeader[k] = regionalReportHeaders.R001R002columns[k];
+                finnishHeader[k] = R001R002columns[k];
 
             switch (currentReport)
             {

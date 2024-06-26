@@ -10,6 +10,11 @@ namespace CruiseProcessing.Data
     public partial class CpDataLayer
     {
 
+        public StratumDO GetStrtum(int stratum_CN)
+        {
+            return DAL.From<StratumDO>().Where("Stratum_CN = @p1").Query(stratum_CN).FirstOrDefault();
+        }
+
         public List<StratumDO> GetStrata()
         {
             return DAL.From<StratumDO>().OrderBy("Code").Read().ToList();

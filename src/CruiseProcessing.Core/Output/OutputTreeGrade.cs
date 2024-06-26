@@ -12,6 +12,14 @@ namespace CruiseProcessing
 {
     class OutputTreeGrade : OutputFileReportGeneratorBase
     {
+        private string[] A11A12columns = new string[7] {" P  S",
+                                                       " R  P",
+                                                       " O  E     ***********************************   T R E E    G R A D E   *********************************************************",
+                                                       " D  C",
+                                                       " U  I          0         1         2         3         4         5         6         7         8         9        NONE       TOTAL",
+                                                       " C  E",
+                                                       " T  S"};
+
         private int[] fieldLengths;
         private List<string> prtFields;
         private int firstLine = 0;
@@ -79,7 +87,7 @@ namespace CruiseProcessing
                 foreach (LCDDO lcd in lcdList)
                 {
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                    reportHeaders.A11A12columns, 7, ref pageNumb, "");
+                                    A11A12columns, 7, ref pageNumb, "");
                     //  need a new line or subtotal?
                     if (prevSpecies == "*" && prevProduct == "*")
                     {

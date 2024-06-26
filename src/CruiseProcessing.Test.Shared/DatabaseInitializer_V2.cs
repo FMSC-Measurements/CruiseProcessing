@@ -6,6 +6,8 @@ namespace CruiseProcessing.Test
 {
     public class DatabaseInitializer_V2
     {
+        public static readonly string[] DEFAULT_SPECIES_CODES = new[] { "sp1", "sp2", "sp3" };
+
         public string SaleNumber { get; set; }
         public string Region { get; set; }
 
@@ -18,8 +20,10 @@ namespace CruiseProcessing.Test
         public Stratum[] PlotStrata { get; set; }
         public Stratum[] NonPlotStrata { get; set; }
 
-        public DatabaseInitializer_V2()
+        public DatabaseInitializer_V2(string[] speciesCodes = null)
         {
+            speciesCodes ??= DEFAULT_SPECIES_CODES;
+
             SaleNumber = (Guid.NewGuid().GetHashCode() % 10000).ToString();
             Region = "01";
 
@@ -59,12 +63,8 @@ namespace CruiseProcessing.Test
                 (SgCode: "sg2", StCode: nonPlotStrata[1].Code, Freqy: 102),
             };
 
-            TreeDefaults = new[]
-            {
-                new TreeDefaultValue {Species = "sp1", PrimaryProduct = "01", LiveDead = "L"},
-                new TreeDefaultValue {Species = "sp2", PrimaryProduct = "01", LiveDead = "L"},
-                new TreeDefaultValue {Species = "sp3", PrimaryProduct = "01", LiveDead = "L"},
-            };
+            TreeDefaults = speciesCodes?.Select(sp => new TreeDefaultValue() { Species = sp, PrimaryProduct = "01", LiveDead = "L" })
+                .ToArray() ?? Array.Empty<TreeDefaultValue>();
         }
 
         public DAL CreateDatabase()

@@ -8,6 +8,8 @@ namespace CruiseProcessing.Data
 {
     public interface IErrorLogDataService
     {
-        void LogError(string tableName, int table_CN, string errLevel, string errMessage);
+        void LogError(string tableName, int table_CN, string errLevel, string errMessage, string columnName);
+
+        //void LogError(string tableName, int table_CN, string errLevel, string errMessage);
     }
 }

@@ -10,6 +10,22 @@ namespace CruiseProcessing
 {
     public class OutputR6 : OutputFileReportGeneratorBase
     {
+
+        //  Region 6 reports
+        //  R602 report
+        public static readonly string[] R602columns = new string[3] {"                                                    U                      ** NET  VOLUME **",
+                                                     "  PAY   CUTTING  UNIT   LOGGING                     OF     %",
+                                                     "  UNIT  UNIT     ACRES  METHOD   SPECIES  PRODUCT   M    DEFECT                  CCF"};
+        //  R604/R605 reports
+        //  Replace X's, Z's and T's with appropriate data
+        public static readonly string[] R604R605columns = new string[7] {" TABLE XX",
+                                                         " REPORT FOR SPECIES:  ZZZZZZ",
+                                                         "        AVERAGE DBH:   TTTTTT\"",
+                                                         " ",
+                                                         "     LOG DIB                  SAW TIMBER                        NON-SAW TIMBER            CULL LOG        TOTAL           TOTAL",
+                                                         "    SMALL END         ***** PRIMARY PRODUCT *****        ****** OTHER PRODUCT ******      (GRADE 9)   SAW+NONSAW+CULL   SAW+NONSAW",
+                                                         "   1\" DIA. CLASS      GROSS       NET    % DEFECT        GROSS       NET    % DEFECT       VOLUME      GROSS VOLUME     NET VOLUME"};
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -473,7 +489,7 @@ namespace CruiseProcessing
             foreach (RegionalReports us in unitSubtotal)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                       regionalReportHeaders.R602columns, 13, ref pageNumb, "");
+                                       R602columns, 13, ref pageNumb, "");
                 if (us.value1 == null)
                     strWriteOut.Write("   ");
                 else strWriteOut.Write(us.value1.PadLeft(3, ' '));
@@ -532,7 +548,7 @@ namespace CruiseProcessing
             sortGrandTotal(totalToOutput);
             double grandTotal = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                   regionalReportHeaders.R602columns, 13, ref pageNumb, "");
+                                   R602columns, 13, ref pageNumb, "");
             strWriteOut.WriteLine(reportConstants.longLine);
             strWriteOut.WriteLine("         PRODUCT TOTALS");
             numOlines = numOlines + 2;
@@ -549,7 +565,7 @@ namespace CruiseProcessing
             numOlines = numOlines + 2;
             //  write footer lines
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                   regionalReportHeaders.R602columns, 12, ref pageNumb, "");
+                                   R602columns, 12, ref pageNumb, "");
             strWriteOut.WriteLine(" ");
             strWriteOut.WriteLine(" ");
             strWriteOut.WriteLine(" ");
@@ -571,7 +587,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteout, reportTitles[0], reportTitles[1], reportTitles[2],
-                                   regionalReportHeaders.R602columns, 13, ref pageNumb, "");
+                                   R602columns, 13, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 if (lto.value1 == null)
@@ -705,13 +721,13 @@ namespace CruiseProcessing
         {
             //  R604/R605
             string[] finnishHeader = new string[7];
-            finnishHeader[0] = regionalReportHeaders.R604R605columns[0].Replace("XX", tableNumber.ToString().PadLeft(2, ' '));
-            finnishHeader[1] = regionalReportHeaders.R604R605columns[1].Replace("ZZZZZZ", currSP.PadRight(6, ' '));
+            finnishHeader[0] = R604R605columns[0].Replace("XX", tableNumber.ToString().PadLeft(2, ' '));
+            finnishHeader[1] = R604R605columns[1].Replace("ZZZZZZ", currSP.PadRight(6, ' '));
             string printAvgDBH = String.Format("{0,6:F1}", avgDBH);
-            finnishHeader[2] = regionalReportHeaders.R604R605columns[2].Replace("TTTTTT", printAvgDBH.PadLeft(6, ' '));
+            finnishHeader[2] = R604R605columns[2].Replace("TTTTTT", printAvgDBH.PadLeft(6, ' '));
             // load rest of header
             for (int k = 3; k < 7; k++)
-                finnishHeader[k] = regionalReportHeaders.R604R605columns[k];
+                finnishHeader[k] = R604R605columns[k];
 
             return finnishHeader;
         }  //  end createCompleteHeader

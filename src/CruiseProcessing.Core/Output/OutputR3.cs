@@ -11,6 +11,21 @@ namespace CruiseProcessing
 {
     public class OutputR3 : OutputFileReportGeneratorBase
     {
+
+        //  Region 3 reports
+        //  R301 report
+        private readonly string[] R301columns = new string[3] {"                                                     AVE      AVE    QUAD",
+                                                     "           CONT    *********CCF********    TOTAL    GROSS    GR0SS   MEAN    RATIO    *****MBF****     CCF",
+                                                     " SPEC   PD SPEC    GROSS     NET    DEF    TREES  CF/TREE  CF/ACRE    DBH   MBF:CCF   GROSS    NET     TOP"};
+        private readonly string R3specialLine1 = "                    ---------------------------------------------------------------------------------------";
+        //  per Karen Jones -- drop the summary at the bottom of the R301 report -- January 2014
+        //public string R3specialLine2 = "                   ----------------------------------------------------";
+        //public string[] R301total = new string[5] {" ******* PP SAWTIMBER QUALITY ADJUSTMENT AND VALUE INFORMATION ********",
+        //                                           "                                       $/CCF                   LUMBER",
+        //                                           "         CONT               PCT     TEA#- 22004    RATIO      RECOVERY",
+        //                                           " SPEC PD SPEC      QMDBH   GRADE    QUALITY-ADJ   MBF:CCF      FACTOR",
+        //                                           " ----------------------------------------------------------------------"};
+
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
         private List<RegionalReports> listToOutput = new List<RegionalReports>();
@@ -110,7 +125,7 @@ namespace CruiseProcessing
             foreach (RegionalReports lto in listToOutput)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R301columns, 10, ref pageNumb, "");
+                                R301columns, 10, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(lto.value1.PadRight(6, ' '));
@@ -196,8 +211,8 @@ namespace CruiseProcessing
             //  R301
             double calcValue = 0;
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                regionalReportHeaders.R301columns, 10, ref pageNumb, "");
-            strWriteOut.WriteLine(regionalReportHeaders.R3specialLine1);
+                                R301columns, 10, ref pageNumb, "");
+            strWriteOut.WriteLine(R3specialLine1);
             foreach (ReportSubtotal t in totalToOutput)
             {
                 strWriteOut.Write("    TOTAL- ");

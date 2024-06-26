@@ -10,8 +10,90 @@ using CruiseProcessing.Data;
 
 namespace CruiseProcessing
 {
-    class OutputUnits : OutputFileReportGeneratorBase
+    public class OutputUnits : OutputFileReportGeneratorBase
     {
+        #region headers
+        //  Works for VSM4(CP4) only
+        private readonly string[] VSM4columns = new string[2] {"          SAMPLE   CUTTING                              GROSS    NET      EXPANSION   MEAS   TOTAL   TREE              MARKER'S",
+                                                     " STRATUM  GROUP    UNIT    PLOT   TREE  SPECIES   DBH   VOLUME   VOLUME   FACTOR      KPI    KPI**   COUNT    RATIO    INITIALS"};
+
+
+        //  Works for VSM5 only
+        private readonly string[] VSM5columns = new string[2] {"             CUTTING                       NUMBER     GROSS    NET      SECONDARY            BDFT/CUFT",
+                                                     "             UNIT      SPECIES   PRODUCT   OF TREES   CUFT     CUFT     NET CUFT     QMD     RATIO"};
+
+        //  UC reports (1 through 6 and 25/26) -- rest are stand table format
+        private readonly string[] UC1columns = new string[9] {"                               ",
+                                                    "                               ",
+                                                    "         S                     ",
+                                                    "  S      P         U           ",
+                                                    "  T      E                     ",
+                                                    "  R   U  C      P  O           ",
+                                                    "  A   N  I      R  F           ",
+                                                    "  T   I  E      O              ",
+                                                    "  A   T  S      D  M           "};
+        private readonly string[] UC2left = new string[9] {"                               ",
+                                                 "                               ",
+                                                 "         S                     ",
+                                                 "  S      M         U           ",
+                                                 "  T      P                     ",
+                                                 "  R   U         P  O           ",
+                                                 "  A   N  G      R  F           ",
+                                                 "  T   I  R      O              ",
+                                                 "  A   T  P      D  M           "};
+        private readonly string[] UC1UC2right = new string[9] {"***************************************** PRIMARY PRODUCT ******************************************",
+                                                     "  AVGDEF",
+                                                     "                 GROSS      NET",
+                                                     " %       %                             ************************ STRATA LEVEL ***********************",
+                                                     "                 BDFT       BDFT       EST.",
+                                                     " B       C",
+                                                     " D       U       CUFT       CUFT       NO OF      ** GROSS VOLUME **     ** NET VOLUME **",
+                                                     " F       F",
+                                                     " T       T       RATIO      RATIO      TREES       BDFT        CUFT       BDFT      CUFT      CORDS"};
+        private readonly string[] UC3left = new string[7] {"          S         ",
+                                                 "  S       P         ",
+                                                 "  T       E         ",
+                                                 "  R   U   C         ",
+                                                 "  A   N   I         ",
+                                                 "  T   I   E         ",
+                                                 "  A   T   S         "};
+        private readonly string[] UC4left = new string[7] {"          S         ",
+                                                 "  S       M         ",
+                                                 "  T       P         ",
+                                                 "  R   U             ",
+                                                 "  A   N   G         ",
+                                                 "  T   I   R         ",
+                                                 "  A   T   P         "};
+        private readonly string[] UC5left = new string[7] {"      S             ",
+                                                 "      P             ",
+                                                 "      E             ",
+                                                 "  U   C             ",
+                                                 "  N   I             ",
+                                                 "  I   E             ",
+                                                 "  T   S             "};
+        private readonly string[] UC6left = new string[7] {"      S             ",
+                                                 "      M             ",
+                                                 "      P             ",
+                                                 "  U                 ",
+                                                 "  N   G             ",
+                                                 "  I   R             ",
+                                                 "  T   P             "};
+        private readonly string[] UC3TO6right = new string[7] {"TOTAL    ******************* SAWTIMBER *******************     ***************** NON-SAWTIMBER ****************",
+                                                     "                     (PROD = 01   UM = 01, 03)                         (PROD NOT = 01   UM = 01, 02, 03)",
+                                                     "EST.     EST.                                                   (AND ALL SECONDARY & RECOVERED PRODUCT VOLUMES)",
+                                                     "",
+                                                     "# OF     # OF    ** GROSS VOLUME **      ** NET VOLUME **      ***   GROSS    ***   ***   NET    ***",
+                                                     "",
+                                                     "TREES    TREES      BDFT       CUFT       BDFT       CUFT        BDFT      CUFT       BDFT      CUFT      CORDS"};
+
+        private readonly string[] UCfooter = new string[5] {"* FOR TREE-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON THE # OF TREES TALLIED OR THE SUM OF KPIS THAT FALL WITHIN",
+                                                  "THE CUTTING UNIT.  FOR AREA-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON AN AVERAGE VOLUME PER ACRE AT THE STRATA",
+                                                  "LEVEL TIMES THE NUMBER OF ACRES IN THE CUTTING UNIT.",
+                                                  "*R = RECOVERED VOLUME ADDED TO NET SECONDARY VOLUME.",
+                                                  "*FOR CRUISE METHOD 3P ONLY, THE COLUMN Est. # of Trees for sawtimber WILL SHOW ZERO INSTEAD OF ACTUAL TALLY."};
+
+        #endregion headers
+
         private string currCL { get; }
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -86,22 +168,22 @@ namespace CruiseProcessing
                         switch(currentReport)
                         {
                             case "UC1":
-                                finishColumnHeaders(reportHeaders.UC1columns, reportHeaders.UC1UC2right);
+                                finishColumnHeaders(UC1columns, UC1UC2right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
                                 break;
                             case "UC2":
-                                finishColumnHeaders(reportHeaders.UC2left, reportHeaders.UC1UC2right);
+                                finishColumnHeaders(UC2left, UC1UC2right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
                                 break;
                             case "UC3":
-                                finishColumnHeaders(reportHeaders.UC3left, reportHeaders.UC3TO6right);
+                                finishColumnHeaders(UC3left, UC3TO6right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
                                 break;
                             case "UC4":
-                                finishColumnHeaders(reportHeaders.UC4left, reportHeaders.UC3TO6right);
+                                finishColumnHeaders(UC4left, UC3TO6right);
                                 orderBy = "Species";
                                 fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
                                 break;
@@ -148,10 +230,10 @@ namespace CruiseProcessing
                         switch (currentReport)
                         {
                             case "UC5":         case "LV05":
-                                finishColumnHeaders(reportHeaders.UC5left, reportHeaders.UC3TO6right);
+                                finishColumnHeaders(UC5left, UC3TO6right);
                                 break;
                             case "UC6":
-                                finishColumnHeaders(reportHeaders.UC6left, reportHeaders.UC3TO6right);
+                                finishColumnHeaders(UC6left, UC3TO6right);
                                 break;
                         }   //  end switch on report
                         fieldLengths = new int[] { 1, 4, 13, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10, 10 };
@@ -292,7 +374,7 @@ namespace CruiseProcessing
                 {
                     //  Setup subtotals
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        reportHeaders.VSM4columns, 11, ref pageNumb, "");
+                                        VSM4columns, 11, ref pageNumb, "");
 
                     prtFields = StratumMethods.buildPrintArray(tcv, currUOM, ref firstLine);
                     printOneRecord(fieldLengths, prtFields, strWriteOut);
@@ -348,7 +430,7 @@ namespace CruiseProcessing
                 if (firstLine == 0)
                 {
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        reportHeaders.VSM4columns, 11, ref pageNumb, "");
+                                        VSM4columns, 11, ref pageNumb, "");
                 }   //  endif first line
 
 
@@ -625,7 +707,7 @@ namespace CruiseProcessing
         {
             //  works for VSM5 only
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.VSM5columns, 12, ref pageNumb, "");
+                                VSM5columns, 12, ref pageNumb, "");
 
             strWriteOut.WriteLine("");
             strWriteOut.Write(" TOTAL                              ");
@@ -731,7 +813,7 @@ namespace CruiseProcessing
                                     completeHeader, 13, ref pageNumb, "");
             //  also output the footer
             for (int k = 0; k < 5; k++)
-                strWriteOut.WriteLine(reportHeaders.UCfooter[k]);
+                strWriteOut.WriteLine(UCfooter[k]);
             return;
         }   //  end OutputGrandTotal
 
@@ -789,7 +871,7 @@ namespace CruiseProcessing
             //  works for VSM5 only
             if(numOlines >= 50)
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                reportHeaders.VSM5columns, 12, ref pageNumb, "");
+                                VSM5columns, 12, ref pageNumb, "");
             else
             {
                 //  write just column headings
@@ -1455,7 +1537,7 @@ namespace CruiseProcessing
         {
             //  overloaded for VSM5 report
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], 
-                                reportTitles[2], reportHeaders.VSM5columns, 12, ref pageNumb, "");
+                                reportTitles[2], VSM5columns, 12, ref pageNumb, "");
 
             //  load trees and volumes
             prtFields.Add(String.Format("{0,5:F0}", numTrees));

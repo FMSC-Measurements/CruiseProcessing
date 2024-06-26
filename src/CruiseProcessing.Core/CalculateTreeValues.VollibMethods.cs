@@ -34,7 +34,9 @@ namespace CruiseProcessing
                             float[] wf,
                             float[] bms,
                             ref int errflg,
-                            int i1);
+                            StringBuilder prod,
+                            int i1,
+                            int i2);
 
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void VOLLIBCSNVB(ref int regn,

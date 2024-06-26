@@ -12,6 +12,22 @@ namespace CruiseProcessing
     // TODO unused class, remove?
     public class OutputExport : OutputFileReportGeneratorBase
     {
+        //  Export grade reports
+        private readonly string[] EX1EX2left = new string[2] {"                           LOG            LOG          LOG",
+                                                    " STRATA  UNIT  PLOT  TREE  NUM  SPECIES   SORT  GRADE  LENGTH  % DEFECT"};
+        private readonly string[] EX2right = new string[2] {"                                         LOG     LOG     BDFT",
+                                                  "                       SORT  GRADE       LENGTH  DIAM    VOL   DEFECT"};
+        private readonly string[] EX3columns = new string[2] {"                                                       MINIMUM    MINIMUM  MINIMUM   MAXIMUM",
+                                                    "          SORT    GRADE   CODE        NAME             DIAMETER   LENGTH    BD FT    DEFECT"};
+        private readonly string[] EX4columns = new string[3] {"    LOG DIB          ****************************************  SORT & GRADE COMBINATIONS  ****************************************",
+                                                    "    SMALL END",
+                                                    "  1\" DIA CLASS            "};     //  sort and grade combinations are added to this line from the data
+        private readonly string[] EX6EX7right = new string[3] {"                                     EST.    ***  BDFT  ***    ***  CUFT  ***",
+                                                     "                        LOG          # of        VOLUME            VOLUME                   AVE",
+                                                     "  SPECIES  SORT  GRADE  LOGS    GROSS     NET      GROSS   NET     % DEFECT   LENGTH"};
+        //  the last line will have "STRATA" or "STRATA  UNIT" added at the beginning depending on the report
+        private readonly string EXfooter = "    ** LOG SORT AND/OR LOG GRADE MISSING OR INCORRECT";
+
         private List<exportToOutput> exToOutput = new List<exportToOutput>();
         private int[] fieldLengths;
         private List<string> prtFields = new List<string>();
@@ -170,7 +186,7 @@ namespace CruiseProcessing
             foreach (LogDO l in logList)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        reportHeaders.EX1EX2left, 10, ref pageNumb, "");
+                                        EX1EX2left, 10, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(l.Tree.Stratum.Code.PadLeft(2, ' '));
@@ -292,7 +308,7 @@ namespace CruiseProcessing
             foreach (exportGrades el in exportList)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                        reportHeaders.EX3columns, 8, ref pageNumb, "");
+                                        EX3columns, 8, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add(el.exportSort);
@@ -312,7 +328,7 @@ namespace CruiseProcessing
             foreach (exportGrades el in exportList)
             {
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                                            reportHeaders.EX3columns, 8, ref pageNumb, "");
+                                            EX3columns, 8, ref pageNumb, "");
                 prtFields.Clear();
                 prtFields.Add("");
                 prtFields.Add("");      //  export sort not printed in this section
@@ -595,7 +611,7 @@ namespace CruiseProcessing
             if (footerFlag == 1)
             {
                 strWriteOut.WriteLine("");
-                strWriteOut.WriteLine(reportHeaders.EXfooter);
+                strWriteOut.WriteLine(EXfooter);
             }   //  endif footerflag
 
             return;
@@ -839,24 +855,24 @@ namespace CruiseProcessing
             switch (currentReport)
             {
                 case "EX2":
-                    headerEX2[0] = reportHeaders.EX1EX2left[0];
-                    headerEX2[0] += reportHeaders.EX2right[0];
-                    headerEX2[1] = reportHeaders.EX1EX2left[1];
-                    headerEX2[1] += reportHeaders.EX2right[1];
+                    headerEX2[0] = EX1EX2left[0];
+                    headerEX2[0] += EX2right[0];
+                    headerEX2[1] = EX1EX2left[1];
+                    headerEX2[1] += EX2right[1];
                     return headerEX2;
 
                 case "EX6":
-                    headerEX6or7[0] = reportHeaders.EX6EX7right[0];
-                    headerEX6or7[1] = reportHeaders.EX6EX7right[1];
+                    headerEX6or7[0] = EX6EX7right[0];
+                    headerEX6or7[1] = EX6EX7right[1];
                     headerEX6or7[2] = "  STRATA  UNIT  ";
-                    headerEX6or7[2] += reportHeaders.EX6EX7right[2];
+                    headerEX6or7[2] += EX6EX7right[2];
                     return headerEX6or7;
 
                 case "EX7":
-                    headerEX6or7[0] = reportHeaders.EX6EX7right[0];
-                    headerEX6or7[1] = reportHeaders.EX6EX7right[1];
+                    headerEX6or7[0] = EX6EX7right[0];
+                    headerEX6or7[1] = EX6EX7right[1];
                     headerEX6or7[2] = "  STRATA  ";
-                    headerEX6or7[2] += reportHeaders.EX6EX7right[2];
+                    headerEX6or7[2] += EX6EX7right[2];
                     return headerEX6or7;
             }   //  end switch on report
             return headerEX2;
@@ -866,9 +882,9 @@ namespace CruiseProcessing
         {
             //  EX4
             string[] finnishHeader = new string[3];
-            finnishHeader[0] = reportHeaders.EX4columns[0];
-            finnishHeader[1] = reportHeaders.EX4columns[1];
-            finnishHeader[2] = reportHeaders.EX4columns[2];
+            finnishHeader[0] = EX4columns[0];
+            finnishHeader[1] = EX4columns[1];
+            finnishHeader[2] = EX4columns[2];
             foreach (LogStockDO js in justSorts)
             {
                 //  append sort/grade combination to last header line
