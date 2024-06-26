@@ -15,7 +15,7 @@ namespace CruiseProcessing
     {
         public const int MAX_LINES_PER_PAGE = 54;
 
-        private static readonly string[,] ERROR_MESSAGE_LOOKUP = new string[32, 2] {{"1","Invalid volume, value or quality adjustment equation number"},
+        public static readonly string[,] ERROR_MESSAGE_LOOKUP = new string[32, 2] {{"1","Invalid volume, value or quality adjustment equation number"},
                                                         {"2","Value or quality adjustment coefficient missing on this record"},
                                                         {"3","Must find primary product before secondary product"},
                                                         {"4","Secondary top DIB is greater than primary top DIB"},
@@ -48,7 +48,7 @@ namespace CruiseProcessing
                                                         {"31","Invalid tree default value key code on tree; Contact FMSC for help"},
                                                         {"32","No height recorded for this tree"}};
 
-        private static readonly string[] WARNING_MESSAGE_LOOKUP = new string[]  {"   ",
+        public static readonly string[] WARNING_MESSAGE_LOOKUP = new string[]  {"   ",
                                                     "NO VOLUME EQUATION MATCH",
                                                     "NO FORM CLASS",
                                                     "DBH LESS THAN ONE",
@@ -92,25 +92,12 @@ namespace CruiseProcessing
         {
             //  fix filename for output
             var outFile = System.IO.Path.ChangeExtension(FilePath, "out");
-            //  what's the current region?
-            string currRegion = DataLayer.getRegion();
+            
 
             //  open output file and write report
             using (StreamWriter strWriteOut = new StreamWriter(outFile))
             {
-                int pageNumber = 0;
-                //  Output banner page except for BLM
-                if (currRegion != "07" && currRegion != "7" && currRegion != "BLM")
-                {
-                    var reports = DataLayer.GetReports();
-
-                    var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
-                    strWriteOut.Write(bannerPage);
-                }   //  endif
-
-                pageNumber = WriteErrors(strWriteOut, errList.Where(e => e.Level == "E"), programName, outFile, pageNumber);
-
-                WriteWarnings(strWriteOut, errList.Where(e => e.Level == "W"), ref pageNumber, HeaderData, DataLayer);
+                WriteErrorReport(strWriteOut, errList, programName, outFile);
 
                 strWriteOut.Close();
             }   //  end using
@@ -118,7 +105,28 @@ namespace CruiseProcessing
             return outFile;
         }
 
-        private int WriteErrors(StreamWriter strWriteOut, IEnumerable<ErrorLogDO> errList, string programName, string outFile, int pageNumber)
+        public void WriteErrorReport(TextWriter writer, IEnumerable<ErrorLogDO> errList, string programName, string outFile)
+        {
+            //  what's the current region?
+            string currRegion = DataLayer.getRegion();
+            
+
+            //  Output banner page except for BLM
+            if (currRegion != "07" && currRegion != "7" && currRegion != "BLM")
+            {
+                var reports = DataLayer.GetReports();
+
+                var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
+                writer.Write(bannerPage);
+            }   //  endif
+
+            int pageNumber = 2;
+            pageNumber = WriteErrors(writer, errList.Where(e => e.Level == "E"), programName, outFile, pageNumber);
+
+            WriteWarnings(writer, errList.Where(e => e.Level == "W"), ref pageNumber, HeaderData, DataLayer);
+        }
+
+        private int WriteErrors(TextWriter strWriteOut, IEnumerable<ErrorLogDO> errList, string programName, string outFile, int pageNumber)
         {
             //  output errors only -- warnings printed in regular output file
             var fieldLengths = new int[] { 1, 18, 69, 43 };
@@ -154,12 +162,12 @@ namespace CruiseProcessing
             prtFields.Add("");
             prtFields.Add(eld.TableName);
 
-            if (eld.Program != "CruiseProcessing")
+            if (eld.TableName == "CountTree" || eld.Program != "CruiseProcessing")
             {
-                var message = eld.Message;
+                var message = eld.Message ?? "";
                 if (message.Length > 69)
                 {
-                    message = message.Substring(0, 70);
+                    message = message.Substring(0, 69);
                 }
 
                 prtFields.Add(message);
@@ -169,53 +177,40 @@ namespace CruiseProcessing
 
                 return prtFields;
             }
-
-            switch (eld.TableName)
+            else
             {
-                case "Sale":
-                    SaleErrors(eld, prtFields);
-                    break;
+                string ident = null;
+                var currError = new StringBuilder();
+                currError.Append(eld.Message);
 
-                case "Stratum":
-                    StratumErrors(eld, prtFields);
-                    break;
+                var errMessage = GetErrorMessage(eld.Message);
+                if (!string.IsNullOrEmpty(errMessage))
+                {
+                    currError.Append("-");
 
-                case "Cutting Unit":
-                    UnitErrors(eld, prtFields);
-                    break;
+                    if (eld.Message == "25")
+                    {
+                        errMessage = errMessage.Replace("...", eld.TableName);
+                        ident = eld.TableName;
+                    }
+                    else if (eld.Message == "7"
+                        || eld.Message == "8"
+                        || eld.Message == "9")
+                    {
+                        errMessage = errMessage.Replace("...", eld.ColumnName);
+                    }
+                }
+                currError.Append(errMessage);
 
-                case "CountTree":
-                    CountErrors(eld, prtFields);
-                    break;
+                var curErrorStr = currError.ToString().PadRight(69, ' ');
+                if(curErrorStr.Length > 69)
+                { curErrorStr = curErrorStr.Substring(0, 69); }
 
-                case "Tree":
-                    TreeErrors(eld, prtFields);
-                    break;
+                prtFields.Add(curErrorStr);
 
-                case "Log":
-                    LogErrors(eld, prtFields);
-                    break;
-
-                case "VolumeEquation":
-                    VolEqErrors(eld, prtFields);
-                    break;
-
-                case "ValueEquation":
-                    ValEqErrors(eld, prtFields);
-                    break;
-
-                case "QualityAdjustment":
-                    QAErrors(eld, prtFields);
-                    break;
-
-                case "Reports":
-                    RptErrors(eld, prtFields);
-                    break;
-
-                case "SampleGroup":
-                    SGErrors(eld, prtFields);
-                    break;
-            }   //  end switch
+                ident = ident ?? GetIdentifier(eld.TableName, eld.CN_Number);
+                prtFields.Add(ident);
+            }
 
             return prtFields;
         }
@@ -365,272 +360,24 @@ namespace CruiseProcessing
                     }
                     else ident.Append("Sample Group not found");
                     break;
+                default:
+                    { return tableName ?? ""; }
             }   //  end switch
             return ident.ToString();
         }   //  end GetIdentifier
-
-        private void SaleErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            //  get error message
-            var currError = new StringBuilder();
-            string errMessage = "";
-            if (eld.Message.Substring(0, 2) == "11")
-            {
-                errMessage = GetErrorMessage("11");
-                errMessage = errMessage.Replace("...", eld.Message.Substring(2, eld.Message.Length - 2));
-                errMessage.Insert(0, eld.Message.Substring(0, 2));
-                errMessage.Insert(2, "-");
-            }
-            else if (eld.Message.Substring(0, 2) == " 8")
-            {
-                errMessage = GetErrorMessage("8");
-                errMessage = errMessage.Replace("...", eld.Message.Substring(2, eld.Message.Length - 2));
-                errMessage = errMessage.Insert(0, eld.Message.Substring(0, 2));
-                errMessage = errMessage.Insert(2, "-");
-            }
-            else
-            {
-                currError.Append(eld.Message);
-                currError.Append("-");
-                errMessage = GetErrorMessage(eld.Message);
-            }   //  endif
-
-            currError.Append(errMessage);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 69);
-            prtFields.Add(currError.ToString().PadRight(70, ' '));
-
-            if (eld.Message == "25")
-                prtFields.Add("SALE");
-            else
-            {
-                var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-                prtFields.Add(ident);
-            }   //  endif
-            return;
-        }   //  end SaleError
-
-        private void StratumErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            currError.Append(eld.Message);
-            currError.Append("-");
-            var errMessage = GetErrorMessage(eld.Message);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 69);
-            if (eld.Message == "25")
-            {
-                errMessage = errMessage.Replace("...", "Stratum");
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                prtFields.Add("STRATUM");
-            }
-            else
-            {
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-                prtFields.Add(ident);
-            }   //  endif
-            return;
-        }   //  end StratumErrors
-
-        private void UnitErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            currError.Append(eld.Message);
-            currError.Append("-");
-            var errMessage = GetErrorMessage(eld.Message);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-            if (eld.Message == "25")
-            {
-                errMessage = errMessage.Replace("...", "CuttingUnit");
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                prtFields.Add("CUTTING UNIT");
-            }
-            else
-            {
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-                prtFields.Add(ident);
-            }   //  endif
-            return;
-        }   //  end UnitErrors
-
-        private void CountErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            prtFields.Add(eld.Message.PadRight(70, ' '));
-            prtFields.Add(eld.ColumnName);
-        }   //  end CountErrors
-
-        private void TreeErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            currError.Append(eld.Message);
-            currError.Append("-");
-            var errMessage = GetErrorMessage(eld.Message);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-
-            if (eld.Message == "25")
-            {
-                errMessage = errMessage.Replace("...", "Tree");
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                prtFields.Add("TREE");
-            }
-            else
-            {
-                errMessage = errMessage.Replace("...", eld.ColumnName);
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-                prtFields.Add(ident);
-            }   //  endif
-            return;
-        }   //  end TreeErrors
-
-        private void LogErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            currError.Append(eld.Message);
-            currError.Append("-");
-            var errMessage = GetErrorMessage(eld.Message);
-            errMessage = errMessage.Replace("...", eld.ColumnName);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-            currError.Append(errMessage);
-            prtFields.Add(currError.ToString().PadRight(70, ' '));
-
-            var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-            prtFields.Add(ident);
-
-            return;
-        }   //  end LogErrors
-
-        private void VolEqErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            currError.Append(eld.Message);
-            currError.Append("-");
-            var errMessage = GetErrorMessage(eld.Message);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-
-            if (eld.Message == "25")
-            {
-                errMessage = errMessage.Replace("...", "VolumeEquation");
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                prtFields.Add("VOLUME EQUATION");
-            }
-            else
-            {
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-                prtFields.Add(ident);
-            }   //  endif
-
-            return;
-        }   //  end VolEqErrors
-
-        private void ValEqErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            currError.Append(eld.Message);
-            currError.Append("-");
-            var errMessage = GetErrorMessage(eld.Message);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-
-            if (eld.Message == "25")
-            {
-                errMessage = errMessage.Replace("...", "ValueEquation");
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                prtFields.Add("VALUE EQUATION");
-            }
-            else
-            {
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-                prtFields.Add(ident);
-            }   //  endif
-            return;
-        }   //  end ValEqErrors
-
-        private void QAErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            currError.Append(eld.Message);
-            currError.Append("-");
-            var errMessage = GetErrorMessage(eld.Message);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-
-            if (eld.Message == "25")
-            {
-                errMessage = errMessage.Replace("...", "QualityAdjustmentEquation");
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                prtFields.Add("QUALITY ADJUSTMENT EQUATION");
-            }
-            else
-            {
-                currError.Append(errMessage);
-                prtFields.Add(currError.ToString().PadRight(70, ' '));
-                var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-                prtFields.Add(ident);
-            }   //  endif
-            return;
-        }   //  end QAErrors
-
-        private void RptErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            var errMessage = GetErrorMessage(eld.Message);
-
-            currError.Append(eld.Message);
-            currError.Append("-");
-            currError.Append(errMessage);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-            prtFields.Add(currError.ToString().PadRight(70, ' '));
-
-            prtFields.Add("REPORTS");
-
-            return;
-        }   //  end OutputRptErrors
-
-        private void SGErrors(ErrorLogDO eld, List<string> prtFields)
-        {
-            var currError = new StringBuilder();
-            var errMessage = GetErrorMessage(eld.Message);
-
-            errMessage = errMessage.Replace("...", eld.ColumnName);
-            currError.Append(eld.Message);
-            currError.Append("-");
-            currError.Append(errMessage);
-            if (currError.Length > 70) currError = currError.Remove(70, currError.Length - 70);
-            prtFields.Add(currError.ToString().PadRight(70, ' '));
-
-            var ident = GetIdentifier(eld.TableName, eld.CN_Number);
-            prtFields.Add(ident);
-            return;
-        }   //  end SGErrors
 
         public static string GetErrorMessage(string errNumber)
         {
             if (errNumber.Length <= 2)
             {
-                for (int k = 0; k < ERROR_MESSAGE_LOOKUP.Length; k++)
+                for (int k = 0; k < ERROR_MESSAGE_LOOKUP.GetLength(0); k++)
                 {
                     if (errNumber == ERROR_MESSAGE_LOOKUP[k, 0])
                         return ERROR_MESSAGE_LOOKUP[k, 1];
                 }   //  end for k loop
             }
-            else if (errNumber.Length > 70)
-            {
-                errNumber = errNumber.Substring(0, 70);
-            }
 
-            return errNumber; // errNumber is not a number and not in messages, then we can assume it is the error message
+            return ""; // errNumber is not a number and not in messages, then we can assume it is the error message
         }   //  end getErrorMessage
 
         public static void WriteWarnings(TextWriter strWriteOut, IEnumerable<ErrorLogDO> errList, ref int pageNumb, HeaderFieldData headerData, CpDataLayer dataLayer)
@@ -708,7 +455,6 @@ namespace CruiseProcessing
             if (lineNum >= MAX_LINES_PER_PAGE || lineNum == 0)
             {
                 strWriteOut.WriteLine("\f");
-                pageNumber++;
                 strWriteOut.WriteLine("RUN DATE & TIME " + currentDate + "                                                                                     PAGE  " + pageNumber);
                 strWriteOut.WriteLine("FILENAME:  " + outFile);
                 lineNum = 2;
@@ -718,6 +464,8 @@ namespace CruiseProcessing
                     strWriteOut.WriteLine(headings[j]);
                     lineNum++;
                 }   //  end for j loop
+
+                pageNumber++;
             }   //  end numOlines
 
             return lineNum;

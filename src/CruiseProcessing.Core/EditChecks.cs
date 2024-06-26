@@ -64,7 +64,7 @@ namespace CruiseProcessing
 
                 //  and blank sale number
                 if (String.IsNullOrWhiteSpace(sale.SaleNumber))
-                { errors.AddError("Sale", "E", " 8Sale Number", sale.Sale_CN.Value, "SaleNumber"); }
+                { errors.AddError("Sale", "E", "8", sale.Sale_CN.Value, "SaleNumber"); }
 
                 // CalculateTreeValues.ProcessTree requires district to be a integer value
                 if (!int.TryParse(sale.District, out var _))
