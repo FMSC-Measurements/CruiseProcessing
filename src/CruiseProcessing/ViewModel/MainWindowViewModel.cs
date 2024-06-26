@@ -337,7 +337,18 @@ namespace CruiseProcessing.ViewModel
                 catch (Exception ex)
                 {
                     if (File.Exists(processFilePath))
-                    { File.Delete(processFilePath); }
+                    {
+                        try
+                        {
+                            File.Delete(processFilePath);
+                        }
+                        catch (IOException ioex) {
+                            Logger.LogError(ioex, "Error when trying to cleanup after migrate cruise failed: {fileName}, Parent Exception: {parentException}", fileName, ex.Message);
+                            DialogService.ShowError(ioex.Message);
+
+                            return;
+                        }
+                    }
 
                     Logger.LogError(ex, "Error Migrating Cruise: {FileName}", fileName);
                     DialogService.ShowError("Error Translating V3 Cruise Data \r\nError: " + ex.ToString());
