@@ -109,8 +109,8 @@ namespace CruiseProcessing
         {
             //  what's the current region?
             string currRegion = DataLayer.getRegion();
-            
 
+            int pageNumber = 1;
             //  Output banner page except for BLM
             if (currRegion != "07" && currRegion != "7" && currRegion != "BLM")
             {
@@ -118,9 +118,9 @@ namespace CruiseProcessing
 
                 var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
                 writer.Write(bannerPage);
+                pageNumber++;
             }   //  endif
 
-            int pageNumber = 2;
             pageNumber = WriteErrors(writer, errList.Where(e => e.Level == "E"), programName, outFile, pageNumber);
 
             WriteWarnings(writer, errList.Where(e => e.Level == "W"), ref pageNumber, HeaderData, DataLayer);
