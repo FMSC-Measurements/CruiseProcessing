@@ -1,4 +1,4 @@
-# Version 06.20.2024
+# Version 06.27.2024
 
 ## Changes
  - Add warning (to error report or end of cruise) if Volume Equation has Calc Biomass checked 
@@ -6,6 +6,7 @@
  - Change error report to include warnings
  - Remove "Incomplete Data" error when opening file. All necessary file checks are performed before processing. 
  - Change Weight Factor use for R1 non-product 01 biomass
+ - Add ability to calculate cords to NVB volume equations
 
 
 ## Fixes
