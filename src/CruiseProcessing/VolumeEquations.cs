@@ -71,8 +71,13 @@ namespace CruiseProcessing
 
             string[,] speciesProduct;
             speciesProduct = DataLayer.GetUniqueSpeciesProduct();
-            //  pull species not used in the cruise from the equations list
-            equationList = updateEquationList(speciesProduct);
+
+
+            // this removes any species that are not in the tree table
+            // however, if a cruiser is processing the cruise before it is complete
+            // the species may not be in the tree table yet
+            // so we may not want to automatically remove those equations
+            // equationList = updateEquationList(speciesProduct);
 
             //  If there are no species/products in tree default values, it's wrong
             //  tell user to check the file design in CSM --  June 2013
@@ -151,45 +156,44 @@ namespace CruiseProcessing
 
         public int setupTemplateDialog()
         {
-            //  if there are volume equations, show in grid
             equationList = DataLayer.getVolumeEquations();
-            if (equationList.Count > 0)
-            {
-                volumeEquationDOBindingSource.DataSource = equationList;
-                volumeEquationList.DataSource = volumeEquationDOBindingSource;
-                //  can't pull species/product combinations from tree default values
-                //  user may want to enter a species or product not available in the default codes
-                //  so text boxes are enabled when a template file is edited
-                //  combo boxes are hidden and disabled -- March 2017
-                //  also add species and product to combo boxes at bottom
-                /*                ArrayList justSpecies = bslyr.GetJustSpecies("TreeDefaultValue");
-                                for (int n = 0; n < justSpecies.Count; n++)
-                                    speciesList.Items.Add(justSpecies[n].ToString());
 
-                                ArrayList justProduct = bslyr.GetJustPrimaryProduct();
-                                for (int n = 0; n < justProduct.Count; n++)
-                                    productList.Items.Add(justProduct[n].ToString());
-                */
-                volRegion.Enabled = false;
-                volForest.Enabled = false;
-                volEquation.Enabled = false;
-                speciesList.Enabled = false;
-                speciesList.Hide();
-                templateSpecies.BringToFront();
-                templateSpecies.Enabled = false;
-                productList.Enabled = false;
-                productList.Hide();
-                templateProduct.BringToFront();
-                templateProduct.Enabled = false;
-            }
-            else if (equationList.Count == 0)
+            if(!equationList.Any())
             {
                 //  Regions 8 and 9, BLM and Region 6 (?) cannot edit equations
                 //  inform user and return to main menu == March 2017
                 MessageBox.Show("Regional template files for Regions 6, 8, 9 and BLM cannot be edited here.\nThese equations are created or entered when running a cruise file in CruiseProcessing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                Close();
-                return -1;
-            }   //  wnsid
+            }
+
+            volumeEquationDOBindingSource.DataSource = equationList;
+            volumeEquationList.DataSource = volumeEquationDOBindingSource;
+            //  can't pull species/product combinations from tree default values
+            //  user may want to enter a species or product not available in the default codes
+            //  so text boxes are enabled when a template file is edited
+            //  combo boxes are hidden and disabled -- March 2017
+            //  also add species and product to combo boxes at bottom
+            /*                ArrayList justSpecies = bslyr.GetJustSpecies("TreeDefaultValue");
+                            for (int n = 0; n < justSpecies.Count; n++)
+                                speciesList.Items.Add(justSpecies[n].ToString());
+
+                            ArrayList justProduct = bslyr.GetJustPrimaryProduct();
+                            for (int n = 0; n < justProduct.Count; n++)
+                                productList.Items.Add(justProduct[n].ToString());
+            */
+            volRegion.Enabled = false;
+            volForest.Enabled = false;
+            volEquation.Enabled = false;
+            speciesList.Enabled = false;
+
+            // hide combo boxes and use text boxes for species and product
+            speciesList.Hide();
+            templateSpecies.BringToFront();
+            templateSpecies.Enabled = false;
+            productList.Enabled = false;
+            productList.Hide();
+            templateProduct.BringToFront();
+            templateProduct.Enabled = false;
+
             return 1;
         }   //  end setupTempalteDialog
 
@@ -201,8 +205,7 @@ namespace CruiseProcessing
             //if(selectedRegion == "05")
             //    MessageBox.Show("USE \"ALL\" FOR THE FOREST SELECTION.\nThe specific forest number should only be used for special reports\nwhen requestd by the Northern Spotted Owl planning team.","WARNING",MessageBoxButtons.OK,MessageBoxIcon.Warning);
             fillForests(selectedRegion);
-            return;
-        }   //  end onRegionSelected
+        }
 
         private void fillForests(string selectedRegion)
         {
@@ -215,15 +218,13 @@ namespace CruiseProcessing
             volForest.Items.AddRange(distinctForests);
 
             volForest.Enabled = true;
-            return;
-        }   //  end fillForests
+        }
 
         private void onForestIndexChanged(object sender, EventArgs e)
         {
             selectedForest = volForest.SelectedItem.ToString();
             fillEquations(selectedForest);
-            return;
-        }   //  end onForestIndexChanged
+        }
 
         private void fillEquations(string selectedForest)
         {
@@ -246,8 +247,7 @@ namespace CruiseProcessing
                 speciesList.Enabled = true;
                 productList.Enabled = true;
             }   //  endif templateFlag
-            return;
-        }   //  end fillEquations
+        }
 
         private void onCellClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -381,72 +381,70 @@ namespace CruiseProcessing
         private void onFinished(object sender, EventArgs e)
         {
             //  make sure volume equation is not blank for any species/product and make sure at least one volume flag is checked
-            int noEquation = 0;
-            int noVolume = 0;
-            foreach (VolumeEquationDO ved in equationList)
-            {
-                if ((ved.VolumeEquationNumber == "" || ved.VolumeEquationNumber == null) &&
-                    (ved.Species != "" || ved.Species == null))
-                    noEquation = 1;
-                if (ved.CalcBoard == 0 && ved.CalcCubic == 0 && ved.CalcCord == 0)
-                    noVolume = 1;
-                if (noEquation == 1 || noVolume == 1) break;
-            }   //  end foreach loop
 
-            if (noEquation == 1)
+            List<string> errors = new List<string>();
+            if (equationList.Any(x => string.IsNullOrEmpty(x.VolumeEquationNumber)))
             {
-                MessageBox.Show("One or more records have no volume equation.\nPlease correct now.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }   // endif no equation
-            if (noVolume == 1)
+                errors.Add("One or more records have no volume equation.");
+            }
+            if (equationList.Any(x => string.IsNullOrEmpty(x.Species)))
             {
-                MessageBox.Show("One or more records have no volume selected.\nPlease correct now.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                errors.Add("One or more records has no species");
+            }
+            if (equationList.Any(x => x.CalcBoard == 0 && x.CalcCubic == 0 && x.CalcCord == 0))
+            {
+                errors.Add("One or more records has no volume selected (Calc Board, Calc Cubic, Calc Cord)");
+            }
+            if ( equationList.Any(x => string.IsNullOrEmpty(x.PrimaryProduct)))
+            {
+                errors.Add("One or more records has no Primary Product");
+            }
+            if(errors.Any())
+            {
+                DialogService.ShowError(string.Join("\r\n", errors));
                 return;
-            }   //  endif no volume
+            }
 
             //  Otherwise, make sure user wants to save all entries
-            DialogResult nResult = MessageBox.Show("Do you want to save changes?", "CONFIRMATION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (nResult == DialogResult.Yes)
+
+            var dResult = DialogService.AskYesNo("Do you want to save changes?", DialogServiceResult.Yes);
+            if (dResult == DialogServiceResult.Yes)
             {
                 Cursor.Current = Cursors.WaitCursor;
                 DataLayer.SaveVolumeEquations(equationList);
-                Cursor.Current = this.Cursor;
-            }   //  endif
-            if (equationList.Any(x => x.CalcBiomass > 0))
-            {
-                //  Load biomass information if biomass flag was checked
-                //  But if it's an edited template then capture region and forest
-                //  before updating biomass.  March 2017
-                if (templateFlag == 1)
+
+                if (equationList.Any(x => x.CalcBiomass > 0))
                 {
-                    TemplateRegionForest trf = Services.GetRequiredService<TemplateRegionForest>();
-                    trf.ShowDialog();
-                    UpdateBiomassTemplate(equationList, trf.currentRegion, trf.currentForest);
+                    //  Load biomass information if biomass flag was checked
+                    //  But if it's an edited template then capture region and forest
+                    //  before updating biomass.  March 2017
+                    if (templateFlag == 1)
+                    {
+                        TemplateRegionForest trf = Services.GetRequiredService<TemplateRegionForest>();
+                        trf.ShowDialog();
+                        UpdateBiomassTemplate(equationList, trf.currentRegion, trf.currentForest);
+                    }
+                    else
+                    {
+                        UpdateBiomassCruise(equationList);
+                    }
                 }
                 else
                 {
-                    UpdateBiomassCruise(equationList);
+                    //  remove all biomass equations
+                    DataLayer.ClearBiomassEquations();
                 }
-            }
-            else
-            {
-                //  remove all biomass equations
-                DataLayer.ClearBiomassEquations();
-            }     //  endif
+                Cursor.Current = this.Cursor;
+            }   //  endif
+            
 
             Close();
-            return;
-        }   //  end onFinished
+        }
 
         private void onCancel(object sender, EventArgs e)
         {
-            DialogResult nResult = MessageBox.Show("Are you sure you want to cancel?", "CONFIRMATION", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (nResult == DialogResult.Yes)
-            {
-                Close();
-                return;
-            }
-        }   //  end onCancel
+            Close();
+        }
 
         public void UpdateBiomassTemplate(List<VolumeEquationDO> equationList, string currRegion, string currForest)
         {
@@ -700,6 +698,7 @@ namespace CruiseProcessing
 
             return updatedList;
         }   //  end updateEquationList
+
 
         private void onDelete(object sender, EventArgs e)
         {
