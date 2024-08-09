@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -191,6 +192,14 @@ namespace CruiseProcessing.Data
 
             return speciesProduct;
         }   //  end GetUniqueSpeciesProduct
+
+        public IReadOnlyCollection<SpeciesProduct> GetUniqueSpeciesProductFromTrees()
+        {
+            return DAL.Query<SpeciesProduct>("SELECT DISTINCT t.Species AS SpeciesCode, sg.PrimaryProduct AS ProductCode " +
+                "FROM Tree AS t " +
+                "JOIN SampleGroup AS sg USING (SampleGroup_CN) " +
+                "WHERE t.Species IS NOT NULL AND length(t.Species) > 0 AND t.SampleGroup_CN IS NOT NULL").ToArray();
+        }
 
         public void SaveTrees(List<TreeDO> tList)
         {
