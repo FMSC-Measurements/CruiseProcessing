@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using CruiseDAL.DataObjects;
-using CruiseDAL.Schema;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,59 +13,119 @@ namespace CruiseProcessing
 {
     public partial class R8VolEquation : Form
     {
-        
-        public float secDIB;
+        public class ForestGeoCode
+        {
+            public string District { get; set; }
+            public string GeoCode { get; set; }
+            public string GroupCode { get; set; } // group code doesn't appear to be used
+        }
+
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         string[] topwoodStatus = new string[30];
         int pulpwoodHeight = -1;
-        
+
         //string[,] DIBbySpecies;
         List<JustDIBs> DIBbySpecies = new List<JustDIBs>();
-        string[,] forestDefaultList = new string[12,3] {{"02","3","10"},
-                                                        {"03","3","01"},
-                                                        {"04","3","01"},
-                                                        {"05","1","03"},
-                                                        {"06","5","02"},
-                                                        {"08","3","11"},
-                                                        {"09","6","31"},
-                                                        {"10","6","04"},
-                                                        {"11","3","01"},
-                                                        {"12","2","24"},
-                                                        {"60","3","01"},
-                                                        {"36","1","25"}};
-        string[,] forestDistrictList = new string[33,4] {{"01","01","4","13"},
-                                                         {"01","03","1","15"},
-                                                         {"01","04","4","16"},
-                                                         {"01","05","4","14"},
-                                                         {"01","06","4","14"},
-                                                         {"01","07","4","17"},
-                                                         {"03","08","2","06"},
-                                                         {"06","06","5","09"},
-                                                         {"07","01","5","19"},
-                                                         {"07","02","5","20"},
-                                                         {"07","04","5","21"},
-                                                         {"07","05","5","22"},
-                                                         {"07","06","7","18"},
-                                                         {"07","07","4","23"},
-                                                         {"07","17","4","23"},
-                                                         {"08","11","3","12"},
-                                                         {"08","12","3","12"},
-                                                         {"08","13","3","12"},
-                                                         {"08","14","3","12"},
-                                                         {"08","15","3","12"},
-                                                         {"08","16","3","12"},
-                                                         {"09","01","6","30"},
-                                                         {"09","06","6","30"},
-                                                         {"09","12","6","32"},
-                                                         {"10","07","7","05"},
-                                                         {"11","03","1","07"},
-                                                         {"11","10","2","08"},
-                                                         {"12","02","3","01"},
-                                                         {"12","05","1","25"},
-                                                         {"13","01","5","26"},
-                                                         {"13","03","5","27"},
-                                                         {"13","04","5","29"},
-                                                         {"13","07","5","28"}};
+
+        static readonly IReadOnlyDictionary<string, IReadOnlyCollection<ForestGeoCode>> ForestGeoCodeLookup = new Dictionary<string, IReadOnlyCollection<ForestGeoCode>>()
+            {
+                { "01", new[]
+                    {
+                        new ForestGeoCode { District = "01", GeoCode = "4", GroupCode = "13" },
+                        new ForestGeoCode { District = "03", GeoCode = "1", GroupCode = "15" },
+                        new ForestGeoCode { District = "04", GeoCode = "4", GroupCode = "16" },
+                        new ForestGeoCode { District = "05", GeoCode = "4", GroupCode = "14" },
+                        new ForestGeoCode { District = "06", GeoCode = "4", GroupCode = "14" },
+                        new ForestGeoCode { District = "07", GeoCode = "4", GroupCode = "17" },
+                    }
+                },
+                { "02", new[] { new ForestGeoCode { GeoCode = "3", GroupCode = "10" } } },
+                {"03", new[]
+                    {
+                        new ForestGeoCode { GeoCode = "3", GroupCode = "01" },
+                        new ForestGeoCode { District = "08", GeoCode = "2", GroupCode = "06" },
+                    }
+                },
+                { "04", new[] { new ForestGeoCode { GeoCode = "3", GroupCode = "01" } } },
+                { "05", new[] { new ForestGeoCode { GeoCode = "1", GroupCode = "03" } } },
+                { "06", new[]
+                    {
+                        new ForestGeoCode { GeoCode = "5", GroupCode = "02" },
+                        new ForestGeoCode { District = "06", GeoCode = "5", GroupCode = "09" },
+                    }
+                },
+                { "07",
+                    new[]
+                    {
+                        new ForestGeoCode { District = "01", GeoCode = "5", GroupCode = "19" },
+                        new ForestGeoCode { District = "02", GeoCode = "5", GroupCode = "20" },
+                        new ForestGeoCode { District = "04", GeoCode = "5", GroupCode = "21" },
+                        new ForestGeoCode { District = "05", GeoCode = "5", GroupCode = "22" },
+                        new ForestGeoCode { District = "06", GeoCode = "7", GroupCode = "18" },
+                        new ForestGeoCode { District = "07", GeoCode = "4", GroupCode = "23" },
+                        new ForestGeoCode { District = "17", GeoCode = "4", GroupCode = "23" },
+                    }
+                },
+                { "08", new[]
+                    {
+                        new ForestGeoCode { GeoCode = "3", GroupCode = "11" },
+                        new ForestGeoCode { District = "11", GeoCode = "3", GroupCode = "12" },
+                        new ForestGeoCode { District = "12", GeoCode = "3", GroupCode = "12" },
+                        new ForestGeoCode { District = "13", GeoCode = "3", GroupCode = "12" },
+                        new ForestGeoCode { District = "14", GeoCode = "3", GroupCode = "12" },
+                        new ForestGeoCode { District = "15", GeoCode = "3", GroupCode = "12" },
+                        new ForestGeoCode { District = "16", GeoCode = "3", GroupCode = "12" },
+                    }
+                },
+                { "09", new[]
+                    {
+                        new ForestGeoCode { GeoCode = "6", GroupCode = "31" },
+                        new ForestGeoCode { District = "01", GeoCode = "6", GroupCode = "30" },
+                        new ForestGeoCode { District = "06", GeoCode = "6", GroupCode = "30" },
+                        new ForestGeoCode { District = "12", GeoCode = "6", GroupCode = "32" },
+                    }
+                },
+                {
+                    "10", new[]
+                    {
+                        new ForestGeoCode { GeoCode = "6", GroupCode = "04" },
+                        new ForestGeoCode { District = "07", GeoCode = "7", GroupCode = "05" },
+                    }
+                },
+                {
+                    "11", new[]
+                    {
+                        new ForestGeoCode { GeoCode = "3", GroupCode = "01" },
+                        new ForestGeoCode { District = "03", GeoCode = "1", GroupCode = "07" },
+                        new ForestGeoCode { District = "10", GeoCode = "2", GroupCode = "08" },
+                    }
+                },
+                {
+                    "12", new[]
+                    {
+                        new ForestGeoCode { GeoCode = "2", GroupCode = "24" },
+                        new ForestGeoCode { District = "02", GeoCode = "3", GroupCode = "01" },
+                        new ForestGeoCode { District = "05", GeoCode = "1", GroupCode = "25" },
+                    }
+                },
+                {
+                    "13", new[]
+                    {
+                        new ForestGeoCode { District = "01", GeoCode = "5", GroupCode = "26" },
+                        new ForestGeoCode { District = "03", GeoCode = "5", GroupCode = "27" },
+                        new ForestGeoCode { District = "04", GeoCode = "5", GroupCode = "29" },
+                        new ForestGeoCode { District = "07", GeoCode = "5", GroupCode = "28" },
+                    }
+                },
+                { "60", new[] { new ForestGeoCode { GeoCode = "3", GroupCode = "01" } } },
+                { "36", new[] { new ForestGeoCode { GeoCode = "1", GroupCode = "25" } } },
+            };
+
+        public static ForestGeoCode GetR8ForestGeoCode(string forest, string district)
+        {
+            if (!ForestGeoCodeLookup.TryGetValue(forest, out var geoCodes)) return null;
+            return geoCodes.FirstOrDefault(x => x.District == district) ?? geoCodes.First(x => x.District == null);
+        }
 
         protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
@@ -92,7 +149,7 @@ namespace CruiseProcessing
         {
             //  setup dialog and get checked species in return
             R8Topwood r8top = Services.GetRequiredService<R8Topwood>();
-            r8top.setupDialog(); 
+            r8top.setupDialog();
             r8top.ShowDialog();
             topwoodStatus = r8top.checkStatus;
         }   //  end onTopwoodClick
@@ -100,95 +157,82 @@ namespace CruiseProcessing
 
         private void onOK(object sender, EventArgs e)
         {
-            Finish();
+            if(volList.Any()
+                && DialogService.AskYesNo("Cruise Already Contains Volume Equations\r\rWould you like to reset Volume Equations", DialogServiceResult.No) == DialogServiceResult.Yes)
+            {
+                Finish(calcBiomass.Checked,  true);
+            }
+            else
+            {
+                Finish(calcBiomass.Checked, false);
+            }
         }
 
-        public void Finish()
+        public void Finish(bool calculateBiomass, bool clearExistingEquations)
         {
-            //  open volume equation table and remove all before building and saving equations
-            DataLayer.deleteVolumeEquations();
-            volList.Clear();
+            if(clearExistingEquations)
+            {
+                DataLayer.deleteVolumeEquations();
+                volList.Clear();
+            }
 
-            //  Need to build volume equation and store in table, so goes into VolumeEqList
-            string currGeoCode = "";
-            string currGrpCode = "";
+            if (oldClarkCheckBox.Checked == true && pulpwoodHeight < 0)
+            {
+                DialogService.ShowError("Pulpwood Height not selected\r\n Please click Old Clark Equations to select Pulpwood Height ");
+                return;
+            }
 
             var sale = DataLayer.GetSale();
             string currentForest = sale.Forest;
             string currentDistrict = sale.District ?? "";
 
-
             //  Look up geo code and group code for this forest and district (if any)
             //  First look in defaults
-            for (int k = 0; k < 12; k++)
-            {
-                if (currentForest == forestDefaultList[k, 0])
-                {
-                    currGeoCode = forestDefaultList[k, 1];
-                    currGrpCode = forestDefaultList[k, 2];
-                }   //  endif
-            }   //  end for k loop
+            var forestGeoCode = GetR8ForestGeoCode(currentForest, currentDistrict);
 
-            //  Check for an override on district
-            for (int k = 0; k < 33; k++)
+            //  if geocode and group code are null, means forest or district are incorrect
+            if (forestGeoCode == null)
             {
-                if (currentForest == forestDistrictList[k, 0] && currentDistrict == forestDistrictList[k, 1])
-                {
-                    currGeoCode = forestDistrictList[k, 2];
-                    currGrpCode = forestDistrictList[k, 3];
-                }   //  endif
-            }   //  end for k loop
-
-            //  if geocode and group code are still blank, means forest or district are incorrect
-            if (currGeoCode == "" || currGrpCode == "")
-            {
-                DialogService.ShowError("Could not find Forest and/or District number.\nCannot complete equations.");
+                DialogService.ShowError("Could not find Forest and/or District number.\r\nCannot complete equations.");
                 Close();
                 return;
-            }   //  endif
+            }
 
             //  get unique species/product combinations
-            string[,] speciesProduct = DataLayer.GetUniqueSpeciesProduct();
-            for (int k = 0; k < speciesProduct.GetLength(0); k++)
+            var speciesProduct = DataLayer.GetUniqueSpeciesProductFromTrees();
+            foreach (var spProd in speciesProduct)
             {
-                //  need species and product
-                string currentSpecies = speciesProduct[k, 0];
-                string currentProduct = speciesProduct[k, 1];
-
-                //  call build equation for this combination
-                if (currentSpecies != null && currentProduct != null)
+                // if we didn't clear equations,  check if this species/product combination already exists in volList
+                if (!clearExistingEquations && volList.Any(x => x.Species == spProd.SpeciesCode && x.PrimaryProduct == spProd.ProductCode))
                 {
-                    //  change in volume library no longer has DVEE equations used for board for board foot volume
-                    //  so commented out the call to build those equations
-                    //  October 2015
-                    //if (currentProduct == "01")
-                    //  buildVolumeEquation(currGrpCode, currentSpecies, currentProduct);
-                    //  Build Clark equations -- old or new -- July 2017
-                    if (newClarkCheckBox.Checked == true)
-                        buildNewClarkEquations(currGeoCode, currentSpecies, currentProduct);
-                    else if (oldClarkCheckBox.Checked == true)
-                    {
-                        if (pulpwoodHeight >= 0)
-                            buildClarkEquation(currGeoCode, currentSpecies, currentProduct, pulpwoodHeight);
-                        else if (pulpwoodHeight < 0)
-                        {
-                            Close();
-                            return;
-                        }   //  endif
-                    }   //  endif
-                }   //  endif no null
-            }   //  end foreach
+                    continue;
+                }
+
+                //  change in volume library no longer has DVEE equations used for board for board foot volume
+                //  so commented out the call to build those equations
+                //  October 2015
+                //if (currentProduct == "01")
+                //  buildVolumeEquation(currGrpCode, currentSpecies, currentProduct);
+                //  Build Clark equations -- old or new -- July 2017
+                if (newClarkCheckBox.Checked == true)
+                {
+                    buildNewClarkEquations(forestGeoCode.GeoCode, spProd.SpeciesCode, spProd.ProductCode);
+                }
+                else if (oldClarkCheckBox.Checked == true)
+                {
+                    buildClarkEquation(forestGeoCode.GeoCode, spProd.SpeciesCode, spProd.ProductCode, pulpwoodHeight);
+                }   //  endif
+            }
 
             //  Save equations in database
             DataLayer.SaveVolumeEquations(volList);
 
-            if (calcBiomass.Checked == true)
+            if (calculateBiomass)
             {
                 VolumeEquations ve = Services.GetRequiredService<VolumeEquations>();
                 ve.UpdateBiomassCruise(volList);
             }   //  endif calculate biomass
             Close();
-            return;
         }
 
 
@@ -234,13 +278,9 @@ namespace CruiseProcessing
         }   //  end buildVolumeEquation
 
 
-        private void buildClarkEquation(string currGeoCode, string currentSpecies, 
+        private void buildClarkEquation(string currGeoCode, string currentSpecies,
                                         string currentProduct, int pulpwoodHeight)
         {
-            StringBuilder sb = new StringBuilder();
-            secDIB = 0;
-            sb.Append("8");
-            sb.Append(currGeoCode);
             //  complete equation build and put in volList
             VolumeEquationDO vel = new VolumeEquationDO();
             vel.Species = currentSpecies;
@@ -262,90 +302,98 @@ namespace CruiseProcessing
             vel.MaxLogLengthPrimary = 0;
             vel.MinMerchLength = 0;
 
+            string refHeightTypeIndicator = "0";  // default to 0 for height to tip, prod specific heights set below
+
             //  finish equation
-            if (currentProduct == "01")
+            switch (currentProduct)
             {
-                //  Set sawtimber reference height 7 or 9
-                // pine species < 300
-                if (Convert.ToInt32(currentSpecies) < 300)
-                    sb.Append("7");
-                else sb.Append("9");    //  hardwoods
-
-                vel.CalcCubic = 1;
-                //  added per request from Gary Church
-                vel.CalcBoard = 1;
-
-                //  topwood included?
-                //  find current species in topwoodStatus
-                for (int j = 0; j < topwoodStatus.Length; j++)
-                {
-                    if (topwoodStatus[j] == currentSpecies)
+                case "01":
                     {
-                        vel.CalcTopwood = 1;
-                        break;
-                    }   //  endif
-                }   //  end for j loop
-            }
-            else if(currentProduct == "02")
-            {
-                //  set pulpwood reference height 4 or 0
-                //  based on selection from first window
-                if (pulpwoodHeight == 0)
-                {
-                    // 4 inch DOB for all species
-                    sb.Append("4");
-                }
-                else if(pulpwoodHeight == 1)
-                {
-                    //  total height all species
-                    sb.Append("0");
-                }
-                else if(pulpwoodHeight == 2)
-                {
-                    //  pine total height hardwood 4-inch dob
-                    if (Convert.ToInt32(currentSpecies) < 300)
-                        sb.Append("0");
-                    else sb.Append("4");
-                }   //  endif
+                        //  Set sawtimber reference height 7 or 9
+                        if (int.TryParse(currentSpecies, out int fiaCodeInt))
+                        {
+                            if (fiaCodeInt < 300)
+                            { refHeightTypeIndicator = "7"; } // pine species
+                            else
+                            { refHeightTypeIndicator = "9"; } // hardwood species
+                        }
+                        else
+                        { throw new ArgumentException("Invalid species fia code: " + currentSpecies, nameof(currentSpecies)); }
 
-                vel.StumpHeight = Convert.ToSingle(0.5);
-                vel.CalcCubic = 1;
-                //  added per request from Gary Church
-                vel.CalcBoard = 1;
-            }
-            else if(currentProduct == "08")
-            {
-                //  find any changed DIB for current species
-                double DIBfound = findDIB(currentSpecies);
-                vel.StumpHeight = Convert.ToSingle(0.5);
-                vel.TopDIBPrimary = Convert.ToSingle(DIBfound);
-                vel.TopDIBSecondary = Convert.ToSingle(secDIB);
-                vel.CalcCubic = 1;
-                vel.CalcTopwood = 1;
-                //  added per request from Gary Church
-                vel.CalcBoard = 1;
-                sb.Append("8");
-            }
-            else        
-            {
-                //  any other product code such as 20 for biomass
-                sb.Append("0");
-                vel.CalcCubic = 1;
-                vel.CalcBoard = 1;
+                        vel.CalcCubic = 1;
+                        //  added per request from Gary Church
+                        vel.CalcBoard = 1;
+
+                        //  topwood included?
+                        //  find current species in topwoodStatus
+                        if (topwoodStatus.Any(x => x == currentSpecies))
+                        {
+                            vel.CalcTopwood = 1;
+                        }
+
+                        break;
+                    }
+
+                case "02":
+                    {
+                        //  set pulpwood reference height 4 or 0
+                        //  based on selection from first window
+                        if (pulpwoodHeight == 0)
+                        {
+                            // 4 inch DOB for all species
+                            refHeightTypeIndicator = "4";
+                        }
+                        else if (pulpwoodHeight == 1)
+                        {
+                            //  total height all species
+                            refHeightTypeIndicator = "0";
+                        }
+                        else if (pulpwoodHeight == 2)
+                        {
+                            if (int.TryParse(currentSpecies, out int fiaCodeInt))
+                            {
+                                if (fiaCodeInt < 300)
+                                { refHeightTypeIndicator = "0"; } // pine species
+                                else
+                                { refHeightTypeIndicator = "4"; } // hardwood species
+                            }
+                            else
+                            { throw new ArgumentException("Invalid species fia code: " + currentSpecies, nameof(currentSpecies)); }
+
+                        }   //  endif
+
+                        vel.StumpHeight = Convert.ToSingle(0.5);
+                        vel.CalcCubic = 1;
+                        //  added per request from Gary Church
+                        vel.CalcBoard = 1;
+                        break;
+                    }
+
+                case "08":
+                    {
+                        //  find any changed DIB for current species
+                        var dib = LookUpDIB(currentSpecies, out var secDIB);
+                        vel.StumpHeight = 0.5f;
+                        vel.TopDIBPrimary = dib;
+                        vel.TopDIBSecondary = secDIB;
+                        vel.CalcCubic = 1;
+                        vel.CalcTopwood = 1;
+                        //  added per request from Gary Church
+                        vel.CalcBoard = 1;
+                        refHeightTypeIndicator = "8";
+                        break;
+                    }
+
+                default:
+                    //  any other product code such as 20 for biomass
+                    refHeightTypeIndicator = "0";
+                    vel.CalcCubic = 1;
+                    vel.CalcBoard = 1;
+                    break;
             }   //  endif currentProduct
 
-            //  add remaining components to equation
-            sb.Append("CLKE");
-            //  Fix species length
-            if (currentSpecies.Length == 2)
-                sb.Append("0");
-            else if (currentSpecies.Length == 1)
-                sb.Append("00");
-            sb.Append(currentSpecies);
-            
-            vel.VolumeEquationNumber = sb.ToString();
+            vel.VolumeEquationNumber = BuildVolumeEquationNumber("8", currGeoCode + refHeightTypeIndicator, "CLK", "E", currentSpecies);
             volList.Add(vel);
-            return;
         }   //  end buildClarkEquation
 
 
@@ -353,94 +401,79 @@ namespace CruiseProcessing
         {
             //  For new Clark equations only
             //  July 2017
-            StringBuilder sb = new StringBuilder();
-            secDIB = 0;
-            sb.Append("8");
-            sb.Append(currGeoCode);
-            sb.Append("1");
 
             //  complete equation and put in volList
             VolumeEquationDO vel = new VolumeEquationDO();
             vel.Species = currSpecies;
             vel.PrimaryProduct = currProduct;
-            if(currProduct == "01")
-                vel.StumpHeight = 1;
-            else
-                vel.StumpHeight = Convert.ToSingle(0.5);
+            vel.StumpHeight = (currProduct == "01") ? 1 : 0.5f;
             vel.TopDIBPrimary = 0;
             vel.TopDIBSecondary = 0;
             vel.CalcTotal = 0;
             vel.CalcBoard = 1;
             vel.CalcCubic = 1;
             vel.CalcCord = 0;
-            vel.CalcTopwood = 0;
+            vel.CalcTopwood = topwoodStatus.Any(x => x == currSpecies) ? 1 : 0;
+            vel.CalcBiomass = (calcBiomass.Checked == true) ? 1 : 0;
 
-            if (calcBiomass.Checked == true)
-                vel.CalcBiomass = 1;
-            else vel.CalcBiomass = 0;
-
-            //  Finish equation
-            //  topwood included?
-            for (int j = 0; j < topwoodStatus.Length; j++)
-            {
-                if (topwoodStatus[j] == currSpecies)
-                {
-                    vel.CalcTopwood = 1;
-                    break;
-                }   //  endif
-            }   //  end for loop
 
             //  Oct 2018 -- decision made that whatever DIB/DOB is ent
             // to the volume library is whatever user entered for those values.
             //  set top dib values
-//            if (Convert.ToInt32(currSpecies) < 300)
-  //          {
-    //            vel.TopDIBPrimary = 7;
-      //          vel.TopDIBSecondary = 4;
-        //    }
-          //  else
-//            {
-  //              vel.TopDIBPrimary = 9;
-    //            vel.TopDIBSecondary = 4;
-      //      }   //  endif
+            //            if (Convert.ToInt32(currSpecies) < 300)
+            //          {
+            //            vel.TopDIBPrimary = 7;
+            //          vel.TopDIBSecondary = 4;
+            //    }
+            //  else
+            //            {
+            //              vel.TopDIBPrimary = 9;
+            //            vel.TopDIBSecondary = 4;
+            //      }   //  endif
 
             //  find any changed DIB for current species
             //  did user even use the top DOB button?
-            if (DIBbySpecies != null)
-            {
-                double DIBfound = findDIB(currSpecies);
-                vel.TopDIBPrimary = Convert.ToSingle(DIBfound);
-                vel.TopDIBSecondary = Convert.ToSingle(secDIB);
-            }   //  endif
+            var dib = LookUpDIB(currSpecies, out var secDIB);
+            vel.TopDIBPrimary = dib;
+            vel.TopDIBSecondary = secDIB;
 
-            sb.Append("CLKE");
-            //  fix species length
-            if (currSpecies.Length == 2)
-                sb.Append("0");
-            else if (currSpecies.Length == 1)
-                sb.Append("00");
-            sb.Append(currSpecies);
-
-            vel.VolumeEquationNumber = sb.ToString();
+            vel.VolumeEquationNumber = BuildVolumeEquationNumber("8", currGeoCode + "1", "CLK", "E", currSpecies);
             volList.Add(vel);
-            return;
-        }   //  buildNewClarkEquations
+        }
 
-
-        private float findDIB(string currentSpecies)
+        private string BuildVolumeEquationNumber(string geoCode, string subRegionCode, string model, string coastalCode, string speciesCode)
         {
-            //  find any changed DIB for this species
-            int nthRow = DIBbySpecies.FindIndex(
-                delegate(JustDIBs dbs)
-                {
-                    return dbs.speciesDIB == currentSpecies;
-                });
-            if (nthRow != -1)
+            if (speciesCode.Length > 3)
             {
-                secDIB = DIBbySpecies[nthRow].secondaryDIB;
-                return DIBbySpecies[nthRow].primaryDIB;
+                throw new ArgumentException("Species code must be 3 characters or less", nameof(speciesCode));
             }
-            else return 0;
+
+            speciesCode = speciesCode.PadLeft(3, '0');
+
+            return $"8{geoCode}{subRegionCode}{model}{coastalCode}{speciesCode}";
+        }
+
+
+        private float LookUpDIB(string currentSpecies, out float secondaryDIB)
+        {
+            if(DIBbySpecies == null)
+            {
+                secondaryDIB = 0;
+                return 0;
+            }
+
+            //  find any changed DIB for this species
+            var dib = DIBbySpecies.FirstOrDefault(x => x.speciesDIB == currentSpecies);
+            if(dib != null)
+            {
+                secondaryDIB = dib.secondaryDIB;
+                return dib.primaryDIB;
+            }
+            else
+            {
+                secondaryDIB = 0;
+                return 0;
+            }
         }   //  end findDIB
 
 
@@ -477,7 +510,7 @@ namespace CruiseProcessing
             r9DIB.setupDialog();
             r9DIB.Show();
             DIBbySpecies = r9DIB.jstDIB;
-           
+
         }
 
         private void onNewClark(object sender, EventArgs e)
