@@ -88,6 +88,7 @@ namespace CruiseProcessing.Services
         public void ShowGraphOutputDialog(IEnumerable<string> graphReports)
         {
             var dialog = Services.GetRequiredService<graphOutputDialog>();
+            dialog.GraphReports = graphReports;
             dialog.ShowDialog();
         }
 
