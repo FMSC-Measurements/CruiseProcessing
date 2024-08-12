@@ -145,14 +145,15 @@ namespace CruiseProcessing
                 if (ReportsDataservice.IsGraphReport(rdo.ReportID))
                 {
                     graphReports.Add(rdo.ReportID);
-                    string graphFile = Path.GetDirectoryName(FilePath);
-                    graphFile += "\\Graphs\\";
-                    graphFile += rdo.ReportID;
+                    var graphsDirectoryPath = DataLayer.GetGraphsFolderPath();
+
+                    var graphFilePath = Path.Combine(graphsDirectoryPath, rdo.ReportID);
+
                     strWriteOut.WriteLine("\f"); // page break/form feed
                     strWriteOut.Write("Graph Report ");
                     strWriteOut.Write(rdo.ReportID);
                     strWriteOut.WriteLine(" can be found in the following file: ");
-                    strWriteOut.WriteLine(graphFile);
+                    strWriteOut.WriteLine(graphFilePath);
 
                     continue;
                 }

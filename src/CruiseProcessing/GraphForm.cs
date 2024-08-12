@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -112,15 +113,9 @@ namespace CruiseProcessing
             //  save graph
             Size newSize = new Size(337,320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
-            outputFile += "\\Graphs\\";
-            outputFile += currSaleName;
-            System.IO.Directory.CreateDirectory(outputFile);
-            outputFile += "\\";
-            outputFile += "GR01";
-            outputFile += "_";
-            outputFile += currSP;
-            outputFile += ".jpg";
+            var graphsDir = DataLayer.GetGraphsFolderPath();
+            string outputFile = Path.Combine(graphsDir, "GR01-" + currSP + ".jpg");
+
             currBMP.Save(@outputFile, System.Drawing.Imaging.ImageFormat.Jpeg);
 
         }   //  end CreateScatterGraph
@@ -215,9 +210,7 @@ namespace CruiseProcessing
             //  save graphs
             Size newSize = new Size(337, 320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
-            outputFile += "\\Graphs\\";
-            outputFile += currSaleName;
+            string outputFile = DataLayer.GetGraphsFolderPath();
             System.IO.Directory.CreateDirectory(outputFile);
             outputFile += "\\";
             //  add graph report to file name
@@ -413,9 +406,7 @@ namespace CruiseProcessing
             //  save graphs
             Size newSize = new Size(337, 320);
             Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
-            outputFile += "\\Graphs\\";
-            outputFile += currSaleName;
+            string outputFile = DataLayer.GetGraphsFolderPath();
             System.IO.Directory.CreateDirectory(outputFile);
             outputFile += "\\";
             //  add graph report to file name
