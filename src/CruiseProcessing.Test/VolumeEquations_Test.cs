@@ -67,7 +67,7 @@ namespace CruiseProcessing.Test
             var volumeEquations = new[]
             {
                 new VolumeEquationDO{ CalcBiomass = 1, Species = "101", PrimaryProduct = "01", VolumeEquationNumber = "1234567890" },
-                new VolumeEquationDO{ CalcBiomass = 1, Species = "102", PrimaryProduct = "01", VolumeEquationNumber = "02" },
+                new VolumeEquationDO{ CalcBiomass = 1, Species = "102", PrimaryProduct = "01", VolumeEquationNumber = "1234567890" },
             };
 
             var PRs = new[]
