@@ -466,17 +466,18 @@ namespace CruiseProcessing
                 if (volEq.CalcBiomass == 1)
                 {
                     // find species/product in tree default values for FIA code
-
-                    var treeDefault = treeDef.FirstOrDefault(td => td.Species == volEq.Species && td.PrimaryProduct == volEq.PrimaryProduct);
                     var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
                     float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
                         ? pct : 0.0f;
-                    if (treeDefault != null)
+
+                    var treeDefaults = treeDef.Where(td => td.Species == volEq.Species && td.PrimaryProduct == volEq.PrimaryProduct);
+
+                    foreach(var tdv in treeDefaults)
                     {
-                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, (int)treeDefault.FIAcode, treeDefault.LiveDead, percentRemovedValue);
+                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, (int)tdv.FIAcode, tdv.LiveDead, percentRemovedValue);
 
                         biomassEquations.AddRange(bioEqs);
-                    }   //  endif nthRow
+                    }
                 }   //  endif
             }   //  end foreach loop
 
@@ -494,7 +495,6 @@ namespace CruiseProcessing
 
         public static void UpdateBiomassCruise(CpDataLayer dataLayer, IEnumerable<VolumeEquationDO> equationList, IReadOnlyCollection<PercentRemoved> prList)
         {
-            var treeList = dataLayer.getTrees();
             //  new variables for biomass call
             string currRegion = dataLayer.getRegion();
             string currForest = dataLayer.getForest();
@@ -511,15 +511,14 @@ namespace CruiseProcessing
             {
                 if (volEq.CalcBiomass == 1)
                 {
-                    var tree = treeList.FirstOrDefault(t => t.Species == volEq.Species && t.SampleGroup.PrimaryProduct == volEq.PrimaryProduct);
-                    var treeDefaultValue = tree?.TreeDefaultValue;
                     var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
                     float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
                         ? pct : 0.0f;
 
-                    if (treeDefaultValue != null)
+                    var spProdLiveDeads = dataLayer.GetUniqueSpeciesProductLiveDeadFromTrees(volEq.Species, volEq.PrimaryProduct);
+                    foreach (var spProdLiveDead in spProdLiveDeads)
                     {
-                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, (int)treeDefaultValue.FIAcode, treeDefaultValue.LiveDead, percentRemovedValue);
+                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, spProdLiveDead.FiaCode, spProdLiveDead.LiveDead, percentRemovedValue);
 
                         biomassEquations.AddRange(bioEqs);
                     }

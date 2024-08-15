@@ -201,6 +201,23 @@ namespace CruiseProcessing.Data
                 "WHERE t.Species IS NOT NULL AND length(t.Species) > 0 AND t.SampleGroup_CN IS NOT NULL").ToArray();
         }
 
+        public IReadOnlyCollection<SpeciesProductLiveDead> GetUniqueSpeciesProductLiveDeadFromTrees()
+        {
+            return DAL.Query<SpeciesProductLiveDead>("SELECT DISTINCT t.Species AS SpeciesCode, sg.PrimaryProduct AS ProductCode, t.LiveDead AS LiveDead " +
+                "FROM Tree AS t " +
+                "JOIN SampleGroup AS sg USING (SampleGroup_CN) " +
+                "WHERE t.Species IS NOT NULL AND length(t.Species) > 0 AND t.LiveDead IS NOT NULL AND t.LiveDead IN ('L', 'D') AND t.SampleGroup_CN IS NOT NULL").ToArray();
+        }
+
+        public IReadOnlyCollection<SpeciesProductLiveDead> GetUniqueSpeciesProductLiveDeadFromTrees(string species, string product)
+        {
+            return DAL.Query<SpeciesProductLiveDead>("SELECT DISTINCT tdv.Species AS SpeciesCode, tdv.FiaCode, sg.PrimaryProduct AS ProductCode, tdv.LiveDead AS LiveDead " +
+                "FROM Tree AS t " +
+                "JOIN SampleGroup AS sg USING (SampleGroup_CN) " +
+                "JOIN TreeDefaultValue AS tdv USING (TreeDefaultValue_CN) " +
+                "WHERE t.Species = @p1 AND sg.PrimaryProduct = @p2 AND t.LiveDead IS NOT NULL AND t.LiveDead IN ('L', 'D')", species, product).ToArray();
+        }
+
         public void SaveTrees(List<TreeDO> tList)
         {
             foreach (TreeDO tdo in tList)
