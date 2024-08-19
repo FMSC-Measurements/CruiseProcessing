@@ -521,9 +521,9 @@ namespace CruiseProcessing
     //  Functions
     public static string findReportTitle(string currentReport)
         {
-            // TODO since this method only searches up to index 186, it will not find the last item in the array
-            // not sure if this is intentional, as that is a state report (IDL1)
-            for (int j = 0; j < 186; j++)
+            var arrayLength = reportsArray.GetLength(0);
+
+            for (int j = 0; j < arrayLength; j++)
             {
                 if (currentReport == reportsArray[j, 0])
                     return reportsArray[j, 1];

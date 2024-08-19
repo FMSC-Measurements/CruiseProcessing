@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CruiseProcessing
 {
-    internal class OutputWeight : OutputFileReportGeneratorBase
+    public class OutputWeight : OutputFileReportGeneratorBase
     {
         [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
 
@@ -23,14 +24,16 @@ namespace CruiseProcessing
         #region headers
         //  Weight reports
         //  WT1 report
-        private readonly string[] WT1columns = new string[3] {"                                                         (1)             (2)       (3)            (4)            (5)",
-                                                    "           CRUISE    CONTRACT                   GROSS     WEIGHT         POUNDS   PERCENT         POUNDS          TONS",
-                                                    "          SPECIES     SPECIES    PRODUCT         CUFT     FACTOR       STANDING   REMOVED        REMOVED       REMOVED"};
-        private readonly string[] WT1footer = new string[5] {"         (1)  WEIGHT FACTOR = POUNDS PER GROSS CUFT",
-                                                   "         (2)  POUNDS STANDING = GROSS CUFT x WEIGHT FACTOR",
-                                                   "         (3)  PERCENT REMOVED = % MATERIAL HAULED OUT ON TRUCKS",
-                                                   "         (4)  POUNDS REMOVED =  POUNDS STANDING x (PERCENT REMOVED/100)",
-                                                   "         (5)  TONS REMOVED = POUNDS REMOVED / 2,000"};
+        private readonly string[] WT1columns = new string[3] {  "                                                         (1)             (2)       (3)            (4)            (5)",
+                                                                "           CRUISE    CONTRACT             LIVE        GROSS     WEIGHT         POUNDS   PERCENT         POUNDS          TONS",
+                                                                "          SPECIES     SPECIES    PRODUCT  DEAD         CUFT     FACTOR       STANDING   REMOVED        REMOVED       REMOVED"};
+        private readonly int[] WT1_FIELD_LENGTHS = new int[] { 12, 14, 10, 3, 6, 6, 11, 12, 15, 10, 15, 10 };
+
+        private readonly string[] WT1footer = new string[5] {  "         (1)  WEIGHT FACTOR = POUNDS PER GROSS CUFT",
+                                                               "         (2)  POUNDS STANDING = GROSS CUFT x WEIGHT FACTOR",
+                                                               "         (3)  PERCENT REMOVED = % MATERIAL HAULED OUT ON TRUCKS",
+                                                               "         (4)  POUNDS REMOVED =  POUNDS STANDING x (PERCENT REMOVED/100)",
+                                                               "         (5)  TONS REMOVED = POUNDS REMOVED / 2,000"};
         private readonly string[] WT1total = new string[3] {"                                 SUMMARY",
                                                   "                 CONTRACT                         TONS",
                                                   "                  SPECIES        PRODUCT       REMOVED"};
@@ -88,7 +91,7 @@ namespace CruiseProcessing
 
         public void OutputWeightReports(TextWriter strWriteOut, ref int pageNumb)
         {
-            string currentTitle = fillReportTitle(currentReport);
+            
 
             numOlines = 0;
             sList = DataLayer.GetStrata();
@@ -130,15 +133,12 @@ namespace CruiseProcessing
             }   //  endif on currentReport
             prtFields = new List<string>();
 
+            string currentTitle = fillReportTitle(currentReport);
             switch (currentReport)
             {
                 case "WT1":
                     //  pull LCD groups to process
-                    List<LCDDO> justGroups = DataLayer.GetLCDgroup("", 4, "C");
-                    fieldLengths = new int[] { 12, 14, 10, 3, 6, 11, 12, 15, 10, 15, 10 };
-                    SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                    processLCDgroups(strWriteOut, justGroups, ref pageNumb);
-                    WriteSubtotal(strWriteOut, ref pageNumb);
+                    pageNumb = PrintWT1Report(strWriteOut, pageNumb, currentTitle);
                     break;
 
                 case "WT2":
@@ -164,56 +164,93 @@ namespace CruiseProcessing
             return;
         }   //  end OutputWeightReports
 
-        private void processLCDgroups(TextWriter strWriteOut, List<LCDDO> justGroups, ref int pageNumb)
+        public int PrintWT1Report(TextWriter strWriteOut, int pageNumb, string currentTitle)
         {
+            
+            fieldLengths = WT1_FIELD_LENGTHS;
+            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+            ProcessWT1LCDGroups(strWriteOut, ref pageNumb);
+            WriteWT1Subtotal(strWriteOut, ref pageNumb);
+            return pageNumb;
+        }
+
+        private void ProcessWT1LCDGroups(TextWriter strWriteOut , ref int pageNumb)
+        {
+            // get all Cut Species,PrimaryProduct,SecondaryProduct,LiveDead,ContractSpecies combinations in cruise
+            List<LCDDO> lcdGroups = DataLayer.GetLCDgroup("", 4, "C");
+
             //  loop through groups list and print each species, product, contract species combination
-            double currGRS = 0.0;
-            double currGRST = 0.0;
-            foreach (LCDDO jg in justGroups)
+            
+            foreach (LCDDO group in lcdGroups)
             {
-                //  pull group from LCD
-                StringBuilder sb = new StringBuilder();
-                sb.Append("WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND ");
-                sb.Append(" LiveDead = @p4 AND ContractSpecies = @p5 AND CutLeave = @p6");
-                List<LCDDO> groupData = DataLayer.GetLCDdata(sb.ToString(), jg, 4, "");
-
                 //  Find weight factors etc for current group
-                BiomassEqMethods.FindFactor(bioList, jg.Species, "PrimaryProd", jg.PrimaryProduct,
-                                            jg.LiveDead, ref currPCRprimary, ref currWFprimary);
-                BiomassEqMethods.FindFactor(bioList, jg.Species, "SecondaryProd", jg.PrimaryProduct,
-                                            jg.LiveDead, ref currPCRsecondary, ref currWFsecondary);
+                var primaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.PrimaryProduct && b.LiveDead == group.LiveDead
+                        && b.Component == "PrimaryProd" );
 
-                double poundsPP = 0;
-                double poundsSP = 0;
-                if (currWFprimary == 0.0)
-                    footFlag = 1;
-                else
+                var secondaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.SecondaryProduct && b.LiveDead == group.LiveDead
+                        && b.Component == "SecondaryProd");
+
+
+                if (primaryBiomassEq == null || primaryBiomassEq.WeightFactorPrimary == 0.0)
                 {
-                    //  sum gross cuft primary and secondary
-                    foreach (LCDDO gd in groupData)
-                    {
-                        int currSTRcn = StratumMethods.GetStratumCN(gd.Stratum, sList);
-                        double STacres = Utilities.ReturnCorrectAcres(gd.Stratum, DataLayer, currSTRcn);
-                        currGRS += gd.SumGCUFT * STacres;
-                        currGRST += gd.SumGCUFTtop * STacres;
-                    }   //  end foreach loop
-                }   //  endif weight factor is zero
-                //  write current group
-                if (currGRS > 0 || currGRST > 0)
+                    footFlag = 1;  // set flag to indicate group wasn't printed in footer
+                    continue;
+                }
+
+                //  get all LCD elements for current group
+                var whereClause = "WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND " +
+                    " LiveDead = @p4 AND ContractSpecies = @p5 AND CutLeave = @p6";
+                List<LCDDO> groupData = DataLayer.GetLCDdata(whereClause, group, 4, "");
+
+
+                double grossCuFtPrimary = 0.0;
+                double grossCuFtSecondary = 0.0;
+                //  sum gross cuft primary and secondary
+                foreach (LCDDO gd in groupData)
                 {
-                    WriteCurrentGroupWT1(strWriteOut, jg, currGRS, currGRST, ref poundsPP, ref poundsSP, ref pageNumb);
-                    //  create a line for the subtotal if needed
-                    UpdateSubtotal(jg.ContractSpecies, jg.PrimaryProduct, jg.SecondaryProduct, currGRS, currGRST,
-                                    poundsPP, poundsSP);
-                    //  reset variables
-                    currGRS = 0.0;
-                    currGRST = 0.0;
-                    poundsPP = 0.0;
-                    poundsSP = 0.0;
-                }   //  endif
-            }   //  end foreach loop
-            return;
-        }   //  end processLCDgroups
+                    int stratum_cn = StratumMethods.GetStratumCN(gd.Stratum, sList);
+                    double stratumAcres = Utilities.ReturnCorrectAcres(gd.Stratum, DataLayer, stratum_cn);
+                    grossCuFtPrimary += gd.SumGCUFT * stratumAcres;
+                    grossCuFtSecondary += gd.SumGCUFTtop * stratumAcres;
+                }
+
+                var weightFactorPrimary = primaryBiomassEq.WeightFactorPrimary;
+                var percentRemovedPrimary = primaryBiomassEq.PercentRemoved;
+
+                var weightFactorSecondary = (secondaryBiomassEq != null && secondaryBiomassEq.WeightFactorSecondary > 0)
+                    ? secondaryBiomassEq.WeightFactorSecondary : weightFactorPrimary;
+                var percentRemovedSecondary = (secondaryBiomassEq != null && secondaryBiomassEq.PercentRemoved > 0)
+                    ? secondaryBiomassEq.PercentRemoved : percentRemovedPrimary;
+
+                double tonsRemovedPrimary = 0.0;
+                double tonsRemovedSecondary = 0.0;
+
+                if (grossCuFtPrimary > 0)
+                {
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                               WT1columns, 3, ref pageNumb, "");
+
+                    var poundsStanding = Math.Round(grossCuFtPrimary, 0, MidpointRounding.AwayFromZero) * weightFactorPrimary;
+                    var poundsRemoved = poundsStanding * (percentRemovedPrimary / 100);
+                    tonsRemovedPrimary = poundsRemoved / 2000;
+                    WriteWT1Group(strWriteOut, group, CompnentType.Primary, grossCuFtPrimary, weightFactorPrimary, poundsStanding, percentRemovedPrimary, poundsRemoved, tonsRemovedPrimary);
+                }
+                if(grossCuFtSecondary > 0)
+                {
+                    WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
+                               WT1columns, 3, ref pageNumb, "");
+
+                    var poundsStanding = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * weightFactorSecondary;
+                    var poundsRemoved = poundsStanding * (percentRemovedSecondary / 100);
+                    tonsRemovedSecondary = poundsRemoved / 2000;
+                    WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
+
+                }
+
+                UpdateWT1Subtotal(group.ContractSpecies, group.PrimaryProduct, group.SecondaryProduct, tonsRemovedPrimary, tonsRemovedSecondary);
+                
+            }
+        }
 
         private void processUnits(TextWriter strWriteOut, List<CuttingUnitDO> cList, ref int pageNumb)
         {
@@ -408,60 +445,86 @@ namespace CruiseProcessing
             return;
         }   //  end finishColumnHeaders
 
-        private void WriteCurrentGroupWT1(TextWriter strWriteOut, LCDDO jg, double currGRS, double currGRST,
-                                        ref double poundsPP, ref double poundsSP, ref int pageNumb)
+        private enum CompnentType { Primary, Secondary };
+
+        private void WriteWT1Group(TextWriter writer, LCDDO group,
+            CompnentType compnentType, double grossCuFt, float weightFactor, double poundsStanding, float percentRemoved, double poundsRemoved, double tonsRemoved)
         {
-            //  WT1 only
-            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
-                               WT1columns, 3, ref pageNumb, "");
+            var componentIndicator = compnentType switch { CompnentType.Primary => "P", CompnentType.Secondary => "S", _ => throw new NotImplementedException() };
+            var product = compnentType switch { CompnentType.Primary => group.PrimaryProduct, CompnentType.Secondary => group.SecondaryProduct, _ => throw new NotImplementedException() };
 
-            if (currGRS > 0)
-            {
-                //  write primary product
-                prtFields.Clear();
-                prtFields.Add("");
-                prtFields.Add(jg.Species.PadRight(6, ' '));
-                if (jg.ContractSpecies == null)
-                    prtFields.Add("    ");
-                else prtFields.Add(jg.ContractSpecies.PadLeft(4, ' '));
-                prtFields.Add(jg.PrimaryProduct.PadLeft(2, '0'));
-                prtFields.Add("P");
-                prtFields.Add(String.Format("{0,8:F0}", Math.Floor(currGRS + 0.501)).PadLeft(8, ' '));
-                prtFields.Add(String.Format("{0,8:F2}", currWFprimary).PadLeft(8, ' '));
-                prtFields.Add(String.Format("{0,11:F0}", Math.Round(currGRS, 0, MidpointRounding.AwayFromZero) * currWFprimary).PadLeft(11, ' '));
-                prtFields.Add(String.Format("{0,6:F2}", currPCRprimary).PadLeft(6, ' '));
-                poundsPP = Math.Round(currGRS, 0, MidpointRounding.AwayFromZero) * currWFprimary * (currPCRprimary / 100);
-                prtFields.Add(String.Format("{0,11:F0}", poundsPP).PadLeft(11, ' '));
-                prtFields.Add(String.Format("{0,10:F2}", poundsPP / 2000).PadLeft(10, ' '));
-                printOneRecord(fieldLengths, prtFields, strWriteOut);
-                numOlines++;
-            }   //  endif
+            prtFields.Clear();
+            prtFields.Add("");
+            prtFields.Add(group.Species.PadRight(6, ' '));
+            prtFields.Add((group.ContractSpecies ?? "").PadLeft(4, ' '));
+            prtFields.Add(product.PadLeft(2, '0'));
+            
+            prtFields.Add(componentIndicator);
+            prtFields.Add(group.LiveDead.PadLeft(1, ' '));
+            prtFields.Add(String.Format("{0,8:F0}", Math.Ceiling(grossCuFt)).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,8:F2}", weightFactor).PadLeft(8, ' '));
+            prtFields.Add(String.Format("{0,11:F0}", poundsStanding).PadLeft(11, ' '));
+            prtFields.Add(String.Format("{0,6:F2}", percentRemoved).PadLeft(6, ' '));
+            prtFields.Add(String.Format("{0,11:F0}", poundsRemoved).PadLeft(11, ' '));
+            prtFields.Add(String.Format("{0,10:F2}", tonsRemoved).PadLeft(10, ' '));
+            printOneRecord(fieldLengths, prtFields, writer);
+            numOlines++;
+        }
 
-            //  clear print fields and print secondary product
-            if (currGRST > 0)
-            {
-                prtFields.Clear();
-                prtFields.Add("");
-                prtFields.Add(jg.Species.PadRight(6, ' '));
-                if (jg.ContractSpecies == null)
-                    prtFields.Add("    ");
-                else prtFields.Add(jg.ContractSpecies.PadLeft(4, ' '));
-                prtFields.Add(jg.SecondaryProduct.PadLeft(2, '0'));
-                prtFields.Add("S");
-                prtFields.Add(String.Format("{0,8:F0}", Math.Floor(currGRST + 0.501)).PadLeft(8, ' '));
-                if (currWFsecondary == 0.0) currWFsecondary = currWFprimary;
-                if (currPCRsecondary == 0.0) currPCRsecondary = currPCRprimary;
-                prtFields.Add(String.Format("{0,8:F2}", currWFsecondary).PadLeft(8, ' '));
-                prtFields.Add(String.Format("{0,11:F0}", Math.Round(currGRST, 0, MidpointRounding.AwayFromZero) * currWFsecondary).PadLeft(11, ' '));
-                prtFields.Add(String.Format("{0,6:F2}", currPCRsecondary).PadLeft(6, ' '));
-                poundsSP = Math.Round(currGRST, 0, MidpointRounding.AwayFromZero) * currWFsecondary * (currPCRsecondary / 100);
-                prtFields.Add(String.Format("{0,11:F0}", poundsSP).PadLeft(11, ' '));
-                prtFields.Add(String.Format("{0,10:F2}", poundsSP / 2000).PadLeft(10, ' '));
-                printOneRecord(fieldLengths, prtFields, strWriteOut);
-                numOlines++;
-            }   //  endif secondary has volume
-            return;
-        }   //  end Write CurrentGroup
+
+        //private void WriteCurrentGroupWT1(TextWriter strWriteOut, LCDDO group, double grossCuFtPrimary, double grossCuFtSecondary,
+        //                                double poundsPP, double poundsSP, ref int pageNumb)
+        //{
+        //    //  WT1 only
+            
+
+        //    if (grossCuFtPrimary > 0)
+        //    {
+        //        //  write primary product
+        //        prtFields.Clear();
+        //        prtFields.Add("");
+        //        prtFields.Add(group.Species.PadRight(6, ' '));
+        //        if (group.ContractSpecies == null)
+        //            prtFields.Add("    ");
+        //        else prtFields.Add(group.ContractSpecies.PadLeft(4, ' '));
+        //        prtFields.Add(group.PrimaryProduct.PadLeft(2, '0'));
+        //        prtFields.Add("P");
+        //        prtFields.Add(String.Format("{0,8:F0}", Math.Floor(grossCuFtPrimary + 0.501)).PadLeft(8, ' '));
+        //        prtFields.Add(String.Format("{0,8:F2}", currWFprimary).PadLeft(8, ' '));
+        //        prtFields.Add(String.Format("{0,11:F0}", Math.Round(grossCuFtPrimary, 0, MidpointRounding.AwayFromZero) * currWFprimary).PadLeft(11, ' '));
+        //        prtFields.Add(String.Format("{0,6:F2}", currPCRprimary).PadLeft(6, ' '));
+        //        poundsPP = Math.Round(grossCuFtPrimary, 0, MidpointRounding.AwayFromZero) * currWFprimary * (currPCRprimary / 100);
+        //        prtFields.Add(String.Format("{0,11:F0}", poundsPP).PadLeft(11, ' '));
+        //        prtFields.Add(String.Format("{0,10:F2}", poundsPP / 2000).PadLeft(10, ' '));
+        //        printOneRecord(fieldLengths, prtFields, strWriteOut);
+        //        numOlines++;
+        //    }   //  endif
+
+        //    //  clear print fields and print secondary product
+        //    if (grossCuFtSecondary > 0)
+        //    {
+        //        prtFields.Clear();
+        //        prtFields.Add("");
+        //        prtFields.Add(group.Species.PadRight(6, ' '));
+        //        if (group.ContractSpecies == null)
+        //            prtFields.Add("    ");
+        //        else prtFields.Add(group.ContractSpecies.PadLeft(4, ' '));
+        //        prtFields.Add(group.SecondaryProduct.PadLeft(2, '0'));
+        //        prtFields.Add("S");
+        //        prtFields.Add(String.Format("{0,8:F0}", Math.Floor(grossCuFtSecondary + 0.501)).PadLeft(8, ' '));
+        //        if (currWFsecondary == 0.0) currWFsecondary = currWFprimary;
+        //        if (currPCRsecondary == 0.0) currPCRsecondary = currPCRprimary;
+        //        prtFields.Add(String.Format("{0,8:F2}", currWFsecondary).PadLeft(8, ' '));
+        //        prtFields.Add(String.Format("{0,11:F0}", Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * currWFsecondary).PadLeft(11, ' '));
+        //        prtFields.Add(String.Format("{0,6:F2}", currPCRsecondary).PadLeft(6, ' '));
+        //        poundsSP = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * currWFsecondary * (currPCRsecondary / 100);
+        //        prtFields.Add(String.Format("{0,11:F0}", poundsSP).PadLeft(11, ' '));
+        //        prtFields.Add(String.Format("{0,10:F2}", poundsSP / 2000).PadLeft(10, ' '));
+        //        printOneRecord(fieldLengths, prtFields, strWriteOut);
+        //        numOlines++;
+        //    }   //  endif secondary has volume
+        //    return;
+        //}   //  end Write CurrentGroup
 
         private void WriteCurrentGroupWT4(TextWriter strWriteOut, ref int pageNumb, ref int firstLine, double unitSaw,
                                         double unitNonsawPP, double unitNonsawSP, double unitAcres,
@@ -515,14 +578,10 @@ namespace CruiseProcessing
             return;
         }   //  end WriteCurrentGroup
 
-        private void UpdateSubtotal(string currCS, string currPP, string currSP, double currGRS, double currGRST,
-                                    double poundsPP, double poundsSP)
+        private void UpdateWT1Subtotal(string currCS, string currPP, string currSP, double tonsRemovedPP, double tonsRemovedSP)
         {
             //  currently works for WT1
             //  calculate tons removed to update subtotal
-
-            double tonsRemovedPP = poundsPP / 2000;
-            double tonsRemovedSP = poundsSP / 2000;
 
             //  find group in subtotal list
             int nthRow = rptSubtotals.FindIndex(
@@ -564,7 +623,7 @@ namespace CruiseProcessing
             return;
         }   //  end UpdateSubtotal
 
-        private void WriteSubtotal(TextWriter strWriteOut, ref int pageNumb)
+        private void WriteWT1Subtotal(TextWriter strWriteOut, ref int pageNumb)
         {
             //  WT1
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2], WT1columns, 3, ref pageNumb, "");
