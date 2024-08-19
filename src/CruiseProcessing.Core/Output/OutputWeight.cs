@@ -24,7 +24,7 @@ namespace CruiseProcessing
         #region headers
         //  Weight reports
         //  WT1 report
-        private readonly string[] WT1columns = new string[3] {  "                                                         (1)             (2)       (3)            (4)            (5)",
+        private readonly string[] WT1columns = new string[3] {  "                                                                 (1)             (2)       (3)            (4)            (5)",
                                                                 "           CRUISE    CONTRACT             LIVE        GROSS     WEIGHT         POUNDS   PERCENT         POUNDS          TONS",
                                                                 "          SPECIES     SPECIES    PRODUCT  DEAD         CUFT     FACTOR       STANDING   REMOVED        REMOVED       REMOVED"};
         private readonly int[] WT1_FIELD_LENGTHS = new int[] { 12, 14, 10, 3, 6, 6, 11, 12, 15, 10, 15, 10 };
