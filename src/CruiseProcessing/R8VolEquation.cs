@@ -158,7 +158,7 @@ namespace CruiseProcessing
         private void onOK(object sender, EventArgs e)
         {
             if(volList.Any()
-                && DialogService.AskYesNo("Cruise Already Contains Volume Equations\r\rWould you like to reset Volume Equations", DialogServiceResult.No) == DialogServiceResult.Yes)
+                && DialogService.AskYesNo("Existing Volume Equations Found\r\rWould you like to replace all Volume Equations?\r\nClick No To Just Any Add Missing Volume Equations.", DialogServiceResult.No) == DialogServiceResult.Yes)
             {
                 Finish(calcBiomass.Checked,  true);
             }
