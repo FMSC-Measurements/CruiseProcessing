@@ -185,9 +185,13 @@ namespace CruiseProcessing
             {
                 //  Find weight factors etc for current group
                 var primaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.PrimaryProduct && b.LiveDead == group.LiveDead
-                        && b.Component == "PrimaryProd" );
+                        && b.Component == "PrimaryProd" )
+                    ?? bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.PrimaryProduct
+                        && b.Component == "PrimaryProd");
 
                 var secondaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.SecondaryProduct && b.LiveDead == group.LiveDead
+                        && b.Component == "SecondaryProd")
+                    ?? bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.SecondaryProduct
                         && b.Component == "SecondaryProd");
 
 
