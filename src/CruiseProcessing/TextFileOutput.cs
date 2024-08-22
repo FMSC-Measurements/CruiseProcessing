@@ -11,6 +11,7 @@ using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace CruiseProcessing
@@ -24,6 +25,7 @@ namespace CruiseProcessing
         public string currRegion { get; set; }
         public CpDataLayer DataLayer { get; }
         public IDialogService DialogService { get; }
+        public IServiceProvider Services { get; }
 
         #endregion
 
@@ -32,11 +34,12 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public TextFileOutput(CpDataLayer dataLayer, IDialogService dialogService)
+        public TextFileOutput(CpDataLayer dataLayer, IDialogService dialogService, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
 
@@ -73,7 +76,7 @@ namespace CruiseProcessing
             fileStatus.Refresh();
 
             //  calls routine to create text output file
-            CreateTextFile ctf = new CreateTextFile(DataLayer);
+            CreateTextFile ctf = Services.GetRequiredService<CreateTextFile>();
 
             try
             {
