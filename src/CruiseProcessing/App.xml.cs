@@ -127,6 +127,10 @@ namespace CruiseProcessing
             services.RegisterForm<VolumeEquations>();
             services.RegisterForm<CapturePercentRemoved>();
 
+            // register business logic services
+            services.AddTransient<OutputGraphs>();
+            services.AddTransient<CreateTextFile>();
+
             // register View Models
             services.AddTransient<MainWindowViewModel>();
 

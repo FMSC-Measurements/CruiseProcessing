@@ -410,7 +410,6 @@ namespace CruiseProcessing.Test
 
                 foreach (var treeNum in Enumerable.Range(1, numTreesPerPlot))
                 {
-                    var plotTreeNumber = 1;
                     var plotTree = new Tree()
                     {
                         CruiseID = cruiseID,

@@ -44,7 +44,7 @@ namespace CruiseProcessing.Test.Data
         {
             var init = new DatabaseInitializer_V2();
 
-            
+
             var v2db = init.CreateDatabase();
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
             var dataLayer = new CpDataLayer(v2db, mockLogger);
@@ -127,6 +127,95 @@ namespace CruiseProcessing.Test.Data
             mockLogger.DidNotReceive().Log(LogLevel.Error, default);
 
             v3db.From<CruiseDAL.V3.Models.BiomassEquation>().Count().Should().Be(bioEqs.Length);
+        }
+
+        [Fact]
+        public void GetUniqueSpeciesProduct()
+        {
+            DAL v2db;
+            int treecount;
+            SetupGetUniqueSpeciesProd(out v2db, out treecount);
+
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(v2db, mockLogger);
+
+            var speciesProducts = dataLayer.GetUniqueSpeciesProduct();
+            Output.WriteLine($"SpProd Count: {speciesProducts.GetLength(0)}");
+
+            speciesProducts.GetLength(0).Should().Be(treecount);
+        }
+
+        [Fact]
+        public void GetUniqueSpeciesProductFromTrees()
+        {
+            DAL v2db;
+            int treecount;
+            SetupGetUniqueSpeciesProd(out v2db, out treecount);
+
+            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var dataLayer = new CpDataLayer(v2db, mockLogger);
+
+            var speciesProducts = dataLayer.GetUniqueSpeciesProductFromTrees();
+            Output.WriteLine($"SpProd Count: {speciesProducts.Count}");
+
+            speciesProducts.Should().HaveCount(treecount);
+        }
+
+        private static void SetupGetUniqueSpeciesProd(out DAL v2db, out int treecount)
+        {
+            var init = new DatabaseInitializer_V2()
+            {
+                Strata = new[] {
+                    new CruiseDAL.V2.Models.Stratum {Stratum_CN = 1, Code = "st1", Method = CruiseDAL.Schema.CruiseMethods.STR },
+                },
+                UnitStrata = new[]
+                            {
+                    (UnitCode:"u1", StCode: "st1" ),
+                },
+                SampleGroups = null,
+            };
+
+            v2db = init.CreateDatabase();
+            var sampleGroups = new[] {
+                new CruiseDAL.V2.Models.SampleGroup { Code = "sg1", SampleGroup_CN = 1, Stratum_CN = 1, PrimaryProduct = "01"},
+                new CruiseDAL.V2.Models.SampleGroup { Code = "sg2", SampleGroup_CN = 2, Stratum_CN = 1 , PrimaryProduct = "02"},
+            };
+            treecount = 0;
+            foreach (var sg in sampleGroups)
+            {
+                sg.CutLeave = "C";
+                sg.SamplingFrequency = 101;
+                sg.UOM = "03";
+                v2db.Insert(sg);
+
+                var trees = new CruiseDAL.V2.Models.Tree[]
+                {
+                    new CruiseDAL.V2.Models.Tree
+                    {
+                        CuttingUnit_CN = 1,
+                        Stratum_CN = 1,
+                        SampleGroup_CN = sg.SampleGroup_CN.Value,
+                        Species = "sp1",
+                        CountOrMeasure = "I",
+                        STM = "something",
+                    },
+                    new CruiseDAL.V2.Models.Tree
+                    {
+                        CuttingUnit_CN = 1,
+                        Stratum_CN = 1,
+                        SampleGroup_CN = sg.SampleGroup_CN.Value,
+                        Species = "sp2",
+                        CountOrMeasure = "I",
+                        STM = "something",
+                    },
+                };
+
+                foreach (var tree in trees)
+                {
+                    v2db.Insert(tree);
+                    treecount++;
+                }
+            }
         }
     }
 }

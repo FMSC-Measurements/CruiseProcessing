@@ -58,6 +58,17 @@ namespace CruiseProcessing.Services
             return (dialogResult) ? browseDialog.FileName : null;
         }
 
+        public DialogServiceResult AskYesNo(string message, DialogServiceResult defaultOption = DialogServiceResult.Yes)
+        {
+            var result = MessageBox.Show(Window,
+                message,
+                "QUESTION",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question,
+                (defaultOption == DialogServiceResult.Yes) ? MessageBoxResult.Yes : MessageBoxResult.No);
+            return result == System.Windows.MessageBoxResult.Yes ? DialogServiceResult.Yes : DialogServiceResult.No;
+        }
+
         public void ShowError(string message)
         {
             MessageBox.Show(Window, message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -77,6 +88,7 @@ namespace CruiseProcessing.Services
         public void ShowGraphOutputDialog(IEnumerable<string> graphReports)
         {
             var dialog = Services.GetRequiredService<graphOutputDialog>();
+            dialog.GraphReports = graphReports;
             dialog.ShowDialog();
         }
 

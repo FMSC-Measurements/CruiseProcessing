@@ -50,7 +50,7 @@ namespace CruiseProcessing.Test
 
             var form = new R8VolEquation(DataContext.DataLayer, MockServiceProvider, MockDialogService);
 
-            form.Finish();
+            form.Finish(false, true);
 
             v2Db.From<VolumeEqV2>().Query().Count().Should().Be(3);
         }
@@ -99,11 +99,29 @@ namespace CruiseProcessing.Test
 
             var form = new R8VolEquation(DataContext.DataLayer, MockServiceProvider, MockDialogService);
 
-            form.Finish();
+            form.Finish(false, true);
 
             v2db.From<VolumeEqV2>().Query().Count().Should().Be(3);
             v3db.From<CruiseDAL.V3.Models.VolumeEquation>().Query().Count().Should().Be(3);
         }
 
+
+        [Theory]
+        [InlineData("03", "00", "3")] // test for district that doesn't have separate geo code
+        [InlineData("03", "08", "2")] // test for district that does have separate geo code
+        [InlineData("99", "09", null)] // test for forest that doesn't have geo code
+        public void GetR8ForestGeoCode(string forest, string district, string expectedGeoCode)
+        {
+            var result = R8VolEquation.GetR8ForestGeoCode(forest, district);
+
+            if(expectedGeoCode == null)
+            {
+                result.Should().BeNull();
+            }
+            else
+            {
+                result.GeoCode.Should().Be(expectedGeoCode);
+            }
+        }
     }
 }

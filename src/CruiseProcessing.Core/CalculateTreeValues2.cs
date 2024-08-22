@@ -438,6 +438,7 @@ namespace CruiseProcessing
             var calculatedBiomass = new float[CRZBIOMASSCS_BMS_SIZE];
             var species = tree.Species;
             var product = tree.SampleGroup.PrimaryProduct;
+            var liveDead = tree.LiveDead;
             var biomassEqs = DataLayer.GetBiomassEquations(species, product); //  bioEqs.Where(bdo => bdo.Species == species && bdo.Product == product);
 
             if (!biomassEqs.Any())
@@ -459,14 +460,21 @@ namespace CruiseProcessing
             int ERRFLAG = 0;
             float[] WF = new float[3];
 
-            var pProdEq = biomassEqs.FirstOrDefault(beq => beq.Component == "PrimaryProd");
+            // in older versions Cruise Processing ignored the liveDead value
+            // to maintian some backwards compatibility we will try to use the
+            // liveDead specific biomass equations first, then fall back to the
+            // to whichever biomass equation is available
+
+            var pProdEq = biomassEqs.FirstOrDefault(beq => beq.Component == "PrimaryProd" && beq.LiveDead == liveDead)
+                ?? biomassEqs.FirstOrDefault(beq => beq.Component == "PrimaryProd");
             if (pProdEq != null)
             {
                 WF[0] = pProdEq.WeightFactorPrimary;
                 WF[2] = pProdEq.PercentMoisture;
             }
 
-            var sProdEq = biomassEqs.FirstOrDefault(beq => beq.Component == "SecondaryProd");
+            var sProdEq = biomassEqs.FirstOrDefault(beq => beq.Component == "SecondaryProd" && beq.LiveDead == liveDead)
+                ?? biomassEqs.FirstOrDefault(beq => beq.Component == "SecondaryProd");
             if (sProdEq != null)
             {
                 WF[1] = sProdEq.WeightFactorSecondary;
@@ -486,6 +494,7 @@ namespace CruiseProcessing
             catch(System.AccessViolationException e)
             {
                 Log.LogCritical(e, "Tree_CN{TreeCN} fiaCode{fiaCode} prod{prod}", tree.Tree_CN, currFIA, product);
+                throw;
             }
 
             // Apply percent removed if greater than zero
