@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using CruiseProcessing.Data;
 using CruiseProcessing.Output;
+using Microsoft.Extensions.Logging;
 using ZedGraph;
 
 namespace CruiseProcessing
@@ -31,15 +33,17 @@ namespace CruiseProcessing
         public List<LCDDO> lcdList = new List<LCDDO>();
 
         protected CpDataLayer DataLayer { get; }
+        ILogger Logger { get; }
 
-        public GraphForm()
+        protected GraphForm()
         {
             InitializeComponent();
         }
 
-        public GraphForm(CpDataLayer dataLayer)
+        public GraphForm(CpDataLayer dataLayer, ILogger<GraphForm> logger)
             : this()
         {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
         }
 
@@ -60,8 +64,37 @@ namespace CruiseProcessing
                     SetSize();
                     break;
             }   //  end switch
+
+            SaveGraph();
+
+
             return;
         }   //  end GraphForm_Load
+
+        protected void SaveGraph()
+        {
+            var graphFileName = "GR" + graphNum.ToString("00") + "-" + currSP;
+
+            zedGraphControl1.Validate();
+            var image = new Bitmap(zedGraphControl1.GetImage(), new Size(337, 320));
+
+            var graphsDir = DataLayer.GetGraphsFolderPath();
+            string outputFile = Path.Combine(graphsDir, graphFileName + ".jpg");
+            if (!Directory.Exists(graphsDir))
+            {
+                Directory.CreateDirectory(graphsDir);
+            }
+            using var fStream = new FileStream(outputFile, FileMode.Create);
+            try
+            {
+                image.Save(fStream, ImageFormat.Jpeg);
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "Error saving graph");
+                MessageBox.Show("Error saving graph: " + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         private void GraphForm_Resize(object sender, EventArgs e)
         {
@@ -85,7 +118,7 @@ namespace CruiseProcessing
             currPane.Title.Text = currTitle;
             currPane.XAxis.Title.Text = currXtitle;
             currPane.YAxis.Title.Text = currYtitle;
-            
+
             //  add data for the graph
             PointPairList DBHlist = new PointPairList();
             DBHlist.Clear();
@@ -93,7 +126,7 @@ namespace CruiseProcessing
             {
                 DBHlist.Add(td.DBH, td.TotalHeight);
             }   //  end foreach loop
-            
+
             //  add the curve
             LineItem scatterCurve = currPane.AddCurve("DBH", DBHlist, Color.Black, SymbolType.Diamond);
             //hide the line to make a scatter graph
@@ -109,14 +142,20 @@ namespace CruiseProcessing
 
             //  refigure axes sunce the data have changed
             zgc.AxisChange();
-            
+
+
+
             //  save graph
-            Size newSize = new Size(337,320);
-            Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
+            Size newSize = new Size(337, 320);
+
+            //Bitmap currBMP = zgc.GetImage();// new Bitmap(currPane.GetImage(), newSize);
             var graphsDir = DataLayer.GetGraphsFolderPath();
             string outputFile = Path.Combine(graphsDir, "GR01-" + currSP + ".jpg");
 
-            currBMP.Save(@outputFile, System.Drawing.Imaging.ImageFormat.Jpeg);
+            //var image = zgc.GetImage();
+            //image.Save(outputFile, ImageFormat.Jpeg);
+
+            //currBMP.Save(outputFile);
 
         }   //  end CreateScatterGraph
 
@@ -133,7 +172,7 @@ namespace CruiseProcessing
             currPane.Title.FontSpec.Family = "Times New Roman";
             currPane.XAxis.Title.Text = currXtitle;
             currPane.YAxis.Title.Text = currYtitle;
-  
+
             //  Add data for the graph
             PointPairList graphList = new PointPairList();
             graphList.Clear();
@@ -150,11 +189,13 @@ namespace CruiseProcessing
                     currPane.XAxis.Scale.Min = 0;
                     maxDBH = Math.Floor(logStockList.Max(l => l.DIBClass));
                     currPane.XAxis.Scale.Max = maxDBH;
-                    currPane.XAxis.Scale.MajorStep = 2;                   
+                    currPane.XAxis.Scale.MajorStep = 2;
                     break;
-                case 6:     case 7:     case 8:
+                case 6:
+                case 7:
+                case 8:
                     foreach (TreeDO td in treeList)
-                        graphList.Add(td.DBH,td.ExpansionFactor);
+                        graphList.Add(td.DBH, td.ExpansionFactor);
                     legendTitle = "NUMBER OF TREES";
                     maxDBH = Math.Floor(treeList.Max(t => t.DBH));
                     currPane.XAxis.Scale.Max = maxDBH + 1;
@@ -181,73 +222,73 @@ namespace CruiseProcessing
                     foreach (TreeDO td in treeList)
                         graphList.Add(td.DBH, td.TreeCount);
                     legendTitle = "BASAL AREA PER ACRE";
-                    maxDBH = Math.Floor(treeList.Max(t=>t.DBH));
+                    maxDBH = Math.Floor(treeList.Max(t => t.DBH));
                     currPane.XAxis.Scale.Max = maxDBH + 1;
                     //  find first dbh class with value
-                    foreach(TreeDO t in treeList)
+                    foreach (TreeDO t in treeList)
                     {
-                        if(t.TreeCount > 0)
+                        if (t.TreeCount > 0)
                         {
                             minDBH = t.DBH;
                             break;
                         }   //  endif
                     }   //  end foreach loop
-                    currPane.X2Axis.Scale.Min = minDBH-1;
+                    currPane.X2Axis.Scale.Min = minDBH - 1;
                     currPane.X2Axis.Scale.MajorStep = 2;
                     break;
             }   //  end switch
-            
+
             //  add the curve
             BarItem barCurve = currPane.AddBar(legendTitle, graphList, Color.Blue);
             barCurve.Bar.Fill = new Fill(Color.ForestGreen);
-            barCurve.Bar.Fill.Type = FillType.Solid;  
-            
+            barCurve.Bar.Fill.Type = FillType.Solid;
+
             currPane.Chart.Fill = new Fill(Color.White, Color.FromArgb(153, 204, 255), 45);
             currPane.Fill = new Fill(Color.White, Color.FromArgb(255, 255, 225), 45);
             //  tell ZedGraph to calculate the axis ranges
             zgc.AxisChange();
 
             //  save graphs
-            Size newSize = new Size(337, 320);
-            Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = DataLayer.GetGraphsFolderPath();
-            System.IO.Directory.CreateDirectory(outputFile);
-            outputFile += "\\";
-            //  add graph report to file name
-            switch (graphNum)
-            {
-                case 5:
-                    outputFile += "GR05";
-                    outputFile += "_";
-                    outputFile += currSP;
-                    break;
-                case 6:
-                    outputFile += "GR06";
-                    break;
-                case 7:
-                    outputFile += "GR07";
-                    outputFile += "_";
-                    outputFile += currSP;
-                    break;
-                case 8:
-                    outputFile += "GR08";
-                    outputFile += "_";
-                    outputFile += currSP;
-                    break;
-                case 9:
-                    outputFile += "GR09";
-                    outputFile += "_";
-                    outputFile += currSP;
-                    break;
-                case 11:
-                    outputFile += "GR11";
-                    outputFile += "_";
-                    outputFile += currSP;
-                    break;
-            }   //  end switch
-            outputFile += ".jpg";
-            currBMP.Save(@outputFile, System.Drawing.Imaging.ImageFormat.Jpeg);
-            return;
+            //Size newSize = new Size(337, 320);
+            //Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
+            //string outputFile = DataLayer.GetGraphsFolderPath();
+            //System.IO.Directory.CreateDirectory(outputFile);
+            //outputFile += "\\";
+            ////  add graph report to file name
+            //switch (graphNum)
+            //{
+            //    case 5:
+            //        outputFile += "GR05";
+            //        outputFile += "_";
+            //        outputFile += currSP;
+            //        break;
+            //    case 6:
+            //        outputFile += "GR06";
+            //        break;
+            //    case 7:
+            //        outputFile += "GR07";
+            //        outputFile += "_";
+            //        outputFile += currSP;
+            //        break;
+            //    case 8:
+            //        outputFile += "GR08";
+            //        outputFile += "_";
+            //        outputFile += currSP;
+            //        break;
+            //    case 9:
+            //        outputFile += "GR09";
+            //        outputFile += "_";
+            //        outputFile += currSP;
+            //        break;
+            //    case 11:
+            //        outputFile += "GR11";
+            //        outputFile += "_";
+            //        outputFile += currSP;
+            //        break;
+            //}   //  end switch
+            //outputFile += ".jpg";
+            //currBMP.Save(@outputFile, System.Drawing.Imaging.ImageFormat.Jpeg);
+            //return;
         }   //  end CreateBarGraph
 
 
@@ -263,14 +304,14 @@ namespace CruiseProcessing
             currPane.Title.FontSpec.Family = "Times New Roman";
 
             //  fill the pane background with a color gradient
-            currPane.Fill = new Fill(Color.White,Color.ForestGreen,45.0f);
+            currPane.Fill = new Fill(Color.White, Color.ForestGreen, 45.0f);
             //  No fill for the chart background
             currPane.Chart.Fill.Type = FillType.None;
 
             //  Set the legend to an arbitrary location
             currPane.Legend.Position = LegendPos.InsideBotRight;
-            currPane.Legend.Location = new Location(0.95f,0.12f,CoordType.PaneFraction,
-                                                    AlignH.Right,AlignV.Top);
+            currPane.Legend.Location = new Location(0.95f, 0.12f, CoordType.PaneFraction,
+                                                    AlignH.Right, AlignV.Top);
             currPane.Legend.FontSpec.Size = 8f;
             currPane.Legend.IsHStack = false;
 
@@ -295,7 +336,7 @@ namespace CruiseProcessing
                 case 2:
                     totalValue = lcdList.Sum(l => l.SumExpanFactor);
                     //  dump needed values into arrays
-                    foreach(LCDDO l in lcdList)
+                    foreach (LCDDO l in lcdList)
                     {
                         valuesForSlices[listCnt] = l.SumExpanFactor;
                         combinedLabel.Append(l.Species);
@@ -370,7 +411,7 @@ namespace CruiseProcessing
                         labelsForSlices[listCnt] = combinedLabel.ToString();
 
                         listCnt++;
-                        combinedLabel.Remove(0,combinedLabel.Length);
+                        combinedLabel.Remove(0, combinedLabel.Length);
                     }   //  end foreach loop
                     valuesTotal = totalValue;
                     totalLabel = "TOTAL BAF PER ACRE ";
@@ -379,9 +420,9 @@ namespace CruiseProcessing
             }   //  end switch
 
             PieItem[] pieSlices = currPane.AddPieSlices(valuesForSlices, labelsForSlices);
-            foreach(PieItem p in pieSlices)
+            foreach (PieItem p in pieSlices)
                 p.LabelDetail.FontSpec.Size = 18f;
-               
+
             //  Make a text label to highlight the total value
             TextObj text = new TextObj(totalLabel, 0.10F, 0.18F, CoordType.ChartFraction);
             text.Location.AlignH = AlignH.Center;
@@ -404,31 +445,31 @@ namespace CruiseProcessing
 
 
             //  save graphs
-            Size newSize = new Size(337, 320);
-            Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
-            string outputFile = DataLayer.GetGraphsFolderPath();
-            System.IO.Directory.CreateDirectory(outputFile);
-            outputFile += "\\";
-            //  add graph report to file name
-            switch (graphNum)
-            {
-                case 2:
-                    outputFile += "GR02";
-                    break;
-                case 3:
-                    outputFile += "GR03";
-                    break;
-                case 4:
-                    outputFile += "GR04";
-                    break;
-                case 10:
-                    outputFile += "GR10";
-                    break;
-            }   //  end switch
-            outputFile += "_";
-            outputFile += currSP;
-            outputFile += ".jpg";
-            currBMP.Save(@outputFile, System.Drawing.Imaging.ImageFormat.Jpeg);
+            //Size newSize = new Size(337, 320);
+            //Bitmap currBMP = new Bitmap(currPane.GetImage(), newSize);
+            //string outputFile = DataLayer.GetGraphsFolderPath();
+            //System.IO.Directory.CreateDirectory(outputFile);
+            //outputFile += "\\";
+            ////  add graph report to file name
+            //switch (graphNum)
+            //{
+            //    case 2:
+            //        outputFile += "GR02";
+            //        break;
+            //    case 3:
+            //        outputFile += "GR03";
+            //        break;
+            //    case 4:
+            //        outputFile += "GR04";
+            //        break;
+            //    case 10:
+            //        outputFile += "GR10";
+            //        break;
+            //}   //  end switch
+            //outputFile += "_";
+            //outputFile += currSP;
+            //outputFile += ".jpg";
+            //currBMP.Save(@outputFile, System.Drawing.Imaging.ImageFormat.Jpeg);
 
             return;
         }   //  end CreatePieGraph
