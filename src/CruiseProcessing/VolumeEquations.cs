@@ -57,7 +57,7 @@ namespace CruiseProcessing
             string currRegion = DataLayer.getRegion();
             if (currRegion == "7" || currRegion == "07")
             {
-                MessageBox.Show("BLM Volume Equations cannot be entered here.", "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                DialogService.ShowInformation("The Cruise Region is BLM (07).  BLM Volume Equations cannot be entered here.");
                 Close();
                 return -1;
             }   //  endif BLM
@@ -69,9 +69,7 @@ namespace CruiseProcessing
             //  Check for missing common name and model name
             VolumeEqMethods.SetSpeciesAndModelValues(equationList, currRegion);
 
-            string[,] speciesProduct;
-            speciesProduct = DataLayer.GetUniqueSpeciesProduct();
-
+            var speciesProduct = DataLayer.GetUniqueSpeciesProductFromTrees();
 
             // this removes any species that are not in the tree table
             // however, if a cruiser is processing the cruise before it is complete
@@ -81,54 +79,27 @@ namespace CruiseProcessing
 
             //  If there are no species/products in tree default values, it's wrong
             //  tell user to check the file design in CSM --  June 2013
-            if (speciesProduct.Length == 0)
+            if (!speciesProduct.Any())
             {
-                MessageBox.Show("No species/product combinations found in Tree records.\nPlease enter tree records before continuing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogService.ShowError("No species/product combinations found in Tree records.\nPlease enter tree records before continuing.");
                 Close();
                 return -1;
             }   //  endif
 
-            //  if equation list is empty, just fill in unique species and primary product
-            if (equationList.Count == 0)
+            foreach (var spProd in speciesProduct)
             {
-                for (int k = 0; k < speciesProduct.GetLength(0); k++)
+
+                if (!equationList.Any(x => x.Species == spProd.SpeciesCode && x.PrimaryProduct == spProd.ProductCode))
                 {
-                    if (speciesProduct[k, 0] != "" && speciesProduct[k, 0] != null)
+                    var ved = new VolumeEquationDO
                     {
-                        VolumeEquationDO ved = new VolumeEquationDO();
-                        ved.Species = speciesProduct[k, 0];
-                        ved.PrimaryProduct = speciesProduct[k, 1];
-                        equationList.Add(ved);
-                    }   //  endif end of list
-                }   //  end for k loop
+                        Species = spProd.SpeciesCode,
+                        PrimaryProduct = spProd.ProductCode
+                    };
+                    equationList.Add(ved);
+                }
             }
-            else
-            {
-                //  situation exists were a template file was made from an existing cruise and
-                //  additional species/product combinations were placed in tree default value
-                //  need to add those to the equationList so user can enter equation information
-                //  June 2013
-                for (int k = 0; k < speciesProduct.GetLength(0); k++)
-                {
-                    if (speciesProduct[k, 0] != "" && speciesProduct[k, 0] != null)
-                    {
-                        //  see if this combination is in the equationList
-                        int nthRow = equationList.FindIndex(
-                            delegate (VolumeEquationDO ved)
-                            {
-                                return ved.Species == speciesProduct[k, 0] && ved.PrimaryProduct == speciesProduct[k, 1];
-                            });
-                        if (nthRow == -1)
-                        {
-                            //  add the equation to the list so the user can enter equation information
-                            VolumeEquationDO v = new VolumeEquationDO();
-                            v.Species = speciesProduct[k, 0];
-                            v.PrimaryProduct = speciesProduct[k, 1];
-                            equationList.Add(v);
-                        }   //  endif
-                    }   //  endif
-                }   //  end for k loop
-            }   //  endif list is empty
+
 
             volumeEquationDOBindingSource.DataSource = equationList;
             volumeEquationList.DataSource = volumeEquationDOBindingSource;
@@ -162,7 +133,7 @@ namespace CruiseProcessing
             {
                 //  Regions 8 and 9, BLM and Region 6 (?) cannot edit equations
                 //  inform user and return to main menu == March 2017
-                MessageBox.Show("Regional template files for Regions 6, 8, 9 and BLM cannot be edited here.\nThese equations are created or entered when running a cruise file in CruiseProcessing.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                DialogService.ShowInformation("Regional template files for Regions 6, 8, 9 and BLM cannot be edited here.\nThese equations are created or entered when running a cruise file in CruiseProcessing.");
             }
 
             volumeEquationDOBindingSource.DataSource = equationList;
@@ -270,7 +241,7 @@ namespace CruiseProcessing
                 if (selectedRegion == null || selectedForest == null || volEquation.SelectedItem == null ||
                     speciesList.SelectedItem == null || productList.SelectedItem == null)
                 {
-                    MessageBox.Show("One or more items to insert cannot be blank.\nPlease correct.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DialogService.ShowError("One or more items to insert cannot be blank.\nPlease correct.");
                     return;
                 }
             }
@@ -279,7 +250,7 @@ namespace CruiseProcessing
                 if (selectedRegion == null || selectedForest == null || volEquation.SelectedItem == null ||
                     templateSpecies.Text == null || templateProduct.Text == null)
                 {
-                    MessageBox.Show("One or more items to insert cannot be blank.\nPlease correct.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DialogService.ShowError("One or more items to insert cannot be blank.\nPlease correct.");
                     return;
                 }
             }
