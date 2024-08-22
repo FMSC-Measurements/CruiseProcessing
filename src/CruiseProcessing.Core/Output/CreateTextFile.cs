@@ -8,6 +8,7 @@ using CruiseDAL.DataObjects;
 using CruiseProcessing.Services;
 using CruiseProcessing.Output;
 using CruiseProcessing.Data;
+using Microsoft.Extensions.Logging;
 
 namespace CruiseProcessing
 {
@@ -19,8 +20,11 @@ namespace CruiseProcessing
         protected string FilePath => DataLayer.FilePath;
         protected SaleDO Sale { get; }
 
-        public CreateTextFile(CpDataLayer dataLayer)
+        protected ILogger Log { get; }
+
+        public CreateTextFile(CpDataLayer dataLayer, ILogger<CreateTextFile> log)
         {
+            Log = log;
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             textFile = System.IO.Path.ChangeExtension(FilePath, "out");
 
@@ -110,6 +114,7 @@ namespace CruiseProcessing
                 }
                 catch (Exception e)
                 {
+                    Log?.LogError(e, "Error Creating Report: TIM");
                     dialogService.ShowError($"Error Creating Report: TIM" + "\r\n" + e.Message);
                 }
             }
@@ -452,6 +457,7 @@ namespace CruiseProcessing
                 }
                 catch (Exception e)
                 {
+                    Log?.LogError(e, $"Error creating report {rdo.ReportID}");
                     failedReportsList.Add(rdo.ReportID);
                 }
             }   //  end foreach loop
