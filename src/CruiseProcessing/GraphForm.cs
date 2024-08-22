@@ -80,13 +80,24 @@ namespace CruiseProcessing
 
             var graphsDir = DataLayer.GetGraphsFolderPath();
             string outputFile = Path.Combine(graphsDir, graphFileName + ".jpg");
-            if (!Directory.Exists(graphsDir))
-            {
-                Directory.CreateDirectory(graphsDir);
-            }
-            using var fStream = new FileStream(outputFile, FileMode.Create);
+
             try
             {
+                if (!Directory.Exists(graphsDir))
+                {
+                    Directory.CreateDirectory(graphsDir);
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger?.LogError(ex, "Error creating graph directory");
+                MessageBox.Show("Error creating graph directory, Graph Could Not Be Saved:\r\n " + ex.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            
+            try
+            {
+                using var fStream = new FileStream(outputFile, FileMode.Create);
                 image.Save(fStream, ImageFormat.Jpeg);
             }
             catch (Exception ex)
