@@ -14,7 +14,7 @@ namespace CruiseProcessing
     {
         public string currentReport;
         private StringBuilder currTitle = new StringBuilder();
-        private GraphForm gf = new GraphForm();
+        private GraphForm gf { get; }
         private List<LCDDO> speciesTotal = new List<LCDDO>();
         private List<TreeDO> treesByDBH = new List<TreeDO>();
         private List<TreeDO> justMeasured = new List<TreeDO>();
@@ -25,6 +25,7 @@ namespace CruiseProcessing
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
+            gf = Services.GetRequiredService<GraphForm>();
         }
 
         public void createGraphs()

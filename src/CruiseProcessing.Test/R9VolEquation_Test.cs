@@ -64,9 +64,10 @@ namespace CruiseProcessing.Test
                 }
             }
 
-            form.Finish(false); // update biomass displays a dialog so I'm not going to test update biomass here
+            form.Finish(false, true); // update biomass displays a dialog so I'm not going to test update biomass here
 
-            v2Db.From<VolumeEqV2>().Query().Count().Should().Be(3);
+            var valEqsAgain = v2Db.From<VolumeEqV2>().Query().ToArray();
+            valEqsAgain.Should().HaveCount(3);
 
             // verify error message from non-numeric species code
             MockDialogService.Received().ShowError(Arg.Any<string>());

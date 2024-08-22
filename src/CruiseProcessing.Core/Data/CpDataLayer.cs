@@ -56,6 +56,14 @@ namespace CruiseProcessing.Data
             CruiseID = cruiseID;
         }
 
+        public string GetGraphsFolderPath()
+        {
+            var fileDirectory = System.IO.Path.GetDirectoryName(FilePath);
+            var sale = GetSale();
+            var graphsFolderPath = System.IO.Path.Combine(fileDirectory, "Graphs", sale.Name);
+            return graphsFolderPath;
+        }
+
         public List<QualityAdjEquationDO> getQualAdjEquations()
         {
             return DAL.From<QualityAdjEquationDO>().Read().ToList();

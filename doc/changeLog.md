@@ -1,3 +1,15 @@
+# Version 08.19.2024
+
+## Changes
+ - R8 and R9 Volume Equations dialog has option to just add missing equations or replace all equations. 
+ - Biomass Equations now created for both live and dead if cruise contains both. 
+ - Added Live/Dead column to WT1 report. 
+ - Add 300FW2W202 equation to R3 Volume Equations
+
+## Fixes
+ - Fix Graph report not generating
+ - Fix crash when generating PDF and generated graphs are missing
+
 # Version 06.27.2024
 
 ## Changes

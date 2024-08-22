@@ -14,6 +14,8 @@ using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using Microsoft.Extensions.DependencyInjection;
 using CruiseProcessing.Data;
+using CruiseProcessing.Services;
+using Microsoft.Extensions.Logging;
 
 namespace CruiseProcessing
 {
@@ -25,17 +27,21 @@ namespace CruiseProcessing
         private string[] graphFlag = new string[9];
         protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
+        public IDialogService DialogService { get; }
+        public ILogger Log { get; }
 
         protected PDFfileOutput()
         {
             InitializeComponent();
         }
 
-        public PDFfileOutput(CpDataLayer dataLayer, IServiceProvider services)
+        public PDFfileOutput(CpDataLayer dataLayer, IDialogService dialogService, ILogger<PDFfileOutput> logger, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            Log = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public int setupDialog()
@@ -49,8 +55,7 @@ namespace CruiseProcessing
                 if (Utilities.IsFileInUse(PDFoutFile))
                 {
                     //  make sure PDFfile is not open or attached to a process
-                    MessageBox.Show("PDF File is open by another program.\nCannot continue until the file is closed.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Close();
+                    DialogService.ShowError(PDFoutFile + " is open by another program.\r\nCannot continue until the file is closed.");
                     return 1;
                 }   //  endif
             }   //  endif file exists
@@ -59,24 +64,36 @@ namespace CruiseProcessing
             {
                 var sale = DataLayer.GetSale();
                 string currSaleName = sale.Name;
-                string dirPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
-                dirPath += "\\Graphs\\";
-                dirPath += currSaleName;
+                string dirPath = Path.Combine(Path.GetDirectoryName(DataLayer.FilePath), "Graphs", currSaleName);
+
                 DirectoryInfo di = new DirectoryInfo(dirPath);
-                string currPath = "";
-                int nextRow = 0;
-                foreach (var fi in di.GetFiles("*.jpg"))
+                try
                 {
-                    currPath = System.IO.Path.GetDirectoryName(DataLayer.FilePath);
-                    currPath += "\\Graphs\\";
-                    currPath += currSaleName;
-                    currPath += "\\";
-                    currPath += fi.Name;
+                    var attrs = di.Attributes;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    DialogService.ShowError("Unable to locate graphs folder for this sale.\r\nPlease regenerate output to create graphs.");
+                    return 1;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    DialogService.ShowError("Unable to access graphs folder for this sale.");
+                    return 1;
+                }
+                catch (PathTooLongException)
+                {
+                    DialogService.ShowError(dirPath + " is too long.");
+                    return 1;
+                }
+
+                foreach (var graphFileName in di.GetFiles("*.jpg").Select(x => x.Name))
+                {
+                    var currPath = Path.Combine(dirPath, graphFileName);
+
                     graphReports.Add(currPath);
-                    nextRow++;
-                    currPath = "";
                     // set graphFlag for titles later
-                    switch (fi.Name.Substring(0, 4))
+                    switch (graphFileName.Substring(0, 4))
                     {
                         case "GR01":
                             graphFlag[0] = "GR01";
@@ -159,75 +176,60 @@ namespace CruiseProcessing
         {
             //  disable convert button to avoid accidental double click
             convert_Button.Enabled = false;
-            Document PDFdoc = new Document(new iTextSharp.text.Rectangle(792f, 612f));
-            using var fileStream = new FileStream(PDFoutFile, FileMode.Create);
-            PdfWriter.GetInstance(PDFdoc, fileStream);
+
             outputFileName = outputFileToConvert.Text;
-
-            //  make sure output file exists before trying to create the PDF file
-            if (File.Exists(outputFileName))
-            {
-                //  open outfile and read into PDF
-                PDFdoc.Open();
-                string line = null;
-                iTextSharp.text.Font courier = FontFactory.GetFont("Courier", 8);
-                using (StreamReader strRead = new StreamReader(outputFileName))
-                {
-                    while ((line = strRead.ReadLine()) != null)
-                    {
-                        Chunk oneChunk;
-                        if (line == "")
-                            oneChunk = new Chunk(Environment.NewLine);
-                        else oneChunk = new Chunk(line, courier);
-                        if (line == "\f")
-                        {
-                            PDFdoc.NewPage();
-                        }
-                        else
-                        {
-                            Phrase p1 = new Phrase();
-                            p1.Add(oneChunk);
-                            Paragraph p = new Paragraph();
-                            //p.Leading = 10f;
-                            p.Leading = 9f;
-                            p.Add(p1);
-                            PDFdoc.Add(p);
-                        }   //  endif page break
-                    }   //  end while
-                }   //  end using
-
-                //  add graph reports
-                if (graphReports.Count > 0)
-                {
-                    addGraphReports(PDFdoc);
-                }   //  endif graph reports
-                PDFdoc.Close();
-            }
-            else
+            if (!File.Exists(outputFileName))
             {
                 MessageBox.Show("Output file is needed to create the PDF file.\nCould not find selected filename.\nMake sure the output file has been created and try again.", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
-            }   //  endif output file exists
+            }
 
-            //  add watermark
-            PDFwatermarkDlg pwd = Services.GetRequiredService<PDFwatermarkDlg>();
-            pwd.ShowDialog();
-            if (pwd.H2OmarkSelection == 2 || pwd.H2OmarkSelection == 3 || pwd.H2OmarkSelection == 4)
+            using StreamReader outFileReader = new StreamReader(outputFileName);
+
+
+            using var fileStream = new FileStream(PDFoutFile, FileMode.Create);
+            try
+            {
+                Document PDFdoc = new Document(new iTextSharp.text.Rectangle(792f, 612f));
+                
+                PdfWriter.GetInstance(PDFdoc, fileStream);
+
+                WritePDF(PDFdoc, outFileReader);
+            }
+            catch (Exception ex)
             {
 
-                string PDForiginalText = PDFoutFile;
-                PDForiginalText = System.IO.Path.ChangeExtension(PDForiginalText, "orig.pdf");
-                System.IO.File.Copy(PDFoutFile, PDForiginalText, true);
-                System.IO.File.Delete(PDFoutFile);
+                DialogService.ShowError("Error writing PDF file.\n" + ex.Message);
+                Log?.LogError(ex, "Error writing PDF file.");
+
+                if(File.Exists(PDFoutFile))
+                {
+                    File.Delete(PDFoutFile);
+                }
+                return;
+            }
+
+
+
+            //  add watermark
+            PDFwatermarkDlg watermarkDialog = Services.GetRequiredService<PDFwatermarkDlg>();
+            watermarkDialog.ShowDialog();
+            if (watermarkDialog.H2OmarkSelection == 2 || watermarkDialog.H2OmarkSelection == 3 || watermarkDialog.H2OmarkSelection == 4)
+            {
+
+                string sourceFilePath = PDFoutFile;
+                var outputFilePath = System.IO.Path.ChangeExtension(sourceFilePath, "orig.pdf");
+                if (File.Exists(outputFilePath)) { File.Delete(outputFilePath); }
+
                 StringBuilder WM = new StringBuilder();
-                if (pwd.H2OmarkSelection == 2)
+                if (watermarkDialog.H2OmarkSelection == 2)
                     WM.Append("DRAFT");
-                else if (pwd.H2OmarkSelection == 3)
+                else if (watermarkDialog.H2OmarkSelection == 3)
                     WM.Append("CONTRACT OF RECORD");
-                else if (pwd.H2OmarkSelection == 4)
+                else if (watermarkDialog.H2OmarkSelection == 4)
                     WM.Append("CRUISE OF RECORD");
-                if (pwd.includeDate == 1)
+                if (watermarkDialog.includeDate == 1)
                 {
                     WM.Append("\n");
                     WM.Append(DateTime.Now.Month.ToString());
@@ -236,26 +238,75 @@ namespace CruiseProcessing
                     WM.Append("/");
                     WM.Append(DateTime.Now.Year.ToString());
                 }   //  endif
-                if (pwd.includeDate == 0)
-                    AddWatermarkText(PDForiginalText, PDFoutFile, WM.ToString(), 60.0f, 0.3f, 45.0f);
-                else if (pwd.includeDate == 1)
-                    AddWatermarkText(PDForiginalText, PDFoutFile, WM.ToString(), 40.0f, 0.3f, 45.0f);
 
-                System.IO.File.Delete(PDForiginalText);
+                try
+                {
+                    if (watermarkDialog.includeDate == 0)
+                        AddWatermarkText(sourceFilePath, PDFoutFile, WM.ToString(), 60.0f, 0.3f, 45.0f);
+                    else if (watermarkDialog.includeDate == 1)
+                        AddWatermarkText(sourceFilePath, PDFoutFile, WM.ToString(), 40.0f, 0.3f, 45.0f);
+
+                    File.Copy(sourceFilePath, outputFilePath, true);
+                }
+                catch (Exception ex)
+                {
+                    DialogService.ShowError("Error adding watermark to PDF file.\n" + ex.Message);
+                    Log?.LogError(ex, "Error adding watermark to PDF file.");
+                    return;
+                }
+                finally
+                {
+                    File.Delete(outputFilePath);
+                }
             }   //  endif
 
             //  let user know file is created and where it can be found
-            StringBuilder sb = new StringBuilder();
-            sb.Append("PDF File has been created.\n");
-            sb.Append(PDFoutFile);
-            MessageBox.Show(sb.ToString(), "INFORMATION", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            DialogService.ShowInformation(Name + " has completed creating the PDF file.\n" + PDFoutFile);
 
         }   //  end onConvert
+
+
+        private void WritePDF(Document PDFdoc, StreamReader outFileReader)
+        {
+            //  open outfile and read into PDF
+            PDFdoc.Open();
+            string line = null;
+            iTextSharp.text.Font courier = FontFactory.GetFont("Courier", 8);
+
+
+            while ((line = outFileReader.ReadLine()) != null)
+            {
+                Chunk oneChunk;
+                if (line == "")
+                    oneChunk = new Chunk(Environment.NewLine);
+                else oneChunk = new Chunk(line, courier);
+                if (line == "\f")
+                {
+                    PDFdoc.NewPage();
+                }
+                else
+                {
+                    Phrase p1 = new Phrase();
+                    p1.Add(oneChunk);
+                    Paragraph p = new Paragraph();
+                    //p.Leading = 10f;
+                    p.Leading = 9f;
+                    p.Add(p1);
+                    PDFdoc.Add(p);
+                }   //  endif page break
+            }   //  end while
+
+            //  add graph reports
+            if (graphReports.Count > 0)
+            {
+                addGraphReports(PDFdoc);
+            }   //  endif graph reports
+            PDFdoc.Close();
+        }
 
         private void onFinished(object sender, EventArgs e)
         {
             Close();
-            return;
         }   //  end onFinished
 
 
@@ -372,45 +423,36 @@ namespace CruiseProcessing
         {
             iTextSharp.text.pdf.PdfReader reader = null;
             iTextSharp.text.pdf.PdfStamper stamper = null;
-            iTextSharp.text.pdf.PdfGState gstate = null;
-            iTextSharp.text.pdf.PdfContentByte underContent = null;
-            iTextSharp.text.Rectangle rect = null;
 
-            int pageCount = 0;
-            try
+
+            using var outputFileStream = new System.IO.FileStream(outputFile, System.IO.FileMode.CreateNew);
+
+            reader = new iTextSharp.text.pdf.PdfReader(sourceFile);
+            var rect = reader.GetPageSizeWithRotation(1);
+            stamper = new PdfStamper(reader, outputFileStream, '\0', true);
+
+            iTextSharp.text.pdf.BaseFont watermarkFont = iTextSharp.text.pdf.BaseFont.CreateFont(iTextSharp.text.pdf.BaseFont.COURIER,
+                    iTextSharp.text.pdf.BaseFont.CP1252, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
+            var gstate = new iTextSharp.text.pdf.PdfGState();
+            gstate.FillOpacity = watermarkFontOpacity;
+            gstate.StrokeOpacity = watermarkFontOpacity;
+            var pageCount = reader.NumberOfPages;
+            for (int i = 1; i <= pageCount; i++)
             {
-                reader = new iTextSharp.text.pdf.PdfReader(sourceFile);
-                rect = reader.GetPageSizeWithRotation(1);
-                stamper = new PdfStamper(reader, new System.IO.FileStream(outputFile, System.IO.FileMode.CreateNew), '\0', true);
+                var underContent = stamper.GetUnderContent(i);
+                underContent.SaveState();
+                underContent.SetGState(gstate);
+                underContent.SetColorFill(iTextSharp.text.BaseColor.DARK_GRAY);
+                underContent.BeginText();
+                underContent.SetFontAndSize(watermarkFont, watermarkFontSize);
+                underContent.SetTextMatrix(30, 30);
+                underContent.ShowTextAligned(iTextSharp.text.Element.ALIGN_CENTER, watermarkText, rect.Width / 2, rect.Height / 2, watermarkRotation);
+                underContent.EndText();
+                underContent.RestoreState();
+            }   //  end for i loop
 
-                iTextSharp.text.pdf.BaseFont watermarkFont = iTextSharp.text.pdf.BaseFont.CreateFont(iTextSharp.text.pdf.BaseFont.COURIER,
-                        iTextSharp.text.pdf.BaseFont.CP1252, iTextSharp.text.pdf.BaseFont.NOT_EMBEDDED);
-                gstate = new iTextSharp.text.pdf.PdfGState();
-                gstate.FillOpacity = watermarkFontOpacity;
-                gstate.StrokeOpacity = watermarkFontOpacity;
-                pageCount = reader.NumberOfPages;
-                for (int i = 1; i <= pageCount; i++)
-                {
-                    underContent = stamper.GetUnderContent(i);
-                    underContent.SaveState();
-                    underContent.SetGState(gstate);
-                    underContent.SetColorFill(iTextSharp.text.BaseColor.DARK_GRAY);
-                    underContent.BeginText();
-                    underContent.SetFontAndSize(watermarkFont, watermarkFontSize);
-                    underContent.SetTextMatrix(30, 30);
-                    underContent.ShowTextAligned(iTextSharp.text.Element.ALIGN_CENTER, watermarkText, rect.Width / 2, rect.Height / 2, watermarkRotation);
-                    underContent.EndText();
-                    underContent.RestoreState();
-                }   //  end for i loop
-
-                stamper.Close();
-                reader.Close();
-            }   //  end try
-            catch (Exception ex)
-            {
-                throw ex;
-            }   //  end
-            return;
-        }   //  end AddWatermark
+            stamper.Close();
+            reader.Close();
+        }
     }
 }

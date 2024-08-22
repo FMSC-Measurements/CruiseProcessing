@@ -315,9 +315,7 @@ namespace CruiseProcessing.Output
         {
             string currTitle = ReportsDataservice.findReportTitle(currReport);
             //  Add report number to title
-            currTitle = currTitle.Insert(0, ": ");
-            currTitle = currTitle.Insert(0, currReport);
-            return currTitle;
+            return currReport + ": " + currTitle;
         }
 
         public static void noDataForReport(TextWriter strWriteOut, string reportToPrint, string reportMessage)
@@ -330,12 +328,13 @@ namespace CruiseProcessing.Output
             strWriteOut.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         }
 
-        public static string buildPrintLine(IReadOnlyList<int> fieldLengths, IEnumerable<string> oneLine)
+        public static string buildPrintLine(IReadOnlyList<int> fieldLengths, IEnumerable<string> fieldValues)
         {
             StringBuilder printLine = new StringBuilder();
-            foreach (var (str, k) in oneLine.Select((x, i) => (x, i)))
+            foreach (var (str, k) in fieldValues.Select((x, i) => (x, i)))
             {
-                printLine.Append(str.PadRight(fieldLengths[k]));
+                var fieldWidth = fieldLengths[k];
+                printLine.Append(str.PadRight(fieldWidth));
             }
 
             return printLine.ToString();

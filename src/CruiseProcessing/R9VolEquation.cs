@@ -29,7 +29,7 @@ namespace CruiseProcessing
         ArrayList topwoodSpecies = new ArrayList();
         public ArrayList topwoodFlags = new ArrayList();
         List<JustDIBs> jstDIBs = new List<JustDIBs>();
-        
+
 
         protected R9VolEquation()
         {
@@ -81,7 +81,7 @@ namespace CruiseProcessing
                     topwoodSpecies.Add(vel.Species);
                     topwoodFlags.Add(vel.CalcTopwood);
                 }   //  endif sawtimber
-            } 
+            }
         }
 
 
@@ -94,7 +94,7 @@ namespace CruiseProcessing
             r9top.ShowDialog();
             topwoodSpecies = r9top.speciesList;
             topwoodFlags = r9top.flagList;
-        } 
+        }
 
 
         private void onTopDIB(object sender, EventArgs e)
@@ -132,15 +132,28 @@ namespace CruiseProcessing
 
         public void onFinished(object sender, EventArgs e)
         {
-            Finish(calcBiomass.Checked);
+            if (volList.Any()
+                && DialogService.AskYesNo("Existing Volume Equations Found\r\rWould you like to replace all Volume Equations?\r\nClick No To Just Add Any Missing Volume Equations.", DialogServiceResult.No) == DialogServiceResult.Yes)
+            {
+                Finish(calcBiomass.Checked, true);
+            }
+            else
+            {
+                Finish(calcBiomass.Checked, false);
+            }
+
             Close();
         }
 
 
-        public void Finish(bool calculateBiomass)
+        public void Finish(bool calculateBiomass, bool clearExistingEquations)
         {
-            volList.Clear();
-            DataLayer.SaveVolumeEquations(volList);
+            if (clearExistingEquations)
+            {
+                DataLayer.deleteVolumeEquations();
+                volList.Clear();
+            }
+
             if (taperEquations.Checked == true)
                 CreateEquations("900CLKE");
             else if (oldEquations.Checked == true)
@@ -162,118 +175,116 @@ namespace CruiseProcessing
             List<JustDIBs> existingVolEqDIBs = DataLayer.GetJustDIBs();
 
             //  Grab tree data grouped by unique species and products
-            string[,] speciesProduct;
-            speciesProduct = DataLayer.GetUniqueSpeciesProduct();
-
-
-            double updatedPrimaryDIB = 0.0;
-            double updatedSecondaryDIB = 0.0;
-            for (int k = 0; k < speciesProduct.GetLength(0); k++)
+            var speciesProds = DataLayer.GetUniqueSpeciesProductFromTrees();
+            foreach(var spProd in speciesProds)
             {
-                string currentProduct = speciesProduct[k, 1];
-                string currentSpecies = speciesProduct[k, 0];
+                var species = spProd.SpeciesCode;
+                var product = spProd.ProductCode;
+                if (species == null) { continue; }
 
-                if (currentSpecies != null)
+                // Check to see if this species/product combo already exists
+                if (volList.Any(x => x.Species == species && x.PrimaryProduct == product)) { continue; }
+
+                VolumeEquationDO vel = BuildVolumeEquation(eqnPrefix, existingVolEqDIBs, product, species);
+                if (vel != null) { volList.Add(vel); }
+            }
+        }
+
+        private VolumeEquationDO BuildVolumeEquation(string eqnPrefix, IReadOnlyCollection<JustDIBs> dibList, string currentProduct, string currentSpecies)
+        {
+            VolumeEquationDO vel = new VolumeEquationDO();
+            //  Per Mike VanDyck --  cords flag is on for everything including sawtimber
+            vel.CalcCord = 1;
+
+            //  Set constant values
+            vel.CalcTotal = 0;
+            vel.StumpHeight = 0;
+            vel.TopDIBPrimary = 0;
+            vel.TopDIBSecondary = 0;
+            vel.Trim = 0;
+            vel.SegmentationLogic = 0;
+            vel.MaxLogLengthPrimary = 0;
+            vel.MinLogLengthPrimary = 0;
+            vel.MinMerchLength = 0;
+
+            //  build equation
+            StringBuilder sb = new StringBuilder();
+            sb.Append(eqnPrefix);
+            //  Fix species code as needed
+            if (currentSpecies.Length == 2)
+                sb.Append("0");
+            else if (currentSpecies.Length == 1)
+                sb.Append("00");
+            sb.Append(currentSpecies);
+            vel.VolumeEquationNumber = sb.ToString();
+
+            //  Set calculation flags as needed
+            vel.CalcCubic = 1;
+            vel.CalcTopwood = 0;
+            if (currentProduct == "01")
+            {
+                vel.CalcBoard = 1;
+                //  Is topwood status changed for this species
+                if (topwoodSpecies.IndexOf(currentSpecies) >= 0)
+                    vel.CalcTopwood = Convert.ToInt32(topwoodFlags[topwoodSpecies.IndexOf(currentSpecies)]);
+            }
+            else
+                vel.CalcBoard = 0;
+
+            if (eqnPrefix == "900DVEE")
+            {
+                //  Need to update DIB values here
+                //  looks for current species and product in saved DIB list to replace as needed
+                var dib = dibList.FirstOrDefault(x => x.speciesDIB == currentSpecies && x.productDIB == currentProduct);
+                if (dib != null)
                 {
-                    VolumeEquationDO vel = new VolumeEquationDO();
-                    //  Per Mike VanDyck --  cords flag is on for everything including sawtimber
-                    vel.CalcCord = 1;
+                    vel.TopDIBPrimary = dib.primaryDIB;
+                    vel.TopDIBSecondary = dib.secondaryDIB;
+                }
+            }
+            else if (eqnPrefix == "900CLKE")
+            {
+                //  See if DIB exists in the old DIB list for this species
+                var dib = dibList.FirstOrDefault(x => x.speciesDIB == currentSpecies);
+                if (dib != null)
+                {
+                    vel.TopDIBPrimary = dib.primaryDIB;
+                    vel.TopDIBSecondary = dib.secondaryDIB;
+                }
+                else
+                {
+                    var dib2 = jstDIBs.FirstOrDefault(x => x.speciesDIB == currentSpecies);
 
-                    //  Set constant values
-                    vel.CalcTotal = 0;
-                    vel.StumpHeight = 0;
-                    vel.TopDIBPrimary = 0;
-                    vel.TopDIBSecondary = 0;
-                    vel.Trim = 0;
-                    vel.SegmentationLogic = 0;
-                    vel.MaxLogLengthPrimary = 0;
-                    vel.MinLogLengthPrimary = 0;
-                    vel.MinMerchLength = 0;
+                    var topDIBPrimary = dib2?.primaryDIB ?? 0.0f;
 
-                    //  build equation
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append(eqnPrefix);
-                    //  Fix species code as needed
-                    if (currentSpecies.Length == 2)
-                        sb.Append("0");
-                    else if (currentSpecies.Length == 1)
-                        sb.Append("00");
-                    sb.Append(currentSpecies);
-                    vel.VolumeEquationNumber = sb.ToString();
-
-                    //  Set calculation flags as needed
-                    vel.CalcCubic = 1;
-                    vel.CalcTopwood = 0;
-                    if (currentProduct == "01")
+                    if (topDIBPrimary == 0.0f!)
                     {
-                        vel.CalcBoard = 1;
-                        //  Is topwood status changed for this species
-                        if (topwoodSpecies.IndexOf(currentSpecies) >= 0)
-                            vel.CalcTopwood = Convert.ToInt32(topwoodFlags[topwoodSpecies.IndexOf(currentSpecies)]);
-                    }
-                    else
-                        vel.CalcBoard = 0;
-
-                    if (eqnPrefix == "900DVEE")
-                    {
-                        //  Need to update DIB values here
-                        //  looks for current species and product in saved DIB list to replace as needed
-                        var dib = existingVolEqDIBs.FirstOrDefault(x => x.speciesDIB == currentSpecies && x.productDIB == currentProduct);
-                        if(dib != null)
+                        if (int.TryParse(currentSpecies, out var fiaCode))
                         {
-                            vel.TopDIBPrimary = dib.primaryDIB;
-                            vel.TopDIBSecondary = dib.secondaryDIB;
-                        }
-                    }
-                    else if (eqnPrefix == "900CLKE")
-                    {
-                        //  See if DIB exists in the old DIB list for this species
-                        var dib = existingVolEqDIBs.FirstOrDefault(x => x.speciesDIB == currentSpecies);
-                        if(dib != null)
-                        {
-                            vel.TopDIBPrimary = dib.primaryDIB;
-                            vel.TopDIBSecondary = dib.secondaryDIB;
+                            topDIBPrimary = (fiaCode < 300) ? (float)DEFAULT_CONIFER_TOPDIB : (float)DEFATULT_HARDWOOD_TOPDIB;
                         }
                         else
                         {
-                            var dib2 = jstDIBs.FirstOrDefault(x => x.speciesDIB == currentSpecies);
-
-                            var topDIBPrimary = dib2?.primaryDIB ?? 0.0f;
-
-                            if(topDIBPrimary == 0.0f  !)
-                            {
-                                if(int.TryParse(currentSpecies, out var fiaCode))
-                                {
-                                    topDIBPrimary = (fiaCode < 300) ? (float)DEFAULT_CONIFER_TOPDIB : (float)DEFATULT_HARDWOOD_TOPDIB;
-                                }
-                                else
-                                {
-                                    var errorMessage = "Expected species to be FIA code but found " + currentSpecies + ". Unable to get default top DIB from species";
-                                    DialogService.ShowError(errorMessage);
-                                    Services.GetService<ILogger<R9VolEquation>>()?.LogWarning(errorMessage);
-                                    continue;
-                                }
-                            }
-
-                            vel.TopDIBPrimary = topDIBPrimary;
-                            vel.TopDIBSecondary = (dib2 != null && dib2.secondaryDIB > 0.0f) ? dib2.secondaryDIB : (float)DEFAULT_NONSAW_TOPDIB;
+                            var errorMessage = "Expected species to be FIA code but found " + currentSpecies + ". Unable to get default top DIB from species";
+                            DialogService.ShowError(errorMessage);
+                            Services.GetService<ILogger<R9VolEquation>>()?.LogWarning(errorMessage);
+                            return null;
                         }
-                    }   //  endif eqnPrefix
+                    }
+
+                    vel.TopDIBPrimary = topDIBPrimary;
+                    vel.TopDIBSecondary = (dib2 != null && dib2.secondaryDIB > 0.0f) ? dib2.secondaryDIB : (float)DEFAULT_NONSAW_TOPDIB;
+                }
+            }   //  endif eqnPrefix
 
 
-                    vel.Species = currentSpecies;
-                    vel.PrimaryProduct = currentProduct;
-                    if (calcBiomass.Checked == true)
-                        vel.CalcBiomass = 1;
-                    else vel.CalcBiomass = 0;
-                    volList.Add(vel);
-                }   //  endif not blank or null
-            }   //  end for k loop
-
-            return;
-        }   //  end CreateEquations
-
-
+            vel.Species = currentSpecies;
+            vel.PrimaryProduct = currentProduct;
+            if (calcBiomass.Checked == true)
+                vel.CalcBiomass = 1;
+            else vel.CalcBiomass = 0;
+            return vel;
+        }
 
         private void UpdateDIBs(List<JustDIBs> oldDIBs, string currSpec, string currProd,
                                 double updatedPrimaryDIB, double updatedSecondaryDIB)

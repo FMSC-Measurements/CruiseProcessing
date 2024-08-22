@@ -11,6 +11,8 @@ namespace CruiseProcessing.Services
     {
         string? AskOpenCruise();
 
+        DialogServiceResult AskYesNo(string message, DialogServiceResult defaultOption = DialogServiceResult.Yes);
+
         void ShowAbout();
 
         void ShowMessage(string message, string caption = null);

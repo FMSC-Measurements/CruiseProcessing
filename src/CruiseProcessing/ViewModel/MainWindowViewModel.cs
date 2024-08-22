@@ -443,10 +443,10 @@ namespace CruiseProcessing.ViewModel
 
         protected void RefreshVolumeEquationStatus()
         {
-            EnableVolumeEquations = (Region != 9 || IsFileTemplate) ? true
-                : Region == 9 && DataLayer.DAL.From<VolumeEquationDO>().Count() > 0;
+            EnableVolumeEquations = true;// (Region != 9 || IsFileTemplate) ? true
+              //  : Region == 9 && DataLayer.DAL.From<VolumeEquationDO>().Count() > 0;
 
-            EnableR9Equations = (Region == 9 && !EnableVolumeEquations);
+            EnableR9Equations = Region == 9;// (Region == 9 && !EnableVolumeEquations);
         }
 
         public static bool EnsurePathValid(string path, ILogger logger, IDialogService dialogService)

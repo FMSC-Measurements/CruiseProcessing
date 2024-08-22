@@ -337,8 +337,8 @@ namespace CruiseProcessing
                     }
                 }
 
-                // note: Vertical Log Length can't be enabled by user and hasn't been used since V1
-                // VLL is typicaly just used for export grade/high value stuff.
+                // note: Variable Log Length can't be enabled by user and hasn't been used since V1
+                // VLL is typically just used for export grade/high value stuff.
                 if (isVLL)
                 {
                     foreach (LogDO ld in treeLogs)
