@@ -715,9 +715,7 @@ namespace CruiseProcessing
         public void CalcExpFac(StratumDO sdo, List<PlotDO> justPlots, List<POPDO> justCurrentPOP)
         {
             //  Calculates expansion factor, tree factor and point factor for each tree in the current population
-            double EF = 0.0;        //  expansion factor
-            double TF = 0.0;        //  tree factor
-            double PF = 0.0;        //  point factor
+            
 
             //  Need total number of plots and measured plots (3PPNT only)
             double totalPlots = justPlots.Count();
@@ -751,20 +749,24 @@ namespace CruiseProcessing
                 //  calculate factors on each tree
                 foreach (TreeDO tdo in justTrees)
                 {
+                    double expansionFactor = 0.0;
+                    double treeFactor = 0.0;
+                    double pointFactor = 0.0;
+
                     //  Calculate point factor for P3P S3P F3P PCM FCM and 3PPNT
                     switch (sdo.Method)
                     {
                         case "P3P":
                         case "S3P":
                         case "F3P":
-                            PF = CommonEquations.Frequency3P(pdo.SumKPI, tdo.KPI, pdo.MeasuredTrees);
+                            pointFactor = CommonEquations.Frequency3P(pdo.SumKPI, tdo.KPI, pdo.MeasuredTrees);
                             break;
                         case "PCM":
                         case "PCMTRE":
-                            PF = CommonEquations.CalcTreeFactor(pdo.FirstStageTrees, pdo.MeasuredTrees, 0.0, 1, 2);
+                            pointFactor = CommonEquations.CalcTreeFactor(pdo.FirstStageTrees, pdo.MeasuredTrees, 0.0, 1, 2);
                             break;
                         case "FCM":
-                            PF = CommonEquations.CalcTreeFactor(0.0, pdo.MeasuredTrees, pdo.TalliedTrees, 3, 2);
+                            pointFactor = CommonEquations.CalcTreeFactor(0.0, pdo.MeasuredTrees, pdo.TalliedTrees, 3, 2);
                             break;
                         case "3PPNT":
                             //  uses plot KPI
@@ -773,7 +775,7 @@ namespace CruiseProcessing
                                 {
                                     return p.Plot_CN == tdo.Plot_CN;
                                 });
-                            PF = CommonEquations.Frequency3P(pdo.SumKPI, plotKPI.KPI, totalMeasPlots);
+                            pointFactor = CommonEquations.Frequency3P(pdo.SumKPI, plotKPI.KPI, totalMeasPlots);
                             break;
                     }   //  end switch on method to calculate point factor
 
@@ -783,10 +785,10 @@ namespace CruiseProcessing
                         case "FIXCNT":
                         case "FIX":
                         case "F3P":
-                            TF = sdo.FixedPlotSize;
+                            treeFactor = sdo.FixedPlotSize;
                             break;
                         case "FCM":
-                            if (totalPlots > 0) TF = sdo.FixedPlotSize / totalPlots;
+                            if (totalPlots > 0) treeFactor = sdo.FixedPlotSize / totalPlots;
                             break;
                         case "PNT":
                         case "P3P":
@@ -794,12 +796,12 @@ namespace CruiseProcessing
                         case "PCMTRE":
                         case "3PPNT":
                             if (tdo.DBH > 0)
-                                TF = CommonEquations.PointSampleFrequency(sdo.BasalAreaFactor, tdo.DBH);
+                                treeFactor = CommonEquations.PointSampleFrequency(sdo.BasalAreaFactor, tdo.DBH);
                             else if (tdo.DRC > 0)
-                                TF = CommonEquations.PointSampleFrequency(sdo.BasalAreaFactor, tdo.DRC);
+                                treeFactor = CommonEquations.PointSampleFrequency(sdo.BasalAreaFactor, tdo.DRC);
                             break;
                         case "S3P":
-                            TF = CommonEquations.CalcTreeFactor(pdo.FirstStageTrees, 0.0, pdo.TalliedTrees, 3, 1);
+                            treeFactor = CommonEquations.CalcTreeFactor(pdo.FirstStageTrees, 0.0, pdo.TalliedTrees, 3, 1);
                             break;
                     }   //  end switch on method to calculate tree factor
 
@@ -807,43 +809,43 @@ namespace CruiseProcessing
                     switch (sdo.Method)
                     {
                         case "100":         
-                            EF = 1.0;
+                            expansionFactor = 1.0;
                             break;
                         case "FIXCNT":
-                            if (totalPlots > 0) EF = (sdo.FixedPlotSize / totalPlots) * tdo.TreeCount;
+                            if (totalPlots > 0) expansionFactor = (sdo.FixedPlotSize / totalPlots) * tdo.TreeCount;
                             break;
                         case "FIX":
-                            if (totalPlots > 0) EF = sdo.FixedPlotSize / totalPlots;
+                            if (totalPlots > 0) expansionFactor = sdo.FixedPlotSize / totalPlots;
                             break;
                         case "PNT":
-                            if (totalPlots > 0) EF = TF / totalPlots;
+                            if (totalPlots > 0) expansionFactor = treeFactor / totalPlots;
                             break;
                         case "STR":
-                            EF = CommonEquations.CalcTreeFactor(0.0, pdo.MeasuredTrees, pdo.TalliedTrees, 3, 2);
+                            expansionFactor = CommonEquations.CalcTreeFactor(0.0, pdo.MeasuredTrees, pdo.TalliedTrees, 3, 2);
                             break;
                         case "P3P":
                         case "F3P":
                         case "PCM":
                         case "PCMTRE":
                         case "3PPNT":
-                            if (totalPlots > 0) EF = (TF * PF) / totalPlots;
+                            if (totalPlots > 0) expansionFactor = (treeFactor * pointFactor) / totalPlots;
                             break;
                         case "FCM":
                         case "S3P":
-                            EF = TF * PF;
+                            expansionFactor = treeFactor * pointFactor;
                             break;
                         case "3P":
-                            EF = CommonEquations.Frequency3P(pdo.SumKPI, tdo.KPI, pdo.MeasuredTrees);
+                            expansionFactor = CommonEquations.Frequency3P(pdo.SumKPI, tdo.KPI, pdo.MeasuredTrees);
                             break;
                     }   //  end switch on method to calculate expansion factor
-                    if (tdo.STM == "Y") EF = 1.0;
+                    if (tdo.STM == "Y") expansionFactor = 1.0;
 
                     //  round just the expansion factor
-                    EF = CommonEquations.RoundExpansionFactor(EF);
+                    expansionFactor = CommonEquations.RoundExpansionFactor(expansionFactor);
                     //  store factors
-                    tdo.ExpansionFactor = (float)EF;
-                    tdo.TreeFactor = (float)TF;
-                    tdo.PointFactor = (float)PF;
+                    tdo.ExpansionFactor = (float)expansionFactor;
+                    tdo.TreeFactor = (float)treeFactor;
+                    tdo.PointFactor = (float)pointFactor;
                 }   //  end foreach loop on justTrees
                 //  save this bunch of trees
                 DataLayer.SaveTrees(justTrees);
