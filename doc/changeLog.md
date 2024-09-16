@@ -1,3 +1,9 @@
+# Version 09.16.2024
+
+## Fixes
+ - Fixed issue where R8 volume equation numbers were being generated with an extra leading '8' 
+ - Fixed issue where PDF reports not being created with watermarks
+
 # Version 08.19.2024
 
 ## Changes
