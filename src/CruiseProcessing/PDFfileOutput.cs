@@ -219,8 +219,8 @@ namespace CruiseProcessing
             {
 
                 string sourceFilePath = PDFoutFile;
-                var outputFilePath = System.IO.Path.ChangeExtension(sourceFilePath, "orig.pdf");
-                if (File.Exists(outputFilePath)) { File.Delete(outputFilePath); }
+                var tempWarterMarkPath = System.IO.Path.ChangeExtension(sourceFilePath, ".pdf.temp");
+                if (File.Exists(tempWarterMarkPath)) { File.Delete(tempWarterMarkPath); }
 
                 StringBuilder WM = new StringBuilder();
                 if (watermarkDialog.H2OmarkSelection == 2)
@@ -242,11 +242,11 @@ namespace CruiseProcessing
                 try
                 {
                     if (watermarkDialog.includeDate == 0)
-                        AddWatermarkText(sourceFilePath, PDFoutFile, WM.ToString(), 60.0f, 0.3f, 45.0f);
+                        AddWatermarkText(sourceFilePath, tempWarterMarkPath, WM.ToString(), 60.0f, 0.3f, 45.0f);
                     else if (watermarkDialog.includeDate == 1)
-                        AddWatermarkText(sourceFilePath, PDFoutFile, WM.ToString(), 40.0f, 0.3f, 45.0f);
+                        AddWatermarkText(sourceFilePath, tempWarterMarkPath, WM.ToString(), 40.0f, 0.3f, 45.0f);
 
-                    File.Copy(sourceFilePath, outputFilePath, true);
+                    File.Copy(tempWarterMarkPath, sourceFilePath, true);
                 }
                 catch (Exception ex)
                 {
@@ -256,7 +256,7 @@ namespace CruiseProcessing
                 }
                 finally
                 {
-                    File.Delete(outputFilePath);
+                    File.Delete(tempWarterMarkPath);
                 }
             }   //  endif
 
