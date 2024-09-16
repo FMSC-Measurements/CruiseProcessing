@@ -450,7 +450,7 @@ namespace CruiseProcessing
 
             speciesCode = speciesCode.PadLeft(3, '0');
 
-            return $"8{geoCode}{subRegionCode}{model}{coastalCode}{speciesCode}";
+            return $"{geoCode}{subRegionCode}{model}{coastalCode}{speciesCode}";
         }
 
 
