@@ -221,7 +221,7 @@ namespace CruiseProcessing.Test
             var mockProgress = new Mock<IProgress<string>>();
             processStatus.ProcessCore(mockProgress.Object);
 
-            var ctf = new CreateTextFile(dataLayer);
+            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
 
             var stringWriter = new StringWriter();
 
@@ -296,7 +296,7 @@ namespace CruiseProcessing.Test
             var mockProgress = new Mock<IProgress<string>>();
             processStatus.ProcessCore(mockProgress.Object);
 
-            var ctf = new CreateTextFile(dataLayer);
+            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
 
             var stringWriter = new StringWriter();
 
