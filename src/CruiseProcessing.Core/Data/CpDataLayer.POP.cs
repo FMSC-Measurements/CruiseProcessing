@@ -14,7 +14,7 @@ namespace CruiseProcessing.Data
             return DAL.From<POPDO>().Read().ToList();
         }   //  end getPOP
 
-        public List<TreeCalculatedValuesDO> GetPOPtrees(POPDO pdo, string currST, string currCM)
+        public List<TreeCalculatedValuesDO> GetPOPtrees(POPDO pdo, string currST, string countMeasure)
         {
             //  captures tree calculated values for POP summation in SumAll
 
@@ -26,7 +26,7 @@ namespace CruiseProcessing.Data
                 "AND SampleGroup.PrimaryProduct = @p4 AND SampleGroup.SecondaryProduct = @p5 AND " +
                 "Tree.STM = @p6 AND Tree.CountOrMeasure = @p7")
                 .Read(currST, pdo.CutLeave, pdo.SampleGroup, pdo.PrimaryProduct,
-                        pdo.SecondaryProduct, pdo.STM, currCM).ToList();
+                        pdo.SecondaryProduct, pdo.STM, countMeasure).ToList();
         }   //  end GetPOPtrees
 
 
