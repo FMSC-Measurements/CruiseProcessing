@@ -85,7 +85,7 @@ namespace CruiseProcessing.Test.Output
             using StringWriter strWriteOut = new StringWriter();
 
             var headerData = dataLayer.GetReportHeaderData();
-            var ctf = new CreateTextFile(dataLayer);
+            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
             _ = ctf.CreateOutFile(selectedReports, headerData, strWriteOut, out var failedReports, out var hasWarnings);
 
             strWriteOut.ToString().Should().NotBeNullOrEmpty();

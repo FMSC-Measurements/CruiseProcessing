@@ -228,14 +228,6 @@ namespace CruiseProcessing
         }   //  end GetCutGroupedBy
 
 
-        public static List<LCDDO> GetStratumGroupedBy(string currentST, CpDataLayer dataLayer)
-        {
-            List<LCDDO> justStratum = new List<LCDDO>();
-            justStratum = dataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2  GROUP BY ","SampleGroup,Species,STM","C",currentST);
-            return justStratum;
-        }   //  end GetStratumGroupedBy
-
-
         public static void LoadLCDID(ref List<string> prtFields, LCDDO currGRP , int currPP, string currRPT)
         {
             prtFields.Add("");

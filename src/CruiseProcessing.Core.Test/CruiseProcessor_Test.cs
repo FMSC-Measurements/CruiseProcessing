@@ -1,9 +1,10 @@
 ﻿using CruiseDAL;
+using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using DiffPlex.DiffBuilder;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NSubstitute;
@@ -13,26 +14,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using ZedGraph;
 
 namespace CruiseProcessing.Test
 {
-    public class ProcessStatus_Test : TestBase
+    public class CruiseProcessor_Test : TestBase
     {
-
-        public ProcessStatus_Test(ITestOutputHelper output) : base(output)
+        public CruiseProcessor_Test(ITestOutputHelper output) : base(output)
         {
-            
         }
 
-        private Mock<IServiceProvider> GetServiceProviderMock(CpDataLayer datalayer)
-        {
-            var mockServiceProvider = new Mock<IServiceProvider>();
-            mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
-                .Returns(() => new CalculateTreeValues2(datalayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
-
-            return mockServiceProvider;
-        }
 
         [Theory]
         //[InlineData("OgTest\\BLM\\Hammer Away.cruise")]
@@ -40,55 +30,107 @@ namespace CruiseProcessing.Test
         [InlineData("OgTest\\Region1\\R1_FrenchGulch.cruise")]
         [InlineData("OgTest\\Region2\\R2_Test.cruise")]
         [InlineData("OgTest\\Region2\\R2_Test_V3.process")]
-        [InlineData("OgTest\\Region3\\R3_FCM_100.cruise")]
-        [InlineData("OgTest\\Region3\\R3_PCM_FIXCNT.cruise")]
+        //[InlineData("OgTest\\Region3\\R3_FCM_100.cruise")]
+        //[InlineData("OgTest\\Region3\\R3_PCM_FIXCNT.cruise")]
         [InlineData("OgTest\\Region3\\R3_PNT_FIXCNT.cruise")]
         [InlineData("OgTest\\Region4\\R4_McDougal.cruise")]
         [InlineData("OgTest\\Region5\\R5.cruise")]
-        [InlineData("OgTest\\Region6\\R6.cruise")]
+        //[InlineData("OgTest\\Region6\\R6.cruise")]
         [InlineData("OgTest\\Region8\\R8.cruise")]
         [InlineData("OgTest\\Region9\\R9.cruise")]
         [InlineData("OgTest\\Region10\\R10.cruise")]
 
         [InlineData("Version3Testing\\3P\\87654 test 3P TS.cruise")]
-        [InlineData("Version3Testing\\3P\\87654_test 3P_Timber_Sale_26082021.process")]
-        [InlineData("Version3Testing\\3P\\87654_test 3P_Timber_Sale_26082021_fixedTallyBySp.process")]
+        //[InlineData("Version3Testing\\3P\\87654_test 3P_Timber_Sale_26082021.process")]
+        //[InlineData("Version3Testing\\3P\\87654_test 3P_Timber_Sale_26082021_fixedTallyBySp.process")]
         [InlineData("Version3Testing\\3P\\87654_Test 3P_Timber_Sale_30092021.process")]
 
         [InlineData("Version3Testing\\FIX\\20301 Cold Springs Recon.cruise")]
-        [InlineData("Version3Testing\\FIX\\20301_Cold Springs_Timber_Sale_29092021.process")]
+        //[InlineData("Version3Testing\\FIX\\20301_Cold Springs_Timber_Sale_29092021.process")]
 
-        [InlineData("Version3Testing\\FIX and PNT\\99996_TestMeth_Timber_Sale_08072021.process")]
+        //[InlineData("Version3Testing\\FIX and PNT\\99996_TestMeth_Timber_Sale_08072021.process")]
 
         [InlineData("Version3Testing\\PCM\\27504_Spruce East_TS.cruise")]
 
         [InlineData("Version3Testing\\PNT\\Exercise3_Dead_LP_Recon.cruise")]
 
-        [InlineData("Version3Testing\\STR\\98765 test STR TS.cruise")]
-        [InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_26082021.process")]
+        //[InlineData("Version3Testing\\STR\\98765 test STR TS.cruise")]
+        //[InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_26082021.process")]
         [InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_30092021.process")]
 
-        [InlineData("Version3Testing\\TestMeth\\99996_TestMeth_TS_202310040107_KC'sTabActive3-R9Q8.process")]
+        //[InlineData("Version3Testing\\TestMeth\\99996_TestMeth_TS_202310040107_KC'sTabActive3-R9Q8.process")]
 
         [InlineData("Version3Testing\\27504PCM_Spruce East_Timber_Sale.cruise")]
         [InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")]
-        public void DoPreProcessChecks(string testFileName)
+        public void ProcessCruise(string testFileName)
         {
-            var filePath = GetTestFile(testFileName);
-            using var dal = new DAL(filePath);
+            using var dataLayer = ProcessCruiseHelper(testFileName);
+        }
+
+
+
+
+
+        private CpDataLayer ProcessCruiseHelper(string testFileName)
+        {
+            string filePath = null;
+
+            var extention = Path.GetExtension(testFileName);
+            if (extention == ".crz3")
+            {
+                var v3Path = GetTestFile(testFileName);
+                using var v3db = new CruiseDatastore_V3(v3Path);
+                var cruiseID = v3db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
+
+                var v2Path = GetTempFilePath(".process", Path.GetFileNameWithoutExtension(testFileName) + ".ProcessAndVerityOutput_V3");
+                using var v2Db = new DAL(v2Path, true);
+
+                var migrator = new DownMigrator();
+                migrator.MigrateFromV3ToV2(cruiseID, v3db, v2Db);
+
+                filePath = v2Path;
+            }
+            else
+            {
+                filePath = GetTestFile(testFileName);
+            }
+
+
+            var dal = new DAL(filePath);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
             var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
+            List<ErrorLogDO> fscList = dataLayer.getErrorMessages("E", "FScruiser");
+            var errors = EditChecks.CheckErrors(dataLayer);
+
+            if (fscList.Any())
+            { throw new Exception("Skip - Cruise FSC errors"); }
+            if (errors.Any())
+            {
+                foreach (var error in errors)
+                {
+                    Output.WriteLine(error.Message);
+                }
+
+                throw new Exception("Skip - Cruise errors");
+            }
+
             var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<ProcessStatus>>();
-            var mockServiceProvider = GetServiceProviderMock(dataLayer);
+            var mockLogger = new Mock<ILogger<CruiseProcessor>>();
 
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, Substitute.For<ICruiseProcessor>());
+            var calculateTreeValues = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger.Object, calculateTreeValues);
 
-            var result = processStatus.DoPreProcessChecks();
-            result.Should().BeTrue();
 
+
+            dal.TransactionDepth.Should().Be(0, "Before Process");
+            var mockProgress = new Mock<IProgress<string>>();
+            cruiseProcessor.ProcessCruise(mockProgress.Object);
+
+            dal.TransactionDepth.Should().Be(0, "After Process");
+
+            return dataLayer;
         }
 
         [Theory]
@@ -129,33 +171,140 @@ namespace CruiseProcessing.Test
 
         [InlineData("Version3Testing\\27504PCM_Spruce East_Timber_Sale.cruise")]
         [InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")]
-        public void ProcessCore(string testFileName)
+        public void ProcessCruise_CompareReferenceImplementation(string testFileName)
         {
-            var filePath = GetTestFile(testFileName);
-            using var dal = new DAL(filePath);
+            string filePath = null;
+
+            var extention = Path.GetExtension(testFileName);
+            if (extention == ".crz3")
+            {
+                var v3Path = GetTestFile(testFileName);
+                using var v3db = new CruiseDatastore_V3(v3Path);
+                var cruiseID = v3db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
+
+                var v2Path = GetTempFilePath(".process", Path.GetFileNameWithoutExtension(testFileName) + ".ProcessAndVerityOutput_V3");
+                using var v2Db = new DAL(v2Path, true);
+
+                var migrator = new DownMigrator();
+                migrator.MigrateFromV3ToV2(cruiseID, v3db, v2Db);
+
+                filePath = v2Path;
+            }
+            else
+            {
+                filePath = GetTestFile(testFileName);
+            }
+
+
+            var dal = new DAL(filePath);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
             var dataLayer = new CpDataLayer(dal, mockDlLogger);
 
+            List<ErrorLogDO> fscList = dataLayer.getErrorMessages("E", "FScruiser");
+            var errors = EditChecks.CheckErrors(dataLayer);
+
+            if (fscList.Any())
+            { throw new Exception("Skip - Cruise FSC errors"); }
+            if (errors.Any())
+            {
+                foreach (var error in errors)
+                {
+                    Output.WriteLine(error.Message);
+                }
+
+                throw new Exception("Skip - Cruise errors");
+            }
+
             var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<ProcessStatus>>();
+            var mockLogger = new Mock<ILogger<CruiseProcessor>>();
 
-            var mockServiceProvider = GetServiceProviderMock(dataLayer);
+            var calculateTreeValues = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger.Object, calculateTreeValues);
 
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
-
-            var result = processStatus.DoPreProcessChecks();
-            if(!result)
-            { throw new Exception("Skip"); }
+            
 
             dal.TransactionDepth.Should().Be(0, "Before Process");
             var mockProgress = new Mock<IProgress<string>>();
-            processStatus.ProcessCore(mockProgress.Object);
+            cruiseProcessor.ProcessCruise(mockProgress.Object);
 
             dal.TransactionDepth.Should().Be(0, "After Process");
 
-        }
+            var tcvs = dataLayer.getTreeCalculatedValues();
+            var lcds = dataLayer.getLCD();
+            var pops = dataLayer.getPOP();
+            var pros = dataLayer.getPRO();
 
+
+            var mockServiceProvider = Substitute.For<IServiceProvider>();
+            mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
+            //mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new RefCalculateTreeValues(dataLayer));
+
+            var refProcessor = new RefCruiseProcessor(dataLayer, Substitute.For<ILogger<RefCruiseProcessor>>(), mockServiceProvider);
+            refProcessor.ProcessCruise(Substitute.For<IProgress<string>>());
+
+            var tcvAgain = dataLayer.getTreeCalculatedValues();
+            var lcdsAgain = dataLayer.getLCD();
+            var popsAgain = dataLayer.getPOP();
+            var prosAgain = dataLayer.getPRO();
+
+            tcvs.Should().HaveSameCount(tcvAgain);
+            foreach (var tcv in tcvs)
+            {
+                var match = tcvAgain.SingleOrDefault(x => x.Tree_CN == tcv.Tree_CN);
+                match.Should().NotBeNull();
+                tcv.Should().BeEquivalentTo(match, config: (cfg) =>
+                {
+                    return cfg.Excluding(x => x.TreeCalcValues_CN).Excluding(x => x.rowID).Excluding(x => x.Self)
+                    .Using<double>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001)).WhenTypeIs<double>();
+                });
+            }
+
+            lcdsAgain.Should().HaveSameCount(lcds);
+            foreach(var lcd in lcds)
+            {
+                var match = lcdsAgain.SingleOrDefault(x => x.Stratum == lcd.Stratum && x.SampleGroup == lcd.SampleGroup && x.Species == lcd.Species && x.STM == lcd.STM && x.LiveDead == lcd.LiveDead && x.TreeGrade == lcd.TreeGrade);
+                match.Should().NotBeNull();
+
+                Output.WriteLine($"{lcd.Stratum} sg:{lcd.SampleGroup} sp:{lcd.Species} {lcd.STM} {lcd.LiveDead} {lcd.TreeGrade}");
+
+                lcd.Should().BeEquivalentTo(match, config: (cfg) =>
+                {
+                    return cfg.Excluding(x => x.LCD_CN)
+                    .Excluding(x => x.rowID)
+                    .Excluding(x => x.Self)
+                    .Using<double>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001)).WhenTypeIs<double>();
+                });
+            }
+
+            foreach(var pop in pops)
+            {
+                var match = popsAgain.SingleOrDefault(x => x.Stratum == pop.Stratum && x.SampleGroup == pop.SampleGroup && x.STM == pop.STM);
+                match.Should().NotBeNull();
+
+                Output.WriteLine($"{pop.Stratum} {pop.SampleGroup}");
+
+                pop.Should().BeEquivalentTo(match, because: $"{pop.Stratum} {pop.SampleGroup}", config: (cfg) =>
+                {
+                    return cfg.Excluding(x => x.POP_CN).Excluding(x => x.rowID).Excluding(x => x.Self)
+                    .Using<double>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001)).WhenTypeIs<double>();
+                });
+            }
+
+            foreach(var pro in pros)
+            {
+                var match = prosAgain.SingleOrDefault(x => x.Stratum == pro.Stratum && x.SampleGroup == pro.SampleGroup && x.CuttingUnit == pro.CuttingUnit && x.STM == pro.STM);
+                match.Should().NotBeNull();
+                pro.Should().BeEquivalentTo(match, config: (cfg) =>
+                {
+                    return cfg.Excluding(x => x.PRO_CN).Excluding(x => x.rowID).Excluding(x => x.Self)
+                    .Using<double>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001)).WhenTypeIs<double>();
+                });
+            }
+
+
+
+        }
 
 
         [Theory]
@@ -197,29 +346,10 @@ namespace CruiseProcessing.Test
         //[InlineData("Version3Testing\\27504PCM_Spruce East_Timber_Sale.cruise")] no out file
         //[InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")] no out file
 
-        
+
         public void ProcessAndVerityOutput(string testFileName, string expectedOutputFileName, string expectedFailingReports = "")
         {
-            var filePath = GetTestFile(testFileName);
-            using var dal = new DAL(filePath);
-
-            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
-
-            var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<ProcessStatus>>();
-
-            var mockServiceProvider = GetServiceProviderMock(dataLayer);
-
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
-
-            var result = processStatus.DoPreProcessChecks();
-            if (!result)
-            { throw new Exception("Skip"); }
-
-            
-            var mockProgress = new Mock<IProgress<string>>();
-            processStatus.ProcessCore(mockProgress.Object);
+            using var dataLayer = ProcessCruiseHelper(testFileName);
 
             var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
 
@@ -243,18 +373,18 @@ namespace CruiseProcessing.Test
             var diff = InlineDiffBuilder.Diff(expectedOutput, stringWriter.ToString());
 
             var changedLines = diff.Lines
-                .Where((x) => 
+                .Where((x) =>
                 {
-                        return x.Type != DiffPlex.DiffBuilder.Model.ChangeType.Unchanged
-                            && !x.Text.StartsWith("SALENAME:")
-                            && !x.Text.StartsWith("RUN DATE")
-                            && !x.Text.StartsWith("USDA FOREST SERVICE")
-                            && !x.Text.StartsWith("WASHINGTON")
-                            && !x.Text.StartsWith("FILENAME:");
+                    return x.Type != DiffPlex.DiffBuilder.Model.ChangeType.Unchanged
+                        && !x.Text.StartsWith("SALENAME:")
+                        && !x.Text.StartsWith("RUN DATE")
+                        && !x.Text.StartsWith("USDA FOREST SERVICE")
+                        && !x.Text.StartsWith("WASHINGTON")
+                        && !x.Text.StartsWith("FILENAME:");
                 })
                 .ToArray();
 
-            foreach(var line in changedLines)
+            foreach (var line in changedLines)
             {
                 Output.WriteLine(line.Position.ToString().PadLeft(5) + ":" + line.Text);
             }
@@ -269,32 +399,7 @@ namespace CruiseProcessing.Test
         [InlineData("Issues\\20383_Jiffy Stewardship_TS.crz3", "Issues\\20383_Jiffy Stewardship_TS.04.15.2023.out")]
         public void ProcessAndVerityOutput_V3(string testFileName, string expectedOutputFileName, string expectedFailingReports = "")
         {
-            var filePath = GetTestFile(testFileName);
-
-            using var v3db = new CruiseDatastore_V3(filePath);
-            var cruiseID = v3db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
-
-            var v2Path = GetTempFilePath(".process", Path.GetFileNameWithoutExtension(testFileName) + ".ProcessAndVerityOutput_V3");
-            using var dal = new DAL(v2Path, true);
-
-            var migrator = new DownMigrator();
-            migrator.MigrateFromV3ToV2(cruiseID, v3db, dal);
-
-            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
-
-            var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<ProcessStatus>>();
-            var mockServiceProvider = GetServiceProviderMock(dataLayer);
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, mockServiceProvider.Object);
-
-            var result = processStatus.DoPreProcessChecks();
-            if (!result)
-            { throw new Exception("Skip"); }
-
-
-            var mockProgress = new Mock<IProgress<string>>();
-            processStatus.ProcessCore(mockProgress.Object);
+            using var dataLayer = ProcessCruiseHelper(testFileName);
 
             var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
 

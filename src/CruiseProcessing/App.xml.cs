@@ -1,4 +1,5 @@
 ﻿using CruiseProcessing.Data;
+using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using CruiseProcessing.Services.Logging;
 using CruiseProcessing.ViewModel;
@@ -82,14 +83,17 @@ namespace CruiseProcessing
             services.AddSingleton(appInstance);
 
             var config = context.Configuration;
-            if (config.GetValue("UseOldCalculateTreeValues", false))
+            if (config.GetValue("UesReferenceProcessor", false))
             {
-                services.AddTransient<ICalculateTreeValues, CalculateTreeValues>();
+                services.AddTransient<ICruiseProcessor, CruiseProcessor>();
             }
             else
             {
-                services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
+                services.AddTransient<ICruiseProcessor, RefCruiseProcessor>();
             }
+
+            services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
+
 
             // register all forms
             //services.AddSingleton<MainMenu>();

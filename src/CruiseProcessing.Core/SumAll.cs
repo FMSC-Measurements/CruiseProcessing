@@ -78,19 +78,14 @@ namespace CruiseProcessing
                 nameof(LCDDO.SumLogsTop)
             };
 
-        public static void SumAllValues(CpDataLayer dataLayer, StratumDO st, List<PlotDO> pList,
+        public static void SumAllValues(CpDataLayer dataLayer, StratumDO st, List<PlotDO> stratumPlots,
                                         List<LCDDO> justCurrentLCD, List<POPDO> justCurrentPOP, List<PRODO> justCurrentPRO)
         {
             var currMeth = st.Method;
             var currST = st.Code;
             var currST_CN = (int)st.Stratum_CN.Value;
 
-            string[] listOfields = new string[36] {"GBDFTP","NBDFTP","GBDFTS","NBDFTS","GCUFTP","NCUFTP",
-                                                    "GCUFTS","NCUFTS","TIP","CORDP","CORDS","BDFTR","CUFTR",
-                                                    "CORDR","BDFTREMP","CUFTREMP","TOTCUFT",
-                                                    "BIOMSP","BIOMSS","BIOTS","BIOF","BIOLB","BIODB","BIOTIP",
-                                                    "VALP","VALS","VALR","DBHSUM","DBHSQD","LOGMS",
-                                                    "EXPFAC","TOTHTSUM","MHPSUM","MHSSUM","HUSDSUM","LOGSTOP"};
+
             //  loops through current LCD for groups to sum
             //  need all tree calculated values too for this stratum
             List<TreeCalculatedValuesDO> tcvList = dataLayer.getTreeCalculatedValues(currST_CN);
@@ -123,7 +118,7 @@ namespace CruiseProcessing
                 var tpopList = new List<TempPOPvalues>();
 
                 //  Get all trees for this group
-                List<TreeCalculatedValuesDO> currPOPtrees = dataLayer.GetPOPtrees(pdo, currST, "M");
+                List<TreeCalculatedValuesDO> currPOPtrees = dataLayer.GetTreeCalculatedValuesByPop(pdo, currST, "M");
                 //  Determine if there is recoverable product to accumulate
                 double sumRecover = currPOPtrees.Sum(tcv => tcv.Tree.RecoverablePrimary);
                 //  Also for POP make sure there is secondary to accumulate
@@ -149,12 +144,8 @@ namespace CruiseProcessing
                     double theExpanFac = (currMeth == "FIX" || currMeth == "F3P")
                         ? StratumMethods.GetBafOrFps(st) : 0.0;
 
-                    List<PlotDO> justPlots = pList.FindAll(
-                        delegate (PlotDO plt)
-                        {
-                            return plt.Stratum_CN == currST_CN;
-                        });
-                    CalculatePlotValues(tpopList, dataLayer, currMeth, pdo, sumRecover, currPOPtrees, justPlots, theExpanFac);
+
+                    CalculatePlotValues(tpopList, dataLayer, currMeth, pdo, sumRecover, currPOPtrees, stratumPlots, theExpanFac);
                     if (currMeth == "FCM")
                         //  accumulate stage2
                         AccumulateStage2(tpopList, currPOPtrees, currMeth, pdo, sumRecover);
@@ -170,7 +161,7 @@ namespace CruiseProcessing
                 {
                     //  stage 1 is sum of all plot KPIs so pull stratum from plot table
                     //  and the method will need a separate function since table to sum will be a PlotDO
-                    List<PlotDO> currentPlots = dataLayer.GetStrataPlots(pdo.Stratum);
+                    List<PlotDO> currentPlots = dataLayer.GetPlotsByStratum(pdo.Stratum);
                     Accumulate3PPNTstage1(currentPlots, pdo, sumRecover, sumSecondary);
                     //  stage 2 also needs to be summed for this method
                     AccumulateStage2(tpopList, currPOPtrees, currMeth, pdo, sumRecover);
