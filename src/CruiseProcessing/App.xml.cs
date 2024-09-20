@@ -88,11 +88,11 @@ namespace CruiseProcessing
             var config = context.Configuration;
             if (config.GetValue("UesReferenceProcessor", false))
             {
-                services.AddTransient<ICruiseProcessor, CruiseProcessor>();
+                services.AddTransient<ICruiseProcessor, RefCruiseProcessor>();
             }
             else
             {
-                services.AddTransient<ICruiseProcessor, RefCruiseProcessor>();
+                services.AddTransient<ICruiseProcessor, CruiseProcessor>();
             }
 
             services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
