@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CruiseProcessing.Data;
+using CruiseProcessing.Async;
 
 namespace CruiseProcessing
 {
@@ -60,9 +61,13 @@ namespace CruiseProcessing
             CruiseProcessor = cruiseProcessor ?? throw new ArgumentNullException(nameof(cruiseProcessor));
         }
 
-        private async void on_GO(object sender, EventArgs e)
+        private void on_GO(object sender, EventArgs e)
         {
+            Process().FireAndForget();
+        }
 
+        public async Task Process()
+        {
             if (!DoPreProcessChecks())
             {
                 Close();
@@ -81,7 +86,7 @@ namespace CruiseProcessing
                 volumeCheck.Enabled = true;
                 //DialogResult = DialogResult.OK; // setting DialogResult will automaticly close form, also we don't really need to use dialogResult. 
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 DialogService.ShowError("Processing Error: " + ex.GetType().Name);
                 //DialogResult = DialogResult.Abort;
@@ -90,7 +95,7 @@ namespace CruiseProcessing
             {
                 Cursor.Current = this.Cursor;
             }
-        }   //  end on_GO
+        }
 
         public bool DoPreProcessChecks()
         {
