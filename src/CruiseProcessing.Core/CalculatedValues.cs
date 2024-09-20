@@ -744,7 +744,7 @@ namespace CruiseProcessing
 
             //  Need total number of plots and measured plots (3PPNT only)
             double totalPlots = justPlots.Count();
-            double totalMeasPlots = 0.0;
+            
 
             //  process by population
             foreach (POPDO pdo in justCurrentPOP)
@@ -756,6 +756,7 @@ namespace CruiseProcessing
                 else
                     justTrees = DataLayer.getPOPtrees(pdo, "M");
 
+                double totalMeasPlots = 0.0; // for 3PPNT
                 //  3PPNT uses measured plots
                 if (sdo.Method == "3PPNT")
                 {
@@ -768,8 +769,8 @@ namespace CruiseProcessing
                             });
                         if (nthRow >= 0)
                             totalMeasPlots++;
-                    }   //  end foreach loop
-                }   //  endif Method is 3PPNT
+                    }
+                }
 
                 //  calculate factors on each tree
                 foreach (TreeDO tdo in justTrees)
@@ -871,13 +872,11 @@ namespace CruiseProcessing
                     tdo.ExpansionFactor = (float)expansionFactor;
                     tdo.TreeFactor = (float)treeFactor;
                     tdo.PointFactor = (float)pointFactor;
-                }   //  end foreach loop on justTrees
+                }
                 //  save this bunch of trees
                 DataLayer.SaveTrees(justTrees);
-            }   //  end foreach loop on justCurrentPOP
+            }
+        }
 
-            return;
-        }   //  end CalcExpFac
-
-    }   //  end CalculatedValues
+    }
 }
