@@ -3,7 +3,7 @@
 		<Copyright>CC0 Public Domain</Copyright>
 		<Company>USDA Forest Service</Company>
 		<Authors>Barbara Menzel;Benjamin Campbell</Authors>
-		<Version>09.16.2024</Version>
+		<Version>09.18.2024</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Label="Build Config">
