@@ -437,7 +437,7 @@ namespace CruiseProcessing
                 //  need true stratum acres not used for expansion
                 var totalStrataAcres = sdo.CuttingUnits.Sum(cu => cu.Area);
                 //  and number of plots for the stratum
-                var totalPlots = DataLayer.GetStrataPlots(sdo.Code).Count;
+                var totalPlots = DataLayer.GetPlotsByStratum(sdo.Code).Count;
 
                 prtFields = BuildStratumPrintArray(sdo, HeaderData.CruiseName,
                                                             totalStrataAcres, totalPlots);

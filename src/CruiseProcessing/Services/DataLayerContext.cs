@@ -12,7 +12,15 @@ namespace CruiseProcessing.Services
         public CpDataLayer? DataLayer
         {
             get => _dataLayer;
-            set => SetProperty(ref _dataLayer, value);
+            set
+            {
+                if(_dataLayer != null)
+                {
+                    _dataLayer.Dispose();
+                }
+
+                SetProperty(ref _dataLayer, value);
+            }
         }
     }
 }

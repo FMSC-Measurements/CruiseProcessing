@@ -15,7 +15,7 @@ namespace CruiseProcessing.Data
         }   //  end getPlots
 
 
-        public List<PlotDO> GetStrataPlots(string currStratum)
+        public List<PlotDO> GetPlotsByStratum(string currStratum)
         {
             return DAL.From<PlotDO>()
                 .Join("Stratum AS st", "USING (Stratum_CN)")
