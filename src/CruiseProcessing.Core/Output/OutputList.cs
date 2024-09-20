@@ -199,7 +199,7 @@ namespace CruiseProcessing
 
                 case "A03":          //  Listing of individual tree measurements and characteristics (A2)
                     {
-                        tList = DataLayer.getTreesSorted();
+                        tList = DataLayer.GetTreesOrderedByStratum();
                         //  what fields to print?
                         fieldsToPrint = TreeListMethods.MakeTreeFieldList(tList);
                         //  Build column headings based on fields to print
@@ -227,7 +227,7 @@ namespace CruiseProcessing
 
                 case "A05":          //  Listing of cubic foot volume   (A5)
                     {
-                        tList = DataLayer.getTreesSorted();
+                        tList = DataLayer.GetTreesOrderedByStratum();
                         tcvList = DataLayer.getTreeCalculatedValues();
                         fieldLengths = new int[] { 1, 3, 4, 5, 5, 7, 6, 4, 4, 8, 9, 8, 9, 8, 8, 9, 9, 9, 8, 8 };
                         prtFields.Clear();
@@ -244,7 +244,7 @@ namespace CruiseProcessing
 
                 case "A07":          //  Listing of board foot volume   (A7)
                     {
-                        tList = DataLayer.getTreesSorted();
+                        tList = DataLayer.GetTreesOrderedByStratum();
                         tcvList = DataLayer.getTreeCalculatedValues();
                         fieldLengths = new int[] { 1, 3, 4, 5, 5, 7, 6, 4, 4, 8, 9, 8, 9, 8, 8, 9, 9, 9, 8, 8 };
                         prtFields.Clear();
@@ -261,7 +261,7 @@ namespace CruiseProcessing
 
                 case "A06":          //  Listing of dollar value for each tree  (A6)
                     {
-                        tList = DataLayer.getTrees();
+                        tList = DataLayer.GetTreesOrderedByStratum();
                         tcvList = DataLayer.getTreeCalculatedValues();
                         fieldLengths = new int[] { 1, 3, 4, 5, 5, 8, 6, 4, 6, 15, 15, 9, 9, 11, 15, 15 };
                         prtFields.Clear();
@@ -285,7 +285,7 @@ namespace CruiseProcessing
                             return;
                         }   //  endif logList empty
 
-                        tList = DataLayer.getTreesSorted();
+                        tList = DataLayer.GetTreesOrderedByStratum();
                         fieldLengths = new int[] { 1, 3, 4, 5, 8, 5, 2, 4, 7, 5, 2, 4, 7, 5, 2, 4, 7, 5, 2, 4, 7, 5, 2, 4, 7 };
                         prtFields.Clear();
                         WriteLogList(strWriteOut, logList, tList, ref pageNumb);
@@ -294,13 +294,8 @@ namespace CruiseProcessing
 
                 case "A09":          //  Listing of log detail information for Fall, Buck and Scale  (A4)
                     {
-                        tList = DataLayer.getTrees();
-                        List<TreeDO> justFBS = tList.FindAll(
-                            delegate (TreeDO tdo)
-                            {
-                                return tdo.IsFallBuckScale == 1;
-                            });
-                        if (justFBS.Count == 0)
+                        var fbsTrees = DataLayer.getTrees().Where(x => x.IsFallBuckScale == 1).ToList();
+                        if (!fbsTrees.Any())
                         {
                             noDataForReport(strWriteOut, currentReport, " >>>> No fall, buck and scale trees for this report.");
                             return;
@@ -309,13 +304,13 @@ namespace CruiseProcessing
                         fieldLengths = new int[] { 1, 3, 4, 5, 6, 5, 6, 6, 5, 3, 10, 7, 10, 7, 5, 5 };
                         prtFields.Clear();
                         lsList = DataLayer.getLogStock();
-                        WriteFallBuckScale(strWriteOut, justFBS, ref pageNumb);
+                        WriteFallBuckScale(strWriteOut, fbsTrees, ref pageNumb);
                         break;
                     }
 
                 case "A10":          //  Listing of calculated biomass weights by component (A9)
                     {
-                        tList = DataLayer.getTrees();
+                        tList = DataLayer.GetTreesOrderedByStratum();
                         tcvList = DataLayer.getTreeCalculatedValues();
                         fieldLengths = new int[] { 1, 4, 5, 5, 5, 7, 6, 4, 5, 9, 10, 9, 9, 10, 9, 9, 9, 9, 9 };
                         prtFields.Clear();
@@ -340,7 +335,7 @@ namespace CruiseProcessing
                         WritePlot(strWriteOut, ref pageNumb);
 
                         //  tree information
-                        tList = DataLayer.getTrees();
+                        tList = DataLayer.GetTreesOrderedByStratum();
                         fieldLengths = new int[10] { 2, 3, 3, 3, 4, 3, 3, 11, 11, 11 };
                         prtFields.Clear();
                         //  reset headers
