@@ -1,4 +1,5 @@
-﻿using CruiseProcessing.Data;
+﻿using CruiseProcessing.Async;
+using CruiseProcessing.Data;
 using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using CruiseProcessing.Services.Logging;
@@ -53,6 +54,8 @@ namespace CruiseProcessing
             Services = _host.Services;
             await _host.StartAsync();
 
+            var loggerProvider = Services.GetRequiredService<ILoggerProvider>();
+            TaskExtentions.Logger = loggerProvider.CreateLogger(nameof(TaskExtentions));
 
             DataLayerContext = _host.Services.GetRequiredService<DataLayerContext>();
             var mainWindow = Services.GetRequiredService<MainWindow>();
