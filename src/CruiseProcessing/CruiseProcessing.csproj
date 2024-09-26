@@ -23,17 +23,6 @@
 		<Compile Update="MainMenu.Designer.cs">
 			<DependentUpon>MainMenu.cs</DependentUpon>
 		</Compile>-->
-
-
-
-	<ItemGroup>
-		<!--<Reference Include="itextsharp">
-			<HintPath>..\libs\itextsharp.dll</HintPath>
-		</Reference>-->
-		<!--<Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Windows.Forms" />-->
-	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CapturePercentRemoved.cs" />
 		<Compile Update="CapturePercentRemoved.Designer.cs">
@@ -328,6 +317,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />
+		<ProjectReference Include="..\CruiseProcessing.ReferenceImplmentation\CruiseProcessing.ReferenceImplmentation.csproj" />
 	</ItemGroup>
 
 	<Target Name="GenerateSecrets" BeforeTargets="CoreBuild">

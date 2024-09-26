@@ -345,7 +345,7 @@ namespace CruiseProcessing
             foreach (StratumDO stratum in currentUnit.Strata)
             {
                 //  need number of plots and plot size for current stratum
-                List<PlotDO> pList = DataLayer.GetStrataPlots(stratum.Code);
+                List<PlotDO> pList = DataLayer.GetPlotsByStratum(stratum.Code);
                 double numPlots = pList.Count();
                 double FPSvalue = stratum.FixedPlotSize;
                 //  and correct strata acres

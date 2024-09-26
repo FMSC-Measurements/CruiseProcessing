@@ -14,6 +14,14 @@ namespace CruiseProcessing.Data
             return DAL.From<CountTreeDO>().Read().ToList();
         }   //  end getCountTrees
 
+        public List<CountTreeDO> GetCountTreesByStratum(string stratumCode)
+        {
+            return DAL.From<CountTreeDO>()
+                .Join("SampleGroup" , "USING (SampleGroup_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1").Read(stratumCode).ToList();
+        }
+
         public List<CountTreeDO> getCountTrees(long currSG_CN)
         {
             return DAL.From<CountTreeDO>().Where("SampleGroup_CN = @p1").Read(currSG_CN).ToList();

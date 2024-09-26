@@ -14,20 +14,25 @@ namespace CruiseProcessing.Data
             return DAL.From<POPDO>().Read().ToList();
         }   //  end getPOP
 
-        public List<TreeCalculatedValuesDO> GetPOPtrees(POPDO pdo, string currST, string currCM)
+        public List<POPDO> GetPopsByStratum(string stratumCode)
         {
-            //  captures tree calculated values for POP summation in SumAll
+            return DAL.From<POPDO>()
+                .Where("Stratum = @p1")
+                .Read(stratumCode)
+                .ToList();
+        }
 
-            return DAL.From<TreeCalculatedValuesDO>()
-                .Join("Tree", "USING (Tree_CN)")
-                .Join("SampleGroup", "USING (SampleGroup_CN)")
-                .Join("Stratum", "USING (Stratum_CN)")
-                .Where("Stratum.Code = @p1 AND SampleGroup.CutLeave = @p2 AND SampleGroup.Code = @p3 " +
-                "AND SampleGroup.PrimaryProduct = @p4 AND SampleGroup.SecondaryProduct = @p5 AND " +
-                "Tree.STM = @p6 AND Tree.CountOrMeasure = @p7")
-                .Read(currST, pdo.CutLeave, pdo.SampleGroup, pdo.PrimaryProduct,
-                        pdo.SecondaryProduct, pdo.STM, currCM).ToList();
-        }   //  end GetPOPtrees
+        public List<POPDO> GetPopsByStratum(string stratumCode, string cutLeave)
+        {
+            return DAL.From<POPDO>()
+                .Where("Stratum = @p1 AND CutLeave = @p2")
+                .Read(stratumCode, cutLeave)
+                .ToList();
+        }
+
+
+
+
 
 
         public List<POPDO> GetUOMfromPOP()

@@ -13,9 +13,10 @@ using Microsoft.Extensions.Logging;
 
 namespace CruiseProcessing.Data
 {
-    public partial class CpDataLayer : ObservableObject, IErrorLogDataService
+    public partial class CpDataLayer : ObservableObject, IErrorLogDataService, IDisposable
     {
         private bool _isProcessed;
+        private bool disposedValue;
 
         public string CruiseID { get; } // for v3 files
         public string FilePath { get; }
@@ -137,5 +138,27 @@ namespace CruiseProcessing.Data
 
             return rgList;
         }   //  end GetUniqueSpeciesGroups
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // dispose managed state
+                    DAL.Dispose();
+                    DAL_V3?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

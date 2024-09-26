@@ -114,7 +114,7 @@ namespace CruiseProcessing
             //  Output banner page except for BLM
             if (currRegion != "07" && currRegion != "7" && currRegion != "BLM")
             {
-                var reports = DataLayer.GetReports();
+                var reports = DataLayer.GetSelectedReports();
 
                 var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
                 writer.Write(bannerPage);

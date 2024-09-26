@@ -1,5 +1,6 @@
 ﻿using CruiseDAL;
 using CruiseProcessing.Data;
+using CruiseProcessing.ReferenceImplmentation;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -65,7 +66,7 @@ namespace CruiseProcessing.Test
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
             var dal = new DAL(filePath);
             var dataLayer = new CpDataLayer(dal, mockLogger);
-            var ctv = new CalculateTreeValues(dataLayer);
+            var ctv = new RefCalculateTreeValues(dataLayer);
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -150,7 +151,7 @@ namespace CruiseProcessing.Test
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
             var dal = new DAL(filePath);
             var dataLayer = new CpDataLayer(dal, mockLogger);
-            var ctv = new CalculateTreeValues(dataLayer);
+            var ctv = new RefCalculateTreeValues(dataLayer);
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -250,7 +251,7 @@ namespace CruiseProcessing.Test
             migrator.MigrateFromV3ToV2(cruiseID, db, dal);
 
             var dataLayer = new CpDataLayer(dal, mockLogger);
-            var ctv = new CalculateTreeValues(dataLayer);
+            var ctv = new RefCalculateTreeValues(dataLayer);
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)

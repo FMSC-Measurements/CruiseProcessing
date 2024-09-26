@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <PlatformTarget>x86</PlatformTarget>
+	  <Description>Contains Reference Implementations of Various Parts of Cruise Processing Logic</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CruiseProcessing.Core\CruiseProcessing.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -43,10 +43,20 @@ namespace CruiseProcessing.Data
         public List<TreeDO> getTreesOrdered(string searchString, string orderBy, string[] searchValues)
         {
             return DAL.Read<TreeDO>("SELECT * FROM Tree " + searchString + orderBy + ";", searchValues).ToList();
-        }   //  end getTreesOrdered
+        }
+
+        public List<TreeDO> GetTreesOrderedByUnit()
+        {
+            return DAL.From<TreeDO>()
+                .Join("CuttingUnit", "USING (CuttingUnit_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .LeftJoin("Plot", "USING (Plot_CN)")
+                .OrderBy("CuttingUnit.Code", "ifnull(Plot.PlotNumber, 0)", "Stratum.Code", "TreeNumber").Read()
+                .ToList();
+        }
 
 
-        public List<TreeDO> getTreesSorted()
+        public List<TreeDO> GetTreesOrderedByStratum()
         {
             return DAL.From<TreeDO>()
                 .Join("CuttingUnit", "USING (CuttingUnit_CN)")

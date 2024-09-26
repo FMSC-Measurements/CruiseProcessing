@@ -9,8 +9,21 @@ namespace CruiseProcessing.Data
 {
     public partial class CpDataLayer
     {
-        //  TreeCalculatedValues
-        // *******************************************************************************************
+        public List<TreeCalculatedValuesDO> GetTreeCalculatedValuesByPop(POPDO pdo, string currST, string countMeasure)
+        {
+            //  captures tree calculated values for POP summation in SumAll
+
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree", "USING (Tree_CN)")
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1 AND SampleGroup.CutLeave = @p2 AND SampleGroup.Code = @p3 " +
+                "AND SampleGroup.PrimaryProduct = @p4 AND SampleGroup.SecondaryProduct = @p5 AND " +
+                "Tree.STM = @p6 AND Tree.CountOrMeasure = @p7")
+                .Read(currST, pdo.CutLeave, pdo.SampleGroup, pdo.PrimaryProduct,
+                        pdo.SecondaryProduct, pdo.STM, countMeasure).ToList();
+        }   //  end GetPOPtrees
+
         public List<TreeCalculatedValuesDO> getTreeCalculatedValues()
         {
             return DAL.From<TreeCalculatedValuesDO>().Read().ToList();
@@ -91,7 +104,7 @@ namespace CruiseProcessing.Data
                .Read(currSP, currPR, currLD, currCM).ToList();
         }   //  end getRegressTrees
 
-        public List<TreeCalculatedValuesDO> GetLCDtrees(string currST, LCDDO ldo, string currCM)
+        public List<TreeCalculatedValuesDO> GetTreeCalculatedValuesByLCD(LCDDO ldo, string countMeasure)
         {
             //  captures tree calculated values for LCD summation in SumAll
 
@@ -101,18 +114,62 @@ namespace CruiseProcessing.Data
                 .Join("SampleGroup", "USING (SampleGroup_CN)")
                 .Join("TreeDefaultValue", "USING (TreeDefaultValue_CN)")
                 .Join("Stratum", "USING (Stratum_CN)")
-                .Where("Stratum.Code = @p1 AND SampleGroup.CutLeave = @p2 AND SampleGroup.Code = @p3 " +
-                        "AND Tree.Species = @p4 AND SampleGroup.PrimaryProduct = @p5 AND " +
-                        "SampleGroup.SecondaryProduct = @p6 AND SampleGroup.UOM = @p7 AND " +
-                        "Tree.LiveDead = @p8 AND Tree.Grade = @p9 AND Stratum.YieldComponent = @p10 AND " +
-                        "Tree.STM = @p11 and Tree.CountOrMeasure = @p12")
-                .Read(currST, ldo.CutLeave,
-                        ldo.SampleGroup, ldo.Species, ldo.PrimaryProduct, ldo.SecondaryProduct,
-                        //  see comment above
-                        //ldo.UOM, ldo.LiveDead, ldo.TreeGrade, ldo.Yield, ldo.ContractSpecies, 
-                        ldo.UOM, ldo.LiveDead, ldo.TreeGrade, ldo.Yield,
-                        ldo.STM, currCM).ToList();
-        }   //  end GetLCDtrees
+                .Where("Stratum.Code = @p1 " +
+                    "AND SampleGroup.CutLeave = @p2 " +
+                    "AND SampleGroup.Code = @p3 " +
+                    "AND Tree.Species = @p4 " +
+                    "AND SampleGroup.PrimaryProduct = @p5 " +
+                    "AND SampleGroup.SecondaryProduct = @p6 " +
+                    "AND SampleGroup.UOM = @p7 " +
+                    "AND Tree.LiveDead = @p8 " +
+                    "AND Tree.Grade = @p9 " +
+                    "AND Stratum.YieldComponent = @p10 " +
+                    "AND Tree.STM = @p11 " +
+                    "AND Tree.CountOrMeasure = @p12;")
+                .Read(ldo.Stratum,
+                        ldo.CutLeave,
+                        ldo.SampleGroup,
+                        ldo.Species,
+                        ldo.PrimaryProduct,
+                        ldo.SecondaryProduct,
+                        ldo.UOM,
+                        ldo.LiveDead,
+                        ldo.TreeGrade,
+                        ldo.Yield,
+                        ldo.STM,
+                        countMeasure).ToList();
+        }
+
+        public List<TreeCalculatedValuesDO> GetTreeCalculatedValuesByLCD(LCDDO ldo)
+        {
+            return DAL.From<TreeCalculatedValuesDO>()
+                .Join("Tree", "USING (Tree_CN)")
+                .Join("SampleGroup", "USING (SampleGroup_CN)")
+                .Join("TreeDefaultValue", "USING (TreeDefaultValue_CN)")
+                .Join("Stratum", "USING (Stratum_CN)")
+                .Where("Stratum.Code = @p1 " +
+                    "AND SampleGroup.CutLeave = @p2 " +
+                    "AND SampleGroup.Code = @p3 " +
+                    "AND Tree.Species = @p4 " +
+                    "AND SampleGroup.PrimaryProduct = @p5 " +
+                    "AND SampleGroup.SecondaryProduct = @p6 " +
+                    "AND SampleGroup.UOM = @p7 " +
+                    "AND Tree.LiveDead = @p8 " +
+                    "AND Tree.Grade = @p9 " +
+                    "AND Stratum.YieldComponent = @p10 " +
+                    "AND Tree.STM = @p11; ")
+                .Read(ldo.Stratum,
+                        ldo.CutLeave,
+                        ldo.SampleGroup,
+                        ldo.Species,
+                        ldo.PrimaryProduct,
+                        ldo.SecondaryProduct,
+                        ldo.UOM,
+                        ldo.LiveDead,
+                        ldo.TreeGrade,
+                        ldo.Yield,
+                        ldo.STM).ToList();
+        }
 
         public void deleteTreeCalculatedValues()
         {

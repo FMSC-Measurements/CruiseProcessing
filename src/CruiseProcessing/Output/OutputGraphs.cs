@@ -381,7 +381,7 @@ namespace CruiseProcessing
                         if (s.BasalAreaFactor > 0)
                         {
                             //  Pull plots for this stratum
-                            List<PlotDO> pList = DataLayer.GetStrataPlots(s.Code);
+                            List<PlotDO> pList = DataLayer.GetPlotsByStratum(s.Code);
                             double numplots = pList.Count;
 
                             //  Pull tree data for this stratum
@@ -471,7 +471,7 @@ namespace CruiseProcessing
                             {
                                 if (currST != js.Stratum)
                                 {
-                                    List<PlotDO> pList = DataLayer.GetStrataPlots(js.Stratum);
+                                    List<PlotDO> pList = DataLayer.GetPlotsByStratum(js.Stratum);
                                     numPlots += pList.Count();
                                     currST = js.Stratum;
                                 }   //  endif

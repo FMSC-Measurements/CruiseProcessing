@@ -558,7 +558,7 @@ namespace CruiseProcessing
                         }
 
                         // Check for plot only has Count or Measure trees
-                        var plots = dataLayer.GetStrataPlots(st.Code);
+                        var plots = dataLayer.GetPlotsByStratum(st.Code);
                         foreach (var plot in plots)
                         {
                             var plotCMcodes = stratumTrees.Where(x => x.Plot_CN == plot.Plot_CN).Select(x => x.CountOrMeasure).Distinct();

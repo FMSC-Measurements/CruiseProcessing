@@ -11,6 +11,11 @@ using Microsoft.Extensions.Logging;
 
 namespace CruiseProcessing
 {
+    public interface ICalculateTreeValues
+    {
+        void ProcessTrees(string currST, string currMethod, long currST_CN);
+    }
+
     public partial class CalculateTreeValues2 : ICalculateTreeValues
     {
         #region
@@ -619,7 +624,7 @@ namespace CruiseProcessing
         public static void SetTreeCalculatedValues(TreeCalculatedValuesDO tcv, float[] VOL, float[,] LOGVOL, int TCUFTflag, int GBDFTflag,
                                             int GCUFTflag, int CORDflag, int SecondVolFlag, bool hasRecoverable,
                                             float cullDef, float hidDef, float seenDef, float recvDef,
-                                            float[] biomassCalcs, int TLOGS, float NOLOGP, float NOLOGS, string currRegion, IErrorLogDataService errorLogDataService)
+                                            float[] biomassCalcs, int TLOGS, float numberOfLogsPrimary, float numberOfLogsSecondary, string currRegion, IErrorLogDataService errorLogDataService)
         {
             //  updates tree record in tree calculated values list
             if (TCUFTflag == 1) tcv.TotalCubicVolume = VOL[0];
@@ -661,11 +666,11 @@ namespace CruiseProcessing
             //  save international calcs and number of logs
             tcv.GrossBDFTIntl = VOL[9];
             tcv.NetBDFTIntl = VOL[10];
-            tcv.NumberlogsMS = NOLOGP;
+            tcv.NumberlogsMS = numberOfLogsPrimary;
 
             //  Make sure secondary was not calculated to get correct number of logs for secondary
             if (VOL[6] != 0 || VOL[7] != 0 || VOL[8] != 0 || VOL[11] != 0 || VOL[12] != 0)
-                tcv.NumberlogsTPW = NOLOGS;
+                tcv.NumberlogsTPW = numberOfLogsSecondary;
 
             //  Sum removed volume into tree removed
             for (int n = 0; n < TLOGS; n++)
