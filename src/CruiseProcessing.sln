@@ -35,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A10D1093-6
 		..\doc\changeLog.md = ..\doc\changeLog.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruiseProcessing.ReferenceImplmentation", "CruiseProcessing.ReferenceImplmentation\CruiseProcessing.ReferenceImplmentation.csproj", "{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,18 @@ Global
 		{2BD277A7-E1FB-4FE9-9D3E-49258F2D4135}.Release|x64.Build.0 = Release|Any CPU
 		{2BD277A7-E1FB-4FE9-9D3E-49258F2D4135}.Release|x86.ActiveCfg = Release|Any CPU
 		{2BD277A7-E1FB-4FE9-9D3E-49258F2D4135}.Release|x86.Build.0 = Release|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Debug|x64.Build.0 = Debug|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Debug|x86.Build.0 = Debug|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Release|x64.ActiveCfg = Release|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Release|x64.Build.0 = Release|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Release|x86.ActiveCfg = Release|Any CPU
+		{4FCF8E9E-D46D-4AF0-846E-2B5A146424F6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

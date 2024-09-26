@@ -1,3 +1,14 @@
+# Version 09.18.2024
+
+## Fixes
+ - Fixed issue where R8 volume equation numbers were being generated with an extra leading '8' 
+ - Fixed issue where PDF reports not being created with watermarks
+ - Fixed error report showing all reports as selected
+ - Fixed calculation of FixCNT biomass values in WT5 report
+
+## Changes
+ - Change A06, and A10 reports to display trees in same order as other A reports
+
 # Version 08.19.2024
 
 ## Changes

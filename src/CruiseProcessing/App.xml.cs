@@ -1,4 +1,6 @@
-﻿using CruiseProcessing.Data;
+﻿using CruiseProcessing.Async;
+using CruiseProcessing.Data;
+using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using CruiseProcessing.Services.Logging;
 using CruiseProcessing.ViewModel;
@@ -52,6 +54,8 @@ namespace CruiseProcessing
             Services = _host.Services;
             await _host.StartAsync();
 
+            var loggerProvider = Services.GetRequiredService<ILoggerProvider>();
+            TaskExtentions.Logger = loggerProvider.CreateLogger(nameof(TaskExtentions));
 
             DataLayerContext = _host.Services.GetRequiredService<DataLayerContext>();
             var mainWindow = Services.GetRequiredService<MainWindow>();
@@ -82,14 +86,17 @@ namespace CruiseProcessing
             services.AddSingleton(appInstance);
 
             var config = context.Configuration;
-            if (config.GetValue("UseOldCalculateTreeValues", false))
+            if (config.GetValue("UesReferenceProcessor", false))
             {
-                services.AddTransient<ICalculateTreeValues, CalculateTreeValues>();
+                services.AddTransient<ICruiseProcessor, RefCruiseProcessor>();
             }
             else
             {
-                services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
+                services.AddTransient<ICruiseProcessor, CruiseProcessor>();
             }
+
+            services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
+
 
             // register all forms
             //services.AddSingleton<MainMenu>();

@@ -525,7 +525,7 @@ namespace CruiseProcessing
                                 else currEF += js.SumExpanFactor * proratFactor;
                             }   //  end foreach loop on justStrata
                             //  Sum slope percent for this stratum
-                            List<PlotDO> justSlope = DataLayer.GetStrataPlots(stratum.Code);
+                            List<PlotDO> justSlope = DataLayer.GetPlotsByStratum(stratum.Code);
                             currSLP += justSlope.Sum(s => s.Slope);
                             slopeCnt += justSlope.Count();
                         }   //  end for loop on strata list

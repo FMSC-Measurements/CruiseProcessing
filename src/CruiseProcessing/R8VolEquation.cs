@@ -13,10 +13,10 @@ namespace CruiseProcessing
 {
     public partial class R8VolEquation : Form
     {
-        public class ForestGeoCode
+        public class ForestVolEqCode
         {
             public string District { get; set; }
-            public string GeoCode { get; set; }
+            public string SubRegionCode { get; set; }
             public string GroupCode { get; set; } // group code doesn't appear to be used
         }
 
@@ -27,104 +27,105 @@ namespace CruiseProcessing
         //string[,] DIBbySpecies;
         List<JustDIBs> DIBbySpecies = new List<JustDIBs>();
 
-        static readonly IReadOnlyDictionary<string, IReadOnlyCollection<ForestGeoCode>> ForestGeoCodeLookup = new Dictionary<string, IReadOnlyCollection<ForestGeoCode>>()
+        static readonly IReadOnlyDictionary<string, IReadOnlyCollection<ForestVolEqCode>> ForestVolEqCodeLookup = new Dictionary<string, IReadOnlyCollection<ForestVolEqCode>>()
             {
                 { "01", new[]
                     {
-                        new ForestGeoCode { District = "01", GeoCode = "4", GroupCode = "13" },
-                        new ForestGeoCode { District = "03", GeoCode = "1", GroupCode = "15" },
-                        new ForestGeoCode { District = "04", GeoCode = "4", GroupCode = "16" },
-                        new ForestGeoCode { District = "05", GeoCode = "4", GroupCode = "14" },
-                        new ForestGeoCode { District = "06", GeoCode = "4", GroupCode = "14" },
-                        new ForestGeoCode { District = "07", GeoCode = "4", GroupCode = "17" },
+                        new ForestVolEqCode { District = "01", SubRegionCode = "4", GroupCode = "13" },
+                        new ForestVolEqCode { District = "03", SubRegionCode = "1", GroupCode = "15" },
+                        new ForestVolEqCode { District = "04", SubRegionCode = "4", GroupCode = "16" },
+                        new ForestVolEqCode { District = "05", SubRegionCode = "4", GroupCode = "14" },
+                        new ForestVolEqCode { District = "06", SubRegionCode = "4", GroupCode = "14" },
+                        new ForestVolEqCode { District = "07", SubRegionCode = "4", GroupCode = "17" },
                     }
                 },
-                { "02", new[] { new ForestGeoCode { GeoCode = "3", GroupCode = "10" } } },
+                { "02", new[] { new ForestVolEqCode { SubRegionCode = "3", GroupCode = "10" } } },
                 {"03", new[]
                     {
-                        new ForestGeoCode { GeoCode = "3", GroupCode = "01" },
-                        new ForestGeoCode { District = "08", GeoCode = "2", GroupCode = "06" },
+                        new ForestVolEqCode { SubRegionCode = "3", GroupCode = "01" },
+                        new ForestVolEqCode { District = "08", SubRegionCode = "2", GroupCode = "06" },
                     }
                 },
-                { "04", new[] { new ForestGeoCode { GeoCode = "3", GroupCode = "01" } } },
-                { "05", new[] { new ForestGeoCode { GeoCode = "1", GroupCode = "03" } } },
+                { "04", new[] { new ForestVolEqCode { SubRegionCode = "3", GroupCode = "01" } } },
+                { "05", new[] { new ForestVolEqCode { SubRegionCode = "1", GroupCode = "03" } } },
                 { "06", new[]
                     {
-                        new ForestGeoCode { GeoCode = "5", GroupCode = "02" },
-                        new ForestGeoCode { District = "06", GeoCode = "5", GroupCode = "09" },
+                        new ForestVolEqCode { SubRegionCode = "5", GroupCode = "02" },
+                        new ForestVolEqCode { District = "06", SubRegionCode = "5", GroupCode = "09" },
                     }
                 },
                 { "07",
                     new[]
                     {
-                        new ForestGeoCode { District = "01", GeoCode = "5", GroupCode = "19" },
-                        new ForestGeoCode { District = "02", GeoCode = "5", GroupCode = "20" },
-                        new ForestGeoCode { District = "04", GeoCode = "5", GroupCode = "21" },
-                        new ForestGeoCode { District = "05", GeoCode = "5", GroupCode = "22" },
-                        new ForestGeoCode { District = "06", GeoCode = "7", GroupCode = "18" },
-                        new ForestGeoCode { District = "07", GeoCode = "4", GroupCode = "23" },
-                        new ForestGeoCode { District = "17", GeoCode = "4", GroupCode = "23" },
+                        new ForestVolEqCode { District = "01", SubRegionCode = "5", GroupCode = "19" },
+                        new ForestVolEqCode { District = "02", SubRegionCode = "5", GroupCode = "20" },
+                        new ForestVolEqCode { District = "04", SubRegionCode = "5", GroupCode = "21" },
+                        new ForestVolEqCode { District = "05", SubRegionCode = "5", GroupCode = "22" },
+                        new ForestVolEqCode { District = "06", SubRegionCode = "7", GroupCode = "18" },
+                        new ForestVolEqCode { District = "07", SubRegionCode = "4", GroupCode = "23" },
+                        new ForestVolEqCode { District = "17", SubRegionCode = "4", GroupCode = "23" },
                     }
                 },
                 { "08", new[]
                     {
-                        new ForestGeoCode { GeoCode = "3", GroupCode = "11" },
-                        new ForestGeoCode { District = "11", GeoCode = "3", GroupCode = "12" },
-                        new ForestGeoCode { District = "12", GeoCode = "3", GroupCode = "12" },
-                        new ForestGeoCode { District = "13", GeoCode = "3", GroupCode = "12" },
-                        new ForestGeoCode { District = "14", GeoCode = "3", GroupCode = "12" },
-                        new ForestGeoCode { District = "15", GeoCode = "3", GroupCode = "12" },
-                        new ForestGeoCode { District = "16", GeoCode = "3", GroupCode = "12" },
+                        new ForestVolEqCode { SubRegionCode = "3", GroupCode = "11" },
+                        new ForestVolEqCode { District = "11", SubRegionCode = "3", GroupCode = "12" },
+                        new ForestVolEqCode { District = "12", SubRegionCode = "3", GroupCode = "12" },
+                        new ForestVolEqCode { District = "13", SubRegionCode = "3", GroupCode = "12" },
+                        new ForestVolEqCode { District = "14", SubRegionCode = "3", GroupCode = "12" },
+                        new ForestVolEqCode { District = "15", SubRegionCode = "3", GroupCode = "12" },
+                        new ForestVolEqCode { District = "16", SubRegionCode = "3", GroupCode = "12" },
                     }
                 },
                 { "09", new[]
                     {
-                        new ForestGeoCode { GeoCode = "6", GroupCode = "31" },
-                        new ForestGeoCode { District = "01", GeoCode = "6", GroupCode = "30" },
-                        new ForestGeoCode { District = "06", GeoCode = "6", GroupCode = "30" },
-                        new ForestGeoCode { District = "12", GeoCode = "6", GroupCode = "32" },
+                        new ForestVolEqCode { SubRegionCode = "6", GroupCode = "31" },
+                        new ForestVolEqCode { District = "01", SubRegionCode = "6", GroupCode = "30" },
+                        new ForestVolEqCode { District = "06", SubRegionCode = "6", GroupCode = "30" },
+                        new ForestVolEqCode { District = "12", SubRegionCode = "6", GroupCode = "32" },
                     }
                 },
                 {
                     "10", new[]
                     {
-                        new ForestGeoCode { GeoCode = "6", GroupCode = "04" },
-                        new ForestGeoCode { District = "07", GeoCode = "7", GroupCode = "05" },
+                        new ForestVolEqCode { SubRegionCode = "6", GroupCode = "04" },
+                        new ForestVolEqCode { District = "07", SubRegionCode = "7", GroupCode = "05" },
                     }
                 },
                 {
                     "11", new[]
                     {
-                        new ForestGeoCode { GeoCode = "3", GroupCode = "01" },
-                        new ForestGeoCode { District = "03", GeoCode = "1", GroupCode = "07" },
-                        new ForestGeoCode { District = "10", GeoCode = "2", GroupCode = "08" },
+                        new ForestVolEqCode { SubRegionCode = "3", GroupCode = "01" },
+                        new ForestVolEqCode { District = "03", SubRegionCode = "1", GroupCode = "07" },
+                        new ForestVolEqCode { District = "10", SubRegionCode = "2", GroupCode = "08" },
                     }
                 },
                 {
                     "12", new[]
                     {
-                        new ForestGeoCode { GeoCode = "2", GroupCode = "24" },
-                        new ForestGeoCode { District = "02", GeoCode = "3", GroupCode = "01" },
-                        new ForestGeoCode { District = "05", GeoCode = "1", GroupCode = "25" },
+                        new ForestVolEqCode { SubRegionCode = "2", GroupCode = "24" },
+                        new ForestVolEqCode { District = "02", SubRegionCode = "3", GroupCode = "01" },
+                        new ForestVolEqCode { District = "05", SubRegionCode = "1", GroupCode = "25" },
                     }
                 },
                 {
                     "13", new[]
                     {
-                        new ForestGeoCode { District = "01", GeoCode = "5", GroupCode = "26" },
-                        new ForestGeoCode { District = "03", GeoCode = "5", GroupCode = "27" },
-                        new ForestGeoCode { District = "04", GeoCode = "5", GroupCode = "29" },
-                        new ForestGeoCode { District = "07", GeoCode = "5", GroupCode = "28" },
+                        new ForestVolEqCode { District = "01", SubRegionCode = "5", GroupCode = "26" },
+                        new ForestVolEqCode { District = "03", SubRegionCode = "5", GroupCode = "27" },
+                        new ForestVolEqCode { District = "04", SubRegionCode = "5", GroupCode = "29" },
+                        new ForestVolEqCode { District = "07", SubRegionCode = "5", GroupCode = "28" },
                     }
                 },
-                { "60", new[] { new ForestGeoCode { GeoCode = "3", GroupCode = "01" } } },
-                { "36", new[] { new ForestGeoCode { GeoCode = "1", GroupCode = "25" } } },
+                { "60", new[] { new ForestVolEqCode { SubRegionCode = "3", GroupCode = "01" } } },
+                { "36", new[] { new ForestVolEqCode { SubRegionCode = "1", GroupCode = "25" } } },
             };
 
-        public static ForestGeoCode GetR8ForestGeoCode(string forest, string district)
+        public static ForestVolEqCode GetR8ForestVolEqCodes(string forest, string district)
         {
-            if (!ForestGeoCodeLookup.TryGetValue(forest, out var geoCodes)) return null;
-            return geoCodes.FirstOrDefault(x => x.District == district) ?? geoCodes.First(x => x.District == null);
+            if (!ForestVolEqCodeLookup.TryGetValue(forest, out var geoCodes)) return null;
+            return geoCodes.FirstOrDefault(x => x.District == district) // look for district specific code first
+                ?? geoCodes.FirstOrDefault(x => x.District == null); // look for geoCode with no specific district otherwise return null
         }
 
         protected CpDataLayer DataLayer { get; }
@@ -188,7 +189,7 @@ namespace CruiseProcessing
 
             //  Look up geo code and group code for this forest and district (if any)
             //  First look in defaults
-            var forestGeoCode = GetR8ForestGeoCode(currentForest, currentDistrict);
+            var forestGeoCode = GetR8ForestVolEqCodes(currentForest, currentDistrict);
 
             //  if geocode and group code are null, means forest or district are incorrect
             if (forestGeoCode == null)
@@ -216,11 +217,11 @@ namespace CruiseProcessing
                 //  Build Clark equations -- old or new -- July 2017
                 if (newClarkCheckBox.Checked == true)
                 {
-                    buildNewClarkEquations(forestGeoCode.GeoCode, spProd.SpeciesCode, spProd.ProductCode);
+                    buildNewClarkEquations(forestGeoCode.SubRegionCode, spProd.SpeciesCode, spProd.ProductCode);
                 }
                 else if (oldClarkCheckBox.Checked == true)
                 {
-                    buildClarkEquation(forestGeoCode.GeoCode, spProd.SpeciesCode, spProd.ProductCode, pulpwoodHeight);
+                    buildClarkEquation(forestGeoCode.SubRegionCode, spProd.SpeciesCode, spProd.ProductCode, pulpwoodHeight);
                 }   //  endif
             }
 
@@ -450,7 +451,7 @@ namespace CruiseProcessing
 
             speciesCode = speciesCode.PadLeft(3, '0');
 
-            return $"8{geoCode}{subRegionCode}{model}{coastalCode}{speciesCode}";
+            return $"{geoCode}{subRegionCode}{model}{coastalCode}{speciesCode}";
         }
 
 

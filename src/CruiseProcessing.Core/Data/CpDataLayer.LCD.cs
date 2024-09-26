@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,12 @@ namespace CruiseProcessing.Data
         public List<LCDDO> getLCD()
         {
             return DAL.From<LCDDO>().Read().ToList();
-        }   //  end getLCD
+        }
+
+        public List<LCDDO> GetLcds(string stratum)
+        {
+            return DAL.From<LCDDO>().Where("Stratum = @p1").Read(stratum).ToList();
+        }
 
         public List<LCDDO> getLCDOrdered(string searchString, string orderBy, string currCutLeave,
                                     string currST, string currPP)

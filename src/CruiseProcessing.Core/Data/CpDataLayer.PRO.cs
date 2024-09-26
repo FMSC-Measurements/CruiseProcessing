@@ -16,6 +16,14 @@ namespace CruiseProcessing.Data
         }   //  end getPRO
 
 
+        public List<PRODO> GetProsByStratum(string stratumCode)
+        {
+            return DAL.From<PRODO>()
+                .Where("Stratum = @p1")
+                .Read(stratumCode)
+                .ToList();
+        }
+
         public List<PRODO> getPROunit(string currCU)
         {
             return DAL.From<PRODO>().Where("CuttingUnit = @p1").Read(currCU).ToList();
