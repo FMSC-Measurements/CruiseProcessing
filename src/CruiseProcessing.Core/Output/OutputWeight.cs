@@ -11,15 +11,9 @@ using System.Text;
 
 namespace CruiseProcessing
 {
-    public class OutputWeight : OutputFileReportGeneratorBase
+    public partial class OutputWeight : OutputFileReportGeneratorBase
     {
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
 
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNTOPWOOD(ref int SPN, ref float GCUFTS, ref float WT);
-
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCULLLOG(ref int SPN, ref float GCUFTS, ref float WT);
-
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
 
         #region headers
         //  Weight reports
@@ -969,7 +963,7 @@ namespace CruiseProcessing
         {
             int currFIA = 0;
             //  load biomass list
-            float[] crownFractionWGT = new float[5];
+            
             float topwoodWGT = 0;
             float cullLogWGT = 0;
             float cullChunkWGT = 0;
@@ -1006,6 +1000,8 @@ namespace CruiseProcessing
                 //  crown section and damaged small trees
                 foreach (TreeCalculatedValuesDO cd in currentData)
                 {
+                    float[] crownFractionWGT = new float[CROWN_FACTOR_WEIGHT_ARRAY_LENGTH];
+
                     float currDBH = cd.Tree.DBH;
                     float currHGT = 0;
                     float CR = 0;
