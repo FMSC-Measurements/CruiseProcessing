@@ -40,6 +40,7 @@ namespace CruiseProcessing
 
             //  next show preparation of data
             progress?.Report("Preparing data for processing.");
+            Logger?.LogInformation("Start Processing");
             var dal = DataLayer.DAL;
             dal.BeginTransaction();
             try
@@ -55,8 +56,7 @@ namespace CruiseProcessing
                 foreach (StratumDO sdo in sList)
                 {
                     //  update status message for next stratum
-                    progress?.Report("Calculating stratum " + sdo.Code);
-
+                    progress?.Report("Processing stratum " + sdo.Code);
                     ProcessStratum(sdo, TreeValCalculator, calcVal);
                 }
 
@@ -65,6 +65,7 @@ namespace CruiseProcessing
                 DataLayer.IsProcessed = true;
                 //  show volume calculation is finished
                 progress?.Report("Processing is DONE");
+                Logger?.LogInformation("Processing is DONE");
 
             }
             catch (Exception ex)
@@ -85,6 +86,8 @@ namespace CruiseProcessing
             ICalculateTreeValues calcTreeVal,
             CalculatedValues calcVal)
         {
+            Logger?.LogInformation("Processing stratum {StratumCode}", stratum.Code);
+
             List<TreeDO> stratumTrees = DataLayer.GetTreesByStratum(stratum.Code).ToList();
             List<PlotDO> stratumPlots = DataLayer.GetPlotsByStratum(stratum.Code);
             //  need cut and leave trees for this
