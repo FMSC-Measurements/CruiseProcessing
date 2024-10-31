@@ -13,6 +13,7 @@
 		<PackageReference Include="CruiseDAL.V3.Models" Version="3.6.7.124" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
 		<!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.0.4" /> -->
 	</ItemGroup>

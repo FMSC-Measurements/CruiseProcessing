@@ -189,11 +189,7 @@ namespace CruiseProcessing
                         && b.Component == "SecondaryProd");
 
 
-                if (primaryBiomassEq == null || primaryBiomassEq.WeightFactorPrimary == 0.0)
-                {
-                    footFlag = 1;  // set flag to indicate group wasn't printed in footer
-                    continue;
-                }
+               
 
                 //  get all LCD elements for current group
                 var whereClause = "WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND " +
@@ -212,13 +208,20 @@ namespace CruiseProcessing
                     grossCuFtSecondary += gd.SumGCUFTtop * stratumAcres;
                 }
 
-                var weightFactorPrimary = primaryBiomassEq.WeightFactorPrimary;
-                var percentRemovedPrimary = primaryBiomassEq.PercentRemoved;
+                var primaryBioValues = DataLayer.GetPrimaryWeightFactorAndMoistureContent(group.Species, group.PrimaryProduct, group.LiveDead);
+                var weightFactorSecondary = DataLayer.GetSecondaryWeightFactor(group.Species, group.SecondaryProduct, group.LiveDead);
+                if (primaryBioValues == null || primaryBioValues.WeightFactor == 0.0
+                    || weightFactorSecondary == null)
+                {
+                    footFlag = 1;  // set flag to indicate group wasn't printed in footer
+                    continue;
+                }
 
-                var weightFactorSecondary = (secondaryBiomassEq != null && secondaryBiomassEq.WeightFactorSecondary > 0)
-                    ? secondaryBiomassEq.WeightFactorSecondary : weightFactorPrimary;
-                var percentRemovedSecondary = (secondaryBiomassEq != null && secondaryBiomassEq.PercentRemoved > 0)
-                    ? secondaryBiomassEq.PercentRemoved : percentRemovedPrimary;
+                var weightFactorPrimary = primaryBioValues.WeightFactor;
+                var percentRemovedPrimary = DataLayer.GetPrecentRemoved(group.Species, group.SecondaryProduct);
+                var percentRemovedSecondary = percentRemovedPrimary; // secondary percent removed is the same as primary
+
+                
 
                 double tonsRemovedPrimary = 0.0;
                 double tonsRemovedSecondary = 0.0;
@@ -238,10 +241,10 @@ namespace CruiseProcessing
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                WT1columns, 3, ref pageNumb, "");
 
-                    var poundsStanding = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * weightFactorSecondary;
+                    var poundsStanding = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * weightFactorSecondary.Value;
                     var poundsRemoved = poundsStanding * (percentRemovedSecondary / 100);
                     tonsRemovedSecondary = poundsRemoved / 2000;
-                    WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
+                    WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary.Value, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
 
                 }
 

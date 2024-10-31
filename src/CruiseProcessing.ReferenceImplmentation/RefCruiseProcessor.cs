@@ -149,10 +149,8 @@ namespace CruiseProcessing.ReferenceImplmentation
                 DataLayer.SaveTrees(justCurrentStratum);
             }   //  endif on method
 
-            //var justStratumPlots = PlotMethods.GetStrata(pList, sdo.Code);
-
             //  Sum data for the LCD, POP and PRO table
-            SumAll.SumAllValues(DataLayer, sdo, pList, justCurrentLCD, justCurrentPOP, justCurrentPRO);
+            SumAll.SumAllValues(DataLayer, sdo, justPlots, justCurrentLCD, justCurrentPOP, justCurrentPRO);
 
             //  Update STR tally after expansion factors are summed
             if (sdo.Method == "STR")

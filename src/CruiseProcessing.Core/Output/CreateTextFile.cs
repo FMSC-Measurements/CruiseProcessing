@@ -487,6 +487,7 @@ namespace CruiseProcessing
                 ErrorReport.WriteWarnings(strWriteOut, fsCrzErrors, ref pageNumber, headerData, DataLayer);
                 hasWarnings = true;
             }
+            ErrorReport.WriteInfo(strWriteOut, ref pageNumber, headerData, DataLayer);
 
             failedReports = failedReportsList.ToArray();
 

@@ -31,7 +31,7 @@ namespace CruiseProcessing.Test
             };
             var v2Db = init.CreateDatabase();
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2Db, mockDlLogger);
+            var dataLayer = new CpDataLayer(v2Db, mockDlLogger, biomassOptions: null);
             DataContext.DataLayer = dataLayer;
 
 
@@ -88,7 +88,7 @@ namespace CruiseProcessing.Test
             migrator.MigrateFromV3ToV2(initV3.CruiseID, v3db, v2db);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockDlLogger);
+            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockDlLogger, biomassOptions: null);
             DataContext.DataLayer = dataLayer;
 
 

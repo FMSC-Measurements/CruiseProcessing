@@ -12,6 +12,9 @@ namespace CruiseProcessing.Data
     public partial class CpDataLayer
     {
 
+        public const string ERROR_PROGRAM_CRUISE_PROCESSING = "CruiseProcessing";
+        public const string ERROR_LEVEL_INFO = "I";
+
         public IReadOnlyCollection<ErrorLogDO> GetErrorMessages(string programName)
         {
             if (programName == "FScruiser")
@@ -21,7 +24,7 @@ namespace CruiseProcessing.Data
                     .Read()
                     .ToList();
             }
-            else if (programName == "CruiseProcessing")
+            else if (programName == ERROR_PROGRAM_CRUISE_PROCESSING)
             {
                 return DAL.From<ErrorLogDO>()
                     .Where(" Program = 'CruiseProcessing'")
@@ -102,7 +105,7 @@ namespace CruiseProcessing.Data
             }
             catch (FMSC.ORM.UniqueConstraintException e)
             {
-                Log.LogWarning(e, "Unique Constraint Exception While Saving ErrorLog {TableName}, {Column}, {Message}", eldo.TableName, eldo.ColumnName, eldo.Message);
+                Log.LogWarning(e, "Unique Constraint Exception While Saving ErrorLog {TableName}, {Level}, {Column}, {Message}", eldo.TableName, eldo.Level, eldo.ColumnName, eldo.Message);
             }
         }
     }

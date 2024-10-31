@@ -63,7 +63,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockLogger);
+            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
 
 
             var errors = EditChecks.CheckErrors(dataLayer);

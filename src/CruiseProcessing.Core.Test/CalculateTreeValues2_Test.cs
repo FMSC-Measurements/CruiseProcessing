@@ -73,7 +73,7 @@ namespace CruiseProcessing.Test
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
             var dal = new DAL(filePath);
-            var dataLayer = new CpDataLayer(dal, mockLogger);
+            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
             var ctv = new RefCalculateTreeValues(dataLayer);
 
             var trees = dataLayer.getTrees();
@@ -127,7 +127,7 @@ namespace CruiseProcessing.Test
             var migrator = new DownMigrator();
             migrator.MigrateFromV3ToV2(cruiseID, db, dal);
 
-            var dataLayer = new CpDataLayer(dal, mockLogger);
+            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
             var ctv = new RefCalculateTreeValues(dataLayer);
 
             var trees = dataLayer.getTrees();
