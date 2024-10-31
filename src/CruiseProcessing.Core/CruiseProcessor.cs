@@ -32,6 +32,8 @@ namespace CruiseProcessing
 
         public void ProcessCruise(IProgress<string> progress)
         {
+            DataLayer.ResetBioMassEquationCache();
+
             //  before making IDs, need to check for blank or null secondary products in sample groups
             //  if blank, default to 02 for every region but 6 where it will be 08 instead
             //  put a warning message in the error log table indicating the secondary product was set to a default
@@ -124,11 +126,8 @@ namespace CruiseProcessing
                 DataLayer.SaveTrees(stratumTrees);
             }
 
-            var allPlots = DataLayer.getPlots(); // this is likely a bug, we should probably just be passing stratumPlots
-            // to the sum all values method but this is how it was done in the original code
-
             //  Sum data for the LCD, POP and PRO table
-            SumAll.SumAllValues(DataLayer, stratum, allPlots, stratumLcds, stratumPops, stratumPros);
+            SumAll.SumAllValues(DataLayer, stratum, stratumPlots, stratumLcds, stratumPops, stratumPros);
 
             //  Update STR tally after expansion factors are summed
             if (stratum.Method == "STR")
@@ -136,6 +135,8 @@ namespace CruiseProcessing
                 UpdateStrTalliedTrees(stratumLcds);
                 DataLayer.SaveLCD(stratumLcds);
             }
+
+            Logger?.LogInformation("Processing Done: {StratumCode}", stratum.Code);
         }
 
         private static void Update3Ptally(List<CountTreeDO> stratumCountTrees, List<LCDDO> stratumLcds,
