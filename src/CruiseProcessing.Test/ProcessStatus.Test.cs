@@ -79,7 +79,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
+            var dataLayer = new CpDataLayer(dal, mockDlLogger, biomassOptions: null);
 
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = new Mock<ILogger<ProcessStatus>>();
@@ -137,7 +137,7 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
+            var dataLayer = new CpDataLayer(dal, mockDlLogger, biomassOptions: null);
 
             var mockDialogService = Substitute.For<IDialogService>();
 

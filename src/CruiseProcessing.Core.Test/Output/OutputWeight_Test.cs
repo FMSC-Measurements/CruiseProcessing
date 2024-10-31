@@ -24,7 +24,7 @@ namespace CruiseProcessing.Test.Output
 
             using var db = new DAL(filePath);
 
-            var dataLayer = new CpDataLayer(db, Substitute.For<ILogger<CpDataLayer>>());
+            var dataLayer = new CpDataLayer(db, Substitute.For<ILogger<CpDataLayer>>(), biomassOptions: null);
 
 
             var reportID = "WT1";

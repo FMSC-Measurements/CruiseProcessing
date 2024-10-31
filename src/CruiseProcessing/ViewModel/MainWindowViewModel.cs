@@ -1,9 +1,11 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
+using CruiseProcessing.Config;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using System;
@@ -397,7 +399,12 @@ namespace CruiseProcessing.ViewModel
             //open connection forces the connection to remain open not to close and open.  Might be good to re-work the process button click?
             dal.OpenConnection();
 
-            var datalayer = new CpDataLayer(dal, dal_v3, cruiseID, Services.GetRequiredService<ILogger<CpDataLayer>>(), isTemplate);
+            var datalayer = new CpDataLayer(dal,
+                dal_v3,
+                cruiseID,
+                Services.GetRequiredService<ILogger<CpDataLayer>>(),
+                Services.GetRequiredService<IOptions<BiomassEquationOptions>>(),
+                isTemplate);
 
             if (!isTemplate)
             {

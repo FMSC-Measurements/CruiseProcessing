@@ -398,6 +398,26 @@ namespace CruiseProcessing
             lineNumber += 12;
         }
 
+        public static bool WriteInfo(TextWriter writer, ref int pageNumber, HeaderFieldData headerData, CpDataLayer dataLayer)
+        {
+            var infoMessages = dataLayer.getErrorMessages(CpDataLayer.ERROR_LEVEL_INFO, CpDataLayer.ERROR_PROGRAM_CRUISE_PROCESSING);
+            if(!infoMessages.Any())
+            {
+                return false;
+            }
+
+            var lineNumber = 0;
+            string[] infoHeader = new string[] { " INFO MESSAGE " };
+
+            foreach(var msg in infoMessages)
+            {
+                lineNumber = OutputFileReportGeneratorBase.WriteReportHeading(writer, "INFO MESSAGES", "", "", infoHeader, 8, ref pageNumber, "", headerData, lineNumber, null);
+                writer.WriteLine(msg.Message);
+                lineNumber++;
+            }
+            return true;
+        }
+
         public static string GetWarningLine(ErrorLogDO eld, CpDataLayer dataLayer)
         {
             StringBuilder sb = new StringBuilder();

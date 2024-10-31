@@ -330,7 +330,8 @@ namespace CruiseProcessing
 
 
                 //  Need to see if biomass calculation is needed here since it needs VOL[13] and VOL[14] for the call
-                float[] treeBiomassCalulations = CalculateBiomass(tree, VOL, Region, Forest);
+                float[] treeBiomassCalulations = (ved.CalcBiomass == 1) ? CalculateBiomass(tree, VOL, Region, Forest)
+                    : new float[CRZBIOMASSCS_BMS_SIZE];
 
 
                 //  Store volumes in tree calculated values
@@ -444,13 +445,6 @@ namespace CruiseProcessing
             var species = tree.Species;
             var product = tree.SampleGroup.PrimaryProduct;
             var liveDead = tree.LiveDead;
-            var biomassEqs = DataLayer.GetBiomassEquations(species, product); //  bioEqs.Where(bdo => bdo.Species == species && bdo.Product == product);
-
-            if (!biomassEqs.Any())
-            {
-                Log.LogWarning("No Biomass Equations Found");
-                return calculatedBiomass;
-            }
 
             var currFIA = tree.TreeDefaultValue.FIAcode;
             var currDBH = tree.DBH;
@@ -468,21 +462,34 @@ namespace CruiseProcessing
             // in older versions Cruise Processing ignored the liveDead value
             // to maintian some backwards compatibility we will try to use the
             // liveDead specific biomass equations first, then fall back to the
-            // to whichever biomass equation is available
+            // to whichever biomass equation is available.
 
-            var pProdEq = biomassEqs.FirstOrDefault(beq => beq.Component == "PrimaryProd" && beq.LiveDead == liveDead)
-                ?? biomassEqs.FirstOrDefault(beq => beq.Component == "PrimaryProd");
-            if (pProdEq != null)
+            // Oct 2024 - added new biomass service that will attempt to get weight factors
+            // from volume library if not found in the database
+
+            var pProdBiomassValues = DataLayer.GetPrimaryWeightFactorAndMoistureContent(species, product, liveDead);
+            if(pProdBiomassValues != null)
             {
-                WF[0] = pProdEq.WeightFactorPrimary;
-                WF[2] = pProdEq.PercentMoisture;
+                WF[0] = pProdBiomassValues.WeightFactor;
+                WF[2] = pProdBiomassValues.MoistureContent;
+            }
+            else
+            {
+                Log.LogWarning("No Biomass Calculated: Unable to get primary prod values");
+                DataLayer.LogError("Tree", (int)tree.Tree_CN, "W", "No Biomass Calculated: Unable to get primary prod weight factor", columnName: "");
+                return calculatedBiomass;
             }
 
-            var sProdEq = biomassEqs.FirstOrDefault(beq => beq.Component == "SecondaryProd" && beq.LiveDead == liveDead)
-                ?? biomassEqs.FirstOrDefault(beq => beq.Component == "SecondaryProd");
-            if (sProdEq != null)
+            var sProdBiomassValue = DataLayer.GetSecondaryWeightFactor(species, product, liveDead);
+            if(sProdBiomassValue != null)
             {
-                WF[1] = sProdEq.WeightFactorSecondary;
+                WF[1] = sProdBiomassValue.Value;
+            }
+            else
+            {
+                Log.LogWarning("No Biomass Calculated: Unable to get secondary prod values");
+                DataLayer.LogError("Tree", (int)tree.Tree_CN, "W", "No Biomass Calculated: Unable to get secondary prod weight factors", columnName: "");
+                return calculatedBiomass;
             }
 
             var prod = new StringBuilder(STRING_BUFFER_SIZE).Append(product);
@@ -504,11 +511,11 @@ namespace CruiseProcessing
 
             // Apply percent removed if greater than zero
             // seems like each BioEq for a given species/prod has the same PercentRemoved value
-            var pctRemv = biomassEqs.FirstOrDefault(x => x.PercentRemoved > 0);
-            if (pctRemv != null)
+            var pctRemv = DataLayer.GetPrecentRemoved(species, product);
+            if (pctRemv > 0)
             {
                 for (int j = 0; j < CRZBIOMASSCS_BMS_SIZE; j++)
-                { calculatedBiomass[j] = calculatedBiomass[j] * pctRemv.PercentRemoved / 100.0f; }
+                { calculatedBiomass[j] = calculatedBiomass[j] * pctRemv / 100.0f; }
             }
 
             return calculatedBiomass;

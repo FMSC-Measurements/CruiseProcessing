@@ -1,4 +1,8 @@
 ﻿using Bogus;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using System.Collections;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Reflection;
@@ -109,5 +113,15 @@ public class TestBase
     public void RegesterFileForCleanUp(string path)
     {
         FilesToBeDeleted.Add(path);
+    }
+
+    public ILogger<T> CreateLogger<T>()
+    {
+        var typeName = typeof(T).Name;
+
+        var logger = Substitute.For<ILogger<T>>();
+        logger.When(x => x.Log<object>(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>()))
+            .Do(x => Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()));
+        return logger;
     }
 }

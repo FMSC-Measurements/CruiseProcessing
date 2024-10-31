@@ -93,7 +93,7 @@ namespace CruiseProcessing.Test.Output
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
 
-            var dataLayer = new CpDataLayer(db, mockDlLogger);
+            var dataLayer = new CpDataLayer(db, mockDlLogger, biomassOptions: null);
 
             var headerFieldData = new HeaderFieldData { CruiseName = "Name", Date = DateTime.Now.ToString(), DllVersion = "1.1.1.1", SaleName = "saleName", Version= "1.1.1.2"  };
 

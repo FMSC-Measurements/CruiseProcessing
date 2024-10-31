@@ -58,7 +58,7 @@ namespace CruiseProcessing
                 errors.AddError("Sale", "E", "25", 0, "NoName");       //  error 25 -- table cannot be empty
             else if (saleCount > 1)
                 errors.AddError("Sale", "E", "28", 28, "SaleNumber");       //  error 28 -- more than one sale record not allowed
-            if (saleCount == 1)
+            else if (saleCount == 1)
             {
                 var sale = saleList[0];
 
@@ -256,8 +256,8 @@ namespace CruiseProcessing
             foreach (var st in strata)
             {
                 // fixcnt is not required to have height and typically doesn't have any measurements other than dbh
-                var isFixCNT = st.Method == CruiseMethods.FIXCNT;
-                if(isFixCNT) { continue; }
+                // however, this check might not be necessary because FixCNT doesn't have measure trees
+                if(st.Method == CruiseMethods.FIXCNT) { continue; }
 
                 var stratumMeasureTrees = dataLayer.JustMeasuredTrees(st.Stratum_CN.Value);
 
@@ -446,13 +446,17 @@ namespace CruiseProcessing
                         errors.AddError("VolumeEquation", "E", "5", volEq.rowID.Value, "VolumeEquationNumber");
                     }
 
+                    // removed check for biomass equations because we don't know if the volume equation is actually being used
+                    // before CP solved this issue by deleting unused volume equations, but since we don't want volume equations
+                    // to be automatically deleted, we can't trust this audit to be helpful
+                    // instead if biomass eq info is missing while processing there will be a warning in the output.
 
-                    if(volEq.CalcBiomass > 0
-                        && !dataLayer.GetBiomassEquations(volEq.Species, volEq.PrimaryProduct).Any())
-                    {
-                        errors.AddError("VolumeEquation", "W", "VolumeEquation has Calculate Biomass Flag but biomass equations haven't been defined", volEq.rowID.Value, "NoName");
+                    //if(volEq.CalcBiomass > 0
+                    //    && !dataLayer.GetBiomassEquations(volEq.Species, volEq.PrimaryProduct).Any())
+                    //{
+                    //    errors.AddError("VolumeEquation", "W", "VolumeEquation has Calculate Biomass Flag but biomass equations haven't been defined", volEq.rowID.Value, "NoName");
 
-                    }
+                    //}
                 }
 
                 if (isVLL)
