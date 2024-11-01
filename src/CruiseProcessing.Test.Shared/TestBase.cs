@@ -17,6 +17,7 @@ public class TestBase
     protected Randomizer Rand { get; }
     protected Stopwatch _stopwatch;
     private string _testTempPath;
+    protected LogLevel LogLevel { get; set; } = LogLevel.Information;
 
     private List<string> FilesToBeDeleted { get; } = new List<string>();
 
@@ -80,7 +81,7 @@ public class TestBase
     public string GetTempFilePath(string extention, string fileName = null)
     {
         var testTempPath = TestTempPath;
-        if(Directory.Exists(testTempPath) is false)
+        if (Directory.Exists(testTempPath) is false)
         {
             Directory.CreateDirectory(testTempPath);
         }
@@ -121,7 +122,11 @@ public class TestBase
 
         var logger = Substitute.For<ILogger<T>>();
         logger.When(x => x.Log<object>(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>()))
-            .Do(x => Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()));
+            .Do(x =>
+            {
+                if (x.Arg<LogLevel>() >= LogLevel)
+                { Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()); }
+            });
         return logger;
     }
 }

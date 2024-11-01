@@ -395,13 +395,32 @@ namespace CruiseProcessing
                     "WHERE Species IS NOT NULL AND SampleGroup_CN IS NOT NULL " +
                     "GROUP BY t.Species, sg.PrimaryProduct;").ToArray();
 
+                var volEqSpeciesProdLookup = volList.ToLookup(x => (x.Species, x.PrimaryProduct));
+
                 // TODO should this only check measure trees? Would this be better to do the check at the SG level?
-                foreach (var tree in spProdTrees)
+                foreach (var spProd in spProdTrees)
                 {
-                    if (!volList.Any(x => x.Species == tree.Species && x.PrimaryProduct == tree.PrimaryProduct))
+                    var volEqs = volEqSpeciesProdLookup[(spProd.Species, spProd.PrimaryProduct)];
+
+                    if (!volEqs.Any())
                     {
-                        errors.AddError("Tree", "E", "12", tree.RecID, "Species");
+                        errors.AddError("Tree", "E", "12", spProd.RecID, "Species");
                     }
+                    else
+                    {
+                        if(volEqs.Count(x => x.CalcBoard > 0) > 1
+                            || volEqs.Count(x => x.CalcCubic > 0) > 1
+                            || volEqs.Count(x => x.CalcCord > 0) > 1
+                            || volEqs.Count(x => x.CalcTopwood > 0) > 1
+                            || volEqs.Count(x => x.CalcBiomass > 0) > 1
+                            || volEqs.Count(x => x.CalcTotal > 0) > 1
+                            )
+                        {
+                            errors.AddError("VolumeEquation", "E", $"Multiple Volume Equations for {spProd.Species} {spProd.PrimaryProduct} Calculating The Same Components", volEqs.First().RowID.Value, "-");
+                        }
+
+                    }
+
                 }
 
                 foreach (var volEq in volList)
