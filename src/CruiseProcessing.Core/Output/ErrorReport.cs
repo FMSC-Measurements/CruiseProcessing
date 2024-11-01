@@ -377,7 +377,7 @@ namespace CruiseProcessing
                 }   //  end for k loop
             }
 
-            return ""; // errNumber is not a number and not in messages, then we can assume it is the error message
+            return errNumber; // errNumber is not a number and not in messages, then we can assume it is the error message
         }   //  end getErrorMessage
 
         public static void WriteWarnings(TextWriter strWriteOut, IEnumerable<ErrorLogDO> errList, ref int pageNumb, HeaderFieldData headerData, CpDataLayer dataLayer)
