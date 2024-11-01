@@ -71,10 +71,10 @@ namespace CruiseProcessing.Test
         {
             var filePath = GetTestFile(fileName);
 
-            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var mockLogger = CreateLogger<CpDataLayer>();
             var dal = new DAL(filePath);
             var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
-            var ctv = new RefCalculateTreeValues(dataLayer);
+            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculatedValues>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -82,7 +82,7 @@ namespace CruiseProcessing.Test
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
+            var ctv2 = new CalculateTreeValues2(dataLayer, CreateLogger<CalculateTreeValues2>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();
@@ -116,7 +116,7 @@ namespace CruiseProcessing.Test
         {
             var filePath = GetTestFile(fileName);
 
-            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var mockLogger = CreateLogger<CpDataLayer>();
 
             var db = new CruiseDatastore_V3(filePath);
             var cruiseID = db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
@@ -128,7 +128,7 @@ namespace CruiseProcessing.Test
             migrator.MigrateFromV3ToV2(cruiseID, db, dal);
 
             var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
-            var ctv = new RefCalculateTreeValues(dataLayer);
+            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculatedValues>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -136,7 +136,7 @@ namespace CruiseProcessing.Test
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
+            var ctv2 = new CalculateTreeValues2(dataLayer, CreateLogger<CalculateTreeValues2>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();
