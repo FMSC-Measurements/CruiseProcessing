@@ -197,8 +197,12 @@ namespace CruiseProcessing.Services
 
         public void ShowProcess()
         {
-            ProcessStatus statusDlg = Services.GetRequiredService<ProcessStatus>();
-            statusDlg.ShowDialog();
+            //ProcessStatus statusDlg = Services.GetRequiredService<ProcessStatus>();
+            //statusDlg.ShowDialog();
+
+            var window = Services.GetRequiredService<ProcessCruiseDialog>();
+            window.Owner = Window;
+            window.ShowDialog();
 
             return;
         }

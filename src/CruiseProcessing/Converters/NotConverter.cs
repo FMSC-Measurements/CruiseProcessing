@@ -4,26 +4,17 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Data;
 
 namespace CruiseProcessing.Converters
 {
-    [ValueConversion(typeof(bool), typeof(Visibility))]
-    public class BoolToVisibilityConverter : IValueConverter
+    public class NotConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (targetType == typeof(Visibility) && value is bool v)
+            if(targetType == typeof(bool) && value is bool v)
             {
-                if (v)
-                {
-                    return Visibility.Visible;
-                }
-                else
-                {
-                    return Visibility.Collapsed;
-                }
+                return !v;
             }
 
             return Binding.DoNothing;

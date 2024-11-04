@@ -1,6 +1,7 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,12 +17,12 @@ namespace CruiseProcessing
         public ILogger Logger { get; }
         public ICalculateTreeValues TreeValCalculator { get; }
 
-        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, ILogger<CruiseProcessor> logger, ICalculateTreeValues treeValCalculator)
+        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, ILogger<CruiseProcessor> logger, ILogger<CalculateTreeValues2> ctvLogger)
         {
             DataLayer = dataLayer;
             DialogService = dialogService;
             Logger = logger;
-            TreeValCalculator = treeValCalculator;
+            TreeValCalculator = new CalculateTreeValues2(dataLayer, ctvLogger);
         }
 
 

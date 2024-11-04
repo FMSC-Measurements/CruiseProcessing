@@ -118,10 +118,8 @@ namespace CruiseProcessing.Test
             }
 
             var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<CruiseProcessor>>();
 
-            var calculateTreeValues = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger.Object, calculateTreeValues);
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, CreateLogger<CruiseProcessor>(), CreateLogger<CalculateTreeValues2>());
 
 
 
@@ -241,8 +239,7 @@ namespace CruiseProcessing.Test
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = CreateLogger<CruiseProcessor>();
 
-            var calculateTreeValues = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger, calculateTreeValues);
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger, CreateLogger<CalculateTreeValues2>());
 
             
 
@@ -261,11 +258,11 @@ namespace CruiseProcessing.Test
             // initialize reference processor and process cruise
             //
 
-            var mockServiceProvider = Substitute.For<IServiceProvider>();
-            mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
+            //var mockServiceProvider = Substitute.For<IServiceProvider>();
+            //mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
             //mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new RefCalculateTreeValues(dataLayer));
 
-            var refProcessor = new RefCruiseProcessor(dataLayer, Substitute.For<ILogger<RefCruiseProcessor>>(), mockServiceProvider);
+            var refProcessor = new RefCruiseProcessor(dataLayer, Substitute.For<ILogger<RefCruiseProcessor>>(), CreateLogger<RefCalculateTreeValues>());
             refProcessor.ProcessCruise(Substitute.For<IProgress<string>>());
 
             var tcvAgain = dataLayer.getTreeCalculatedValues();

@@ -39,7 +39,7 @@ namespace CruiseProcessing.ReferenceImplmentation
         protected CpDataLayer DataLayer { get; }
         public ILogger Log { get; }
 
-        public RefCalculateTreeValues(CpDataLayer dataLayer, ILogger<RefCalculatedValues> logger)
+        public RefCalculateTreeValues(CpDataLayer dataLayer, ILogger<RefCalculateTreeValues> logger)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Log = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -1,6 +1,7 @@
 ﻿using CruiseDAL;
 using CruiseProcessing.Async;
 using CruiseProcessing.Data;
+using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using DiffPlex.DiffBuilder;
 using FluentAssertions;
@@ -141,9 +142,7 @@ namespace CruiseProcessing.Test
 
             var mockDialogService = Substitute.For<IDialogService>();
 
-
-            var treeValueCalculator = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService, Substitute.For<ILogger<CruiseProcessor>>(), treeValueCalculator);
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService, Substitute.For<ILogger<CruiseProcessor>>(), CreateLogger<CalculateTreeValues2>());
             var processStatus = new ProcessStatus(dataLayer, mockDialogService, Substitute.For<ILogger<ProcessStatus>>(), cruiseProcessor);
 
             var result = processStatus.DoPreProcessChecks();
