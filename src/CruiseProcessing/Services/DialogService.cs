@@ -202,6 +202,7 @@ namespace CruiseProcessing.Services
 
             var window = Services.GetRequiredService<ProcessCruiseDialog>();
             window.Owner = Window;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             window.ShowDialog();
 
             return;
