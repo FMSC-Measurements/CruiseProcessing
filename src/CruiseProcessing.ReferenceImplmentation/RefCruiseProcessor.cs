@@ -13,15 +13,18 @@ namespace CruiseProcessing.ReferenceImplmentation
 {
     public class RefCruiseProcessor : ICruiseProcessor
     {
+        protected ILogger<RefCalculateTreeValues> _ctvLogger;
         public CpDataLayer DataLayer { get; }
         public ILogger Logger { get; }
+        
+
         public IServiceProvider Services { get; }
 
-        public RefCruiseProcessor(CpDataLayer dataLayer, ILogger<RefCruiseProcessor> logger, IServiceProvider serviceProvider)
+        public RefCruiseProcessor(CpDataLayer dataLayer, ILogger<RefCruiseProcessor> logger, ILogger<RefCalculateTreeValues> ctvLogger)
         {
             DataLayer = dataLayer;
             Logger = logger;
-            Services = serviceProvider;
+            _ctvLogger = ctvLogger;
         }
 
         public Task ProcessCruiseAsync(IProgress<string> progress)
@@ -65,7 +68,7 @@ namespace CruiseProcessing.ReferenceImplmentation
                     //  update status message for next stratum
                     progress?.Report("Calculating stratum " + sdo.Code);
 
-                    var calcTreeVal = Services.GetRequiredService<ICalculateTreeValues>();
+                    var calcTreeVal = new RefCalculateTreeValues(DataLayer, _ctvLogger);
 
                     ProcessStratum(sdo, calcTreeVal, calcVal, lcdList, popList, proList, ctList, pList, tList);
 

@@ -85,22 +85,26 @@ namespace CruiseProcessing
 
             services.AddSingleton(appInstance);
 
-            var config = context.Configuration;
-            if (config.GetValue("UesReferenceProcessor", false))
-            {
-                services.AddTransient<ICruiseProcessor, RefCruiseProcessor>();
-            }
-            else
-            {
-                services.AddTransient<ICruiseProcessor, CruiseProcessor>();
-            }
+            //var config = context.Configuration;
+            //if (config.GetValue("UesReferenceProcessor", false))
+            //{
+            //    services.AddTransient<ICruiseProcessor, RefCruiseProcessor>();
+            //}
+            //else
+            //{
+            //    services.AddTransient<ICruiseProcessor, CruiseProcessor>();
+            //}
 
-            services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
+            services.AddTransient<ICruiseProcessor, CruiseProcessor>();
+            services.RegisterReferenceImplimentations();
+
+            //services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
 
 
             // register all forms
             //services.AddSingleton<MainMenu>();
             services.AddSingleton<MainWindow>();
+            services.AddTransient<ProcessCruiseDialog>();
 
             services.RegisterForm<CapturePercentRemoved>();
             services.RegisterForm<GraphForm>();
@@ -140,6 +144,7 @@ namespace CruiseProcessing
 
             // register View Models
             services.AddTransient<MainWindowViewModel>();
+            services.AddTransient<ProcessCruiseViewModel>();
 
             // register other services
             services.AddSingleton<DialogService>();

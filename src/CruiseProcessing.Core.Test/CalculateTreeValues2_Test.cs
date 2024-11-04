@@ -74,7 +74,7 @@ namespace CruiseProcessing.Test
             var mockLogger = CreateLogger<CpDataLayer>();
             var dal = new DAL(filePath);
             var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
-            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculatedValues>());
+            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculateTreeValues>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -128,7 +128,7 @@ namespace CruiseProcessing.Test
             migrator.MigrateFromV3ToV2(cruiseID, db, dal);
 
             var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
-            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculatedValues>());
+            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculateTreeValues>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
