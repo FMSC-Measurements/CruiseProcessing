@@ -169,7 +169,7 @@ namespace CruiseProcessing.Test
                     Output.WriteLine($"Table: {error.TableName} CN:{error.CN_Number} Column:{error.ColumnName} Message:{ErrorReport.GetErrorMessage(error.Message)}");
                 }
             }
-            //errors.Should().BeEmpty();
+            errors.Where(e => e.Level == "E").Should().BeEmpty();
 
 
 
