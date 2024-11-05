@@ -103,5 +103,43 @@ namespace CruiseProcessing.Test.Data
                 };
             }
         }
+
+
+
+        [Theory]
+        [InlineData("Version3Testing\\STR\\98765 test STR TS.cruise")]
+        [InlineData("OgTest\\Region5\\R5.cruise")]
+        public void CompareWeightFactors(string fileName)
+        {
+            base.LogLevel = LogLevel.None;
+            var filePath = GetTestFile(fileName);
+
+            var mockLogger = CreateLogger<CpDataLayer>();
+            var dal = new DAL(filePath);
+            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
+
+            var volEqs = dataLayer.getVolumeEquations();
+            if (volEqs.Any(x => x.CalcBiomass == 1) == false)
+            {
+                throw new Exception("Skipping test, no biomass equations found");// we are primarily interested in checking for changes in biomass calculation
+            }
+
+
+            foreach(var veq in volEqs)
+            {
+                if(veq.CalcBiomass != 1)
+                {
+                    continue;
+                }
+
+                var oldWF = dataLayer.GetPrimaryWeightFactorAndMoistureContent(veq.Species, veq.PrimaryProduct, "L");
+
+                var newWf = dataLayer.GetNewWeightFactors(veq.Species, veq.PrimaryProduct);
+
+                Output.WriteLine($"Species: {veq.Species} Product: {veq.PrimaryProduct} OldWF: {oldWF.WeightFactor} NewWF: {newWf.WeightFactor}");
+                newWf.WeightFactor.Should().Be(oldWF.WeightFactor);
+            }
+
+        }
     }
 }

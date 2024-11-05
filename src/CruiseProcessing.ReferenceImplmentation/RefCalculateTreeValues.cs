@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Processing;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

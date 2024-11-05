@@ -62,6 +62,10 @@ namespace CruiseProcessing.Data
             StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref,
             int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
 
+        [DllImport("vollib_20241101.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void GETREGNWFCS(ref int regin, StringBuilder forest, ref int fiaCode, StringBuilder prod, out float greenWf, out float deadWf, int i1, int i2);
+
+
         // primarily used to reset cache before processing
         // cache is intend to stay live until generating output
         public void ResetBioMassEquationCache()
@@ -71,6 +75,21 @@ namespace CruiseProcessing.Data
             PrecentRemovedCache.Clear();
         }
 
+
+        public BiomassValue GetNewWeightFactors(string species, string product)
+        {
+            var tdvs = GetTreeDefaultValues(species, product);
+
+            var fiaCode = (int)(tdvs.FirstOrDefault()?.FIAcode ?? 0);
+
+            var sale = GetSale();
+            var regionNumber = int.Parse(sale.Region);
+            var forest = new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(sale.Forest);
+            float greenWf, deadWf;
+
+            GETREGNWFCS(ref regionNumber, forest, ref fiaCode, new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(product), out greenWf, out deadWf, CRZSPDFTCS_STRINGLENGTH, CRZSPDFTCS_STRINGLENGTH);
+            return new BiomassValue { WeightFactor = greenWf };
+        }
 
         public BiomassValue GetPrimaryWeightFactorAndMoistureContent(string species, string product, string liveDead)
         {
@@ -91,19 +110,19 @@ namespace CruiseProcessing.Data
 
             // get biomass equations from the database
             // and cache them
-            bioEqs = GetBiomassEquations(species, product).Where(beq => beq.Component == PRIMARY_PRODUCT_COMPONENT).ToArray();
-            if (bioEqs != null && bioEqs.Any())
-            {
-                var primaryProdEq = bioEqs.FirstOrDefault(beq => beq.LiveDead == liveDead)
-                    ?? bioEqs.FirstOrDefault();
+            //bioEqs = GetBiomassEquations(species, product).Where(beq => beq.Component == PRIMARY_PRODUCT_COMPONENT).ToArray();
+            //if (bioEqs != null && bioEqs.Any())
+            //{
+            //    var primaryProdEq = bioEqs.FirstOrDefault(beq => beq.LiveDead == liveDead)
+            //        ?? bioEqs.FirstOrDefault();
 
-                if (primaryProdEq != null)
-                {
-                    PrimaryProdValueCache.Add((species, product), bioEqs);
+            //    if (primaryProdEq != null)
+            //    {
+            //        PrimaryProdValueCache.Add((species, product), bioEqs);
 
-                    return new BiomassValue { WeightFactor = primaryProdEq.WeightFactorPrimary, MoistureContent = primaryProdEq.PercentMoisture };
-                }
-            }
+            //        return new BiomassValue { WeightFactor = primaryProdEq.WeightFactorPrimary, MoistureContent = primaryProdEq.PercentMoisture };
+            //    }
+            //}
 
             // if we can't get the biomass equations from the database
             // try to get them from the volume library
@@ -149,27 +168,27 @@ namespace CruiseProcessing.Data
                 }
             }
 
-            var bioEqs = GetBiomassEquations(species, product)
-                .Where(beq => beq.Component == SECONDARY_PRODUCT_COMPONENT);
+            //var bioEqs = GetBiomassEquations(species, product)
+            //    .Where(beq => beq.Component == SECONDARY_PRODUCT_COMPONENT);
 
-            if (bioEqs.Any())
-            {
-                var wf = bioEqs.FirstOrDefault(x => x.LiveDead == liveDead)
-                    ?? bioEqs.FirstOrDefault();
+            //if (bioEqs.Any())
+            //{
+            //    var wf = bioEqs.FirstOrDefault(x => x.LiveDead == liveDead)
+            //        ?? bioEqs.FirstOrDefault();
 
-                if (wf != null)
-                {
-                    SecondaryWeightFactorCache.Add((species, product), bioEqs.Select(beq => new BiomassValue
-                    {
-                        Species = beq.Species,
-                        Product = beq.Product,
-                        LiveDead = beq.LiveDead,
-                        WeightFactor = beq.WeightFactorSecondary,
-                    }).ToArray());
+            //    if (wf != null)
+            //    {
+            //        SecondaryWeightFactorCache.Add((species, product), bioEqs.Select(beq => new BiomassValue
+            //        {
+            //            Species = beq.Species,
+            //            Product = beq.Product,
+            //            LiveDead = beq.LiveDead,
+            //            WeightFactor = beq.WeightFactorSecondary,
+            //        }).ToArray());
 
-                    return wf.WeightFactorSecondary;
-                }
-            }
+            //        return wf.WeightFactorSecondary;
+            //    }
+            //}
 
             if (PrimaryProdValueCache.TryGetValue((species, product), out var primaryProdEqs))
             {
@@ -198,7 +217,7 @@ namespace CruiseProcessing.Data
             }
 
             var regionNumber = int.Parse(sale.Region);
-            bioEqs = MakeBiomassEquationsInternal(species, product, treeDefaults, regionNumber, sale.Forest, BiomassOptions.DefaultPercentRemoved)
+            var bioEqs = MakeBiomassEquationsInternal(species, product, treeDefaults, regionNumber, sale.Forest, BiomassOptions.DefaultPercentRemoved)
                 .Where(beq => beq.Component == SECONDARY_PRODUCT_COMPONENT).ToArray();
 
             if (bioEqs.Any())
