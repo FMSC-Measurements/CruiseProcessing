@@ -1,6 +1,8 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Processing;
 using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using DiffPlex.DiffBuilder;
@@ -118,8 +120,8 @@ namespace CruiseProcessing.Test
             }
 
             var mockDialogService = new Mock<IDialogService>();
-
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, CreateLogger<CruiseProcessor>(), CreateLogger<CalculateTreeValues2>());
+            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
 
 
 
@@ -239,9 +241,10 @@ namespace CruiseProcessing.Test
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = CreateLogger<CruiseProcessor>();
 
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger, CreateLogger<CalculateTreeValues2>());
+            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
 
-            
+
 
             dal.TransactionDepth.Should().Be(0, "Before Process");
             var mockProgress = new Mock<IProgress<string>>();
@@ -380,7 +383,7 @@ namespace CruiseProcessing.Test
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
+            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
 
             var stringWriter = new StringWriter();
 
@@ -430,7 +433,7 @@ namespace CruiseProcessing.Test
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
+            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
 
             var stringWriter = new StringWriter();
 

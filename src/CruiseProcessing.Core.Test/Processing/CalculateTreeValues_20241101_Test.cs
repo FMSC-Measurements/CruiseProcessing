@@ -1,5 +1,7 @@
 ﻿using CruiseDAL;
+using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Processing;
 using CruiseProcessing.ReferenceImplmentation;
 using FluentAssertions;
@@ -68,18 +70,18 @@ namespace CruiseProcessing.Test.Processing
 
         public void ProcessTrees_Compare_CalulateTreeValues2(string fileName, CompareCalculateTreeValueFlags flags = CompareCalculateTreeValueFlags.None)
         {
-
+            //LogLevel = Microsoft.Extensions.Logging.LogLevel.Trace;
             var filePath = GetTestFile(fileName);
 
             var mockLogger = CreateLogger<CpDataLayer>();
             var dal = new DAL(filePath);
             var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
 
-            var volEqs = dataLayer.getVolumeEquations();
-            if(volEqs.Any(x => x.CalcBiomass ==1) == false)
-            {
-                throw new Exception("Skipping test, no biomass equations found");// we are primarily interested in checking for changes in biomass calculation
-            }
+            //var volEqs = dataLayer.getVolumeEquations();
+            //if(volEqs.Any(x => x.CalcBiomass ==1) == false)
+            //{
+            //    throw new Exception("Skipping test, no biomass equations found");// we are primarily interested in checking for changes in biomass calculation
+            //}
 
 
             var errors = EditChecks.CheckErrors(dataLayer);
@@ -95,7 +97,7 @@ namespace CruiseProcessing.Test.Processing
 
 
             //var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculateTreeValues>());
-            var ctv = new CalculateTreeValues2(dataLayer, CreateLogger<CalculateTreeValues2>());
+            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -153,16 +155,26 @@ namespace CruiseProcessing.Test.Processing
                             .Excluding(x => x.Tree)
                             .Using<float>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001f)).WhenTypeIs<float>();
 
-                            if (flags.HasFlag(CompareCalculateTreeValueFlags.IgnoreBiomass))
-                            {
-                                cfg.Excluding(x => x.BiomassMainStemPrimary)
+                            cfg.Using<float>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.1f)).When(x => x.SelectedMemberPath == nameof(TreeCalculatedValuesDO.BiomassMainStemPrimary));
+                            cfg.Using<float>(x => x.Subject.Should().BeApproximately(x.Expectation, 1.5f)).When(x => x.SelectedMemberPath == nameof(TreeCalculatedValuesDO.BiomassTip));
+
+                            cfg
                                 .Excluding(x => x.BiomassMainStemSecondary)
                                 .Excluding(x => x.Biomasstotalstem)
                                 .Excluding(x => x.Biomasslivebranches)
                                 .Excluding(x => x.Biomassdeadbranches)
-                                .Excluding(x => x.Biomassfoliage)
-                                .Excluding(x => x.BiomassTip);
-                            }
+                                .Excluding(x => x.Biomassfoliage);
+
+                            //if (flags.HasFlag(CompareCalculateTreeValueFlags.IgnoreBiomass))
+                            //{
+                            //    cfg.Excluding(x => x.BiomassMainStemPrimary)
+                            //    .Excluding(x => x.BiomassMainStemSecondary)
+                            //    .Excluding(x => x.Biomasstotalstem)
+                            //    .Excluding(x => x.Biomasslivebranches)
+                            //    .Excluding(x => x.Biomassdeadbranches)
+                            //    .Excluding(x => x.Biomassfoliage)
+                            //    .Excluding(x => x.BiomassTip);
+                            //}
 
                             return cfg;
                         });

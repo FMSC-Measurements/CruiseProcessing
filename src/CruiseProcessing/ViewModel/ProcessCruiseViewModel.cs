@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Processing;
 using CruiseProcessing.Services;
 using FMSC.ORM.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,7 +63,7 @@ namespace CruiseProcessing.ViewModel
             protected set => SetProperty(ref _isBusy, value);
         }
 
-        public ProcessCruiseViewModel(CpDataLayer dataLayer, IDialogService dialogService, IServiceProvider service, ILogger<ProcessStatus> logger)
+        public ProcessCruiseViewModel(CpDataLayer dataLayer, IDialogService dialogService, IServiceProvider service, ILogger<ProcessCruiseViewModel> logger, IServiceCollection serviceCollection)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -70,7 +71,10 @@ namespace CruiseProcessing.ViewModel
             Log = logger ?? throw new ArgumentNullException(nameof(logger));
 
             ProcessProgress = new Progress<string>(ProcessProgress_OnProgressChanged);
-            ProcessorNames = ReferenceImplmentation.ReferenceImplimentationRegistry.CruiseProcessorImplementations.Select(x => x.Key).ToList();
+            //ProcessorNames = ReferenceImplmentation.ReferenceImplimentationRegistry.CruiseProcessorImplementations.Select(x => x.Key).ToList();
+            ProcessorNames = serviceCollection
+                .Where(x => x.IsKeyedService && x.ServiceType == typeof(ICruiseProcessor))
+                .Select(x => (string)x.ServiceKey).ToArray();
 
             ProcessStatus = "Ready to begin? Click GO.";
         }

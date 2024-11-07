@@ -12,7 +12,7 @@ namespace CruiseProcessing.Config
 
         public float DefaultPercentRemoved { get; set; } = 95.0f;
 
-        public bool UseWightFactorsFromVolumeLibrary { get; set; } = true;
+        //public bool UseWightFactorsFromVolumeLibrary { get; set; } = true;
 
         public bool UseWeightFactorsFromBiomassEquations { get; set; } = true;
     }
