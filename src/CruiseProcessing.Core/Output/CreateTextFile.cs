@@ -9,6 +9,7 @@ using CruiseProcessing.Services;
 using CruiseProcessing.Output;
 using CruiseProcessing.Data;
 using Microsoft.Extensions.Logging;
+using CruiseProcessing.Interop;
 
 namespace CruiseProcessing
 {
@@ -17,15 +18,18 @@ namespace CruiseProcessing
         public string currentRegion { get; }
         public string textFile { get; }
         protected CpDataLayer DataLayer { get; }
+        public IVolumeLibrary VolLib { get; }
+
         protected string FilePath => DataLayer.FilePath;
         protected SaleDO Sale { get; }
 
         protected ILogger Log { get; }
 
-        public CreateTextFile(CpDataLayer dataLayer, ILogger<CreateTextFile> log)
+        public CreateTextFile(CpDataLayer dataLayer, IVolumeLibrary volLib, ILogger<CreateTextFile> log)
         {
             Log = log;
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            VolLib = volLib ?? throw new ArgumentNullException(nameof(volLib));
             textFile = System.IO.Path.ChangeExtension(FilePath, "out");
 
             Sale = DataLayer.GetSale();
@@ -335,7 +339,7 @@ namespace CruiseProcessing
                         case "WT3":
                         case "WT4":
                         case "WT5":
-                            OutputWeight ow = new OutputWeight(DataLayer, headerData, rdo.ReportID);
+                            OutputWeight ow = new OutputWeight(DataLayer, VolLib, headerData, rdo.ReportID);
                             ow.OutputWeightReports(strWriteOut, ref reportPageNum);
                             break;
 
@@ -487,7 +491,7 @@ namespace CruiseProcessing
                 ErrorReport.WriteWarnings(strWriteOut, fsCrzErrors, ref pageNumber, headerData, DataLayer);
                 hasWarnings = true;
             }
-            ErrorReport.WriteInfo(strWriteOut, ref pageNumber, headerData, DataLayer);
+            //ErrorReport.WriteInfo(strWriteOut, ref pageNumber, headerData, DataLayer);
 
             failedReports = failedReportsList.ToArray();
 

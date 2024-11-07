@@ -1,6 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
-using CruiseProcessing.Processing;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CruiseProcessing
+namespace CruiseProcessing.Processing
 {
     public class CruiseProcessor : ICruiseProcessor
     {
@@ -22,12 +22,12 @@ namespace CruiseProcessing
         {
         }
 
-        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, ILogger<CruiseProcessor> logger, ILogger<CalculateTreeValues2> ctvLogger)
+        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, [FromKeyedServices(nameof(CalculateTreeValues2))] ICalculateTreeValues calculateTreeValues, ILogger<CruiseProcessor> logger)
         {
             DataLayer = dataLayer;
             DialogService = dialogService;
             Logger = logger;
-            TreeValCalculator = new CalculateTreeValues2(dataLayer, ctvLogger);
+            TreeValCalculator = calculateTreeValues;
         }
 
 
@@ -67,6 +67,12 @@ namespace CruiseProcessing
                     progress?.Report("Processing stratum " + sdo.Code);
                     ProcessStratum(sdo, TreeValCalculator, calcVal);
                 }
+
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_TREEVALUECALCULATOR_TYPE, TreeValCalculator.GetType().Name);
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_TYPE, TreeValCalculator.VolLib.GetType().Name);
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_VERSION, TreeValCalculator.VolLib.GetVersionNumber().ToString());
+                DataLayer.VolLibVersion = TreeValCalculator.VolLib.GetVersionNumberString();
+
 
                 dal.CommitTransaction();
 
@@ -166,7 +172,7 @@ namespace CruiseProcessing
                 var totalCount = lcdGroup.Sum(lcdo => lcdo.MeasuredTrees);
                 if (stm == "N")
                 {
-                    totalCount += stratumCountTrees.Where(ct => ct.SampleGroup.Code == sampleGroup && (ct.TreeDefaultValue?.Species == species))
+                    totalCount += stratumCountTrees.Where(ct => ct.SampleGroup.Code == sampleGroup && ct.TreeDefaultValue?.Species == species)
                         .Sum(ct => ct.TreeCount);
                 }
 
@@ -240,7 +246,7 @@ namespace CruiseProcessing
 
             foreach (SampleGroupDO sgd in sgList)
             {
-                if (String.IsNullOrWhiteSpace(sgd.SecondaryProduct))
+                if (string.IsNullOrWhiteSpace(sgd.SecondaryProduct))
                 {
                     switch (currRegion)
                     {

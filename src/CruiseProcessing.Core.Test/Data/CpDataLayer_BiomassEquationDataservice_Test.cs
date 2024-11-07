@@ -2,6 +2,7 @@
 using CruiseDAL.DataObjects;
 using CruiseDAL.V2.Models;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -124,7 +125,8 @@ namespace CruiseProcessing.Test.Data
                 throw new Exception("Skipping test, no biomass equations found");// we are primarily interested in checking for changes in biomass calculation
             }
 
-
+            var volLib = new VolumeLibrary_20241101();
+            var sale = dataLayer.GetSale();
             foreach(var veq in volEqs)
             {
                 if(veq.CalcBiomass != 1)
@@ -134,10 +136,11 @@ namespace CruiseProcessing.Test.Data
 
                 var oldWF = dataLayer.GetPrimaryWeightFactorAndMoistureContent(veq.Species, veq.PrimaryProduct, "L");
 
-                var newWf = dataLayer.GetNewWeightFactors(veq.Species, veq.PrimaryProduct);
+                var tdv = dataLayer.GetTreeDefaultValues(veq.Species, veq.PrimaryProduct).First();
+                volLib.LookupWeightFactors2(int.Parse(sale.Region), sale.Forest, (int)tdv.FIAcode, veq.PrimaryProduct, out var newWf, out _);
 
-                Output.WriteLine($"Species: {veq.Species} Product: {veq.PrimaryProduct} OldWF: {oldWF.WeightFactor} NewWF: {newWf.WeightFactor}");
-                newWf.WeightFactor.Should().Be(oldWF.WeightFactor);
+                Output.WriteLine($"Species: {veq.Species} Product: {veq.PrimaryProduct} OldWF: {oldWF.WeightFactor} NewWF: {newWf}");
+                newWf.Should().Be(oldWF.WeightFactor);
             }
 
         }

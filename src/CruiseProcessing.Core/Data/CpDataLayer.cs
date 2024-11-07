@@ -12,6 +12,7 @@ using CruiseProcessing.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using CruiseProcessing.Config;
+using CruiseProcessing.Interop;
 
 namespace CruiseProcessing.Data
 {
@@ -19,17 +20,24 @@ namespace CruiseProcessing.Data
     {
         private bool _isProcessed;
         private bool disposedValue;
+        private string _volumeLibraryVersion;
 
         public string CruiseID { get; } // for v3 files
         public string FilePath { get; }
         public DAL DAL { get; }
         public CruiseDatastore_V3 DAL_V3 { get; }
         public string CPVersion { get; }
-        public string VolLibVersion { get; }
+        public string VolLibVersion
+        {
+            get => _volumeLibraryVersion ?? VolumeLibrary.GetVersionNumberString();
+            set => _volumeLibraryVersion = value;
+        }
 
         public bool IsTemplateFile { get; }
 
         protected ILogger Log { get; }
+
+        protected IVolumeLibrary VolumeLibrary { get; }
 
         public bool IsProcessed
         {
@@ -41,6 +49,7 @@ namespace CruiseProcessing.Data
         protected CpDataLayer()
         {
             BiomassOptions = new BiomassEquationOptions();
+            VolumeLibrary = new VolumeLibrary_20240626();
         }
 
         public CpDataLayer(DAL dal, ILogger<CpDataLayer> logger, IOptions<BiomassEquationOptions> biomassOptions, bool isTemplateFile = false)
@@ -50,10 +59,11 @@ namespace CruiseProcessing.Data
             IsTemplateFile = isTemplateFile;
             Log = logger;
             BiomassOptions = biomassOptions?.Value ?? new BiomassEquationOptions();
+            VolumeLibrary = VolumeLibraryInterop.Default;
 
             var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
             CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");
-            VolLibVersion = Utilities.CurrentDLLversion();
+            //VolLibVersion = Utilities.CurrentDLLversion();
             IsTemplateFile = isTemplateFile;
         }
 
@@ -84,15 +94,7 @@ namespace CruiseProcessing.Data
             return DAL.From<TreeEstimateDO>().Read().ToList();
         }   //  end getTreeEstimates
 
-        // *******************************************************************************************
-        //  variable log length from global configuration
-        public string getVLL()
-        {
-            List<GlobalsDO> globList = DAL.From<GlobalsDO>().Where("Key = @p1 AND Block = @p2").Read("VLL", "Global").ToList();
-            if (globList.Count > 0)
-                return "V";
-            else return "false";
-        }   //  end getVLL
+
 
         public void SaveQualityAdjEquations(List<QualityAdjEquationDO> qaEquationList)
         {

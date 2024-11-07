@@ -1,5 +1,7 @@
 ﻿using CruiseDAL;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Processing;
 using CruiseProcessing.ReferenceImplmentation;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -11,22 +13,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace CruiseProcessing.Test
+namespace CruiseProcessing.Test.Processing
 {
     public class CalculateTreeValues2_Test : TestBase
     {
         public CalculateTreeValues2_Test(ITestOutputHelper output) : base(output)
         {
         }
-
-
-        [Fact]
-        public void Vollib_VERNUM2()
-        {
-            CalculateTreeValues2.VERNUM2(out var num);
-            num.Should().Be(20240626); // this number changes for each version 
-        }
-
 
         [Theory]
         [InlineData("OgTest\\Region1\\R1_FrenchGulch.cruise")]
@@ -82,7 +75,7 @@ namespace CruiseProcessing.Test
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues2(dataLayer, CreateLogger<CalculateTreeValues2>());
+            var ctv2 = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();
@@ -96,7 +89,7 @@ namespace CruiseProcessing.Test
             var tcvLookup = dataLayer.getTreeCalculatedValues().ToLookup(x => x.Tree_CN.Value);
 
 
-            foreach(var t in trees.Where(x => x.CountOrMeasure == "M"))
+            foreach (var t in trees.Where(x => x.CountOrMeasure == "M"))
             {
                 tcvLookup.Contains(t.Tree_CN.Value).Should().BeTrue();
             }
@@ -136,7 +129,7 @@ namespace CruiseProcessing.Test
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues2(dataLayer, CreateLogger<CalculateTreeValues2>());
+            var ctv2 = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();

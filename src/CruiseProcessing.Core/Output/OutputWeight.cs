@@ -1,17 +1,16 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CruiseProcessing
 {
-    public partial class OutputWeight : OutputFileReportGeneratorBase
+    public class OutputWeight : OutputFileReportGeneratorBase
     {
 
 
@@ -77,10 +76,13 @@ namespace CruiseProcessing
         private double subtotTree = 0;
         private List<ReportSubtotal> rptSubtotals = new List<ReportSubtotal>();
 
+        public IVolumeLibrary VolLib { get; }
+
         #endregion
 
-        public OutputWeight(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputWeight(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            VolLib = volLib ?? throw new ArgumentNullException(nameof(volLib));
         }
 
         public void OutputWeightReports(TextWriter strWriteOut, ref int pageNumb)
@@ -1003,7 +1005,7 @@ namespace CruiseProcessing
                 //  crown section and damaged small trees
                 foreach (TreeCalculatedValuesDO cd in currentData)
                 {
-                    float[] crownFractionWGT = new float[CROWN_FACTOR_WEIGHT_ARRAY_LENGTH];
+                    float[] crownFractionWGT = new float[VolumeLibraryInterop.CROWN_FACTOR_WEIGHT_ARRAY_LENGTH];
 
                     float currDBH = cd.Tree.DBH;
                     float currHGT = 0;
@@ -1011,12 +1013,12 @@ namespace CruiseProcessing
                     if (currReg == "9" || currReg == "09")
                     {
                         currHGT = cd.Tree.TotalHeight;
-                        BROWNCROWNFRACTION(ref currFIA, ref currDBH, ref currHGT, ref CR, crownFractionWGT);
+                        VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR, crownFractionWGT);
                     }
                     else
                     {
                         currHGT = cd.Tree.MerchHeightPrimary;
-                        BROWNCROWNFRACTION(ref currFIA, ref currDBH, ref currHGT, ref CR, crownFractionWGT);
+                        VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR, crownFractionWGT);
                     }       //  endif
                     if (cd.Tree.DBH > 6)
                     {
@@ -1043,13 +1045,13 @@ namespace CruiseProcessing
                     //  Topwood weight
                     grsVol = currentData.Sum(c => c.GrossCUFTSP * c.Tree.ExpansionFactor);
                     grsVol = grsVol * floatAcres;
-                    BROWNTOPWOOD(ref currFIA, ref grsVol, ref topwoodWGT);
+                    VolLib.BrownTopwood(currFIA, ref grsVol, ref topwoodWGT);
                     bList[nthRow].topwoodDryWeight = topwoodWGT;
 
                     //  Cull chunk weight
                     grsVol = cd.GrossCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
                     netVol = cd.NetCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
-                    BROWNCULLCHUNK(ref currFIA, ref grsVol, ref netVol, ref currFLIW, ref cullChunkWGT);
+                    VolLib.BrownCullChunk(currFIA, ref grsVol, ref netVol, ref currFLIW, ref cullChunkWGT);
                     bList[nthRow].cullChunkWgt += cullChunkWGT;
 
                     //  Pull grade 9 logs for current group
@@ -1057,7 +1059,7 @@ namespace CruiseProcessing
                     foreach (LogStockDO jcl in justCullLogs)
                     {
                         grsVol = jcl.GrossCubicFoot;
-                        BROWNCULLLOG(ref currFIA, ref grsVol, ref cullLogWGT);
+                        VolLib.BrownCullLog(currFIA, ref grsVol, ref cullLogWGT);
                         bList[nthRow].cullLogWgt = cullLogWGT * jcl.Tree.ExpansionFactor * floatAcres;
                     }   //  end foreach loop
                 }   //  end foreach loop

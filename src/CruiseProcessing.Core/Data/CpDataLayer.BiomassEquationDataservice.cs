@@ -31,7 +31,7 @@ namespace CruiseProcessing.Data
 
 
         private static readonly IReadOnlyCollection<int> R5_Prod20_WF_FIAcodes = new int[] { 122, 116, 117, 015, 020, 202, 081, 108 };
-        private const int CRZSPDFTCS_STRINGLENGTH = 256;
+        //private const int CRZSPDFTCS_STRINGLENGTH = 256;
         public const string PRIMARY_PRODUCT_COMPONENT = "PrimaryProd";
         public const string SECONDARY_PRODUCT_COMPONENT = "SecondaryProd";
         public static readonly ReadOnlyCollection<string> BIOMASS_COMPONENTS = Array.AsReadOnly(new[]
@@ -56,14 +56,14 @@ namespace CruiseProcessing.Data
         protected Dictionary<(string species, string product), float> PrecentRemovedCache { get; }
             = new Dictionary<(string species, string product), float>();
 
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void CRZSPDFTCS(ref int regn, StringBuilder forst, out int spcd, float[] wf, StringBuilder agteq, StringBuilder lbreq,
-            StringBuilder dbreq, StringBuilder foleq, StringBuilder tipeq, StringBuilder wf1ref, StringBuilder wf2ref, StringBuilder mcref,
-            StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref,
-            int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
+        //[DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
+        //private static extern void CRZSPDFTCS(ref int regn, StringBuilder forst, out int spcd, float[] wf, StringBuilder agteq, StringBuilder lbreq,
+        //    StringBuilder dbreq, StringBuilder foleq, StringBuilder tipeq, StringBuilder wf1ref, StringBuilder wf2ref, StringBuilder mcref,
+        //    StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref,
+        //    int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
 
-        [DllImport("vollib_20241101.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void GETREGNWFCS(ref int regin, StringBuilder forest, ref int fiaCode, StringBuilder prod, out float greenWf, out float deadWf, int i1, int i2);
+        //[DllImport("vollib_20241101.dll", CallingConvention = CallingConvention.Cdecl)]
+        //private static extern void GETREGNWFCS(ref int regin, StringBuilder forest, ref int fiaCode, StringBuilder prod, out float greenWf, out float deadWf, int i1, int i2);
 
 
         // primarily used to reset cache before processing
@@ -76,20 +76,20 @@ namespace CruiseProcessing.Data
         }
 
 
-        public BiomassValue GetNewWeightFactors(string species, string product)
-        {
-            var tdvs = GetTreeDefaultValues(species, product);
+        //public BiomassValue GetNewWeightFactors(string species, string product)
+        //{
+        //    var tdvs = GetTreeDefaultValues(species, product);
 
-            var fiaCode = (int)(tdvs.FirstOrDefault()?.FIAcode ?? 0);
+        //    var fiaCode = (int)(tdvs.FirstOrDefault()?.FIAcode ?? 0);
 
-            var sale = GetSale();
-            var regionNumber = int.Parse(sale.Region);
-            var forest = new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(sale.Forest);
-            float greenWf, deadWf;
+        //    var sale = GetSale();
+        //    var regionNumber = int.Parse(sale.Region);
+        //    var forest = new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(sale.Forest);
+        //    float greenWf, deadWf;
 
-            GETREGNWFCS(ref regionNumber, forest, ref fiaCode, new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(product), out greenWf, out deadWf, CRZSPDFTCS_STRINGLENGTH, CRZSPDFTCS_STRINGLENGTH);
-            return new BiomassValue { WeightFactor = greenWf };
-        }
+        //    GETREGNWFCS(ref regionNumber, forest, ref fiaCode, new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(product), out greenWf, out deadWf, CRZSPDFTCS_STRINGLENGTH, CRZSPDFTCS_STRINGLENGTH);
+        //    return new BiomassValue { WeightFactor = greenWf };
+        //}
 
         public BiomassValue GetPrimaryWeightFactorAndMoistureContent(string species, string product, string liveDead)
         {
@@ -110,19 +110,22 @@ namespace CruiseProcessing.Data
 
             // get biomass equations from the database
             // and cache them
-            //bioEqs = GetBiomassEquations(species, product).Where(beq => beq.Component == PRIMARY_PRODUCT_COMPONENT).ToArray();
-            //if (bioEqs != null && bioEqs.Any())
-            //{
-            //    var primaryProdEq = bioEqs.FirstOrDefault(beq => beq.LiveDead == liveDead)
-            //        ?? bioEqs.FirstOrDefault();
+            if (BiomassOptions.UseWeightFactorsFromBiomassEquations)
+            {
+                bioEqs = GetBiomassEquations(species, product).Where(beq => beq.Component == PRIMARY_PRODUCT_COMPONENT).ToArray();
+                if (bioEqs != null && bioEqs.Any())
+                {
+                    var primaryProdEq = bioEqs.FirstOrDefault(beq => beq.LiveDead == liveDead)
+                        ?? bioEqs.FirstOrDefault();
 
-            //    if (primaryProdEq != null)
-            //    {
-            //        PrimaryProdValueCache.Add((species, product), bioEqs);
+                    if (primaryProdEq != null)
+                    {
+                        PrimaryProdValueCache.Add((species, product), bioEqs);
 
-            //        return new BiomassValue { WeightFactor = primaryProdEq.WeightFactorPrimary, MoistureContent = primaryProdEq.PercentMoisture };
-            //    }
-            //}
+                        return new BiomassValue { WeightFactor = primaryProdEq.WeightFactorPrimary, MoistureContent = primaryProdEq.PercentMoisture };
+                    }
+                }
+            }
 
             // if we can't get the biomass equations from the database
             // try to get them from the volume library
@@ -157,6 +160,7 @@ namespace CruiseProcessing.Data
 
         public float? GetSecondaryWeightFactor(string species, string product, string liveDead)
         {
+            // use cached value
             if (SecondaryWeightFactorCache.TryGetValue((species, product), out var wfValues))
             {
                 var wf = wfValues.FirstOrDefault(x => x.LiveDead == liveDead)
@@ -168,28 +172,33 @@ namespace CruiseProcessing.Data
                 }
             }
 
-            //var bioEqs = GetBiomassEquations(species, product)
-            //    .Where(beq => beq.Component == SECONDARY_PRODUCT_COMPONENT);
+            // check the database
+            if (BiomassOptions.UseWeightFactorsFromBiomassEquations)
+            {
+                var dbBioEqs = GetBiomassEquations(species, product)
+                    .Where(beq => beq.Component == SECONDARY_PRODUCT_COMPONENT);
 
-            //if (bioEqs.Any())
-            //{
-            //    var wf = bioEqs.FirstOrDefault(x => x.LiveDead == liveDead)
-            //        ?? bioEqs.FirstOrDefault();
+                if (dbBioEqs.Any())
+                {
+                    var wf = dbBioEqs.FirstOrDefault(x => x.LiveDead == liveDead)
+                        ?? dbBioEqs.FirstOrDefault();
 
-            //    if (wf != null)
-            //    {
-            //        SecondaryWeightFactorCache.Add((species, product), bioEqs.Select(beq => new BiomassValue
-            //        {
-            //            Species = beq.Species,
-            //            Product = beq.Product,
-            //            LiveDead = beq.LiveDead,
-            //            WeightFactor = beq.WeightFactorSecondary,
-            //        }).ToArray());
+                    if (wf != null)
+                    {
+                        SecondaryWeightFactorCache.Add((species, product), dbBioEqs.Select(beq => new BiomassValue
+                        {
+                            Species = beq.Species,
+                            Product = beq.Product,
+                            LiveDead = beq.LiveDead,
+                            WeightFactor = beq.WeightFactorSecondary,
+                        }).ToArray());
 
-            //        return wf.WeightFactorSecondary;
-            //    }
-            //}
+                        return wf.WeightFactorSecondary;
+                    }
+                }
+            }
 
+            // we can also use the primary product weight factor as the secondary weight factor
             if (PrimaryProdValueCache.TryGetValue((species, product), out var primaryProdEqs))
             {
                 var primaryProdEq = primaryProdEqs.FirstOrDefault(beq => beq.LiveDead == liveDead)
@@ -209,6 +218,7 @@ namespace CruiseProcessing.Data
                 }
             }
 
+            // otherwise try to get the weight factor from the volume library
             var sale = GetSale();
             var treeDefaults = GetTreeDefaultValues(species, product);
             if (sale == null || treeDefaults == null || !treeDefaults.Any())
@@ -303,10 +313,7 @@ namespace CruiseProcessing.Data
             return MakeBiomassEquationsInternal(volEq, treeDefaults, region, forest, percentRemovedValue.Value);
         }
 
-
-
-
-        public static IReadOnlyCollection<BiomassEquationDO> MakeBiomassEquationsInternal(VolumeEquationDO volEq, IEnumerable<TreeDefaultValueDO> treeDefaults, int region, string forest, float percentRemovedValue)
+        public IReadOnlyCollection<BiomassEquationDO> MakeBiomassEquationsInternal(VolumeEquationDO volEq, IEnumerable<TreeDefaultValueDO> treeDefaults, int region, string forest, float percentRemovedValue)
         {
             var biomassEquations = new List<BiomassEquationDO>();
 
@@ -321,7 +328,7 @@ namespace CruiseProcessing.Data
             return biomassEquations;
         }
 
-        public static IReadOnlyCollection<BiomassEquationDO> MakeBiomassEquationsInternal(string species, string primaryProduct, IEnumerable<TreeDefaultValueDO> treeDefaults, int region, string forest, float percentRemovedValue)
+        public IReadOnlyCollection<BiomassEquationDO> MakeBiomassEquationsInternal(string species, string primaryProduct, IEnumerable<TreeDefaultValueDO> treeDefaults, int region, string forest, float percentRemovedValue)
         {
             var biomassEquations = new List<BiomassEquationDO>();
 
@@ -336,59 +343,9 @@ namespace CruiseProcessing.Data
             return biomassEquations;
         }
 
-        protected static IEnumerable<BiomassEquationDO> MakeBiomassEquationsInternal(int region, string forest, int fiaCode, string primaryProduct, string species, string liveDead, float percentRemovedValue)
+        protected IEnumerable<BiomassEquationDO> MakeBiomassEquationsInternal(int region, string forest, int fiaCode, string primaryProduct, string species, string liveDead, float percentRemovedValue)
         {
-            float[] WF = new float[3];
-            var FORST = new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(forest);
-            var AGTEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var LBREQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var DBREQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var FOLEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var TIPEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var WF1REF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var WF2REF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var MCREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var AGTREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var LBRREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var DBRREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var FOLREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var TIPREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            int REGN = region;
-            int SPCD = fiaCode;
-            CRZSPDFTCS(ref REGN,
-                       FORST,
-                       out fiaCode,
-                       WF,
-                       AGTEQ,
-                       LBREQ,
-                       DBREQ,
-                       FOLEQ,
-                       TIPEQ,
-                       WF1REF,
-                       WF2REF,
-                       MCREF,
-                       AGTREF,
-                       LBRREF,
-                       DBRREF,
-                       FOLREF,
-                       TIPREF,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH);
-            // note: fiaCode is both an input and an output variable
-
-
+            float[] WF = VolumeLibrary.LookupWeightFactors(region, forest,ref fiaCode);
 
 
             foreach (var comp in BIOMASS_COMPONENTS)
@@ -400,42 +357,38 @@ namespace CruiseProcessing.Data
                 bedo.Species = species;
                 bedo.PercentMoisture = WF[2];
                 bedo.PercentRemoved = percentRemovedValue;
+                bedo.Component = comp;
 
                 switch (comp)
                 {
-                    case "TotalTreeAboveGround":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = AGTEQ.ToString();
-                            bedo.MetaData = AGTREF.ToString();
-                            break;
-                        }
-                    case "LiveBranches":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = LBREQ.ToString();
-                            bedo.MetaData = LBRREF.ToString();
-                            break;
-                        }
-                    case "DeadBranches":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = DBREQ.ToString();
-                            bedo.MetaData = DBRREF.ToString();
-                            break;
-                        }
-                    case "Foliage":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = FOLEQ.ToString();
-                            bedo.MetaData = FOLREF.ToString();
-                            break;
-                        }
+                    //case "TotalTreeAboveGround":
+                    //    {
+                    //        bedo.Equation = AGTEQ.ToString();
+                    //        bedo.MetaData = AGTREF.ToString();
+                    //        break;
+                    //    }
+                    //case "LiveBranches":
+                    //    {
+                    //        bedo.Equation = LBREQ.ToString();
+                    //        bedo.MetaData = LBRREF.ToString();
+                    //        break;
+                    //    }
+                    //case "DeadBranches":
+                    //    {
+                    //        bedo.Equation = DBREQ.ToString();
+                    //        bedo.MetaData = DBRREF.ToString();
+                    //        break;
+                    //    }
+                    //case "Foliage":
+                    //    {
+                    //        bedo.Equation = FOLEQ.ToString();
+                    //        bedo.MetaData = FOLREF.ToString();
+                    //        break;
+                    //    }
                     case "PrimaryProd":
                         {
-                            bedo.Component = comp;
                             bedo.Equation = "";
-                            bedo.MetaData = WF1REF.ToString();
+                            //bedo.MetaData = WF1REF.ToString();
 
                             if (region == 5)
                             {
@@ -447,7 +400,7 @@ namespace CruiseProcessing.Data
                                 }
                                 else bedo.WeightFactorPrimary = WF[0];
                             }
-                            else if (REGN == 1 && primaryProduct != "01")
+                            else if (region == 1 && primaryProduct != "01")
                             {
                                 bedo.WeightFactorPrimary = WF[1];
                             }
@@ -456,24 +409,21 @@ namespace CruiseProcessing.Data
                                 bedo.WeightFactorPrimary = WF[0];
                             }
 
-
                             break;
                         }
                     case "SecondaryProd":
                         {
-                            bedo.Component = comp;
                             bedo.Equation = "";
                             bedo.WeightFactorSecondary = WF[1];
-                            bedo.MetaData = WF2REF.ToString();
+                            //bedo.MetaData = WF2REF.ToString();
                             break;
                         }
-                    case "StemTip":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = TIPEQ.ToString();
-                            bedo.MetaData = TIPREF.ToString();
-                            break;
-                        }
+                    //case "StemTip":
+                    //    {
+                    //        bedo.Equation = TIPEQ.ToString();
+                    //        bedo.MetaData = TIPREF.ToString();
+                    //        break;
+                    //    }
                 }
 
                 yield return bedo;

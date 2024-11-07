@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Processing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -74,6 +75,13 @@ namespace CruiseProcessing.ReferenceImplmentation
                     ProcessStratum(sdo, calcTreeVal, calcVal, lcdList, popList, proList, ctList, pList, tList);
 
                 }   //  end foreach stratum
+
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_TREEVALUECALCULATOR_TYPE, typeof(RefCalculateTreeValues).Name);
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_TYPE, TreeValCalculator.VolLib.GetType().Name);
+                int volLibVersion = 0;
+                RefCalculateTreeValues.VERNUM2(ref volLibVersion);
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_VERSION, volLibVersion.ToString());
+                DataLayer.VolLibVersion = VolumeLibraryExtensions.VolLibVersionNumberToString(volLibVersion);
 
                 dal.CommitTransaction();
 
