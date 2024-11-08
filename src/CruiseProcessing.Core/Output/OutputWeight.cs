@@ -1,25 +1,18 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CruiseProcessing
 {
     public class OutputWeight : OutputFileReportGeneratorBase
     {
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
 
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNTOPWOOD(ref int SPN, ref float GCUFTS, ref float WT);
-
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCULLLOG(ref int SPN, ref float GCUFTS, ref float WT);
-
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)] private static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
 
         #region headers
         //  Weight reports
@@ -83,10 +76,13 @@ namespace CruiseProcessing
         private double subtotTree = 0;
         private List<ReportSubtotal> rptSubtotals = new List<ReportSubtotal>();
 
+        public IVolumeLibrary VolLib { get; }
+
         #endregion
 
-        public OutputWeight(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
+        public OutputWeight(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData, string reportID) : base(dataLayer, headerData, reportID)
         {
+            VolLib = volLib ?? throw new ArgumentNullException(nameof(volLib));
         }
 
         public void OutputWeightReports(TextWriter strWriteOut, ref int pageNumb)
@@ -195,11 +191,7 @@ namespace CruiseProcessing
                         && b.Component == "SecondaryProd");
 
 
-                if (primaryBiomassEq == null || primaryBiomassEq.WeightFactorPrimary == 0.0)
-                {
-                    footFlag = 1;  // set flag to indicate group wasn't printed in footer
-                    continue;
-                }
+               
 
                 //  get all LCD elements for current group
                 var whereClause = "WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND " +
@@ -218,13 +210,20 @@ namespace CruiseProcessing
                     grossCuFtSecondary += gd.SumGCUFTtop * stratumAcres;
                 }
 
-                var weightFactorPrimary = primaryBiomassEq.WeightFactorPrimary;
-                var percentRemovedPrimary = primaryBiomassEq.PercentRemoved;
+                var primaryBioValues = DataLayer.GetPrimaryWeightFactorAndMoistureContent(group.Species, group.PrimaryProduct, group.LiveDead);
+                var weightFactorSecondary = DataLayer.GetSecondaryWeightFactor(group.Species, group.SecondaryProduct, group.LiveDead);
+                if (primaryBioValues == null || primaryBioValues.WeightFactor == 0.0
+                    || weightFactorSecondary == null)
+                {
+                    footFlag = 1;  // set flag to indicate group wasn't printed in footer
+                    continue;
+                }
 
-                var weightFactorSecondary = (secondaryBiomassEq != null && secondaryBiomassEq.WeightFactorSecondary > 0)
-                    ? secondaryBiomassEq.WeightFactorSecondary : weightFactorPrimary;
-                var percentRemovedSecondary = (secondaryBiomassEq != null && secondaryBiomassEq.PercentRemoved > 0)
-                    ? secondaryBiomassEq.PercentRemoved : percentRemovedPrimary;
+                var weightFactorPrimary = primaryBioValues.WeightFactor;
+                var percentRemovedPrimary = DataLayer.GetPrecentRemoved(group.Species, group.SecondaryProduct);
+                var percentRemovedSecondary = percentRemovedPrimary; // secondary percent removed is the same as primary
+
+                
 
                 double tonsRemovedPrimary = 0.0;
                 double tonsRemovedSecondary = 0.0;
@@ -244,10 +243,10 @@ namespace CruiseProcessing
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                WT1columns, 3, ref pageNumb, "");
 
-                    var poundsStanding = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * weightFactorSecondary;
+                    var poundsStanding = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * weightFactorSecondary.Value;
                     var poundsRemoved = poundsStanding * (percentRemovedSecondary / 100);
                     tonsRemovedSecondary = poundsRemoved / 2000;
-                    WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
+                    WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary.Value, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
 
                 }
 
@@ -969,7 +968,7 @@ namespace CruiseProcessing
         {
             int currFIA = 0;
             //  load biomass list
-            float[] crownFractionWGT = new float[5];
+            
             float topwoodWGT = 0;
             float cullLogWGT = 0;
             float cullChunkWGT = 0;
@@ -1006,18 +1005,20 @@ namespace CruiseProcessing
                 //  crown section and damaged small trees
                 foreach (TreeCalculatedValuesDO cd in currentData)
                 {
+                    float[] crownFractionWGT = new float[VolumeLibraryInterop.CROWN_FACTOR_WEIGHT_ARRAY_LENGTH];
+
                     float currDBH = cd.Tree.DBH;
                     float currHGT = 0;
                     float CR = 0;
                     if (currReg == "9" || currReg == "09")
                     {
                         currHGT = cd.Tree.TotalHeight;
-                        BROWNCROWNFRACTION(ref currFIA, ref currDBH, ref currHGT, ref CR, crownFractionWGT);
+                        VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR, crownFractionWGT);
                     }
                     else
                     {
                         currHGT = cd.Tree.MerchHeightPrimary;
-                        BROWNCROWNFRACTION(ref currFIA, ref currDBH, ref currHGT, ref CR, crownFractionWGT);
+                        VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR, crownFractionWGT);
                     }       //  endif
                     if (cd.Tree.DBH > 6)
                     {
@@ -1044,13 +1045,13 @@ namespace CruiseProcessing
                     //  Topwood weight
                     grsVol = currentData.Sum(c => c.GrossCUFTSP * c.Tree.ExpansionFactor);
                     grsVol = grsVol * floatAcres;
-                    BROWNTOPWOOD(ref currFIA, ref grsVol, ref topwoodWGT);
+                    VolLib.BrownTopwood(currFIA, ref grsVol, ref topwoodWGT);
                     bList[nthRow].topwoodDryWeight = topwoodWGT;
 
                     //  Cull chunk weight
                     grsVol = cd.GrossCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
                     netVol = cd.NetCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
-                    BROWNCULLCHUNK(ref currFIA, ref grsVol, ref netVol, ref currFLIW, ref cullChunkWGT);
+                    VolLib.BrownCullChunk(currFIA, ref grsVol, ref netVol, ref currFLIW, ref cullChunkWGT);
                     bList[nthRow].cullChunkWgt += cullChunkWGT;
 
                     //  Pull grade 9 logs for current group
@@ -1058,7 +1059,7 @@ namespace CruiseProcessing
                     foreach (LogStockDO jcl in justCullLogs)
                     {
                         grsVol = jcl.GrossCubicFoot;
-                        BROWNCULLLOG(ref currFIA, ref grsVol, ref cullLogWGT);
+                        VolLib.BrownCullLog(currFIA, ref grsVol, ref cullLogWGT);
                         bList[nthRow].cullLogWgt = cullLogWGT * jcl.Tree.ExpansionFactor * floatAcres;
                     }   //  end foreach loop
                 }   //  end foreach loop

@@ -384,21 +384,11 @@ namespace CruiseProcessing
                 Cursor.Current = Cursors.WaitCursor;
                 DataLayer.SaveVolumeEquations(equationList);
 
-                if (equationList.Any(x => x.CalcBiomass > 0))
+                var calcBioVolEqs = equationList.Where(x => x.CalcBiomass == 1).ToList();
+
+                if (calcBioVolEqs.Any())
                 {
-                    //  Load biomass information if biomass flag was checked
-                    //  But if it's an edited template then capture region and forest
-                    //  before updating biomass.  March 2017
-                    if (templateFlag == 1)
-                    {
-                        TemplateRegionForest trf = Services.GetRequiredService<TemplateRegionForest>();
-                        trf.ShowDialog();
-                        UpdateBiomassTemplate(equationList, trf.currentRegion, trf.currentForest);
-                    }
-                    else
-                    {
-                        UpdateBiomassCruise(equationList);
-                    }
+                    UpdateBiomass(calcBioVolEqs);
                 }
                 else
                 {
@@ -417,257 +407,70 @@ namespace CruiseProcessing
             Close();
         }
 
-        public void UpdateBiomassTemplate(List<VolumeEquationDO> equationList, string currRegion, string currForest)
+        public void UpdateBiomass(List<VolumeEquationDO> equationList, string region = null, string forest = null)
         {
-            //  capture percent removed
             var prList = DialogService.ShowPercentRemovedDialog(equationList);
 
-            UpdateBiomassTemplate(DataLayer, equationList, currRegion, currForest, prList);
-        }
-
-        public static void UpdateBiomassTemplate(CpDataLayer dataLayer, IEnumerable<VolumeEquationDO> equationList, string currRegion, string currForest, IReadOnlyCollection<PercentRemoved> prList)
-        {
-            int REGN = Convert.ToInt32(currRegion);
-
-            List<TreeDefaultValueDO> treeDef = dataLayer.getTreeDefaults();
-            List<BiomassEquationDO> biomassEquations = new List<BiomassEquationDO>();
-
-            foreach (VolumeEquationDO volEq in equationList)
+            
+            if (string.IsNullOrEmpty(region) || string.IsNullOrEmpty(forest) )
             {
-                if (volEq.CalcBiomass == 1)
+                var sale = DataLayer.GetSale();
+                if(sale != null)
                 {
-                    // find species/product in tree default values for FIA code
-                    var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
-                    float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
-                        ? pct : 0.0f;
+                    region = sale.Region;
+                    forest = sale.Forest;
+                }
+            }
 
-                    var treeDefaults = treeDef.Where(td => td.Species == volEq.Species && td.PrimaryProduct == volEq.PrimaryProduct);
+            if (string.IsNullOrEmpty(region) || string.IsNullOrEmpty(forest))
+            {
+                TemplateRegionForest trf = Services.GetRequiredService<TemplateRegionForest>();
+                trf.ShowDialog();
 
-                    foreach(var tdv in treeDefaults)
-                    {
-                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, (int)tdv.FIAcode, tdv.LiveDead, percentRemovedValue);
+                region = trf.currentRegion;
+                forest = trf.currentForest;
+            }
 
-                        biomassEquations.AddRange(bioEqs);
-                    }
-                }   //  endif
-            }   //  end foreach loop
-
-            //  save list
-            dataLayer.ClearBiomassEquations();
-            dataLayer.SaveBiomassEquations(biomassEquations);
+            UpdateBiomass(region, forest, equationList, prList);
         }
 
-        public void UpdateBiomassCruise(List<VolumeEquationDO> equationList)
-        {
-            //  if just one volume equation has biomass flag checked, need to capture percent removed for any or all
-            var prList = DialogService.ShowPercentRemovedDialog(equationList);
-            UpdateBiomassCruise(DataLayer, equationList, prList);
-        }
+        //public void UpdateBiomass(CpDataLayer dataLayer, IReadOnlyCollection<VolumeEquationDO> equationList, IReadOnlyCollection<PercentRemoved> prList, string region, string forest)
+        //{
+        //    if(string.IsNullOrEmpty(region)) { throw new ArgumentNullException(nameof(region)); }
+        //    if(string.IsNullOrEmpty(forest)) { throw new ArgumentNullException(nameof(forest)); }
 
-        public static void UpdateBiomassCruise(CpDataLayer dataLayer, IEnumerable<VolumeEquationDO> equationList, IReadOnlyCollection<PercentRemoved> prList)
+        //    UpdateBiomass(region, forest, dataLayer, equationList, prList);
+        //}
+
+        public void UpdateBiomass(string region, string forest, IReadOnlyCollection<VolumeEquationDO> equationList, IReadOnlyCollection<PercentRemoved> prList)
         {
-            //  new variables for biomass call
-            string currRegion = dataLayer.getRegion();
-            string currForest = dataLayer.getForest();
-            int REGN = Convert.ToInt32(currRegion);
+            int REGN = Convert.ToInt32(region);
 
             var biomassEquations = new List<BiomassEquationDO>();
 
-            //  Region 8 does things so differently -- multiple species could be
-            //  in the equation list so need to check for duplicates.  Otherwise, the biomass equations
-            //  won't save.  February 2014
+            
 
             //  update biomass equations
             foreach (VolumeEquationDO volEq in equationList.GroupBy(x => x.Species + ";" + x.PrimaryProduct).Select(x => x.First()))
             {
-                if (volEq.CalcBiomass == 1)
-                {
-                    var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
-                    float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
-                        ? pct : 0.0f;
+                if(volEq.CalcBiomass != 1) { continue; }
 
-                    var spProdLiveDeads = dataLayer.GetUniqueSpeciesProductLiveDeadFromTrees(volEq.Species, volEq.PrimaryProduct);
-                    foreach (var spProdLiveDead in spProdLiveDeads)
-                    {
-                        var bioEqs = MakeBiomassEquations(volEq, REGN, currForest, spProdLiveDead.FiaCode, spProdLiveDead.LiveDead, percentRemovedValue);
+                var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
+                float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
+                    ? pct : 95.0f;
 
-                        biomassEquations.AddRange(bioEqs);
-                    }
+                var treeDefaults = DataLayer.GetTreeDefaultValues(volEq.Species, volEq.PrimaryProduct);
 
-                }   //  endif biomass checked
-            }   //  end foreach loop
-            //  save list
-
-            dataLayer.ClearBiomassEquations();
-            dataLayer.SaveBiomassEquations(biomassEquations);
-        }
-
-        public static IEnumerable<BiomassEquationDO> MakeBiomassEquations(VolumeEquationDO volEq, int region, string forest, int fiaCode, string liveDead, float percentRemovedValue)
-        {
-            
-
-            var biomassEquations = new List<BiomassEquationDO>();
-
-            float[] WF = new float[3];
-            var FORST = new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(forest);
-            var AGTEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var LBREQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var DBREQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var FOLEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var TIPEQ = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var WF1REF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var WF2REF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var MCREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var AGTREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var LBRREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var DBRREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var FOLREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            var TIPREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
-            int REGN = region;
-            int SPCD = fiaCode;
-            CRZSPDFTCS(ref REGN,
-                       FORST,
-                       out fiaCode,
-                       WF,
-                       AGTEQ,
-                       LBREQ,
-                       DBREQ,
-                       FOLEQ,
-                       TIPEQ,
-                       WF1REF,
-                       WF2REF,
-                       MCREF,
-                       AGTREF,
-                       LBRREF,
-                       DBRREF,
-                       FOLREF,
-                       TIPREF,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH,
-                       CRZSPDFTCS_STRINGLENGTH);
-            // note: fiaCode is both an input and an output variable
-
-            
-            
-
-            foreach(var comp in BIOMASS_COMPONENTS)
-            {
-                BiomassEquationDO bedo = new BiomassEquationDO();
-                bedo.FIAcode = fiaCode;
-                bedo.LiveDead = liveDead; // note: although biomass Eqs have live dead. Since during calculating tree value BioEq's arn't selected by LiveDead it doesn't matter what the LD is
-                bedo.Product = volEq.PrimaryProduct;
-                bedo.Species = volEq.Species;
-                bedo.PercentMoisture = WF[2];
-                bedo.PercentRemoved = percentRemovedValue;
-
-                switch (comp)
-                {
-                    case "TotalTreeAboveGround":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = AGTEQ.ToString();
-                            bedo.MetaData = AGTREF.ToString();
-                            break;
-                        }
-                    case "LiveBranches":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = LBREQ.ToString();
-                            bedo.MetaData = LBRREF.ToString();
-                            break;
-                        }
-                    case "DeadBranches":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = DBREQ.ToString();
-                            bedo.MetaData = DBRREF.ToString();
-                            break;
-                        }
-                    case "Foliage":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = FOLEQ.ToString();
-                            bedo.MetaData = FOLREF.ToString();
-                            break;
-                        }
-                    case "PrimaryProd":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = "";
-                            bedo.MetaData = WF1REF.ToString();
-
-                            if (region == 5)
-                            {
-                                int[] R5_Prod20_WF_FIAcodes = new int[] { 122, 116, 117, 015, 020, 202, 081, 108 };
-                                if (volEq.PrimaryProduct == "20"
-                                    && R5_Prod20_WF_FIAcodes.Any(x => x == fiaCode))
-                                {
-                                    bedo.WeightFactorPrimary = WF[1];
-                                }
-                                else bedo.WeightFactorPrimary = WF[0];
-                            }
-                            else if (REGN == 1 && volEq.PrimaryProduct != "01")
-                            {
-                                bedo.WeightFactorPrimary = WF[1];
-                            }
-                            else
-                            {
-                                bedo.WeightFactorPrimary = WF[0];
-                            }
-
-                            
-                            break;
-                        }
-                    case "SecondaryProd":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = "";
-                            bedo.WeightFactorSecondary = WF[1];
-                            bedo.MetaData = WF2REF.ToString();
-                            break;
-                        }
-                    case "StemTip":
-                        {
-                            bedo.Component = comp;
-                            bedo.Equation = TIPEQ.ToString();
-                            bedo.MetaData = TIPREF.ToString();
-                            break;
-                        }
-                }
-
-                biomassEquations.Add( bedo );
+                //BiomassEquationService
             }
 
-            return biomassEquations;
+            DataLayer.CreateBiomassEquations(equationList, REGN, forest, prList);
+
+            DataLayer.ClearBiomassEquations();
+            DataLayer.SaveBiomassEquations(biomassEquations);
         }
 
-        private List<VolumeEquationDO> updateEquationList(string[,] speciesProduct)
-        {
-            List<VolumeEquationDO> updatedList = new List<VolumeEquationDO>();
-            for (int k = 0; k < speciesProduct.GetLength(0); k++)
-            {
-                int nthRow = equationList.FindIndex(
-                    delegate (VolumeEquationDO v)
-                    {
-                        return v.Species == speciesProduct[k, 0] && v.PrimaryProduct == speciesProduct[k, 1];
-                    });
-                if (nthRow >= 0)
-                    updatedList.Add(equationList[nthRow]);
-            }   //  end for k loop
-
-            return updatedList;
-        }   //  end updateEquationList
+        
 
 
         private void onDelete(object sender, EventArgs e)

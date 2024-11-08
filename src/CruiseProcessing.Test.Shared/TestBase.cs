@@ -1,4 +1,8 @@
 ﻿using Bogus;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using System.Collections;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Reflection;
@@ -13,6 +17,7 @@ public class TestBase
     protected Randomizer Rand { get; }
     protected Stopwatch _stopwatch;
     private string _testTempPath;
+    protected LogLevel LogLevel { get; set; } = LogLevel.Information;
 
     private List<string> FilesToBeDeleted { get; } = new List<string>();
 
@@ -76,7 +81,7 @@ public class TestBase
     public string GetTempFilePath(string extention, string fileName = null)
     {
         var testTempPath = TestTempPath;
-        if(Directory.Exists(testTempPath) is false)
+        if (Directory.Exists(testTempPath) is false)
         {
             Directory.CreateDirectory(testTempPath);
         }
@@ -109,5 +114,19 @@ public class TestBase
     public void RegesterFileForCleanUp(string path)
     {
         FilesToBeDeleted.Add(path);
+    }
+
+    public ILogger<T> CreateLogger<T>()
+    {
+        var typeName = typeof(T).Name;
+
+        var logger = Substitute.For<ILogger<T>>();
+        logger.When(x => x.Log<object>(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>()))
+            .Do(x =>
+            {
+                if (x.Arg<LogLevel>() >= LogLevel)
+                { Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()); }
+            });
+        return logger;
     }
 }

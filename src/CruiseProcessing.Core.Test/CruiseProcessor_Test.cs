@@ -1,11 +1,14 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Processing;
 using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using DiffPlex.DiffBuilder;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NSubstitute;
 using System;
@@ -99,7 +102,7 @@ namespace CruiseProcessing.Test
             var dal = new DAL(filePath);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
+            var dataLayer = new CpDataLayer(dal, mockDlLogger, biomassOptions: null);
 
             List<ErrorLogDO> fscList = dataLayer.getErrorMessages("E", "FScruiser");
             var errors = EditChecks.CheckErrors(dataLayer);
@@ -110,17 +113,15 @@ namespace CruiseProcessing.Test
             {
                 foreach (var error in errors)
                 {
-                    Output.WriteLine(error.Message);
+                    Output.WriteLine($"Table: {error.TableName} Msg:{ErrorReport.GetErrorMessage(error.Message)}");
                 }
 
                 throw new Exception("Skip - Cruise errors");
             }
 
             var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<CruiseProcessor>>();
-
-            var calculateTreeValues = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger.Object, calculateTreeValues);
+            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
 
 
 
@@ -131,6 +132,14 @@ namespace CruiseProcessing.Test
             dal.TransactionDepth.Should().Be(0, "After Process");
 
             return dataLayer;
+        }
+
+        [Flags]
+
+        public enum CompareTreeCalculatedValuesFlags
+        {
+            None = 0,
+            IgnoreBiomass = 1,
         }
 
         [Theory]
@@ -165,14 +174,20 @@ namespace CruiseProcessing.Test
 
         //[InlineData("Version3Testing\\STR\\98765 test STR TS.cruise")]
         //[InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_26082021.process")]
-        [InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_30092021.process")]
+        [InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_30092021.process", Skip = "Has Blank Tree Grades")]
 
         //[InlineData("Version3Testing\\TestMeth\\99996_TestMeth_TS_202310040107_KC'sTabActive3-R9Q8.process")]
 
         [InlineData("Version3Testing\\27504PCM_Spruce East_Timber_Sale.cruise")]
         [InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")]
+
+        [InlineData("Temp\\21853\\21853 Swanson Creek TS Data Checked.cruise")]
+        [InlineData("Temp\\21853\\21853 Swanson Creek TS Data Checked_withTallySetup.cruise")]
         public void ProcessCruise_CompareReferenceImplementation(string testFileName)
         {
+            //
+            // initialize datalayer for test file
+            //
             string filePath = null;
 
             var extention = Path.GetExtension(testFileName);
@@ -195,11 +210,14 @@ namespace CruiseProcessing.Test
                 filePath = GetTestFile(testFileName);
             }
 
-
             var dal = new DAL(filePath);
 
-            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
+            var mockDlLogger = CreateLogger<CpDataLayer>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger, biomassOptions: null);
+
+            //
+            // check cruise for errors
+            //
 
             List<ErrorLogDO> fscList = dataLayer.getErrorMessages("E", "FScruiser");
             var errors = EditChecks.CheckErrors(dataLayer);
@@ -210,19 +228,23 @@ namespace CruiseProcessing.Test
             {
                 foreach (var error in errors)
                 {
-                    Output.WriteLine(error.Message);
+                    Output.WriteLine($"Table: {error.TableName} CN:{error.CN_Number} Column:{error.ColumnName} Message:{ErrorReport.GetErrorMessage(error.Message)}");
                 }
 
                 throw new Exception("Skip - Cruise errors");
             }
 
+            //
+            // initialize processor and process cruise
+            //
+
             var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<CruiseProcessor>>();
+            var mockLogger = CreateLogger<CruiseProcessor>();
 
-            var calculateTreeValues = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, mockLogger.Object, calculateTreeValues);
+            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
 
-            
+
 
             dal.TransactionDepth.Should().Be(0, "Before Process");
             var mockProgress = new Mock<IProgress<string>>();
@@ -235,18 +257,25 @@ namespace CruiseProcessing.Test
             var pops = dataLayer.getPOP();
             var pros = dataLayer.getPRO();
 
+            //
+            // initialize reference processor and process cruise
+            //
 
-            var mockServiceProvider = Substitute.For<IServiceProvider>();
-            mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
+            //var mockServiceProvider = Substitute.For<IServiceProvider>();
+            //mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
             //mockServiceProvider.GetService(Arg.Is(typeof(ICalculateTreeValues))).Returns(new RefCalculateTreeValues(dataLayer));
 
-            var refProcessor = new RefCruiseProcessor(dataLayer, Substitute.For<ILogger<RefCruiseProcessor>>(), mockServiceProvider);
+            var refProcessor = new RefCruiseProcessor(dataLayer, Substitute.For<ILogger<RefCruiseProcessor>>(), CreateLogger<RefCalculateTreeValues>());
             refProcessor.ProcessCruise(Substitute.For<IProgress<string>>());
 
             var tcvAgain = dataLayer.getTreeCalculatedValues();
             var lcdsAgain = dataLayer.getLCD();
             var popsAgain = dataLayer.getPOP();
             var prosAgain = dataLayer.getPRO();
+
+            //
+            // compare results
+            //
 
             tcvs.Should().HaveSameCount(tcvAgain);
             foreach (var tcv in tcvs)
@@ -255,8 +284,11 @@ namespace CruiseProcessing.Test
                 match.Should().NotBeNull();
                 tcv.Should().BeEquivalentTo(match, config: (cfg) =>
                 {
-                    return cfg.Excluding(x => x.TreeCalcValues_CN).Excluding(x => x.rowID).Excluding(x => x.Self)
-                    .Using<double>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001)).WhenTypeIs<double>();
+                    return cfg.Excluding(x => x.TreeCalcValues_CN)
+                    .Excluding(x => x.rowID)
+                    .Excluding(x => x.Self)
+                    .Using<double>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001)).WhenTypeIs<double>()
+                    .Using<float>(x => x.Subject.Should().BeApproximately(x.Expectation, 0.001f)).WhenTypeIs<float>();
                 });
             }
 
@@ -266,7 +298,7 @@ namespace CruiseProcessing.Test
                 var match = lcdsAgain.SingleOrDefault(x => x.Stratum == lcd.Stratum && x.SampleGroup == lcd.SampleGroup && x.Species == lcd.Species && x.STM == lcd.STM && x.LiveDead == lcd.LiveDead && x.TreeGrade == lcd.TreeGrade);
                 match.Should().NotBeNull();
 
-                Output.WriteLine($"{lcd.Stratum} sg:{lcd.SampleGroup} sp:{lcd.Species} {lcd.STM} {lcd.LiveDead} {lcd.TreeGrade}");
+                Output.WriteLine($"lcd st:{lcd.Stratum} sg:{lcd.SampleGroup} sp:{lcd.Species} {lcd.STM} {lcd.LiveDead} {lcd.TreeGrade}");
 
                 lcd.Should().BeEquivalentTo(match, config: (cfg) =>
                 {
@@ -282,7 +314,7 @@ namespace CruiseProcessing.Test
                 var match = popsAgain.SingleOrDefault(x => x.Stratum == pop.Stratum && x.SampleGroup == pop.SampleGroup && x.STM == pop.STM);
                 match.Should().NotBeNull();
 
-                Output.WriteLine($"{pop.Stratum} {pop.SampleGroup}");
+                Output.WriteLine($"pop st:{pop.Stratum} sg:{pop.SampleGroup}");
 
                 pop.Should().BeEquivalentTo(match, because: $"{pop.Stratum} {pop.SampleGroup}", config: (cfg) =>
                 {
@@ -351,7 +383,7 @@ namespace CruiseProcessing.Test
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
+            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
 
             var stringWriter = new StringWriter();
 
@@ -401,7 +433,7 @@ namespace CruiseProcessing.Test
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
+            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
 
             var stringWriter = new StringWriter();
 

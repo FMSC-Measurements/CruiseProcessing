@@ -1,8 +1,9 @@
 ﻿using CruiseDAL;
-using CruiseProcessing.Async;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Processing;
 using CruiseProcessing.Services;
-using DiffPlex.DiffBuilder;
+using CruiseProcessing.ViewModel;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,24 +14,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Xunit.Abstractions;
-using ZedGraph;
 
-namespace CruiseProcessing.Test
+namespace CruiseProcessing.Test.ViewModel
 {
-    public class ProcessStatus_Test : TestBase
+    public class ProcessCruiseViewModel_Test : TestBase
     {
-
-        public ProcessStatus_Test(ITestOutputHelper output) : base(output)
+        public ProcessCruiseViewModel_Test(ITestOutputHelper output) : base(output)
         {
-            
         }
 
-        private Mock<IServiceProvider> GetServiceProviderMock(CpDataLayer datalayer)
+        private IServiceProvider GetServiceProviderMock(CpDataLayer datalayer)
         {
-            var mockServiceProvider = new Mock<IServiceProvider>();
-            mockServiceProvider.Setup(x => x.GetService(It.Is<Type>(x => x == typeof(ICalculateTreeValues))))
-                .Returns(() => new CalculateTreeValues2(datalayer, Substitute.For<ILogger<CalculateTreeValues2>>()));
+            var mockServiceProvider = Substitute.For<IServiceProvider>();
+            
+            mockServiceProvider.GetService(typeof(CalculateTreeValues2))
+                .Returns(new CalculateTreeValues2(datalayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CalculateTreeValues2>>()));
 
             return mockServiceProvider;
         }
@@ -79,17 +79,17 @@ namespace CruiseProcessing.Test
             using var dal = new DAL(filePath);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
+            var dataLayer = new CpDataLayer(dal, mockDlLogger, biomassOptions: null);
 
-            var mockDialogService = new Mock<IDialogService>();
-            var mockLogger = new Mock<ILogger<ProcessStatus>>();
+            var mockDialogService = Substitute.For<IDialogService>();
+            var mockLogger = CreateLogger<ProcessStatus>();
             var mockServiceProvider = GetServiceProviderMock(dataLayer);
+            var mockServiceCollection = Substitute.For<IServiceCollection>();
 
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService.Object, mockLogger.Object, Substitute.For<ICruiseProcessor>());
+            var processStatus = new ProcessCruiseViewModel(dataLayer, mockDialogService, mockServiceProvider, CreateLogger<ProcessCruiseViewModel>(), mockServiceCollection);
 
             var result = processStatus.DoPreProcessChecks();
             result.Should().BeTrue();
-
         }
 
 
@@ -131,29 +131,32 @@ namespace CruiseProcessing.Test
 
         [InlineData("Version3Testing\\27504PCM_Spruce East_Timber_Sale.cruise")]
         [InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")]
-        public async Task Process(string testFileName)
+        public async Task ProcessCruiseAsync(string testFileName)
         {
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockDlLogger);
+            var dataLayer = new CpDataLayer(dal, mockDlLogger, biomassOptions: null);
 
             var mockDialogService = Substitute.For<IDialogService>();
+            var mockLogger = CreateLogger<ProcessStatus>();
+            var mockServiceProvider = GetServiceProviderMock(dataLayer);
+            var mockServiceCollection = Substitute.For<IServiceCollection>();
 
+            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
+            mockServiceProvider.GetService(typeof(ICruiseProcessor))
+                .Returns(new CruiseProcessor(dataLayer, mockDialogService, ctv, Substitute.For<ILogger<CruiseProcessor>>()));
 
-            var treeValueCalculator = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService, Substitute.For<ILogger<CruiseProcessor>>(), treeValueCalculator);
-            var processStatus = new ProcessStatus(dataLayer, mockDialogService, Substitute.For<ILogger<ProcessStatus>>(), cruiseProcessor);
+            var processStatus = new ProcessCruiseViewModel(dataLayer, mockDialogService, mockServiceProvider, CreateLogger<ProcessCruiseViewModel>(), mockServiceCollection);
 
             var result = processStatus.DoPreProcessChecks();
             if (!result)
             { throw new Exception("Skip"); }
 
-            await processStatus.Process();
+            await processStatus.ProcessCruiseAsync();
 
             mockDialogService.DidNotReceiveWithAnyArgs().ShowError(Arg.Any<string>());
         }
-
     }
 }

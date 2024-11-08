@@ -1,5 +1,6 @@
 ﻿using CruiseDAL;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System;
@@ -24,12 +25,12 @@ namespace CruiseProcessing.Test.Output
 
             using var db = new DAL(filePath);
 
-            var dataLayer = new CpDataLayer(db, Substitute.For<ILogger<CpDataLayer>>());
+            var dataLayer = new CpDataLayer(db, Substitute.For<ILogger<CpDataLayer>>(), biomassOptions: null);
 
 
             var reportID = "WT1";
             var headerData = dataLayer.GetReportHeaderData();
-            var outputWeight = new OutputWeight(dataLayer, headerData, reportID);
+            var outputWeight = new OutputWeight(dataLayer, VolumeLibraryInterop.Default, headerData, reportID);
 
 
             var writer = new System.IO.StringWriter();

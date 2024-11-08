@@ -29,7 +29,7 @@ namespace CruiseProcessing.Data
             return DAL.From<TreeCalculatedValuesDO>().Read().ToList();
         }   //  end getTreeCalculatedValues
 
-        public List<TreeCalculatedValuesDO> getTreeCalculatedValues(int currStratumCN)
+        public List<TreeCalculatedValuesDO> getTreeCalculatedValues(long currStratumCN)
         {
             return DAL.From<TreeCalculatedValuesDO>()
                 .Join("Tree AS t", "USING (Tree_CN)")

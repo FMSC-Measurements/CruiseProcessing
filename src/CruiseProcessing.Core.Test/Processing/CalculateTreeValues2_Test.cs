@@ -1,5 +1,7 @@
 ﻿using CruiseDAL;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Processing;
 using CruiseProcessing.ReferenceImplmentation;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -11,22 +13,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace CruiseProcessing.Test
+namespace CruiseProcessing.Test.Processing
 {
     public class CalculateTreeValues2_Test : TestBase
     {
         public CalculateTreeValues2_Test(ITestOutputHelper output) : base(output)
         {
         }
-
-
-        [Fact]
-        public void Vollib_VERNUM2()
-        {
-            CalculateTreeValues2.VERNUM2(out var num);
-            num.Should().Be(20240626); // this number changes for each version 
-        }
-
 
         [Theory]
         [InlineData("OgTest\\Region1\\R1_FrenchGulch.cruise")]
@@ -71,10 +64,10 @@ namespace CruiseProcessing.Test
         {
             var filePath = GetTestFile(fileName);
 
-            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var mockLogger = CreateLogger<CpDataLayer>();
             var dal = new DAL(filePath);
-            var dataLayer = new CpDataLayer(dal, mockLogger);
-            var ctv = new RefCalculateTreeValues(dataLayer);
+            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
+            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculateTreeValues>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -82,7 +75,7 @@ namespace CruiseProcessing.Test
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
+            var ctv2 = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();
@@ -96,7 +89,7 @@ namespace CruiseProcessing.Test
             var tcvLookup = dataLayer.getTreeCalculatedValues().ToLookup(x => x.Tree_CN.Value);
 
 
-            foreach(var t in trees.Where(x => x.CountOrMeasure == "M"))
+            foreach (var t in trees.Where(x => x.CountOrMeasure == "M"))
             {
                 tcvLookup.Contains(t.Tree_CN.Value).Should().BeTrue();
             }
@@ -116,7 +109,7 @@ namespace CruiseProcessing.Test
         {
             var filePath = GetTestFile(fileName);
 
-            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var mockLogger = CreateLogger<CpDataLayer>();
 
             var db = new CruiseDatastore_V3(filePath);
             var cruiseID = db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
@@ -127,8 +120,8 @@ namespace CruiseProcessing.Test
             var migrator = new DownMigrator();
             migrator.MigrateFromV3ToV2(cruiseID, db, dal);
 
-            var dataLayer = new CpDataLayer(dal, mockLogger);
-            var ctv = new RefCalculateTreeValues(dataLayer);
+            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
+            var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculateTreeValues>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -136,7 +129,7 @@ namespace CruiseProcessing.Test
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues2(dataLayer, Substitute.For<ILogger<CalculateTreeValues2>>());
+            var ctv2 = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();

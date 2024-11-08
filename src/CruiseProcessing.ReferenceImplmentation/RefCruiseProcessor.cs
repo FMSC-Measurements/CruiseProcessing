@@ -1,5 +1,7 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Processing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,15 +15,18 @@ namespace CruiseProcessing.ReferenceImplmentation
 {
     public class RefCruiseProcessor : ICruiseProcessor
     {
+        protected ILogger<RefCalculateTreeValues> _ctvLogger;
         public CpDataLayer DataLayer { get; }
         public ILogger Logger { get; }
+        
+
         public IServiceProvider Services { get; }
 
-        public RefCruiseProcessor(CpDataLayer dataLayer, ILogger<RefCruiseProcessor> logger, IServiceProvider serviceProvider)
+        public RefCruiseProcessor(CpDataLayer dataLayer, ILogger<RefCruiseProcessor> logger, ILogger<RefCalculateTreeValues> ctvLogger)
         {
             DataLayer = dataLayer;
             Logger = logger;
-            Services = serviceProvider;
+            _ctvLogger = ctvLogger;
         }
 
         public Task ProcessCruiseAsync(IProgress<string> progress)
@@ -65,11 +70,17 @@ namespace CruiseProcessing.ReferenceImplmentation
                     //  update status message for next stratum
                     progress?.Report("Calculating stratum " + sdo.Code);
 
-                    var calcTreeVal = Services.GetRequiredService<ICalculateTreeValues>();
+                    var calcTreeVal = new RefCalculateTreeValues(DataLayer, _ctvLogger);
 
                     ProcessStratum(sdo, calcTreeVal, calcVal, lcdList, popList, proList, ctList, pList, tList);
 
                 }   //  end foreach stratum
+
+
+                int volLibVersion = 0;
+                RefCalculateTreeValues.VERNUM2(ref volLibVersion);
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_VERSION, volLibVersion.ToString());
+                DataLayer.VolLibVersion = new RefCalculateTreeValues(DataLayer, _ctvLogger).GetVersion();
 
                 dal.CommitTransaction();
 
@@ -149,10 +160,8 @@ namespace CruiseProcessing.ReferenceImplmentation
                 DataLayer.SaveTrees(justCurrentStratum);
             }   //  endif on method
 
-            //var justStratumPlots = PlotMethods.GetStrata(pList, sdo.Code);
-
             //  Sum data for the LCD, POP and PRO table
-            SumAll.SumAllValues(DataLayer, sdo, pList, justCurrentLCD, justCurrentPOP, justCurrentPRO);
+            SumAll.SumAllValues(DataLayer, sdo, justPlots, justCurrentLCD, justCurrentPOP, justCurrentPRO);
 
             //  Update STR tally after expansion factors are summed
             if (sdo.Method == "STR")

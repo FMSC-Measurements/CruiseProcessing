@@ -1,5 +1,8 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Processing;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,13 +39,17 @@ namespace CruiseProcessing.ReferenceImplmentation
         private StringBuilder CONSPEC = new StringBuilder(256);
         private MRules mRules;
         protected CpDataLayer DataLayer { get; }
+        public ILogger Log { get; }
 
-        public RefCalculateTreeValues(CpDataLayer dataLayer)
+        
+
+        public RefCalculateTreeValues(CpDataLayer dataLayer, ILogger<RefCalculateTreeValues> logger)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            Log = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//, CallingConvention = CallingConvention.StdCall)]
+        [DllImport("vollib_20240626.dll", CallingConvention = CallingConvention.Cdecl)]//, CallingConvention = CallingConvention.StdCall)]
         static extern void VOLLIBCSNVB(ref int regn,
                             StringBuilder forst,
                             StringBuilder voleq,
@@ -121,10 +128,10 @@ namespace CruiseProcessing.ReferenceImplmentation
                             int charLen);
 
         //  declarations for external methods from vollib.dll
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]//EntryPoint = "VERNUM2",
+        [DllImport("vollib_20240626.dll", CallingConvention = CallingConvention.Cdecl)]//EntryPoint = "VERNUM2",
         public static extern void VERNUM2(ref int a);
 
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]// CallingConvention = CallingConvention.StdCall)]
+        [DllImport("vollib_20240626.dll", CallingConvention = CallingConvention.Cdecl)]// CallingConvention = CallingConvention.StdCall)]
         static extern void VOLLIBCS(ref int regn, StringBuilder forst, StringBuilder voleq, ref float mtopp, ref float mtops,
             ref float stump, ref float dbhob, ref float drcob, StringBuilder httype, ref float httot, ref int htlog, ref float ht1prd,
             ref float ht2prd, ref float upsht1, ref float upsht2, ref float upsd1, ref float upsd2, ref int htref, ref float avgz1,
@@ -138,7 +145,7 @@ namespace CruiseProcessing.ReferenceImplmentation
         // static extern void CRZBIOMASSCS(ref int regn, StringBuilder forst, ref int spcd, ref float dbhob, ref float drcob, ref float httot, 
         //                                ref int fclass, float[] vol, float[] wf, float[] bms, ref int errflg, int i1);
 
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("vollib_20240626.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void CRZBIOMASSCS(ref int regn,
                     StringBuilder forst,
                     ref int spcd,
@@ -155,6 +162,15 @@ namespace CruiseProcessing.ReferenceImplmentation
                     int i2);
 
         #endregion
+
+        Interop.IVolumeLibrary ICalculateTreeValues.VolLib => throw new NotSupportedException();
+
+        public string GetVersion()
+        {
+            int volLibVersion = 0;
+            RefCalculateTreeValues.VERNUM2(ref volLibVersion);
+            return VolumeLibraryExtensions.VolLibVersionNumberToString(volLibVersion);
+        }
 
         public void ProcessTrees(string currST, string currMethod, long currST_CN)
         {
@@ -345,6 +361,18 @@ namespace CruiseProcessing.ReferenceImplmentation
 
                             int fiaspcd = int.Parse(ved.VolumeEquationNumber.Substring(7, 3));
 
+                            Log?.LogDebug("Calculating Volume VolEq: {VolumeEquationNumber}", ved.VolumeEquationNumber);
+                            Log?.LogTrace("VolLib Prams " +
+                                "{REGN} {FORST} {VOLEQ} {MTOPP} {MTOPS} " +
+                                "{STUMP} {DBHOB} {DRCOB} {HTTYPE} {HTTOT} " +
+                                "{HTLOG} {HT1PRD} {HT2PRD} {UPSHT1} {UPSHT2} " +
+                                "{UPSD1} {UPSD2} {HTREF} {AVGZ1} {AVGZ2} " +
+                                "{FCLASS} {DBTBH} {BTR} ",
+                                REGN, FORST, VOLEQ, MTOPP, MTOPS,
+                                STUMP, DBHOB, DRCOB, HTTYPE, HTTOT,
+                                HTLOG, HT1PRD, HT2PRD, UPSHT1, UPSHT2,
+                                UPSD1, UPSD2, HTREF, AVGZ1, AVGZ2,
+                                FCLASS, DBTBH, BTR);
 
                             VOLLIBCSNVB(ref REGN, FORST, VOLEQ, ref MTOPP, ref MTOPS,
                                 ref STUMP, ref DBHOB, ref DRCOB, HTTYPE, ref HTTOT,
@@ -363,6 +391,8 @@ namespace CruiseProcessing.ReferenceImplmentation
 
                             if (ERRFLAG > 0)
                                 DataLayer.LogError("Tree", (int)td.Tree_CN, "W", ERRFLAG.ToString());
+
+                            Log.LogDebug($"Tree_CN {td.Tree_CN} Vol Array" + string.Join(", ", VOL));
 
                             //  Update log stock table with calculated values
                             UpdateLogStock(justTreeLogs, logStockList, (int)td.Tree_CN, LOGVOL, LOGDIA, LOGLEN, TLOGS);
@@ -1167,6 +1197,8 @@ namespace CruiseProcessing.ReferenceImplmentation
             DataLayer.SaveTreeCalculatedValues(tcvList);
             return;
         }   //  end CalculateValue
+
+
 
         //  this is used for the volume library call
         public struct MRules
