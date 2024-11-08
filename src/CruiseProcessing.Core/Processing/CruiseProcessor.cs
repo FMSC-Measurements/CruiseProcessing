@@ -30,7 +30,6 @@ namespace CruiseProcessing.Processing
             TreeValCalculator = calculateTreeValues;
         }
 
-
         public Task ProcessCruiseAsync(IProgress<string> progress)
         {
             return Task.Run(() => ProcessCruise(progress));
@@ -73,14 +72,12 @@ namespace CruiseProcessing.Processing
                 //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_VERSION, TreeValCalculator.VolLib.GetVersionNumber().ToString());
                 DataLayer.VolLibVersion = TreeValCalculator.GetVersion();
 
-
                 dal.CommitTransaction();
 
                 DataLayer.IsProcessed = true;
                 //  show volume calculation is finished
                 progress?.Report("Processing is DONE");
                 Logger?.LogInformation("Processing is DONE");
-
             }
             catch (Exception ex)
             {
@@ -93,7 +90,6 @@ namespace CruiseProcessing.Processing
                 throw;
             }
         }
-
 
         private void ProcessStratum(
             StratumDO stratum,
@@ -122,13 +118,11 @@ namespace CruiseProcessing.Processing
             //  Calculate volumes
             calcTreeVal.ProcessTrees(stratum.Code, stratum.Method, (long)stratum.Stratum_CN);
 
-
             if (stratum.Method == "3P")
             {
                 Update3Ptally(stratumCountTrees, stratumLcds, stratumTrees);
                 DataLayer.SaveLCD(stratumLcds);
             }
-
 
             //  Update expansion factors for methods 3PPNT, F3P, and P3P
             if (stratum.Method == "3PPNT" || stratum.Method == "F3P" || stratum.Method == "P3P")
@@ -197,7 +191,6 @@ namespace CruiseProcessing.Processing
                     if (totalExpansionFactor > 0)
                         ldo.TalliedTrees = ldo.SumExpanFactor / totalExpansionFactor * totalCount;
             }   //  end foreach loop
-
         }
 
         //  August 2016 -- need to replace tally for STR method when
@@ -213,7 +206,7 @@ namespace CruiseProcessing.Processing
         //
         // Note : the original versioon of this method used the count tree records to enumerate sample groups
         // so if there were no count tree records in the cruise, it wouldn't do anything. This shoudn't be possible
-        // but it could cause different results if all counts are stored on trees. 
+        // but it could cause different results if all counts are stored on trees.
         private static void UpdateStrTalliedTrees(List<LCDDO> stratumLcds)
         {
             foreach (var lcd in stratumLcds)
@@ -255,11 +248,13 @@ namespace CruiseProcessing.Processing
                             sgd.SecondaryProduct = "08";
                             errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
                             break;
+
                         case "05":
                         case "5":
                             sgd.SecondaryProduct = "20";
                             errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
                             break;
+
                         default:
                             sgd.SecondaryProduct = "02";
                             errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");

@@ -1,4 +1,6 @@
-﻿using CruiseDAL;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CruiseDAL;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Config;
 using CruiseProcessing.Data;
@@ -6,19 +8,12 @@ using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Windows.Input;
-using static System.Net.Mime.MediaTypeNames;
 
 #nullable enable
 
@@ -58,8 +53,6 @@ namespace CruiseProcessing.ViewModel
             DataserviceProvider = dataserviceProvider;
             Logger = logger;
             DialogService = dialogService;
-
-            
         }
 
         public CpDataLayer? DataLayer => DataserviceProvider.DataLayer;
@@ -71,17 +64,12 @@ namespace CruiseProcessing.ViewModel
 
         public string AppVerson { get; }
 
-
-
-
         public bool IsFileOpen => DataserviceProvider.DataLayer != null;
         public bool IsFileTemplate => DataLayer?.IsTemplateFile ?? false;
 
         public bool IsCruiseFileOpen => IsFileOpen && !IsFileTemplate;
 
         public bool IsFileProcessed => IsCruiseFileOpen && (DataLayer?.IsProcessed ?? false);
-
-
 
         public bool IsOutFileCreated
         {
@@ -90,7 +78,6 @@ namespace CruiseProcessing.ViewModel
         }
 
         public int Region { get; protected set; }
-
 
         public string Title
         {
@@ -102,16 +89,10 @@ namespace CruiseProcessing.ViewModel
 
         public ICommand ShowVolumeEquationsCommand => _showVolumeEquationsCommand ??= new RelayCommand(ShowVolumeEquations);
 
-
-
         public ICommand ShowValueEquationsCommand => _showValueEquationsCommand ??= new RelayCommand(DialogService.ShowValueEquations);
         public ICommand ShowR8VolumeEquationsCommand => _showR8VolumeEquationsCommand ??= new RelayCommand(ShowR8VolumeEquations);
 
-
-
         public ICommand ShowR9VolumeEquationsCommand => _showR9VolumeEquationsCommand ??= new RelayCommand(ShowR9VolumeEquations);
-
-
 
         public ICommand ShowModifyMerchRulesCommand => _showModifyMerchRulesCommand ??= new RelayCommand(DialogService.ShowModifyMerchRules);
         public ICommand ShowModifyWeightFactorsCommand => _showModifyWeightFactorsCommand ??= new RelayCommand(DialogService.ShowModifyWeightFactors);
@@ -146,6 +127,7 @@ namespace CruiseProcessing.ViewModel
             get => _enableR8Equations;
             set => SetProperty(ref _enableR8Equations, value);
         }
+
         public bool EnableR9Equations
         {
             get => _enableR9Equations;
@@ -182,11 +164,8 @@ namespace CruiseProcessing.ViewModel
             RefreshVolumeEquationStatus();
         }
 
-
-
         private void CreateHtmlFile()
         {
-
             HTMLoutput ho = new HTMLoutput(DataLayer, DialogService);
             ho.CreateHTMLfile();
         }
@@ -209,14 +188,12 @@ namespace CruiseProcessing.ViewModel
         {
             //  Pull reports selected
 
-
             RefreshIsProcessed();
             if (!IsFileProcessed)
             {
                 DialogService.ShowInformation("Looks like volume has not been calculated.\nReports cannot be produced without calculated volume.\nPlease calculate volume before continuing.");
                 return;
             }
-
 
             List<ReportsDO> selectedReports = DataLayer.GetSelectedReports();
             //  no reports?  let user know to go back and select reports
@@ -229,7 +206,7 @@ namespace CruiseProcessing.ViewModel
             //  Show dialog creating text file
 
             string? outFile = DialogService.ShowOutput(selectedReports);
-            if(outFile != null)
+            if (outFile != null)
             {
                 DialogService.ShowInformation("Text output file is complete and can be found at:\n" + outFile);
                 IsOutFileCreated = true;
@@ -246,7 +223,6 @@ namespace CruiseProcessing.ViewModel
             {
                 currentReports = ReportsDataservice.GetDefaultReports();
                 DataLayer.SaveReports(currentReports);
-
             }//end if
             else if (currentReports.Count < ReportsDataservice.reportsArray.GetLength(0))
             {
@@ -260,19 +236,14 @@ namespace CruiseProcessing.ViewModel
 
                 currentReports = ReportsDataservice.AddMissingReports(currentReports);
                 DataLayer.SaveReports(currentReports);
-
             }   //  endif
                 //  now get reports selected
 
-
             ReportMethods.deleteCSVReports(currentReports, DataLayer);
             currentReports = DataLayer.GetSelectedReports();
-            //  Get selected reports 
+            //  Get selected reports
             DialogService.ShowStandardReports(currentReports, IsFileTemplate);
         }
-
-
-
 
         private void ProcessCruise()
         {
@@ -283,7 +254,7 @@ namespace CruiseProcessing.ViewModel
         private void OpenFile()
         {
             var filePath = DialogService.AskOpenCruise();
-            if(filePath != null)
+            if (filePath != null)
             {
                 OpenFile(filePath);
             }
@@ -316,7 +287,6 @@ namespace CruiseProcessing.ViewModel
                 var v3db = new CruiseDatastore_V3(filePath);
                 cruiseID = v3db.ExecuteScalar<string>("SELECT CruiseID FROM Cruise LIMIT 1");
 
-
                 var downConverter = new DownMigrator();
                 if (!downConverter.EnsureCanMigrate(cruiseID, v3db, out var error_message))
                 {
@@ -334,7 +304,6 @@ namespace CruiseProcessing.ViewModel
 
                     dal = v2db;
                     dal_v3 = v3db;
-
                 }
                 catch (Exception ex)
                 {
@@ -344,7 +313,8 @@ namespace CruiseProcessing.ViewModel
                         {
                             File.Delete(processFilePath);
                         }
-                        catch (IOException ioex) {
+                        catch (IOException ioex)
+                        {
                             Logger.LogError(ioex, "Error when trying to cleanup after migrate cruise failed: {fileName}, Parent Exception: {parentException}", fileName, ex.Message);
                             DialogService.ShowError(ioex.Message);
 
@@ -356,7 +326,6 @@ namespace CruiseProcessing.ViewModel
                     DialogService.ShowError("Error Translating V3 Cruise Data \r\nError: " + ex.ToString());
                     return;
                 }
-
             }
             else if (extention == ".cut")
             {
@@ -377,7 +346,6 @@ namespace CruiseProcessing.ViewModel
                     dal = tempV2Db;
                     dal_v3 = v3db;
                     isTemplate = true;
-
                 }
                 catch (Exception ex)
                 {
@@ -410,7 +378,7 @@ namespace CruiseProcessing.ViewModel
             {
                 Region = int.TryParse(datalayer.getRegion(), out var r) ? r : 0;
 
-                // don't need to 
+                // don't need to
                 //if (datalayer.saleWithNullSpecies())
                 //{
                 //    //One or more records contain incomplete data which affect processing.\n
@@ -430,9 +398,6 @@ namespace CruiseProcessing.ViewModel
             Title = (fileName.Length > 35) ? "..." + fileName.Substring(fileName.Length - 35, 35)
                     : fileName;
 
-            
-
-            
             EnableR8Equations = (Region == 8);
             EnableValueEquations = !isTemplate;
             EnableWeightFactors = !isTemplate;
@@ -444,14 +409,12 @@ namespace CruiseProcessing.ViewModel
             OnPropertyChanged(nameof(IsCruiseFileOpen));
             OnPropertyChanged(nameof(IsFileOpen));
             OnPropertyChanged(nameof(IsFileTemplate));
-
-
         }
 
         protected void RefreshVolumeEquationStatus()
         {
             EnableVolumeEquations = true;// (Region != 9 || IsFileTemplate) ? true
-              //  : Region == 9 && DataLayer.DAL.From<VolumeEquationDO>().Count() > 0;
+                                         //  : Region == 9 && DataLayer.DAL.From<VolumeEquationDO>().Count() > 0;
 
             EnableR9Equations = Region == 9;// (Region == 9 && !EnableVolumeEquations);
         }
@@ -465,7 +428,7 @@ namespace CruiseProcessing.ViewModel
                 // in net6.2 and later long paths are supported by default.
                 // however it can still cause issue. So we need to manual check the
                 // directory length
-                // 
+                //
                 var dirName = Path.GetDirectoryName(path);
                 if (dirName.Length >= 248 || path.Length >= 260)
                 {
@@ -525,6 +488,5 @@ namespace CruiseProcessing.ViewModel
             DialogService.ShowError("No file selected.  Cannot continue.\nPlease select a file.");
             return false;
         }
-
     }
 }

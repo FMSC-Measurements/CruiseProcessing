@@ -4,13 +4,11 @@ using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Processing;
 using CruiseProcessing.Services;
-using FMSC.ORM.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CruiseProcessing.ViewModel
@@ -100,7 +98,7 @@ namespace CruiseProcessing.ViewModel
                 throw new ArgumentException($"No processor with name {processorName}");
             }
 
-            if(processorName.EndsWith("Preview"))
+            if (processorName.EndsWith("Preview"))
             {
                 DialogService.ShowMessage("Using a preview cruise processor. This is to evaluate changes to processing, and should not be used for submitted sales");
             }

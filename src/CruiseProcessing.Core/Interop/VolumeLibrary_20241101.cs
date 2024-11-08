@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CruiseProcessing.Interop
 {
@@ -115,8 +111,6 @@ namespace CruiseProcessing.Interop
 
         [DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern void GETREGNWFCS(ref int regin, StringBuilder forest, ref int fiaCode, StringBuilder prod, out float greenWf, out float deadWf, int i1, int i2);
-
-        
 
         [DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern void BROWNCROWNFRACTION(ref int SPCD, ref float DBH, ref float THT, ref float CR, float[] CFWT);
