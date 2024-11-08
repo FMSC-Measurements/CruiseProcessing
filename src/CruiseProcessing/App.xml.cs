@@ -95,19 +95,20 @@ namespace CruiseProcessing
 
             services.AddTransient<ICruiseProcessor, CruiseProcessor>();
             //services.RegisterReferenceImplimentations();
-            //services.AddKeyedTransient<ICruiseProcessor, NextVerCruiseProcessor>(nameof(NextVerCruiseProcessor));
+            services.AddKeyedTransient<ICruiseProcessor, CruiseProcessor_20241101_Preview>(nameof(CruiseProcessor_20241101_Preview));
 
 
             // register tree value calculators
             services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
-            //services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues2>(nameof(CalculateTreeValues2));
+            services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues2>(nameof(CalculateTreeValues2));
+            services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues_20241101>(nameof(CalculateTreeValues_20241101));
             //services.AddKeyedTransient<ICalculateTreeValues, RefCalculateTreeValues>(nameof(RefCalculateTreeValues));
 
 
             // register volume libraries
             services.AddSingleton<IVolumeLibrary>(VolumeLibraryInterop.Default);
-            //services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20240626>(nameof(VolumeLibrary_20240626));
-            //services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20241101>(nameof(VolumeLibrary_20241101));
+            services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20240626>(nameof(VolumeLibrary_20240626));
+            services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20241101>(nameof(VolumeLibrary_20241101));
 
 
             // register WPF views
