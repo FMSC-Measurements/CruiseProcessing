@@ -100,9 +100,9 @@ namespace CruiseProcessing.ViewModel
                 throw new ArgumentException($"No processor with name {processorName}");
             }
 
-            if(processorName == nameof(ReferenceImplmentation.RefCruiseProcessor))
+            if(processorName.EndsWith("Preview"))
             {
-                DialogService.ShowMessage("Processing with Reference Processor. ");
+                DialogService.ShowMessage("Using a preview cruise processor. This is to evaluate changes to processing, and should not be used for submitted sales");
             }
 
             Log?.LogInformation("Processing with {ProcessorName}", processorName);
