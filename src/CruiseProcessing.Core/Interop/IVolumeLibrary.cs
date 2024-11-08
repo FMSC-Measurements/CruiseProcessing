@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace CruiseProcessing.Interop
 {
@@ -60,7 +55,7 @@ namespace CruiseProcessing.Interop
         //    int heightToFirstLiveLimb,
         //    string liveDead,
 
-        //    int ba, //unused - basal area of stand 
+        //    int ba, //unused - basal area of stand
         //    int si, //unused - site index
         //    string ctype, // cruise type: 'C', 'F', 'V', 'I'
         //    int errorCode,
@@ -110,7 +105,6 @@ namespace CruiseProcessing.Interop
         void BrownCullLog(int fiaCode, ref float GCUFTS, ref float cullLogWGT);
 
         void BrownCullChunk(int fiaCode, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float cullChunkWGT);
-
     }
 
     public static class VolumeLibraryExtensions
