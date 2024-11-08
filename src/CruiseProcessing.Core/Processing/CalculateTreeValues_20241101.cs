@@ -65,6 +65,11 @@ namespace CruiseProcessing.Processing
 
         #endregion
 
+        public string GetVersion()
+                    {
+            return VolLib.GetVersionNumberString() + "Preview";
+        }
+
         public void ProcessTrees(string currST, string currMethod, long currST_CN)
         {
             //  Calculate volumes by stratum

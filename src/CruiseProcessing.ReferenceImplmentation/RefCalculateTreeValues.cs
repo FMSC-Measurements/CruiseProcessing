@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Processing;
 using Microsoft.Extensions.Logging;
 using System;
@@ -163,6 +164,13 @@ namespace CruiseProcessing.ReferenceImplmentation
         #endregion
 
         Interop.IVolumeLibrary ICalculateTreeValues.VolLib => throw new NotSupportedException();
+
+        public string GetVersion()
+        {
+            int volLibVersion = 0;
+            RefCalculateTreeValues.VERNUM2(ref volLibVersion);
+            return VolumeLibraryExtensions.VolLibVersionNumberToString(volLibVersion);
+        }
 
         public void ProcessTrees(string currST, string currMethod, long currST_CN)
         {

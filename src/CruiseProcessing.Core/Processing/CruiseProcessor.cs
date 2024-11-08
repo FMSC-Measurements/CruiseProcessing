@@ -71,7 +71,7 @@ namespace CruiseProcessing.Processing
                 //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_TREEVALUECALCULATOR_TYPE, TreeValCalculator.GetType().Name);
                 //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_TYPE, TreeValCalculator.VolLib.GetType().Name);
                 //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_VERSION, TreeValCalculator.VolLib.GetVersionNumber().ToString());
-                DataLayer.VolLibVersion = TreeValCalculator.VolLib.GetVersionNumberString();
+                DataLayer.VolLibVersion = TreeValCalculator.GetVersion();
 
 
                 dal.CommitTransaction();

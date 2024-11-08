@@ -76,12 +76,11 @@ namespace CruiseProcessing.ReferenceImplmentation
 
                 }   //  end foreach stratum
 
-                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_TREEVALUECALCULATOR_TYPE, typeof(RefCalculateTreeValues).Name);
-                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_TYPE, TreeValCalculator.VolLib.GetType().Name);
+
                 int volLibVersion = 0;
                 RefCalculateTreeValues.VERNUM2(ref volLibVersion);
                 //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_VERSION, volLibVersion.ToString());
-                DataLayer.VolLibVersion = VolumeLibraryExtensions.VolLibVersionNumberToString(volLibVersion);
+                DataLayer.VolLibVersion = new RefCalculateTreeValues(DataLayer, _ctvLogger).GetVersion();
 
                 dal.CommitTransaction();
 

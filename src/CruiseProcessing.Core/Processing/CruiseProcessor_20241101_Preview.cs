@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CruiseProcessing.Processing
 {
-    public class NextVerCruiseProcessor : CruiseProcessor
+    public class CruiseProcessor_20241101_Preview : CruiseProcessor
     {
         //public NextVerCruiseProcessor(CpDataLayer dataLayer,
         //                              IDialogService dialogService,
@@ -25,10 +25,10 @@ namespace CruiseProcessing.Processing
         //    TreeValCalculator = new CalculateTreeValues_20241101(dataLayer, volumeLibrary, ctvLogger);
         //}
 
-        public NextVerCruiseProcessor(CpDataLayer dataLayer,
+        public CruiseProcessor_20241101_Preview(CpDataLayer dataLayer,
                                       IDialogService dialogService,
                                       [FromKeyedServices(nameof(CalculateTreeValues_20241101))] ICalculateTreeValues calculateTreeValues,
-                                      ILogger<NextVerCruiseProcessor> logger)
+                                      ILogger<CruiseProcessor_20241101_Preview> logger)
             : base(dataLayer, dialogService, calculateTreeValues, logger)
         {
             DataLayer = dataLayer;
