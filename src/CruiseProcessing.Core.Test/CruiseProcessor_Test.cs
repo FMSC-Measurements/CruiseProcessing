@@ -113,7 +113,7 @@ namespace CruiseProcessing.Test
             {
                 foreach (var error in errors)
                 {
-                    Output.WriteLine(ErrorReport.GetErrorMessage(error.Message));
+                    Output.WriteLine($"Table: {error.TableName} Msg:{ErrorReport.GetErrorMessage(error.Message)}");
                 }
 
                 throw new Exception("Skip - Cruise errors");
