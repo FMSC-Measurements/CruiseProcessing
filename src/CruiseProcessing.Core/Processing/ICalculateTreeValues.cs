@@ -11,6 +11,8 @@ namespace CruiseProcessing.Processing
     {
         IVolumeLibrary VolLib { get; }
 
+        string GetVersion();
+
         void ProcessTrees(string currST, string currMethod, long currST_CN);
     }
 }
