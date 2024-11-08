@@ -93,32 +93,6 @@ namespace CruiseProcessing
             else return "";            
         }   //  end MethodLookup
 
-
-        public static string CurrentDLLversion()
-        {
-            try
-            {
-                //  Get current DLL version from volume library
-                int iCurrentDate = 0;
-                CalculateTreeValues2.VERNUM2(out iCurrentDate);
-
-                //  Convert to a string to reformat date
-                string sTemp = Convert.ToString(iCurrentDate);
-                StringBuilder sDate = new StringBuilder();
-                sDate.Append(sTemp.Substring(4, 2));
-                sDate.Append(".");
-                sDate.Append(sTemp.Substring(6, 2));
-                sDate.Append(".");
-                sDate.Append(sTemp.Substring(0, 4));
-
-                return sDate.ToString();
-            }
-            catch
-            {
-                return "0.0.0.0";
-            }
-        }   //  end CurrentDLLversion
-
         
 
 

@@ -1,0 +1,118 @@
+﻿<Window x:Class="CruiseProcessing.Views.ProcessCruiseDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:conv="clr-namespace:CruiseProcessing.Converters"
+        xmlns:local="clr-namespace:CruiseProcessing.Views"
+        mc:Ignorable="d"
+        Title="Process Cruise"
+        d:Height="320"
+        Width="270"
+        ResizeMode="NoResize"
+        SizeToContent="Height">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Image Grid.Row="0"
+               Source="{StaticResource equation}" />
+
+        <Button x:Name="_goButton"
+                Content="Go"
+                Grid.Row="1"
+                Margin="0,12"
+                Command="{Binding ProcessCruiseCommand}"
+                IsEnabled="{Binding IsBusy , Converter={StaticResource notConverter}}">
+            <Button.ContextMenu>
+                <ContextMenu ItemsSource="{Binding ProcessorNames}">
+                    <ContextMenu.ItemTemplate>
+                        <DataTemplate>
+                            <MenuItem Header="{Binding}"
+                                      
+                                      Command="{Binding DataContext.ProcessCruiseWithCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                      CommandParameter="{Binding}" />
+                        </DataTemplate>
+                    </ContextMenu.ItemTemplate>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+
+        <Label Content="{Binding ProcessStatus}"
+               Grid.Row="2"
+               Margin="0,12" />
+
+        <Border Grid.Row="3"
+                BorderBrush="Gray"
+                BorderThickness="1">
+
+            <StackPanel>
+                <StackPanel.Resources>
+                    <conv:NullableBoolConverter x:Key="CheckedConverter"
+                                                TrueValue="✔"
+                                                FalseValue="❌"
+                                                NullValue="" />
+
+                    <!--<Style TargetType="Label"
+                           x:Key="TriStateCheckLabel">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsEditChecked}"
+                                         Value="True">
+                                <Setter Property="Content"
+                                        Value="✔" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsEditChecked}"
+                                         Value="False">
+                                <Setter Property="Content"
+                                        Value="✘" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>-->
+                </StackPanel.Resources>
+                
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Edit Checks"
+                           HorizontalAlignment="Left" />
+                    <Label Content="{Binding IsEditCheckSuccess, Converter={StaticResource CheckedConverter}}"
+                           d:Content="❌"/>
+
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Preparation of data"
+                           HorizontalAlignment="Left" />
+                    <Label Content="{Binding IsPrepareSuccess, Converter={StaticResource CheckedConverter}}"
+                           d:Content="❌" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Calculating Volumes"
+                           HorizontalAlignment="Left" />
+                    <Label Content="{Binding IsProcessSuccess, Converter={StaticResource CheckedConverter}}"
+                           d:Content="❌" />
+                </StackPanel>
+
+
+            </StackPanel>
+
+
+        </Border>
+
+        <Button x:Name="_closeButton"
+                IsEnabled="{Binding IsBusy , Converter={StaticResource notConverter}}"
+                Content="Close"
+                Grid.Row="4"
+                Margin="0,12"
+                Click="_closeButton_Click" />
+       
+    </Grid>
+</Window>

@@ -10,6 +10,9 @@
     <BitmapImage x:Key="aboutButton"
                  UriSource="pack://application:,,,/Resources/About.jpg" />
 
+    <BitmapImage x:Key="equation"
+                 UriSource="pack://application:,,,/Resources/equation.bmp" />
+
 
     <BitmapImage x:Key="outputTextFile" UriSource="pack://application:,,,/Resources/textfile.jpg" />
     <BitmapImage x:Key="outputHtml" UriSource="pack://application:,,,/Resources/htmlfile.jpg" />

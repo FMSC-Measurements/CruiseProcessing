@@ -9,6 +9,7 @@ using CruiseProcessing.Services;
 using CruiseProcessing.Output;
 using CruiseProcessing.Data;
 using Microsoft.Extensions.Logging;
+using CruiseProcessing.Interop;
 
 namespace CruiseProcessing
 {
@@ -17,15 +18,18 @@ namespace CruiseProcessing
         public string currentRegion { get; }
         public string textFile { get; }
         protected CpDataLayer DataLayer { get; }
+        public IVolumeLibrary VolLib { get; }
+
         protected string FilePath => DataLayer.FilePath;
         protected SaleDO Sale { get; }
 
         protected ILogger Log { get; }
 
-        public CreateTextFile(CpDataLayer dataLayer, ILogger<CreateTextFile> log)
+        public CreateTextFile(CpDataLayer dataLayer, IVolumeLibrary volLib, ILogger<CreateTextFile> log)
         {
             Log = log;
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            VolLib = volLib ?? throw new ArgumentNullException(nameof(volLib));
             textFile = System.IO.Path.ChangeExtension(FilePath, "out");
 
             Sale = DataLayer.GetSale();
@@ -34,6 +38,7 @@ namespace CruiseProcessing
 
         public void createTextFile(IDialogService dialogService, IEnumerable<ReportsDO> selectedReports)
         {
+
 
             if (currentRegion == "10")
             {
@@ -109,12 +114,14 @@ namespace CruiseProcessing
             {
                 try
                 {
+                    Log?.LogInformation("Creating Sum file");
+
                     OutputTIM ot = new OutputTIM(DataLayer, headerData);
                     ot.CreateSUMfile();
                 }
                 catch (Exception e)
                 {
-                    Log?.LogError(e, "Error Creating Report: TIM");
+                    Log?.LogError(e, "Error Creating Sum file");
                     dialogService.ShowError($"Error Creating Report: TIM" + "\r\n" + e.Message);
                 }
             }
@@ -128,6 +135,8 @@ namespace CruiseProcessing
 
         public IEnumerable<string> CreateOutFile(IEnumerable<ReportsDO> selectedReports, HeaderFieldData headerData, TextWriter strWriteOut, out IEnumerable<string> failedReports, out bool hasWarnings)
         {
+            Log?.LogInformation("Begin Creating Out File. Region: {Region} Selected Reports: {SelectedReports}", currentRegion, string.Join(", ", selectedReports.Select(x => x.ReportID)));
+
             hasWarnings = false;
             var graphReports = new List<string>();
             var volumeEquations = DataLayer.getVolumeEquations();
@@ -146,6 +155,7 @@ namespace CruiseProcessing
             //  create objects for each report category and assign header fields as needed
             foreach (ReportsDO rdo in selectedReports)
             {
+                Log?.LogInformation("Report: " + rdo.ReportID + ", Status:{Status}", "Starting");
 
                 if (ReportsDataservice.IsGraphReport(rdo.ReportID))
                 {
@@ -159,6 +169,8 @@ namespace CruiseProcessing
                     strWriteOut.Write(rdo.ReportID);
                     strWriteOut.WriteLine(" can be found in the following file: ");
                     strWriteOut.WriteLine(graphFilePath);
+
+                    Log?.LogInformation("Report: " + rdo.ReportID + ", Status:{Status}", "Done");
 
                     continue;
                 }
@@ -327,7 +339,7 @@ namespace CruiseProcessing
                         case "WT3":
                         case "WT4":
                         case "WT5":
-                            OutputWeight ow = new OutputWeight(DataLayer, headerData, rdo.ReportID);
+                            OutputWeight ow = new OutputWeight(DataLayer, VolLib, headerData, rdo.ReportID);
                             ow.OutputWeightReports(strWriteOut, ref reportPageNum);
                             break;
 
@@ -454,10 +466,12 @@ namespace CruiseProcessing
 
                     strWriteOut.Write(reportStringWriter.ToString());
                     pageNumber = reportPageNum;
+                    Log?.LogInformation("Report: " + rdo.ReportID + ", Status:{Status}", "Done");
                 }
                 catch (Exception e)
                 {
-                    Log?.LogError(e, $"Error creating report {rdo.ReportID}");
+                    Log?.LogInformation("Report: " + rdo.ReportID + ", Status:{Status}", "Error");
+                    Log?.LogError(e, "Error Creating Report: {ReportID}", rdo.ReportID);
                     failedReportsList.Add(rdo.ReportID);
                 }
             }   //  end foreach loop
@@ -467,14 +481,17 @@ namespace CruiseProcessing
             List<ErrorLogDO> fsCrzErrors = DataLayer.getErrorMessages("W", "FScruiser");
             if (cpErrors.Any())
             {
+                Log?.LogWarning("CP Warning messages detected.");
                 ErrorReport.WriteWarnings(strWriteOut, cpErrors, ref pageNumber, headerData, DataLayer);
                 hasWarnings = true;
             }
             if (fsCrzErrors.Any())
             {
+                Log?.LogWarning("Audit Rule Warning messages detected.");
                 ErrorReport.WriteWarnings(strWriteOut, fsCrzErrors, ref pageNumber, headerData, DataLayer);
                 hasWarnings = true;
             }
+            //ErrorReport.WriteInfo(strWriteOut, ref pageNumber, headerData, DataLayer);
 
             failedReports = failedReportsList.ToArray();
 

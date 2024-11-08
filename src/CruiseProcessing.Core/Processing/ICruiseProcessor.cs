@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace CruiseProcessing
+namespace CruiseProcessing.Processing
 {
     public interface ICruiseProcessor
     {

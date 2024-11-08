@@ -1,29 +1,34 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CruiseProcessing
+namespace CruiseProcessing.Processing
 {
     public class CruiseProcessor : ICruiseProcessor
     {
-        public CpDataLayer DataLayer { get; }
-        public IDialogService DialogService { get; }
-        public ILogger Logger { get; }
-        public ICalculateTreeValues TreeValCalculator { get; }
+        public CpDataLayer DataLayer { get; protected set; }
+        public IDialogService DialogService { get; protected set; }
+        public ILogger Logger { get; protected set; }
+        public ICalculateTreeValues TreeValCalculator { get; protected set; }
 
-        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, ILogger<CruiseProcessor> logger, ICalculateTreeValues treeValCalculator)
+        protected CruiseProcessor()
+        {
+        }
+
+        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, [FromKeyedServices(nameof(CalculateTreeValues2))] ICalculateTreeValues calculateTreeValues, ILogger<CruiseProcessor> logger)
         {
             DataLayer = dataLayer;
             DialogService = dialogService;
             Logger = logger;
-            TreeValCalculator = treeValCalculator;
+            TreeValCalculator = calculateTreeValues;
         }
-
 
         public Task ProcessCruiseAsync(IProgress<string> progress)
         {
@@ -32,6 +37,8 @@ namespace CruiseProcessing
 
         public void ProcessCruise(IProgress<string> progress)
         {
+            DataLayer.ResetBioMassEquationCache();
+
             //  before making IDs, need to check for blank or null secondary products in sample groups
             //  if blank, default to 02 for every region but 6 where it will be 08 instead
             //  put a warning message in the error log table indicating the secondary product was set to a default
@@ -40,6 +47,7 @@ namespace CruiseProcessing
 
             //  next show preparation of data
             progress?.Report("Preparing data for processing.");
+            Logger?.LogInformation("Start Processing");
             var dal = DataLayer.DAL;
             dal.BeginTransaction();
             try
@@ -55,17 +63,21 @@ namespace CruiseProcessing
                 foreach (StratumDO sdo in sList)
                 {
                     //  update status message for next stratum
-                    progress?.Report("Calculating stratum " + sdo.Code);
-
+                    progress?.Report("Processing stratum " + sdo.Code);
                     ProcessStratum(sdo, TreeValCalculator, calcVal);
                 }
+
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_TREEVALUECALCULATOR_TYPE, TreeValCalculator.GetType().Name);
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_TYPE, TreeValCalculator.VolLib.GetType().Name);
+                //DataLayer.WriteGlobalValue(CpDataLayer.GLOBAL_KEY_VOLUMELIBRARY_VERSION, TreeValCalculator.VolLib.GetVersionNumber().ToString());
+                DataLayer.VolLibVersion = TreeValCalculator.GetVersion();
 
                 dal.CommitTransaction();
 
                 DataLayer.IsProcessed = true;
                 //  show volume calculation is finished
                 progress?.Report("Processing is DONE");
-
+                Logger?.LogInformation("Processing is DONE");
             }
             catch (Exception ex)
             {
@@ -79,12 +91,13 @@ namespace CruiseProcessing
             }
         }
 
-
         private void ProcessStratum(
             StratumDO stratum,
             ICalculateTreeValues calcTreeVal,
             CalculatedValues calcVal)
         {
+            Logger?.LogInformation("Processing stratum {StratumCode}", stratum.Code);
+
             List<TreeDO> stratumTrees = DataLayer.GetTreesByStratum(stratum.Code).ToList();
             List<PlotDO> stratumPlots = DataLayer.GetPlotsByStratum(stratum.Code);
             //  need cut and leave trees for this
@@ -105,13 +118,11 @@ namespace CruiseProcessing
             //  Calculate volumes
             calcTreeVal.ProcessTrees(stratum.Code, stratum.Method, (long)stratum.Stratum_CN);
 
-
             if (stratum.Method == "3P")
             {
                 Update3Ptally(stratumCountTrees, stratumLcds, stratumTrees);
                 DataLayer.SaveLCD(stratumLcds);
             }
-
 
             //  Update expansion factors for methods 3PPNT, F3P, and P3P
             if (stratum.Method == "3PPNT" || stratum.Method == "F3P" || stratum.Method == "P3P")
@@ -121,11 +132,8 @@ namespace CruiseProcessing
                 DataLayer.SaveTrees(stratumTrees);
             }
 
-            var allPlots = DataLayer.getPlots(); // this is likely a bug, we should probably just be passing stratumPlots
-            // to the sum all values method but this is how it was done in the original code
-
             //  Sum data for the LCD, POP and PRO table
-            SumAll.SumAllValues(DataLayer, stratum, allPlots, stratumLcds, stratumPops, stratumPros);
+            SumAll.SumAllValues(DataLayer, stratum, stratumPlots, stratumLcds, stratumPops, stratumPros);
 
             //  Update STR tally after expansion factors are summed
             if (stratum.Method == "STR")
@@ -133,6 +141,8 @@ namespace CruiseProcessing
                 UpdateStrTalliedTrees(stratumLcds);
                 DataLayer.SaveLCD(stratumLcds);
             }
+
+            Logger?.LogInformation("Processing Done: {StratumCode}", stratum.Code);
         }
 
         private static void Update3Ptally(List<CountTreeDO> stratumCountTrees, List<LCDDO> stratumLcds,
@@ -156,7 +166,7 @@ namespace CruiseProcessing
                 var totalCount = lcdGroup.Sum(lcdo => lcdo.MeasuredTrees);
                 if (stm == "N")
                 {
-                    totalCount += stratumCountTrees.Where(ct => ct.SampleGroup.Code == sampleGroup && (ct.TreeDefaultValue?.Species == species))
+                    totalCount += stratumCountTrees.Where(ct => ct.SampleGroup.Code == sampleGroup && ct.TreeDefaultValue?.Species == species)
                         .Sum(ct => ct.TreeCount);
                 }
 
@@ -181,7 +191,6 @@ namespace CruiseProcessing
                     if (totalExpansionFactor > 0)
                         ldo.TalliedTrees = ldo.SumExpanFactor / totalExpansionFactor * totalCount;
             }   //  end foreach loop
-
         }
 
         //  August 2016 -- need to replace tally for STR method when
@@ -197,7 +206,7 @@ namespace CruiseProcessing
         //
         // Note : the original versioon of this method used the count tree records to enumerate sample groups
         // so if there were no count tree records in the cruise, it wouldn't do anything. This shoudn't be possible
-        // but it could cause different results if all counts are stored on trees. 
+        // but it could cause different results if all counts are stored on trees.
         private static void UpdateStrTalliedTrees(List<LCDDO> stratumLcds)
         {
             foreach (var lcd in stratumLcds)
@@ -230,7 +239,7 @@ namespace CruiseProcessing
 
             foreach (SampleGroupDO sgd in sgList)
             {
-                if (String.IsNullOrWhiteSpace(sgd.SecondaryProduct))
+                if (string.IsNullOrWhiteSpace(sgd.SecondaryProduct))
                 {
                     switch (currRegion)
                     {
@@ -239,11 +248,13 @@ namespace CruiseProcessing
                             sgd.SecondaryProduct = "08";
                             errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
                             break;
+
                         case "05":
                         case "5":
                             sgd.SecondaryProduct = "20";
                             errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");
                             break;
+
                         default:
                             sgd.SecondaryProduct = "02";
                             errors.AddError("SampleGroup", "W", "19", (long)sgd.SampleGroup_CN, "SecondaryProduct");

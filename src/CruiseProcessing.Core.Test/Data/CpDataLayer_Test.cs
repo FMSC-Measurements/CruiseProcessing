@@ -30,7 +30,7 @@ namespace CruiseProcessing.Test.Data
             var v2db = init.CreateDatabase();
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, mockLogger);
+            var dataLayer = new CpDataLayer(v2db, mockLogger, biomassOptions: null);
 
             var units = dataLayer.getCuttingUnits();
 
@@ -47,7 +47,7 @@ namespace CruiseProcessing.Test.Data
 
             var v2db = init.CreateDatabase();
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, mockLogger);
+            var dataLayer = new CpDataLayer(v2db, mockLogger, biomassOptions: null);
 
             dataLayer.GetReports().Should().BeEmpty();
 
@@ -79,7 +79,7 @@ namespace CruiseProcessing.Test.Data
             migrator.MigrateFromV3ToV2(initV3.CruiseID, v3db, v2db);
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockLogger);
+            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockLogger, biomassOptions: null);
 
             dataLayer.GetReports().Should().BeEmpty();
 
@@ -113,7 +113,7 @@ namespace CruiseProcessing.Test.Data
             migrator.MigrateFromV3ToV2(initV3.CruiseID, v3db, v2db);
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockLogger);
+            var dataLayer = new CpDataLayer(v2db, v3db, initV3.CruiseID, mockLogger, biomassOptions: null);
 
             var bioEqs = new[]
             {
@@ -137,7 +137,7 @@ namespace CruiseProcessing.Test.Data
             SetupGetUniqueSpeciesProd(out v2db, out treecount);
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, mockLogger);
+            var dataLayer = new CpDataLayer(v2db, mockLogger, biomassOptions: null);
 
             var speciesProducts = dataLayer.GetUniqueSpeciesProduct();
             Output.WriteLine($"SpProd Count: {speciesProducts.GetLength(0)}");
@@ -153,7 +153,7 @@ namespace CruiseProcessing.Test.Data
             SetupGetUniqueSpeciesProd(out v2db, out treecount);
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, mockLogger);
+            var dataLayer = new CpDataLayer(v2db, mockLogger, biomassOptions: null);
 
             var speciesProducts = dataLayer.GetUniqueSpeciesProductFromTrees();
             Output.WriteLine($"SpProd Count: {speciesProducts.Count}");

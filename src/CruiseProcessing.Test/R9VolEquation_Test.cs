@@ -36,7 +36,7 @@ namespace CruiseProcessing.Test
 
             using var v2Db = init.CreateDatabase();
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2Db, mockDlLogger);
+            var dataLayer = new CpDataLayer(v2Db, mockDlLogger, biomassOptions: null);
             DataContext.DataLayer = dataLayer;
 
             var trees = new[]

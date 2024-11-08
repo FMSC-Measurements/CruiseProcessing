@@ -15,6 +15,14 @@ namespace CruiseProcessing.Data
             return DAL.From<TreeDefaultValueDO>().Read().ToList();
         }   //  end getTreeDefaults
 
+        public IEnumerable<TreeDefaultValueDO> GetTreeDefaultValues(string species, string product)
+        {
+            return DAL.From<TreeDefaultValueDO>()
+                .Where("Species = @p1 AND PrimaryProduct = @p2")
+                .Query(species, product)
+                .ToList();
+        }
+
         public IEnumerable<string> GetAllSpeciesCodes()
         {
             return DAL.QueryScalar<string>("SELECT DISTINCT Species FROM TreeDefaultValue").ToList();

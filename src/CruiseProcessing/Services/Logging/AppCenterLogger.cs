@@ -65,8 +65,19 @@ namespace CruiseProcessing.Services.Logging
             }
             else
             {
-                Analytics.TrackEvent(CategoryName + ":" + eventId.Name, properties);
+                var eventName = eventId.Name
+                    ?? GetValueOrDefault(properties, "{OriginalFormat}")
+                    ?? ""; // if no event name is provided, use the unformatted original message
+
+                Analytics.TrackEvent(CategoryName + ":" + eventName, properties);
             }
+        }
+
+        private static TValue GetValueOrDefault<TKey, TValue>(IDictionary<TKey, TValue> @this, TKey key)
+        {
+            if (@this.TryGetValue(key, out TValue value))
+            { return value; }
+            else { return default; }
         }
 
         private static string GetLogLevelString(LogLevel logLevel)

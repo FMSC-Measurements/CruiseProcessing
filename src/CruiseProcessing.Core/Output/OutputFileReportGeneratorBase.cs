@@ -334,7 +334,7 @@ namespace CruiseProcessing.Output
             foreach (var (str, k) in fieldValues.Select((x, i) => (x, i)))
             {
                 var fieldWidth = fieldLengths[k];
-                printLine.Append(str.PadRight(fieldWidth));
+                printLine.Append((str?? "-").PadRight(fieldWidth));
             }
 
             return printLine.ToString();

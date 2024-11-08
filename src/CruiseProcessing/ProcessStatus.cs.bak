@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CruiseProcessing.Data;
 using CruiseProcessing.Async;
+using CruiseProcessing.Processing;
 
 namespace CruiseProcessing
 {

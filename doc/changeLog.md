@@ -1,3 +1,19 @@
+# Version 11.08.2024
+
+## Fixes
+ - Fixed improper stats being shown on ST1 report for plot strata when cruise has multiple plot strata
+ - Fixed issue generating reports when value equation has blank grade value
+ - Fixed sporadic crashes when generating W2 and W3 reports
+ - Fixed warning messages about missing Biomass equations when volume equation has no trees
+ - Fixed stratum month and year showing 0 for V3 cruises when tree data has been collected. (excluding trees copied from recon file)
+ 
+## Changes
+ - Added error message when multiple volume equations for a species/product exist and calculate the components
+ - No longer necessary to go into volume equations page ensure biomass equation info is generated, unless percent removed needs to be changed from default of 95
+
+
+
+
 # Version 09.18.2024
 
 ## Fixes

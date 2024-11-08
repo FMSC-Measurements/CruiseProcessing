@@ -1,6 +1,7 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -63,7 +64,7 @@ namespace CruiseProcessing.Test.Output
             using var dal = new DAL(filePath);
 
             var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockLogger);
+            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
 
             List<TreeDO> tList = dataLayer.getTrees();
             double summedEF = tList.Sum(t => t.ExpansionFactor);
@@ -85,7 +86,7 @@ namespace CruiseProcessing.Test.Output
             using StringWriter strWriteOut = new StringWriter();
 
             var headerData = dataLayer.GetReportHeaderData();
-            var ctf = new CreateTextFile(dataLayer, Substitute.For<ILogger<CreateTextFile>>());
+            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
             _ = ctf.CreateOutFile(selectedReports, headerData, strWriteOut, out var failedReports, out var hasWarnings);
 
             strWriteOut.ToString().Should().NotBeNullOrEmpty();

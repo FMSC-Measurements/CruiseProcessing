@@ -164,7 +164,7 @@ namespace CruiseProcessing
             if (calculateBiomass == true)
             {
                 VolumeEquations ve = Services.GetRequiredService<VolumeEquations>();
-                ve.UpdateBiomassCruise(volList);
+                ve.UpdateBiomass(volList);
             }   //  endif calculate biomass
         }
 

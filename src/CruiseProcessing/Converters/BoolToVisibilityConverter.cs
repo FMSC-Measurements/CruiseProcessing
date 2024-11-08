@@ -14,9 +14,9 @@ namespace CruiseProcessing.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(targetType == typeof(Visibility) && value is bool v)
+            if (targetType == typeof(Visibility) && value is bool v)
             {
-                if(v)
+                if (v)
                 {
                     return Visibility.Visible;
                 }

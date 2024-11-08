@@ -58,7 +58,7 @@ namespace CruiseProcessing
                 errors.AddError("Sale", "E", "25", 0, "NoName");       //  error 25 -- table cannot be empty
             else if (saleCount > 1)
                 errors.AddError("Sale", "E", "28", 28, "SaleNumber");       //  error 28 -- more than one sale record not allowed
-            if (saleCount == 1)
+            else if (saleCount == 1)
             {
                 var sale = saleList[0];
 
@@ -256,8 +256,8 @@ namespace CruiseProcessing
             foreach (var st in strata)
             {
                 // fixcnt is not required to have height and typically doesn't have any measurements other than dbh
-                var isFixCNT = st.Method == CruiseMethods.FIXCNT;
-                if(isFixCNT) { continue; }
+                // however, this check might not be necessary because FixCNT doesn't have measure trees
+                if(st.Method == CruiseMethods.FIXCNT) { continue; }
 
                 var stratumMeasureTrees = dataLayer.JustMeasuredTrees(st.Stratum_CN.Value);
 
@@ -395,13 +395,32 @@ namespace CruiseProcessing
                     "WHERE Species IS NOT NULL AND SampleGroup_CN IS NOT NULL " +
                     "GROUP BY t.Species, sg.PrimaryProduct;").ToArray();
 
+                var volEqSpeciesProdLookup = volList.ToLookup(x => (x.Species, x.PrimaryProduct));
+
                 // TODO should this only check measure trees? Would this be better to do the check at the SG level?
-                foreach (var tree in spProdTrees)
+                foreach (var spProd in spProdTrees)
                 {
-                    if (!volList.Any(x => x.Species == tree.Species && x.PrimaryProduct == tree.PrimaryProduct))
+                    var volEqs = volEqSpeciesProdLookup[(spProd.Species, spProd.PrimaryProduct)];
+
+                    if (!volEqs.Any())
                     {
-                        errors.AddError("Tree", "E", "12", tree.RecID, "Species");
+                        errors.AddError("Tree", "E", "12", spProd.RecID, "Species");
                     }
+                    else
+                    {
+                        if(volEqs.Count(x => x.CalcBoard > 0) > 1
+                            || volEqs.Count(x => x.CalcCubic > 0) > 1
+                            || volEqs.Count(x => x.CalcCord > 0) > 1
+                            || volEqs.Count(x => x.CalcTopwood > 0) > 1
+                            || volEqs.Count(x => x.CalcBiomass > 0) > 1
+                            || volEqs.Count(x => x.CalcTotal > 0) > 1
+                            )
+                        {
+                            errors.AddError("VolumeEquation", "E", $"Multiple Volume Equations for {spProd.Species} {spProd.PrimaryProduct} Calculating The Same Components", volEqs.First().RowID.Value, "-");
+                        }
+
+                    }
+
                 }
 
                 foreach (var volEq in volList)
@@ -446,13 +465,17 @@ namespace CruiseProcessing
                         errors.AddError("VolumeEquation", "E", "5", volEq.rowID.Value, "VolumeEquationNumber");
                     }
 
+                    // removed check for biomass equations because we don't know if the volume equation is actually being used
+                    // before CP solved this issue by deleting unused volume equations, but since we don't want volume equations
+                    // to be automatically deleted, we can't trust this audit to be helpful
+                    // instead if biomass eq info is missing while processing there will be a warning in the output.
 
-                    if(volEq.CalcBiomass > 0
-                        && !dataLayer.GetBiomassEquations(volEq.Species, volEq.PrimaryProduct).Any())
-                    {
-                        errors.AddError("VolumeEquation", "W", "VolumeEquation has Calculate Biomass Flag but biomass equations haven't been defined", volEq.rowID.Value, "NoName");
+                    //if(volEq.CalcBiomass > 0
+                    //    && !dataLayer.GetBiomassEquations(volEq.Species, volEq.PrimaryProduct).Any())
+                    //{
+                    //    errors.AddError("VolumeEquation", "W", "VolumeEquation has Calculate Biomass Flag but biomass equations haven't been defined", volEq.rowID.Value, "NoName");
 
-                    }
+                    //}
                 }
 
                 if (isVLL)

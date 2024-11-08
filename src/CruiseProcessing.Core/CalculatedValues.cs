@@ -64,7 +64,8 @@ namespace CruiseProcessing
 
         public void MakePopulationIDs()
         {
-            List<SampleGroupDO> sgList = DataLayer.getSampleGroups();
+            var sale = DataLayer.GetSale();
+            List<SampleGroupDO> sampleGroups = DataLayer.getSampleGroups();
             List<TreeDefaultValueDO> tdvList = DataLayer.getTreeDefaults();
 
             //  Load ID info into tables
@@ -85,7 +86,7 @@ namespace CruiseProcessing
             }   //  end foreach
             DataLayer.SaveTreeDefaults(treeDefaults);
 
-            foreach (SampleGroupDO sgd in sgList)
+            foreach (SampleGroupDO sgd in sampleGroups)
             {
                 
                 //  Load LCD population IDs
@@ -100,12 +101,10 @@ namespace CruiseProcessing
                     lcd.SampleGroup = sgd.Code;
                     lcd.PrimaryProduct = sgd.PrimaryProduct;
                     lcd.SecondaryProduct = sgd.SecondaryProduct;
-                    lcd.UOM = sgd.UOM;
+                    lcd.UOM = sgd.UOM ?? sale.DefaultUOM;
                     lcd.Species = t.Species;
                     lcd.LiveDead = t.LiveDead;
-                    if (t.Grade == null)
-                        lcd.TreeGrade = "";
-                    else lcd.TreeGrade = t.Grade;
+                    lcd.TreeGrade = t.Grade ?? "";
                     lcd.STM = t.STM;
                     //  per K.Cormier, because a null value in contract species causes
                     //  causes problems, it is being dropped from the population ID for LCD

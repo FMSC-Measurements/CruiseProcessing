@@ -17,6 +17,10 @@
 		<PackageReference Include="DiffPlex" Version="1.7.2" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Interop\" />
+	</ItemGroup>
+
 	<Import Project="..\CruiseProcessing.Test.Shared\CruiseProcessing.Test.Shared.projitems" Label="Shared" />
 
 </Project>

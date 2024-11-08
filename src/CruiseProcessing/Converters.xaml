@@ -3,4 +3,6 @@
                     xmlns:converters="clr-namespace:CruiseProcessing.Converters">
     <converters:BoolToVisibilityConverter x:Key="isVisableConverter" />
 
+    <converters:NotConverter x:Key="notConverter" />
+
 </ResourceDictionary>

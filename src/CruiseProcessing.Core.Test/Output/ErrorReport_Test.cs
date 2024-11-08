@@ -73,6 +73,15 @@ namespace CruiseProcessing.Test.Output
                 Program = "NotCruiseProcessing"
             });
 
+            errList.Add(new ErrorLogDO()
+            {
+                Level = "E",
+                Message = "someErrorMessage",
+                TableName = "-",
+                CN_Number = 0,
+                Program = "NotCruiseProcessing"
+            });
+
 
             errList.Add(new ErrorLogDO()
             {
@@ -88,12 +97,21 @@ namespace CruiseProcessing.Test.Output
                 errList.Add(new ErrorLogDO { Level = "W", Message = s, TableName = "Sale", CN_Number = 1 });
             }
 
+            errList.Add(new ErrorLogDO()
+            {
+                Level = "I",
+                Message = $"Some Informational Message",
+                TableName = "-",
+                CN_Number = 1,
+                Program = "CruiseProcessing"
+            });
+
             var init = new DatabaseInitializer_V2();
             var db = init.CreateDatabase();
 
             var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
 
-            var dataLayer = new CpDataLayer(db, mockDlLogger);
+            var dataLayer = new CpDataLayer(db, mockDlLogger, biomassOptions: null);
 
             var headerFieldData = new HeaderFieldData { CruiseName = "Name", Date = DateTime.Now.ToString(), DllVersion = "1.1.1.1", SaleName = "saleName", Version= "1.1.1.2"  };
 
