@@ -42,7 +42,7 @@ namespace CruiseProcessing.Processing
             : this(dataLayer, new VolumeLibrary_20241101(), log)
         { }
 
-        protected CalculateTreeValues_20241101(CpDataLayer dataLayer,
+        public CalculateTreeValues_20241101(CpDataLayer dataLayer,
                                             [FromKeyedServices(nameof(VolumeLibrary_20241101))] IVolumeLibrary volLib,
                                             ILogger<CalculateTreeValues_20241101> log)
         {
