@@ -97,7 +97,7 @@ namespace CruiseProcessing.Test.Processing
 
 
             //var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculateTreeValues>());
-            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
+            var ctv = new CalculateTreeValues2(dataLayer, new VolumeLibrary_20241101(), CreateLogger<CalculateTreeValues2>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
