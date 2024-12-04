@@ -106,7 +106,7 @@ namespace CruiseProcessing.Test.Processing
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues_20241101(dataLayer, CreateLogger<CalculateTreeValues_20241101>());
+            var ctv2 = new CalculateTreeValues3(dataLayer, CreateLogger<CalculateTreeValues3>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();

@@ -9,7 +9,7 @@ namespace CruiseProcessing.Processing
     {
         public CruiseProcessor_20241101_Preview(CpDataLayer dataLayer,
                                       IDialogService dialogService,
-                                      [FromKeyedServices(nameof(CalculateTreeValues_20241101))] ICalculateTreeValues calculateTreeValues,
+                                      [FromKeyedServices(nameof(CalculateTreeValues3))] ICalculateTreeValues calculateTreeValues,
                                       ILogger<CruiseProcessor_20241101_Preview> logger)
             : base(dataLayer, dialogService, calculateTreeValues, logger)
         {
