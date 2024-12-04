@@ -492,7 +492,9 @@ namespace CruiseProcessing.Test.Processing
                 var dbhStr = tree.DBH.ToString().PadLeft(6);
                 var totHtStr = tree.TotalHeight.ToString().PadLeft(6);
                 var species = tree.Species.PadLeft(4);
-                Output.WriteLine($"Tree_CN {treeCnStr} TreeNum:{treeNumStr} Sp:{species} DBH:{dbhStr} TotHt:{totHtStr}");
+                var fiaCode = tree.TreeDefaultValue.FIAcode.ToString().PadLeft(4);
+                var liveDead = tree.LiveDead.PadLeft(1);
+                Output.WriteLine($"Tree_CN {treeCnStr} TreeNum:{treeNumStr} Sp:{species} FIA:{fiaCode} LD:{liveDead} DBH:{dbhStr} TotHt:{totHtStr}");
 
                 var tcvResults = processors
                     //.Where(p => !object.ReferenceEquals(p, defaultProcessor))
@@ -501,16 +503,6 @@ namespace CruiseProcessing.Test.Processing
 
                 // write header for each tree
                 Output.WriteLine($"{string.Empty.PadRight(headerPad)}  {string.Join(",", processors.Select(x => x.Name.PadLeft(dataColPad).Substring(0, dataColPad)))}");
-
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.BiomassMainStemPrimary).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.BiomassMainStemPrimary.ToString().PadLeft(colpad2)))}");
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.BiomassMainStemSecondary).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.BiomassMainStemSecondary.ToString().PadLeft(colpad2)))}");
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.BiomassTip).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.BiomassTip.ToString().PadLeft(colpad2)))}");
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.Biomasstotalstem).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.Biomasstotalstem.ToString().PadLeft(colpad2)))}");
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.BiomassProd).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.BiomassProd.ToString().PadLeft(colpad2)))}");
-
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.Biomasslivebranches).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.Biomasslivebranches.ToString().PadLeft(colpad2)))}");
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.Biomassdeadbranches).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.Biomassdeadbranches.ToString().PadLeft(colpad2)))}");
-                //Output.WriteLine($"{nameof(TreeCalculatedValuesDO.Biomassfoliage).PadRight(colpad1)}, {string.Join(",", tcvResults.Select(x => x.Biomassfoliage.ToString().PadLeft(colpad2)))}");
 
                 WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.Biomasstotalstem);
 
