@@ -448,22 +448,6 @@ namespace CruiseProcessing
 
             var biomassEquations = new List<BiomassEquationDO>();
 
-            
-
-            //  update biomass equations
-            foreach (VolumeEquationDO volEq in equationList.GroupBy(x => x.Species + ";" + x.PrimaryProduct).Select(x => x.First()))
-            {
-                if(volEq.CalcBiomass != 1) { continue; }
-
-                var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
-                float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
-                    ? pct : 95.0f;
-
-                var treeDefaults = DataLayer.GetTreeDefaultValues(volEq.Species, volEq.PrimaryProduct);
-
-                //BiomassEquationService
-            }
-
             DataLayer.CreateBiomassEquations(equationList, REGN, forest, prList);
 
             DataLayer.ClearBiomassEquations();
