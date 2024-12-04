@@ -93,7 +93,7 @@ namespace CruiseProcessing.Test.Processing
 
 
             //var ctv = new RefCalculateTreeValues(dataLayer, CreateLogger<RefCalculateTreeValues>());
-            var ctv = new CalculateTreeValues_20241101(dataLayer, new VolumeLibrary_20241101(), CreateLogger<CalculateTreeValues_20241101>());
+            var ctv = new CalculateTreeValues3(dataLayer, new VolumeLibrary_20241101(), CreateLogger<CalculateTreeValues3>());
 
             var trees = dataLayer.getTrees();
             trees.All(x => x.TreeDefaultValue_CN != null && x.TreeDefaultValue_CN > 0)
@@ -102,7 +102,7 @@ namespace CruiseProcessing.Test.Processing
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues_20241101(dataLayer, new VolumeLibrary_20241115(), CreateLogger<CalculateTreeValues_20241101>());
+            var ctv2 = new CalculateTreeValues3(dataLayer, new VolumeLibrary_20241115(), CreateLogger<CalculateTreeValues3>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();
@@ -291,7 +291,7 @@ namespace CruiseProcessing.Test.Processing
 
             var strata = dataLayer.GetStrata();
 
-            var ctv2 = new CalculateTreeValues_20241101(dataLayer, new VolumeLibrary_20241115(), CreateLogger<CalculateTreeValues_20241101>());
+            var ctv2 = new CalculateTreeValues3(dataLayer, new VolumeLibrary_20241115(), CreateLogger<CalculateTreeValues3>());
 
             dataLayer.DeleteLogStock();
             dataLayer.deleteTreeCalculatedValues();

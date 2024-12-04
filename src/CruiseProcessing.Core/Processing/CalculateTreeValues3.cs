@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace CruiseProcessing.Processing
 {
-    public partial class CalculateTreeValues_20241101 : ICalculateTreeValues
+    public partial class CalculateTreeValues3 : ICalculateTreeValues
     {
         #region
 
@@ -25,7 +25,7 @@ namespace CruiseProcessing.Processing
         private int _regionNumber = -1;
         private int _districtNumber = -1;
 
-        // lazy parse regin and district to prevent exception thrown in constructor
+        // lazy parse region and district to prevent exception thrown in constructor
         protected int REGN => (_regionNumber != -1) ? _regionNumber : _regionNumber = int.Parse(Region);
 
         protected int IDIST => (_districtNumber != -1) ? _districtNumber : _districtNumber = int.Parse(District);
@@ -37,14 +37,14 @@ namespace CruiseProcessing.Processing
         public ILogger Log { get; }
         public List<VolumeEquationDO> VolumeEquations { get; }
 
-        public CalculateTreeValues_20241101(CpDataLayer dataLayer,
-                                            ILogger<CalculateTreeValues_20241101> log)
+        public CalculateTreeValues3(CpDataLayer dataLayer,
+                                            ILogger<CalculateTreeValues3> log)
             : this(dataLayer, new VolumeLibrary_20241101(), log)
         { }
 
-        public CalculateTreeValues_20241101(CpDataLayer dataLayer,
-                                            [FromKeyedServices(nameof(VolumeLibrary_20241101))] IVolumeLibrary volLib,
-                                            ILogger<CalculateTreeValues_20241101> log)
+        public CalculateTreeValues3(CpDataLayer dataLayer,
+                                            [FromKeyedServices(nameof(VolumeLibrary_20241115))] IVolumeLibrary volLib,
+                                            ILogger<CalculateTreeValues3> log)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             VolLib = volLib ?? throw new ArgumentNullException(nameof(volLib));
@@ -58,7 +58,7 @@ namespace CruiseProcessing.Processing
 
             VolumeEquations = dataLayer.getVolumeEquations();
 
-            // Varable LogLength hasn't been used since V1 so this behavior might be stale
+            // Variable LogLength hasn't been used since V1 so this behavior might be stale
             string vllType = DataLayer.getVLL();
             CTYPE = (vllType == "false") ? "F" : vllType;
         }
@@ -186,6 +186,8 @@ namespace CruiseProcessing.Processing
             // TODO make calculate Nev volume methods static so we don't need to instantiate a calculator class
             CalculateNetVolume netVolumeCalculator = new CalculateNetVolume();
 
+            var tdv = tree.TreeDefaultValue;
+
             //  Outputs
             //int BA = 0;
             //int SI = 0;
@@ -209,7 +211,7 @@ namespace CruiseProcessing.Processing
             //StringBuilder HTTYPE = new StringBuilder(STRING_BUFFER_SIZE).Append(tree.TreeDefaultValue.MerchHeightType);
 
             float HTTOT = tree.TotalHeight;
-            int HTLOG = (int)tree.TreeDefaultValue.MerchHeightLogLength;
+            int HTLOG = (int)tdv.MerchHeightLogLength;
             float HT1PRD = tree.MerchHeightPrimary;
             float HT2PRD = tree.MerchHeightSecondary;
             float UPSHT1 = tree.UpperStemHeight;
@@ -227,13 +229,13 @@ namespace CruiseProcessing.Processing
             int FCLASS = (int)tree.FormClass;
             if (FCLASS == 0)
             {
-                FCLASS = (int)tree.TreeDefaultValue.FormClass;
-                AVGZ1 = tree.TreeDefaultValue.AverageZ;
-                HTREF = (int)tree.TreeDefaultValue.ReferenceHeightPercent;
+                FCLASS = (int)tdv.FormClass;
+                AVGZ1 = tdv.AverageZ;
+                HTREF = (int)tdv.ReferenceHeightPercent;
             }
 
             float DBTBH = tree.DBHDoubleBarkThickness;
-            float BTR = tree.TreeDefaultValue.BarkThicknessRatio;
+            float BTR = tdv.BarkThicknessRatio;
 
             List<LogDO> treeLogs = DataLayer.getTreeLogs(tree.Tree_CN.Value);
             var numLogs = treeLogs.Count;
@@ -276,7 +278,7 @@ namespace CruiseProcessing.Processing
             MRules mRules = (merchModeFlag == 2) ? new MRules(volEq)
                 : new MRules(evod: 2, op: 11);
 
-            int fiaspcd = int.Parse(volEq.VolumeEquationNumber.Substring(7, 3));
+            int fiaspcd = (int)tdv.FIAcode; //int.Parse(volEq.VolumeEquationNumber.Substring(7, 3));
 
             // these variables are passed to VOLLIBCSNVB
             // but currently unused.
@@ -309,7 +311,7 @@ namespace CruiseProcessing.Processing
                 FCLASS, DBTBH, BTR, VOL, LOGVOL,
                 LOGDIA, LOGLEN, BOLHT, ref TLOGS, out var NOLOGP,
                 out var NOLOGS, CUTFLG, BFPFLG, CUPFLG, CDPFLG,
-                SPFLG, tree.TreeDefaultValue.ContractSpecies, tree.SampleGroup.PrimaryProduct, HTTFLL, tree.LiveDead,
+                SPFLG, tdv.ContractSpecies, tree.SampleGroup.PrimaryProduct, HTTFLL, tree.LiveDead,
                 out var BA, out var SI, CTYPE, out var ERRFLAG, PMTFLG,
                 ref mRules, IDIST,
                 brkht, brkhtd, fiaspcd, drybio, grnbio,
@@ -351,7 +353,7 @@ namespace CruiseProcessing.Processing
             //  because of the change made to how these calculations work, the TreeCalculatedValues table is emptied
             //  prior to processing and rebuilt.
             //  Discovered when multiple volume equations are found for an individual tree, the save into the
-            //  database fails.  The program needs to check for duplciate tree_CN in the list and update
+            //  database fails.  The program needs to check for duplicate tree_CN in the list and update
             //  the record instead of adding another.  Otherwise, the tree_CN causes a constraint violations
             //  when it trys to save through the DAL.
             //  March 2014
@@ -392,6 +394,8 @@ namespace CruiseProcessing.Processing
         {
             TreeCalculatedValuesDO tcv = new TreeCalculatedValuesDO { Tree_CN = tree.Tree_CN };
 
+            var tdv = tree.TreeDefaultValue;
+
             //  Outputs
             int INDEB = 0;
             float[] VOL = new float[VolumeLibraryInterop.I15];
@@ -426,9 +430,9 @@ namespace CruiseProcessing.Processing
             int FCLASS = (int)tree.FormClass;
             if (FCLASS == 0)
             {
-                FCLASS = (int)tree.TreeDefaultValue.FormClass;
-                AVGZ1 = tree.TreeDefaultValue.AverageZ;
-                HTREF = (int)tree.TreeDefaultValue.ReferenceHeightPercent;
+                FCLASS = (int)tdv.FormClass;
+                AVGZ1 = tdv.AverageZ;
+                HTREF = (int)tdv.ReferenceHeightPercent;
             }
 
             //  Get top DIBs based on comparison of DIB on volume equation versus DIB on tree.
@@ -453,7 +457,7 @@ namespace CruiseProcessing.Processing
             MRules mRules = (merchModeFlag == 2) ? new MRules(volEq)
                 : new MRules(evod: 2, op: 11);
 
-            int fiaspcd = int.Parse(volEq.VolumeEquationNumber.Substring(7, 3));
+            int fiaspcd = (int)tdv.FIAcode; //int.Parse(volEq.VolumeEquationNumber.Substring(7, 3));
 
             // these variables are passed to VOLLIBCSNVB
             // but currently unused.
@@ -488,7 +492,7 @@ namespace CruiseProcessing.Processing
                 FCLASS, DBTBH, BTR, VOL, LOGVOL,
                 LOGDIA, LOGLEN, BOLHT, ref TLOGS, out var NOLOGP,
                 out var NOLOGS, CUTFLG, BFPFLG, CUPFLG, CDPFLG,
-                SPFLG, tree.TreeDefaultValue.ContractSpecies, volEq.PrimaryProduct, HTTFLL, tree.LiveDead,
+                SPFLG, tdv.ContractSpecies, volEq.PrimaryProduct, HTTFLL, tree.LiveDead,
                 out var BA, out var SI, CTYPE, out var ERRFLAG, PMTFLG,
                 ref mRules, IDIST,
                 brkht, brkhtd, fiaspcd, drybio, grnbio,

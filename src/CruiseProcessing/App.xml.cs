@@ -101,7 +101,7 @@ namespace CruiseProcessing
             // register tree value calculators
             services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
             services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues2>(nameof(CalculateTreeValues2));
-            services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues_20241101>(nameof(CalculateTreeValues_20241101));
+            services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues3>(nameof(CalculateTreeValues3));
             //services.AddKeyedTransient<ICalculateTreeValues, RefCalculateTreeValues>(nameof(RefCalculateTreeValues));
 
 
