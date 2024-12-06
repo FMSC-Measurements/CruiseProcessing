@@ -8,6 +8,7 @@ using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
 using System.Collections.ObjectModel;
 using CruiseProcessing.Data;
+using CruiseProcessing.OutputModels;
 
 namespace CruiseProcessing
 {

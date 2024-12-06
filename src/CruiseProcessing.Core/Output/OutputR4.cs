@@ -9,6 +9,7 @@ using CruiseDAL.Schema;
 using CruiseProcessing.Services;
 using CruiseProcessing.Output;
 using CruiseProcessing.Data;
+using CruiseProcessing.OutputModels;
 
 
 namespace CruiseProcessing

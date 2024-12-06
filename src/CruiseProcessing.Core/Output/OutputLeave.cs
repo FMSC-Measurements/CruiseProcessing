@@ -1,5 +1,6 @@
 ﻿using CruiseProcessing.Data;
 using CruiseProcessing.Output;
+using CruiseProcessing.OutputModels;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
