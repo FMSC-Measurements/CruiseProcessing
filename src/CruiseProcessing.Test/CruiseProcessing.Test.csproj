@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="CruiseDAL.V2.Models" Version="2.7.4.124" />
     <PackageReference Include="DiffPlex" Version="1.7.2" />
+    <PackageReference Include="JsonSchema.Net.Generation" Version="4.6.0" />
   </ItemGroup>
 
 
