@@ -1,4 +1,5 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseDAL.MappingCollections;
 using CruiseProcessing.Data;
 using CruiseProcessing.Interop;
 using CruiseProcessing.Output;
@@ -13,7 +14,7 @@ namespace CruiseProcessing
 {
     public class OutputWeight : OutputFileReportGeneratorBase
     {
-
+        private enum CompnentType { Primary, Secondary };
 
         #region headers
         //  Weight reports
@@ -54,7 +55,7 @@ namespace CruiseProcessing
 
         #region
         private int[] fieldLengths;
-        private List<string> prtFields;
+        private List<string> PrtFields;
         private List<BiomassEquationDO> bioList = new List<BiomassEquationDO>();
         private List<StratumDO> sList = new List<StratumDO>();
         private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
@@ -100,35 +101,35 @@ namespace CruiseProcessing
                 if (bioList.Count > 0)
                 {
                     //  check weight factors -- if zero, likely there is no weight to report for any of these reports
-                    double checkSum = bioList.Sum(b => b.WeightFactorPrimary);
-                    if (checkSum == 0)
-                    {
-                        noDataForReport(strWriteOut, currentReport, ">>  No weight factors so no weights for this report");
-                        return;
-                    }   //  endif checkSum
+                    //double checkSum = bioList.Sum(b => b.WeightFactorPrimary);
+                    //if (checkSum == 0)
+                    //{
+                    //    noDataForReport(strWriteOut, currentReport, ">>  No weight factors so no weights for this report");
+                    //    return;
+                    //}   //  endif checkSum
 
                     //  Also check for no cubic foot volume in LCD
                     List<LCDDO> wholeList = DataLayer.getLCD();
-                    if ((checkSum = wholeList.Sum(l => l.SumGCUFT)) == 0)
+                    if (wholeList.Sum(l => l.SumGCUFT) == 0)
                     {
                         noDataForReport(strWriteOut, currentReport, ">>  No cubic foot volume for this report");
                         return;
                     }   //  endif checkSum
 
                     //  also check for no weights
-                    if ((checkSum = wholeList.Sum(l => l.SumWgtMSP)) == 0)
+                    if (wholeList.Sum(l => l.SumWgtMSP) == 0)
                     {
                         noDataForReport(strWriteOut, currentReport, ">>  No weight for this report");
                         return;
                     }   //  endif checkSum
                 }
-                else if (bioList.Count == 0)
-                {
-                    noDataForReport(strWriteOut, currentReport, ">>  No equations entered so no weights for this report");
-                    return;
-                }   //  endif
-            }   //  endif on currentReport
-            prtFields = new List<string>();
+                //else if (bioList.Count == 0)
+                //{
+                //    noDataForReport(strWriteOut, currentReport, ">>  No equations entered so no weights for this report");
+                //    return;
+                //}
+            }
+            PrtFields = new List<string>();
 
             string currentTitle = fillReportTitle(currentReport);
             switch (currentReport)
@@ -157,9 +158,8 @@ namespace CruiseProcessing
                     SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
                     processSaleSummaryWT5(strWriteOut, ref pageNumb);
                     break;
-            }   //  end switch on report
-            return;
-        }   //  end OutputWeightReports
+            }
+        }  
 
         public int PrintWT1Report(TextWriter strWriteOut, int pageNumb, string currentTitle)
         {
@@ -181,18 +181,18 @@ namespace CruiseProcessing
             foreach (LCDDO group in lcdGroups)
             {
                 //  Find weight factors etc for current group
-                var primaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.PrimaryProduct && b.LiveDead == group.LiveDead
-                        && b.Component == "PrimaryProd" )
-                    ?? bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.PrimaryProduct
-                        && b.Component == "PrimaryProd");
+                //var primaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.PrimaryProduct && b.LiveDead == group.LiveDead
+                //        && b.Component == "PrimaryProd")
+                //    ?? bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.PrimaryProduct
+                //        && b.Component == "PrimaryProd");
 
-                var secondaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.SecondaryProduct && b.LiveDead == group.LiveDead
-                        && b.Component == "SecondaryProd")
-                    ?? bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.SecondaryProduct
-                        && b.Component == "SecondaryProd");
+                //var secondaryBiomassEq = bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.SecondaryProduct && b.LiveDead == group.LiveDead
+                //        && b.Component == "SecondaryProd")
+                //    ?? bioList.FirstOrDefault(b => b.Species == group.Species && b.Product == group.SecondaryProduct
+                //        && b.Component == "SecondaryProd");
 
 
-               
+
 
                 //  get all LCD elements for current group
                 var whereClause = "WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND " +
@@ -200,16 +200,7 @@ namespace CruiseProcessing
                 List<LCDDO> groupData = DataLayer.GetLCDdata(whereClause, group, 4, "");
 
 
-                double grossCuFtPrimary = 0.0;
-                double grossCuFtSecondary = 0.0;
-                //  sum gross cuft primary and secondary
-                foreach (LCDDO gd in groupData)
-                {
-                    int stratum_cn = StratumMethods.GetStratumCN(gd.Stratum, sList);
-                    double stratumAcres = Utilities.ReturnCorrectAcres(gd.Stratum, DataLayer, stratum_cn);
-                    grossCuFtPrimary += gd.SumGCUFT * stratumAcres;
-                    grossCuFtSecondary += gd.SumGCUFTtop * stratumAcres;
-                }
+                
 
                 var primaryBioValues = DataLayer.GetPrimaryWeightFactorAndMoistureContent(group.Species, group.PrimaryProduct, group.LiveDead);
                 var weightFactorSecondary = DataLayer.GetSecondaryWeightFactor(group.Species, group.SecondaryProduct, group.LiveDead);
@@ -228,6 +219,17 @@ namespace CruiseProcessing
 
                 double tonsRemovedPrimary = 0.0;
                 double tonsRemovedSecondary = 0.0;
+
+                double grossCuFtPrimary = 0.0;
+                double grossCuFtSecondary = 0.0;
+                //  sum gross cuft primary and secondary
+                foreach (LCDDO gd in groupData)
+                {
+                    int stratum_cn = StratumMethods.GetStratumCN(gd.Stratum, sList);
+                    double stratumAcres = Utilities.ReturnCorrectAcres(gd.Stratum, DataLayer, stratum_cn);
+                    grossCuFtPrimary += gd.SumGCUFT * stratumAcres;
+                    grossCuFtSecondary += gd.SumGCUFTtop * stratumAcres;
+                }
 
                 if (grossCuFtPrimary > 0)
                 {
@@ -248,11 +250,9 @@ namespace CruiseProcessing
                     var poundsRemoved = poundsStanding * (percentRemovedSecondary / 100);
                     tonsRemovedSecondary = poundsRemoved / 2000;
                     WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary.Value, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
-
                 }
 
                 UpdateWT1Subtotal(group.ContractSpecies, group.PrimaryProduct, group.SecondaryProduct, tonsRemovedPrimary, tonsRemovedSecondary);
-                
             }
         }
 
@@ -360,7 +360,7 @@ namespace CruiseProcessing
                     unitSaw = 0;
                     unitNonsawPP = 0;
                     unitNonsawSP = 0;
-                    prtFields.Clear();
+                    PrtFields.Clear();
                 }   //  end foreach loop
                 if (totalUnitSaw > 0 || totalUnitNonsawPP > 0 || totalUnitNonsawSP > 0)
                 {
@@ -387,7 +387,7 @@ namespace CruiseProcessing
             List<LCDDO> lcdList = DataLayer.getLCD();
             string[] completeHeader = new string[4];
 
-            prtFields.Clear();
+            PrtFields.Clear();
             foreach (StratumDO sd in sList)
             {
                 double STacres = Utilities.ReturnCorrectAcres(sd.Code, DataLayer, (long)sd.Stratum_CN);
@@ -449,86 +449,41 @@ namespace CruiseProcessing
             return;
         }   //  end finishColumnHeaders
 
-        private enum CompnentType { Primary, Secondary };
+        
 
         private void WriteWT1Group(TextWriter writer, LCDDO group,
             CompnentType compnentType, double grossCuFt, float weightFactor, double poundsStanding, float percentRemoved, double poundsRemoved, double tonsRemoved)
         {
-            var componentIndicator = compnentType switch { CompnentType.Primary => "P", CompnentType.Secondary => "S", _ => throw new NotImplementedException() };
-            var product = compnentType switch { CompnentType.Primary => group.PrimaryProduct, CompnentType.Secondary => group.SecondaryProduct, _ => throw new NotImplementedException() };
+            var componentIndicator = compnentType switch
+            {
+                CompnentType.Primary => "P",
+                CompnentType.Secondary => "S",
+                _ => throw new NotImplementedException()
+            };
+            var product = compnentType switch
+            {
+                CompnentType.Primary => group.PrimaryProduct,
+                CompnentType.Secondary => group.SecondaryProduct,
+                _ => throw new NotImplementedException()
+            };
 
-            prtFields.Clear();
-            prtFields.Add("");
-            prtFields.Add(group.Species.PadRight(6, ' '));
-            prtFields.Add((group.ContractSpecies ?? "").PadLeft(4, ' '));
-            prtFields.Add(product.PadLeft(2, '0'));
+            PrtFields.Clear();
+            PrtFields.Add("");
+            PrtFields.Add(group.Species.PadRight(6, ' '));
+            PrtFields.Add((group.ContractSpecies ?? "").PadLeft(4, ' '));
+            PrtFields.Add(product.PadLeft(2, '0'));
             
-            prtFields.Add(componentIndicator);
-            prtFields.Add(group.LiveDead.PadLeft(1, ' '));
-            prtFields.Add(String.Format("{0,8:F0}", Math.Ceiling(grossCuFt)).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,8:F2}", weightFactor).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,11:F0}", poundsStanding).PadLeft(11, ' '));
-            prtFields.Add(String.Format("{0,6:F2}", percentRemoved).PadLeft(6, ' '));
-            prtFields.Add(String.Format("{0,11:F0}", poundsRemoved).PadLeft(11, ' '));
-            prtFields.Add(String.Format("{0,10:F2}", tonsRemoved).PadLeft(10, ' '));
-            printOneRecord(fieldLengths, prtFields, writer);
+            PrtFields.Add(componentIndicator);
+            PrtFields.Add(group.LiveDead.PadLeft(1, ' '));
+            PrtFields.Add(String.Format("{0,8:F0}", Math.Ceiling(grossCuFt)).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,8:F2}", weightFactor).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,11:F0}", poundsStanding).PadLeft(11, ' '));
+            PrtFields.Add(String.Format("{0,6:F2}", percentRemoved).PadLeft(6, ' '));
+            PrtFields.Add(String.Format("{0,11:F0}", poundsRemoved).PadLeft(11, ' '));
+            PrtFields.Add(String.Format("{0,10:F2}", tonsRemoved).PadLeft(10, ' '));
+            printOneRecord(fieldLengths, PrtFields, writer);
             numOlines++;
         }
-
-
-        //private void WriteCurrentGroupWT1(TextWriter strWriteOut, LCDDO group, double grossCuFtPrimary, double grossCuFtSecondary,
-        //                                double poundsPP, double poundsSP, ref int pageNumb)
-        //{
-        //    //  WT1 only
-            
-
-        //    if (grossCuFtPrimary > 0)
-        //    {
-        //        //  write primary product
-        //        prtFields.Clear();
-        //        prtFields.Add("");
-        //        prtFields.Add(group.Species.PadRight(6, ' '));
-        //        if (group.ContractSpecies == null)
-        //            prtFields.Add("    ");
-        //        else prtFields.Add(group.ContractSpecies.PadLeft(4, ' '));
-        //        prtFields.Add(group.PrimaryProduct.PadLeft(2, '0'));
-        //        prtFields.Add("P");
-        //        prtFields.Add(String.Format("{0,8:F0}", Math.Floor(grossCuFtPrimary + 0.501)).PadLeft(8, ' '));
-        //        prtFields.Add(String.Format("{0,8:F2}", currWFprimary).PadLeft(8, ' '));
-        //        prtFields.Add(String.Format("{0,11:F0}", Math.Round(grossCuFtPrimary, 0, MidpointRounding.AwayFromZero) * currWFprimary).PadLeft(11, ' '));
-        //        prtFields.Add(String.Format("{0,6:F2}", currPCRprimary).PadLeft(6, ' '));
-        //        poundsPP = Math.Round(grossCuFtPrimary, 0, MidpointRounding.AwayFromZero) * currWFprimary * (currPCRprimary / 100);
-        //        prtFields.Add(String.Format("{0,11:F0}", poundsPP).PadLeft(11, ' '));
-        //        prtFields.Add(String.Format("{0,10:F2}", poundsPP / 2000).PadLeft(10, ' '));
-        //        printOneRecord(fieldLengths, prtFields, strWriteOut);
-        //        numOlines++;
-        //    }   //  endif
-
-        //    //  clear print fields and print secondary product
-        //    if (grossCuFtSecondary > 0)
-        //    {
-        //        prtFields.Clear();
-        //        prtFields.Add("");
-        //        prtFields.Add(group.Species.PadRight(6, ' '));
-        //        if (group.ContractSpecies == null)
-        //            prtFields.Add("    ");
-        //        else prtFields.Add(group.ContractSpecies.PadLeft(4, ' '));
-        //        prtFields.Add(group.SecondaryProduct.PadLeft(2, '0'));
-        //        prtFields.Add("S");
-        //        prtFields.Add(String.Format("{0,8:F0}", Math.Floor(grossCuFtSecondary + 0.501)).PadLeft(8, ' '));
-        //        if (currWFsecondary == 0.0) currWFsecondary = currWFprimary;
-        //        if (currPCRsecondary == 0.0) currPCRsecondary = currPCRprimary;
-        //        prtFields.Add(String.Format("{0,8:F2}", currWFsecondary).PadLeft(8, ' '));
-        //        prtFields.Add(String.Format("{0,11:F0}", Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * currWFsecondary).PadLeft(11, ' '));
-        //        prtFields.Add(String.Format("{0,6:F2}", currPCRsecondary).PadLeft(6, ' '));
-        //        poundsSP = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * currWFsecondary * (currPCRsecondary / 100);
-        //        prtFields.Add(String.Format("{0,11:F0}", poundsSP).PadLeft(11, ' '));
-        //        prtFields.Add(String.Format("{0,10:F2}", poundsSP / 2000).PadLeft(10, ' '));
-        //        printOneRecord(fieldLengths, prtFields, strWriteOut);
-        //        numOlines++;
-        //    }   //  endif secondary has volume
-        //    return;
-        //}   //  end Write CurrentGroup
 
         private void WriteCurrentGroupWT4(TextWriter strWriteOut, ref int pageNumb, ref int firstLine, double unitSaw,
                                         double unitNonsawPP, double unitNonsawSP, double unitAcres,
@@ -537,23 +492,23 @@ namespace CruiseProcessing
             //  WT4 only
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     WT4columns, 10, ref pageNumb, "");
-            prtFields.Add("");
+            PrtFields.Add("");
             if (firstLine == 1)
             {
-                prtFields.Add(unitCode.PadLeft(3, ' '));
-                prtFields.Add(Math.Round(unitAcres, 1, MidpointRounding.AwayFromZero).ToString().PadLeft(5, ' '));
+                PrtFields.Add(unitCode.PadLeft(3, ' '));
+                PrtFields.Add(Math.Round(unitAcres, 1, MidpointRounding.AwayFromZero).ToString().PadLeft(5, ' '));
                 firstLine = 0;
             }
             else
             {
-                prtFields.Add("   ");
-                prtFields.Add("     ");
+                PrtFields.Add("   ");
+                PrtFields.Add("     ");
             }   //  endif it's the first line
-            prtFields.Add(currSP.PadLeft(6, ' '));
-            prtFields.Add(String.Format("{0,5:F2}", unitSaw / 2000).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,5:F2}", unitNonsawPP / 2000).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,5:F2}", unitNonsawSP / 2000).PadLeft(8, ' '));
-            printOneRecord(fieldLengths, prtFields, strWriteOut);
+            PrtFields.Add(currSP.PadLeft(6, ' '));
+            PrtFields.Add(String.Format("{0,5:F2}", unitSaw / 2000).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,5:F2}", unitNonsawPP / 2000).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,5:F2}", unitNonsawSP / 2000).PadLeft(8, ' '));
+            printOneRecord(fieldLengths, PrtFields, strWriteOut);
         }   //  end WriteCurrentGroup
 
         private void WriteCurrentGroupWT5(TextWriter strWriteOut, ref int pageNumb, string currSP, string currBP,
@@ -562,23 +517,23 @@ namespace CruiseProcessing
         {
             //  WT5 only
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],completeHeader, 4, ref pageNumb, "");
-            prtFields.Add("");
-            prtFields.Add(currSP.PadRight(6, ' '));
+            PrtFields.Add("");
+            PrtFields.Add(currSP.PadRight(6, ' '));
             //  removed product code as it was confusing to users.  may 2016
             //prtFields.Add(currBP.PadLeft(2, '0'));
-            prtFields.Add("  ");
-            prtFields.Add("|");
-            prtFields.Add(String.Format("{0,8:F1}", MSprim / 2000).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,8:F1}", MSsecd / 2000).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,8:F1}", bioTip / 2000).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,8:F1}", bioBran / 2000).PadLeft(8, ' '));
-            prtFields.Add(String.Format("{0,8:F1}", bioFol / 2000).PadLeft(8, ' '));
-            prtFields.Add("|");
-            prtFields.Add(String.Format("{0,8:F1}", bioTot / 2000).PadLeft(8, ' '));
+            PrtFields.Add("  ");
+            PrtFields.Add("|");
+            PrtFields.Add(String.Format("{0,8:F1}", MSprim / 2000).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,8:F1}", MSsecd / 2000).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,8:F1}", bioTip / 2000).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,8:F1}", bioBran / 2000).PadLeft(8, ' '));
+            PrtFields.Add(String.Format("{0,8:F1}", bioFol / 2000).PadLeft(8, ' '));
+            PrtFields.Add("|");
+            PrtFields.Add(String.Format("{0,8:F1}", bioTot / 2000).PadLeft(8, ' '));
             double overallTotal = MSprim + MSsecd + bioTip + bioBran + bioFol;
-            prtFields.Add(String.Format("{0,8:F1}", overallTotal / 2000).PadLeft(8, ' '));
-            printOneRecord(fieldLengths, prtFields, strWriteOut);
-            prtFields.Clear();
+            PrtFields.Add(String.Format("{0,8:F1}", overallTotal / 2000).PadLeft(8, ' '));
+            printOneRecord(fieldLengths, PrtFields, strWriteOut);
+            PrtFields.Clear();
             return;
         }   //  end WriteCurrentGroup
 
@@ -803,45 +758,43 @@ namespace CruiseProcessing
         private void processSlashLoad(TextWriter strWriteOut, ref int pageNumb)
         {
             //  First, need region, forest and district
-            string currReg = DataLayer.getRegion();
-            string currFor = DataLayer.getForest();
-            string currDist = DataLayer.getDistrict();
-            double currAcres = 0;
-            string currST;
+            string region = DataLayer.getRegion();
+            string forest = DataLayer.getForest();
+            string district = DataLayer.getDistrict();
+            
 
             numOlines = 0;
-            List<BiomassData> bList = new List<BiomassData>();
+            
 
             switch (currentReport)
             {
                 case "WT2":
                     List<TreeDefaultValueDO> tdvList = DataLayer.getTreeDefaults();
                     //  Load summary groups for last page
-                    List<BiomassData> summaryList = new List<BiomassData>();
-                    LoadSummaryGroups(summaryList, tdvList);
+                    var summaryList = LoadSummaryGroups(tdvList);
+
                     //  process by stratum since each page is a separate stratum or cutting unit
                     foreach (StratumDO s in sList)
                     {
-                        currST = s.Code;
+                        string currST = s.Code;
+                        List<BiomassData> bList = new List<BiomassData>();
+
+                        
                         //  pull all trees for the current stratum as well as current acres and the method
                         List<TreeCalculatedValuesDO> treeList = DataLayer.getTreeCalculatedValues((int)s.Stratum_CN);
-                        currAcres = Utilities.ReturnCorrectAcres(s.Code, DataLayer, (long)s.Stratum_CN);
+                        double currAcres = Utilities.ReturnCorrectAcres(s.Code, DataLayer, (long)s.Stratum_CN);
                         //  Pull stratum and species groups from LCD
                         List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
                                                                 "GROUP BY Species", "C", s.Code, "");
                         //  Load these groups into a BiomassData list
                         foreach (LCDDO jg in justGroups)
                         {
-                            int ithRow = tdvList.FindIndex(
-                                delegate (TreeDefaultValueDO t)
-                                {
-                                    return t.Species == jg.Species;
-                                });
+                            var tdv = tdvList.FirstOrDefault(t => t.Species == jg.Species);
                             BiomassData b = new BiomassData();
-                            b.userStratum = jg.Stratum;
-                            b.userSG = jg.SampleGroup;
-                            b.userSpecies = jg.Species;
-                            b.bioSpecies = (int)tdvList[ithRow].FIAcode;
+                            b.StratumCode = jg.Stratum;
+                            b.SampleGroupCode = jg.SampleGroup;
+                            b.SpeciesCode = jg.Species;
+                            b.SpeciesFIA = (int)tdv.FIAcode;
                             bList.Add(b);
                         }   //  end foreach loop
 
@@ -859,12 +812,12 @@ namespace CruiseProcessing
                                             tcv.Tree.CountOrMeasure == "M";
                                 });
                             //  Calculate and store stratum values
-                            CalculateComponentValues(tcvList, currAcres, jg, bList, currReg, currFor, currDist);
+                            CalculateComponentValues(tcvList, currAcres, jg, bList, region, forest, district);
                         }   //  end foreach loop
                         //  if any one bioSpecies in the bList is zero, skip reporet
                         foreach (BiomassData bl in bList)
                         {
-                            if (bl.bioSpecies == 0)
+                            if (bl.SpeciesFIA == 0)
                             {
                                 strWriteOut.Write("Missing some FIA codes.\nCannot produce report  .");
                                 strWriteOut.WriteLine(currentReport);
@@ -888,6 +841,7 @@ namespace CruiseProcessing
                     tdvList = DataLayer.getTreeDefaults();
                     foreach (CuttingUnitDO c in cList)
                     {
+                        List<BiomassData> bList = new List<BiomassData>();
                         c.Strata.Populate();
                         foreach (StratumDO stratum in c.Strata)
                         {
@@ -897,14 +851,14 @@ namespace CruiseProcessing
                             List<LCDDO> justGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ",
                                                             "GROUP BY Species", "C", stratum.Code, "");
                             //  Load this groups into the Biomass Data list
-                            currAcres = Utilities.ReturnCorrectAcres(stratum.Code, DataLayer,
+                            double currAcres = Utilities.ReturnCorrectAcres(stratum.Code, DataLayer,
                                                 (long)stratum.Stratum_CN);
                             foreach (LCDDO jg in justGroups)
                             {
                                 int nthRow = bList.FindIndex(
                                     delegate (BiomassData bd)
                                     {
-                                        return bd.userSpecies == jg.Species;
+                                        return bd.SpeciesCode == jg.Species;
                                     });
                                 //  February 2018 -- also need the FIA code from default values
                                 //  for current species
@@ -916,11 +870,11 @@ namespace CruiseProcessing
                                 if (nthRow < 0)
                                 {
                                     BiomassData b = new BiomassData();
-                                    b.userStratum = jg.Stratum;
-                                    b.userSG = jg.SampleGroup;
-                                    b.userSpecies = jg.Species;
+                                    b.StratumCode = jg.Stratum;
+                                    b.SampleGroupCode = jg.SampleGroup;
+                                    b.SpeciesCode = jg.Species;
                                     if (ithRow >= 0)
-                                        b.bioSpecies = (int)tdvList[ithRow].FIAcode;
+                                        b.SpeciesFIA = (int)tdvList[ithRow].FIAcode;
                                     bList.Add(b);
                                 }   //  endif
                             }   //  end foreach loop
@@ -939,7 +893,7 @@ namespace CruiseProcessing
                                             tc.Tree.CuttingUnit.Code == c.Code;
                                     });
                                 //  Store stratum values
-                                CalculateComponentValues(justTrees, currAcres, jg, bList, currReg, currFor, currDist);
+                                CalculateComponentValues(justTrees, currAcres, jg, bList, region, forest, district);
                             }   //  end foreach loop on groups
                         }   //  end for j loop on stratum
                         //  print cutting unit page here
@@ -947,7 +901,7 @@ namespace CruiseProcessing
                                                                 c.Area);//  if any one bioSpecies in the bList is zero, skip reporet
                         foreach (BiomassData bl in bList)
                         {
-                            if (bl.bioSpecies == 0)
+                            if (bl.SpeciesFIA == 0)
                             {
                                 noDataForReport(strWriteOut, currentReport, " >>>Missing some FIA codes.  Cannot produce report.");
                                 return;
@@ -962,6 +916,70 @@ namespace CruiseProcessing
             }   //  end switch on report
             return;
         }   //  end processSlashLoad
+
+        private void CalculateComponentValues(IReadOnlyCollection<TreeCalculatedValuesDO> tcvs, double currentAcres,
+            LCDDO lcdSpeciesGroup, BiomassData bioData, string region)
+        {
+            int currFIA = DataLayer.GetFIACode(lcdSpeciesGroup.Species, lcdSpeciesGroup.PrimaryProduct);
+            if (currFIA == 0) throw new ArgumentException("expected valid fia code");// return;
+
+            var pctRemoved = DataLayer.GetPrecentRemoved(lcdSpeciesGroup.Species, lcdSpeciesGroup.PrimaryProduct);
+            bioData.FractionLeftInWoods = 1.0 - pctRemoved;
+
+            //  Sum up values for three-inch plus section
+            float grsVol = 0;
+            float netVol = 0;
+            //  Topwood weight
+            grsVol = tcvs.Sum(x => x.GrossCUFTSP * x.Tree.ExpansionFactor) * (float)currentAcres;
+            VolLib.BrownTopwood(currFIA, grsVol, out var topwoodWGT);
+            bioData.TopwoodDryWeight = topwoodWGT;
+
+            //  Cull chunk weight
+            grsVol = tcvs.Sum(x => x.GrossCUFTPP * x.Tree.ExpansionFactor) * (float)currentAcres;
+            netVol = tcvs.Sum(x => x.NetCUFTPP * x.Tree.ExpansionFactor) * (float)currentAcres;
+            var flin = (float)bioData.FractionLeftInWoods;
+            VolLib.BrownCullChunk(currFIA, grsVol, netVol, flin, out var cullChunkWGT);
+            bioData.CullChunkWgt = cullChunkWGT;
+
+            foreach (TreeCalculatedValuesDO tcv in tcvs)
+            {
+                var tree = tcv.Tree;
+
+                float currDBH = tcv.Tree.DBH;
+                float currHGT = (region == "9" || region == "09") ? tree.TotalHeight : tree.MerchHeightPrimary;
+                float CR = 0;
+                var crfwt = VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR);   
+                if (tcv.Tree.DBH > 6)
+                {
+                    //  load crown section
+                    bioData.Needles += crfwt.Needles;
+                    bioData.QuarterInch += crfwt.QuarterInch;
+                    bioData.OneInch += crfwt.OneInch;
+                    bioData.ThreeInch += crfwt.ThreeInch;
+                    bioData.ThreePlus += crfwt.ThreePlus;
+                }
+                else if (tcv.Tree.DBH <= 6)
+                {
+                    //  load into damaged small trees
+                    bioData.DSTneedles += crfwt.Needles;
+                    bioData.DSTquarterInch += crfwt.QuarterInch;
+                    bioData.DSToneInch += crfwt.OneInch;
+                    bioData.DSTthreeInch += crfwt.ThreeInch;
+                    bioData.DSTthreePlus += crfwt.ThreePlus;
+                }   //  endif on DBH
+
+                
+
+                //  Pull grade 9 logs for current group
+                List<LogStockDO> justCullLogs = DataLayer.getCullLogs((long)tcv.Tree_CN, "9");
+                foreach (LogStockDO jcl in justCullLogs)
+                {
+                    float loggGrsCuVol = jcl.GrossCubicFoot;
+                    VolLib.BrownCullLog(currFIA, loggGrsCuVol, out var cullLogWGT);
+                    bioData.CullLogWgt = cullLogWGT * tree.ExpansionFactor * currentAcres;
+                }   //  end foreach loop
+            }   //  end foreach loop
+        }
 
         private int CalculateComponentValues(List<TreeCalculatedValuesDO> currentData, double currAcres,
                                             LCDDO jg, List<BiomassData> bList,
@@ -980,12 +998,12 @@ namespace CruiseProcessing
             int nthRow = bList.FindIndex(
                 delegate (BiomassData b)
                 {
-                    return b.userStratum == jg.Stratum &&
-                            b.userSG == jg.SampleGroup && b.userSpecies == jg.Species;
+                    return b.StratumCode == jg.Stratum &&
+                            b.SampleGroupCode == jg.SampleGroup && b.SpeciesCode == jg.Species;
                 });
             if (nthRow >= 0)
             {
-                currFIA = bList[nthRow].bioSpecies;
+                currFIA = bList[nthRow].SpeciesFIA;
                 if (currFIA == 0) return -1;
                 //  need percent removed to calculate fraction left in the woods
                 //  Per K.Cormier, FLIW = 1.0 - percent removed
@@ -1000,7 +1018,7 @@ namespace CruiseProcessing
                 if (mthRow >= 0)
                 {
                     currFLIW = (float)1.0 - (beList[mthRow].PercentRemoved / 100);
-                    bList[nthRow].FLIW = currFLIW;
+                    bList[nthRow].FractionLeftInWoods = currFLIW;
                 }   //  endif
 
                 //  crown section and damaged small trees
@@ -1024,11 +1042,11 @@ namespace CruiseProcessing
                     if (cd.Tree.DBH > 6)
                     {
                         //  load crown section
-                        bList[nthRow].needles += crownFractionWGT[0];
-                        bList[nthRow].quarterInch += crownFractionWGT[1];
-                        bList[nthRow].oneInch += crownFractionWGT[2];
-                        bList[nthRow].threeInch += crownFractionWGT[3];
-                        bList[nthRow].threePlus += crownFractionWGT[4];
+                        bList[nthRow].Needles += crownFractionWGT[0];
+                        bList[nthRow].QuarterInch += crownFractionWGT[1];
+                        bList[nthRow].OneInch += crownFractionWGT[2];
+                        bList[nthRow].ThreeInch += crownFractionWGT[3];
+                        bList[nthRow].ThreePlus += crownFractionWGT[4];
                     }
                     else if (cd.Tree.DBH <= 6)
                     {
@@ -1044,16 +1062,15 @@ namespace CruiseProcessing
                     float grsVol = 0;
                     float netVol = 0;
                     //  Topwood weight
-                    grsVol = currentData.Sum(c => c.GrossCUFTSP * c.Tree.ExpansionFactor);
-                    grsVol = grsVol * floatAcres;
+                    grsVol = currentData.Sum(c => c.GrossCUFTSP * c.Tree.ExpansionFactor) * floatAcres;
                     VolLib.BrownTopwood(currFIA, ref grsVol, ref topwoodWGT);
-                    bList[nthRow].topwoodDryWeight = topwoodWGT;
+                    bList[nthRow].TopwoodDryWeight = topwoodWGT;
 
                     //  Cull chunk weight
                     grsVol = cd.GrossCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
                     netVol = cd.NetCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
                     VolLib.BrownCullChunk(currFIA, ref grsVol, ref netVol, ref currFLIW, ref cullChunkWGT);
-                    bList[nthRow].cullChunkWgt += cullChunkWGT;
+                    bList[nthRow].CullChunkWgt += cullChunkWGT;
 
                     //  Pull grade 9 logs for current group
                     List<LogStockDO> justCullLogs = DataLayer.getCullLogs((long)cd.Tree_CN, "9");
@@ -1061,7 +1078,7 @@ namespace CruiseProcessing
                     {
                         grsVol = jcl.GrossCubicFoot;
                         VolLib.BrownCullLog(currFIA, ref grsVol, ref cullLogWGT);
-                        bList[nthRow].cullLogWgt = cullLogWGT * jcl.Tree.ExpansionFactor * floatAcres;
+                        bList[nthRow].CullLogWgt = cullLogWGT * jcl.Tree.ExpansionFactor * floatAcres;
                     }   //  end foreach loop
                 }   //  end foreach loop
             }   //  endif nthRow
@@ -1084,15 +1101,15 @@ namespace CruiseProcessing
 
             foreach (BiomassData b in bList)
             {
-                if (currST != b.userStratum)
+                if (currST != b.StratumCode)
                 {
                     //  need stratum acres, method, and proration factor
                     jthRow = sList.FindIndex(
                         delegate (StratumDO s)
                         {
-                            return s.Code == b.userStratum;
+                            return s.Code == b.StratumCode;
                         });
-                    currSTacres = Utilities.AcresLookup((long)sList[jthRow].Stratum_CN, DataLayer, b.userStratum);
+                    currSTacres = Utilities.AcresLookup((long)sList[jthRow].Stratum_CN, DataLayer, b.StratumCode);
                     currMeth = sList[jthRow].Method;
                     switch (currMeth)
                     {
@@ -1102,8 +1119,8 @@ namespace CruiseProcessing
                             jthRow = proList.FindIndex(
                             delegate (PRODO p)
                             {
-                                return p.CutLeave == "C" && p.Stratum == b.userStratum &&
-                                    p.CuttingUnit == currCU && p.SampleGroup == b.userSG;
+                                return p.CutLeave == "C" && p.Stratum == b.StratumCode &&
+                                    p.CuttingUnit == currCU && p.SampleGroup == b.SampleGroupCode;
                             });
                             if (jthRow >= 0)
                                 currProFac = proList[jthRow].ProrationFactor;
@@ -1113,7 +1130,7 @@ namespace CruiseProcessing
                             currProFac = 1.0;
                             break;
                     }   //  end switch on method for proration factor
-                    currST = b.userStratum;
+                    currST = b.StratumCode;
                 }   //  endif
 
                 //  stratum must match so check for species group in new list and add if not there
@@ -1121,16 +1138,16 @@ namespace CruiseProcessing
                 int ithRow = unitList.FindIndex(
                     delegate (BiomassData ul)
                     {
-                        return ul.userStratum == b.userStratum && ul.userSG == b.userSG &&
-                                ul.userSpecies == b.userSpecies;
+                        return ul.StratumCode == b.StratumCode && ul.SampleGroupCode == b.SampleGroupCode &&
+                                ul.SpeciesCode == b.SpeciesCode;
                     });
                 if (ithRow < 0)
                 {
                     //  Add to list
                     BiomassData bd = new BiomassData();
-                    bd.userStratum = b.userStratum;
-                    bd.userSG = b.userSG;
-                    bd.userSpecies = b.userSpecies;
+                    bd.StratumCode = b.StratumCode;
+                    bd.SampleGroupCode = b.SampleGroupCode;
+                    bd.SpeciesCode = b.SpeciesCode;
                     unitList.Add(bd);
                     ithRow = unitList.Count - 1;
                 }   //  endif ithRow
@@ -1141,35 +1158,35 @@ namespace CruiseProcessing
                     case "3P":
                     case "STR":
                     case "S3P":
-                        unitList[ithRow].needles += (b.needles * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].quarterInch += (b.quarterInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].oneInch += (b.oneInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].threeInch += (b.threeInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].threePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].topwoodDryWeight += (b.topwoodDryWeight * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].cullLogWgt += (b.cullLogWgt * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].cullChunkWgt += (b.cullChunkWgt * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].Needles += (b.Needles * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].QuarterInch += (b.QuarterInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].OneInch += (b.OneInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].ThreeInch += (b.ThreeInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].ThreePlus += (b.ThreePlus * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].TopwoodDryWeight += (b.TopwoodDryWeight * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].CullLogWgt += (b.CullLogWgt * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].CullChunkWgt += (b.CullChunkWgt * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSTneedles += (b.DSTneedles * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSTquarterInch += (b.DSTquarterInch * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSToneInch += (b.DSToneInch * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSTthreeInch += (b.DSTthreeInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].DSTthreePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].DSTthreePlus += (b.ThreePlus * currSTacres * currProFac) / unitAcres;
                         break;
 
                     default:
-                        unitList[ithRow].needles += b.needles * currProFac;
-                        unitList[ithRow].quarterInch += b.quarterInch * currProFac;
-                        unitList[ithRow].oneInch += b.oneInch * currProFac;
-                        unitList[ithRow].threeInch += b.threeInch * currProFac;
-                        unitList[ithRow].threePlus += b.threePlus * currProFac;
-                        unitList[ithRow].topwoodDryWeight += b.topwoodDryWeight * currProFac;
-                        unitList[ithRow].cullLogWgt += b.cullLogWgt * currProFac;
-                        unitList[ithRow].cullChunkWgt += b.cullChunkWgt * currProFac;
+                        unitList[ithRow].Needles += b.Needles * currProFac;
+                        unitList[ithRow].QuarterInch += b.QuarterInch * currProFac;
+                        unitList[ithRow].OneInch += b.OneInch * currProFac;
+                        unitList[ithRow].ThreeInch += b.ThreeInch * currProFac;
+                        unitList[ithRow].ThreePlus += b.ThreePlus * currProFac;
+                        unitList[ithRow].TopwoodDryWeight += b.TopwoodDryWeight * currProFac;
+                        unitList[ithRow].CullLogWgt += b.CullLogWgt * currProFac;
+                        unitList[ithRow].CullChunkWgt += b.CullChunkWgt * currProFac;
                         unitList[ithRow].DSTneedles += b.DSTneedles * currProFac;
                         unitList[ithRow].DSTquarterInch += b.DSTquarterInch * currProFac;
                         unitList[ithRow].DSToneInch += b.DSToneInch * currProFac;
                         unitList[ithRow].DSTthreeInch += b.DSTthreeInch * currProFac;
-                        unitList[ithRow].DSTthreePlus += b.threePlus * currProFac;
+                        unitList[ithRow].DSTthreePlus += b.ThreePlus * currProFac;
                         break;
                 }   //  end switch on method
             }   //  end foreach loop
@@ -1194,21 +1211,21 @@ namespace CruiseProcessing
                     completeHeader = completeHeaderColumns(currCU, bList);
                     break;
             }   //  end switch on current report
-            prtFields.Clear();
+            PrtFields.Clear();
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 13, ref pageNumb, "");
             //  crown section
             for (int n = 0; n < 5; n++)
             {
-                prtFields.Add("         ");
-                prtFields.Add(WT2crown[n]);
-                prtFields.Add("     ");
+                PrtFields.Add("         ");
+                PrtFields.Add(WT2crown[n]);
+                PrtFields.Add("     ");
                 lineTotal = LoadLine(n + 1, bList);
                 //  total column
-                prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
-                printOneRecord(strWriteOut, prtFields);
+                PrtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
+                printOneRecord(strWriteOut, PrtFields);
                 lineTotal = 0;
-                prtFields.Clear();
+                PrtFields.Clear();
             }   //  end for n loop
 
             //  three inch plus section -- topwood dry weight
@@ -1217,18 +1234,18 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("____________________|");
             for (int n = 0; n < 4; n++)
             {
-                prtFields.Clear();
-                prtFields.Add("        ");
-                prtFields.Add(WT2threeplus[n]);
-                prtFields.Add("     ");
+                PrtFields.Clear();
+                PrtFields.Add("        ");
+                PrtFields.Add(WT2threeplus[n]);
+                PrtFields.Add("     ");
                 lineTotal = LoadLine(n + 6, bList);
                 if (n != 3)
                 {
                     //  no line total for FLIW
-                    prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
-                    printOneRecord(strWriteOut, prtFields);
+                    PrtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
+                    printOneRecord(strWriteOut, PrtFields);
                 }
-                else printOneRecord(strWriteOut, prtFields);
+                else printOneRecord(strWriteOut, PrtFields);
                 lineTotal = 0;
             }   //  end for n loop
 
@@ -1238,13 +1255,13 @@ namespace CruiseProcessing
             strWriteOut.WriteLine("____________________|");
             for (int n = 0; n < 5; n++)
             {
-                prtFields.Clear();
-                prtFields.Add("         ");
-                prtFields.Add(WT2crown[n]);
-                prtFields.Add("     ");
+                PrtFields.Clear();
+                PrtFields.Add("         ");
+                PrtFields.Add(WT2crown[n]);
+                PrtFields.Add("     ");
                 lineTotal = LoadLine(n + 10, bList);
-                prtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
-                printOneRecord(strWriteOut, prtFields);
+                PrtFields.Add(String.Format("{0,6:F2}", lineTotal / 2000).PadLeft(6, ' '));
+                printOneRecord(strWriteOut, PrtFields);
                 lineTotal = 0;
             }   //  end for n loop
 
@@ -1275,30 +1292,30 @@ namespace CruiseProcessing
             foreach (BiomassData b in bList)
                 strWriteOut.Write("          ");
             strWriteOut.WriteLine("  ALL SPECIES");
-            prtFields.Clear();
-            prtFields.Add("OVEN DRY TONS/AC    |");
-            prtFields.Add("     ");
+            PrtFields.Clear();
+            PrtFields.Add("OVEN DRY TONS/AC    |");
+            PrtFields.Add("     ");
             foreach (BiomassData b in bList)
             {
                 double sumValue = 0;
-                sumValue += b.needles;
-                sumValue += b.quarterInch;
-                sumValue += b.threeInch;
-                sumValue += b.threePlus;
-                sumValue += b.topwoodDryWeight;
-                sumValue += b.cullLogWgt;
-                sumValue += b.cullChunkWgt;
+                sumValue += b.Needles;
+                sumValue += b.QuarterInch;
+                sumValue += b.ThreeInch;
+                sumValue += b.ThreePlus;
+                sumValue += b.TopwoodDryWeight;
+                sumValue += b.CullLogWgt;
+                sumValue += b.CullChunkWgt;
                 sumValue += b.DSTneedles;
                 sumValue += b.DSToneInch;
                 sumValue += b.DSTquarterInch;
                 sumValue += b.DSTthreeInch;
                 sumValue += b.DSTthreePlus;
-                prtFields.Add(String.Format("{0,6:F2}", sumValue / 2000).PadLeft(6, ' '));
-                prtFields.Add("    ");
+                PrtFields.Add(String.Format("{0,6:F2}", sumValue / 2000).PadLeft(6, ' '));
+                PrtFields.Add("    ");
                 overallTotal += sumValue;
             }   //  end foreach loop
-            prtFields.Add(String.Format("{0,6:F2}", overallTotal / 2000).PadLeft(6, ' '));
-            printOneRecord(strWriteOut, prtFields);
+            PrtFields.Add(String.Format("{0,6:F2}", overallTotal / 2000).PadLeft(6, ' '));
+            printOneRecord(strWriteOut, PrtFields);
 
             //  print footer
             strWriteOut.WriteLine(" ");
@@ -1314,80 +1331,80 @@ namespace CruiseProcessing
                 case 1:     //  crown needles
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.needles / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.needles;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.Needles / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.Needles;
                     }   //  end foreach loop
                     break;
 
                 case 2:     //  crown quarter inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.quarterInch / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.quarterInch;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.QuarterInch / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.QuarterInch;
                     }   //  end foreach loop
                     break;
 
                 case 3:     //  crown one inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.oneInch / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.oneInch;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.OneInch / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.OneInch;
                     }   //  end foreach loop
                     break;
 
                 case 4:     //  crown three inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.threeInch / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.threeInch;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.ThreeInch / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.ThreeInch;
                     }   //  end foreach loop
                     break;
 
                 case 5:     //  crown three inch plus
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.threePlus / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.threePlus;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.ThreePlus / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.ThreePlus;
                     }   //  end foreach loop
                     break;
 
                 case 6:     //  topwood
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.topwoodDryWeight / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.topwoodDryWeight;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.TopwoodDryWeight / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.TopwoodDryWeight;
                     }   //  end foreach loop
                     break;
 
                 case 7:     //  cull volume
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.cullLogWgt / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.cullLogWgt;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.CullLogWgt / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.CullLogWgt;
                     }   //  end foreach loop
                     break;
 
                 case 8:     //  cull chunk weight
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.cullChunkWgt / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
-                        totalLine += b.cullChunkWgt;
+                        PrtFields.Add(String.Format("{0,6:F2}", b.CullChunkWgt / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
+                        totalLine += b.CullChunkWgt;
                     }   //  end foreach loop
                     break;
 
                 case 9:     //  FLIW -- has no total column
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.FLIW).PadLeft(6, ' '));
-                        prtFields.Add("    ");
+                        PrtFields.Add(String.Format("{0,6:F2}", b.FractionLeftInWoods).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
                         totalLine = 0;
                     }   //  end foreach loop
                     break;
@@ -1395,8 +1412,8 @@ namespace CruiseProcessing
                 case 10:    //  dam small trees needles
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.DSTneedles / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
+                        PrtFields.Add(String.Format("{0,6:F2}", b.DSTneedles / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
                         totalLine += b.DSTneedles;
                     }   //  end foreach loop
                     break;
@@ -1404,8 +1421,8 @@ namespace CruiseProcessing
                 case 11:        //  dam small trees quarter inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.DSTquarterInch / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
+                        PrtFields.Add(String.Format("{0,6:F2}", b.DSTquarterInch / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
                         totalLine += b.DSTquarterInch;
                     }   //  end foreach loop
                     break;
@@ -1413,8 +1430,8 @@ namespace CruiseProcessing
                 case 12:        //  dam small trees one inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.DSToneInch / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
+                        PrtFields.Add(String.Format("{0,6:F2}", b.DSToneInch / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
                         totalLine += b.DSToneInch;
                     }   //  end foreach loop
                     break;
@@ -1422,8 +1439,8 @@ namespace CruiseProcessing
                 case 13:        //  dam small trees three inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.DSTthreeInch / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
+                        PrtFields.Add(String.Format("{0,6:F2}", b.DSTthreeInch / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
                         totalLine += b.DSTthreeInch;
                     }   //  end foreach loop
                     break;
@@ -1431,8 +1448,8 @@ namespace CruiseProcessing
                 case 14:        //  dam small trees three inch plus
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.DSTthreePlus / 2000).PadLeft(6, ' '));
-                        prtFields.Add("    ");
+                        PrtFields.Add(String.Format("{0,6:F2}", b.DSTthreePlus / 2000).PadLeft(6, ' '));
+                        PrtFields.Add("    ");
                         totalLine += b.DSTthreePlus;
                     }   //  end foreach loop
                     break;
@@ -1465,7 +1482,7 @@ namespace CruiseProcessing
             foreach (BiomassData b in bList)
             {
                 finnishHeader[3] += "    ";
-                finnishHeader[3] += b.userSpecies.PadLeft(6, ' ');
+                finnishHeader[3] += b.SpeciesCode.PadLeft(6, ' ');
             }   //  end foreach loop
 
             finnishHeader[3] += "     TOTAL";
@@ -1474,8 +1491,9 @@ namespace CruiseProcessing
             return finnishHeader;
         }   //  end completeHeaderColumns
 
-        private void LoadSummaryGroups(List<BiomassData> summaryList, List<TreeDefaultValueDO> tdList)
+        private IReadOnlyCollection<BiomassData> LoadSummaryGroups(List<TreeDefaultValueDO> tdList)
         {
+            var summaryList = new List<BiomassData>();
             //  Pull species groups from LCD to load into summary list
             List<LCDDO> summaryGroups = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 ", "GROUP BY Species", "C", "");
             foreach (LCDDO sg in summaryGroups)
@@ -1487,13 +1505,13 @@ namespace CruiseProcessing
                         return t.Species == sg.Species;
                     });
                 BiomassData b = new BiomassData();
-                b.userStratum = sg.Stratum;
-                b.userSG = sg.SampleGroup;
-                b.userSpecies = sg.Species;
-                b.bioSpecies = (int)tdList[nthRow].FIAcode;
+                b.StratumCode = sg.Stratum;
+                b.SampleGroupCode = sg.SampleGroup;
+                b.SpeciesCode = sg.Species;
+                b.SpeciesFIA = (int)tdList[nthRow].FIAcode;
                 summaryList.Add(b);
             }   //  end foreach loop
-            return;
+            return summaryList;
         }   //  end LoadSummaryGroups
 
         private void UpdateSummaryList(List<BiomassData> summaryList, List<BiomassData> bList)
@@ -1505,19 +1523,19 @@ namespace CruiseProcessing
                 int ithRow = summaryList.FindIndex(
                     delegate (BiomassData sl)
                     {
-                        return sl.userSpecies == b.userSpecies && sl.userSG == b.userSG &&
-                            sl.bioSpecies == b.bioSpecies;
+                        return sl.SpeciesCode == b.SpeciesCode && sl.SampleGroupCode == b.SampleGroupCode &&
+                            sl.SpeciesFIA == b.SpeciesFIA;
                     });
                 if (ithRow >= 0)
                 {
-                    summaryList[ithRow].needles += b.needles;
-                    summaryList[ithRow].quarterInch += b.quarterInch;
-                    summaryList[ithRow].oneInch += b.oneInch;
-                    summaryList[ithRow].threeInch += b.threeInch;
-                    summaryList[ithRow].threePlus += b.threePlus;
-                    summaryList[ithRow].topwoodDryWeight += b.topwoodDryWeight;
-                    summaryList[ithRow].cullLogWgt += b.cullLogWgt;
-                    summaryList[ithRow].cullChunkWgt += b.cullChunkWgt;
+                    summaryList[ithRow].Needles += b.Needles;
+                    summaryList[ithRow].QuarterInch += b.QuarterInch;
+                    summaryList[ithRow].OneInch += b.OneInch;
+                    summaryList[ithRow].ThreeInch += b.ThreeInch;
+                    summaryList[ithRow].ThreePlus += b.ThreePlus;
+                    summaryList[ithRow].TopwoodDryWeight += b.TopwoodDryWeight;
+                    summaryList[ithRow].CullLogWgt += b.CullLogWgt;
+                    summaryList[ithRow].CullChunkWgt += b.CullChunkWgt;
                     summaryList[ithRow].DSTneedles += b.DSTneedles;
                     summaryList[ithRow].DSTquarterInch += b.DSTquarterInch;
                     summaryList[ithRow].DSToneInch += b.DSToneInch;
@@ -1531,24 +1549,26 @@ namespace CruiseProcessing
 
         protected class BiomassData
         {
-            public string userStratum { get; set; }
-            public string userSG { get; set; }
-            public string userSpecies { get; set; }
-            public int bioSpecies { get; set; }
-            public double needles { get; set; }
-            public double quarterInch { get; set; }
-            public double oneInch { get; set; }
-            public double threeInch { get; set; }
-            public double threePlus { get; set; }
-            public double topwoodDryWeight { get; set; }
-            public double cullLogWgt { get; set; }
-            public double cullChunkWgt { get; set; }
-            public double FLIW { get; set; }
+            public string StratumCode { get; set; }
+            public string SampleGroupCode { get; set; }
+            public string SpeciesCode { get; set; }
+            public int SpeciesFIA { get; set; }
+            public double Needles { get; set; }
+            public double QuarterInch { get; set; }
+            public double OneInch { get; set; }
+            public double ThreeInch { get; set; }
+            public double ThreePlus { get; set; }
+            public double TopwoodDryWeight { get; set; }
+            public double CullLogWgt { get; set; }
+            public double CullChunkWgt { get; set; }
+            public double FractionLeftInWoods { get; set; }
+
+            //  damaged small trees (DST)
             public double DSTneedles { get; set; }
             public double DSTquarterInch { get; set; }
             public double DSToneInch { get; set; }
             public double DSTthreeInch { get; set; }
             public double DSTthreePlus { get; set; }
         }
-    }   //  end class OutputWeight
+    }
 }

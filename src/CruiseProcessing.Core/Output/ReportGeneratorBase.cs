@@ -23,27 +23,6 @@ namespace CruiseProcessing.Output
 
         protected string FilePath => DataLayer.FilePath;
 
-        // public because used by GraphForm and OutputGraphs
-        public class ReportSubtotal
-        {
-            public string Value1 { get; set; }
-            public string Value2 { get; set; }
-            public double Value3 { get; set; }
-            public double Value4 { get; set; }
-            public double Value5 { get; set; }
-            public double Value6 { get; set; }
-            public double Value7 { get; set; }
-            public double Value8 { get; set; }
-            public double Value9 { get; set; }
-            public double Value10 { get; set; }
-            public double Value11 { get; set; }
-            public double Value12 { get; set; }
-            public double Value13 { get; set; }
-            public double Value14 { get; set; }
-            public double Value15 { get; set; }
-            public double Value16 { get; set; }
-        }
-
         // public because of TreeListMethods
         public enum HeightFieldType
         { Unknown = 0, Total = 1, MerchPrimary = 2, MerchSecondary = 3, UpperStem = 4 }
@@ -100,43 +79,5 @@ namespace CruiseProcessing.Output
         }
     }
 
-    public class HeaderFieldData : IReadOnlyList<string>
-    {
-        public string Date { get; set; }
-        public string Version { get; set; }
-        public string DllVersion { get; set; }
-        public string CruiseName { get; set; }
-        public string SaleName { get; set; }
 
-        public string this[int index]
-        {
-            get
-            {
-                return index switch
-                {
-                    0 => Date,
-                    1 => Version,
-                    2 => DllVersion,
-                    3 => CruiseName,
-                    4 => SaleName,
-                    _ => throw new IndexOutOfRangeException(nameof(index)),
-                };
-            }
-        }
-
-        public int Count => 5;
-
-        public IEnumerator<string> GetEnumerator()
-        {
-            foreach (var i in Enumerable.Range(0, Count))
-            {
-                yield return this[i];
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-    }
 }

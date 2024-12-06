@@ -10,6 +10,7 @@ using CruiseProcessing.Output;
 using CruiseProcessing.Data;
 using Microsoft.Extensions.Logging;
 using CruiseProcessing.Interop;
+using CruiseProcessing.OutputModels;
 
 namespace CruiseProcessing
 {
