@@ -22,7 +22,7 @@ namespace CruiseProcessing.Data
                 .Read(species, primaryProduct).ToList();
         }
 
-        public void SaveBiomassEquations(List<BiomassEquationDO> bioList)
+        public void SaveBiomassEquations(IEnumerable<BiomassEquationDO> bioList)
         {
             foreach (BiomassEquationDO beq in bioList)
             {
