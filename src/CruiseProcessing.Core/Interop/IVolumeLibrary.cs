@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace CruiseProcessing.Interop
 {
@@ -98,13 +99,16 @@ namespace CruiseProcessing.Interop
 
         void LookupWeightFactors2(int regin, string forest, int fiaCode, string prod, out float greenWf, out float deadWf);
 
+        [Obsolete]
         void BrownCrownFraction(int fiaCode, float DBH, float THT, float CR, float[] crownFractionWGT);
 
-        void BrownTopwood(int fiaCode, ref float grsVol, ref float topwoodWGT);
+        CrownFractionWeight BrownCrownFraction(int fiaCode, float DBH, float THT, float CR);
 
-        void BrownCullLog(int fiaCode, ref float GCUFTS, ref float cullLogWGT);
+        void BrownTopwood(int fiaCode, float grsVol, out float topwoodWGT);
 
-        void BrownCullChunk(int fiaCode, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float cullChunkWGT);
+        void BrownCullLog(int fiaCode, float GCUFTS, out float cullLogWGT);
+
+        void BrownCullChunk(int fiaCode, float GCUFT, float NCUFT, float FLIW, out float cullChunkWGT);
     }
 
     public static class VolumeLibraryExtensions
