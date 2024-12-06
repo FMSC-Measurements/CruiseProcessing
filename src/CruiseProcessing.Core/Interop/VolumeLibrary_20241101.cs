@@ -254,18 +254,28 @@ namespace CruiseProcessing.Interop
             BROWNCROWNFRACTION(ref fiaCode, ref DBH, ref THT, ref CR, crownFractionWGT);
         }
 
-        public void BrownTopwood(int fiaCode, ref float grsVol, ref float topwoodWGT)
+        public CrownFractionWeight BrownCrownFraction(int fiaCode, float DBH, float THT, float CR)
         {
+            var crownFractionWGT = new float[VolumeLibraryInterop.CROWN_FACTOR_WEIGHT_ARRAY_LENGTH];
+            BROWNCROWNFRACTION(ref fiaCode, ref DBH, ref THT, ref CR, crownFractionWGT);
+            return CrownFractionWeight.FromArray(crownFractionWGT);
+        }
+
+        public void BrownTopwood(int fiaCode, float grsVol, out float topwoodWGT)
+        {
+            topwoodWGT = 0;
             BROWNTOPWOOD(ref fiaCode, ref grsVol, ref topwoodWGT);
         }
 
-        public void BrownCullLog(int fiaCode, ref float GCUFTS, ref float cullLogWGT)
+        public void BrownCullLog(int fiaCode, float GCUFTS, out float cullLogWGT)
         {
+            cullLogWGT = 0;
             BROWNCULLLOG(ref fiaCode, ref GCUFTS, ref cullLogWGT);
         }
 
-        public void BrownCullChunk(int fiaCode, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float cullChunkWGT)
+        public void BrownCullChunk(int fiaCode, float GCUFT, float NCUFT, float FLIW, out float cullChunkWGT)
         {
+            cullChunkWGT = 0;
             BROWNCULLCHUNK(ref fiaCode, ref GCUFT, ref NCUFT, ref FLIW, ref cullChunkWGT);
         }
     }
