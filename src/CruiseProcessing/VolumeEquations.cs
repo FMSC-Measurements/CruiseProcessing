@@ -446,9 +446,7 @@ namespace CruiseProcessing
         {
             int REGN = Convert.ToInt32(region);
 
-            var biomassEquations = new List<BiomassEquationDO>();
-
-            DataLayer.CreateBiomassEquations(equationList, REGN, forest, prList);
+            var biomassEquations = DataLayer.CreateBiomassEquations(equationList, REGN, forest, prList);
 
             DataLayer.ClearBiomassEquations();
             DataLayer.SaveBiomassEquations(biomassEquations);
