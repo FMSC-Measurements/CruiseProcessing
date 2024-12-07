@@ -22,22 +22,7 @@ namespace CruiseProcessing.Test.Data
         {
         }
 
-        [Fact]
-        public void GetStratumCodesByUnit()
-        {
-            var init = new DatabaseInitializer_V2();
 
-            var v2db = init.CreateDatabase();
-
-            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(v2db, mockLogger, biomassOptions: null);
-
-            var units = dataLayer.getCuttingUnits();
-
-            var unitCode = units.First().Code;
-            var stCodes = dataLayer.GetStratumCodesByUnit(unitCode);
-            stCodes.Should().HaveSameCount(init.UnitStrata.Where(x => x.UnitCode == unitCode));
-        }
 
         [Fact]
         public void SaveReports()

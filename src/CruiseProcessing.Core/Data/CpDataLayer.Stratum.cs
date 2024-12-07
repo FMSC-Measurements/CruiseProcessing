@@ -30,6 +30,29 @@ namespace CruiseProcessing.Data
             return DAL.From<StratumDO>().Where("Code = @p1").Read(stratumCode).FirstOrDefault();
         }
 
+        public string GetCruiseMethod(string stratumCode)
+        {
+            return DAL.ExecuteScalar<string>("SELECT Method FROM Stratum WHERE Code = @p1", stratumCode);
+        }
+
+        public double GetStratumAcres(string stratumCode)
+        {
+            return DAL.ExecuteScalar<double>("SELECT SUM(cu.Area) FROM CuttingUnit AS cu JOIN CuttingUnitStratum AS cust USING (CuttingUnit_CN) JOIN Stratum AS st USING (Stratum_CN) WHERE st.Code = @p1"
+                , stratumCode);
+        }
+
+        public double GetStratumAcresCorrected(string stratumCode)
+        {
+            var method = GetCruiseMethod(stratumCode);
+            if (method == "100"
+                || method == "STR"
+                || method == "S3P"
+                || method == "3P")
+            { return 1.0; }
+
+            return GetStratumAcres(stratumCode);
+        }
+
 
         //  just FIXCNT methods
         public List<StratumDO> justFIXCNTstrata()
