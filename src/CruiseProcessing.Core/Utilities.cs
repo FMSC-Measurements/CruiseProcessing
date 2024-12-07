@@ -84,12 +84,9 @@ namespace CruiseProcessing
 
         public static string MethodLookup(string currentStratum, CpDataLayer bslyr)
         {
-            //  Need to call CP business layer to get stratum list
-            List<StratumDO> stratumList = bslyr.GetStratum(currentStratum);
-            if (stratumList.Count > 0)
-                return stratumList[0].Method;
-            else return "";            
-        }   //  end MethodLookup
+            var stratumList = bslyr.GetStratum(currentStratum);
+            return stratumList?.Method ?? "";          
+        } 
 
         
 
