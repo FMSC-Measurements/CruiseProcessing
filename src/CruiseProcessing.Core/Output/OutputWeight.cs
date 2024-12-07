@@ -838,10 +838,10 @@ namespace CruiseProcessing
                                     return t.Species == jg.Species;
                                 });
                             BiomassData b = new BiomassData();
-                            b.userStratum = jg.Stratum;
-                            b.userSG = jg.SampleGroup;
-                            b.userSpecies = jg.Species;
-                            b.bioSpecies = (int)tdvList[ithRow].FIAcode;
+                            b.StratumCode = jg.Stratum;
+                            b.SampleGroupCode = jg.SampleGroup;
+                            b.SpeciesCode = jg.Species;
+                            b.SpeciesFIA = (int)tdvList[ithRow].FIAcode;
                             bList.Add(b);
                         }   //  end foreach loop
 
@@ -859,12 +859,12 @@ namespace CruiseProcessing
                                             tcv.Tree.CountOrMeasure == "M";
                                 });
                             //  Calculate and store stratum values
-                            CalculateComponentValues(tcvList, currAcres, jg, bList, currReg, currFor, currDist);
+                            CalculateComponentValues(tcvList, currAcres, jg, bList, currReg);
                         }   //  end foreach loop
                         //  if any one bioSpecies in the bList is zero, skip reporet
                         foreach (BiomassData bl in bList)
                         {
-                            if (bl.bioSpecies == 0)
+                            if (bl.SpeciesFIA == 0)
                             {
                                 strWriteOut.Write("Missing some FIA codes.\nCannot produce report  .");
                                 strWriteOut.WriteLine(currentReport);
@@ -904,7 +904,7 @@ namespace CruiseProcessing
                                 int nthRow = bList.FindIndex(
                                     delegate (BiomassData bd)
                                     {
-                                        return bd.userSpecies == jg.Species;
+                                        return bd.SpeciesCode == jg.Species;
                                     });
                                 //  February 2018 -- also need the FIA code from default values
                                 //  for current species
@@ -916,11 +916,11 @@ namespace CruiseProcessing
                                 if (nthRow < 0)
                                 {
                                     BiomassData b = new BiomassData();
-                                    b.userStratum = jg.Stratum;
-                                    b.userSG = jg.SampleGroup;
-                                    b.userSpecies = jg.Species;
+                                    b.StratumCode = jg.Stratum;
+                                    b.SampleGroupCode = jg.SampleGroup;
+                                    b.SpeciesCode = jg.Species;
                                     if (ithRow >= 0)
-                                        b.bioSpecies = (int)tdvList[ithRow].FIAcode;
+                                        b.SpeciesFIA = (int)tdvList[ithRow].FIAcode;
                                     bList.Add(b);
                                 }   //  endif
                             }   //  end foreach loop
@@ -939,7 +939,7 @@ namespace CruiseProcessing
                                             tc.Tree.CuttingUnit.Code == c.Code;
                                     });
                                 //  Store stratum values
-                                CalculateComponentValues(justTrees, currAcres, jg, bList, currReg, currFor, currDist);
+                                CalculateComponentValues(justTrees, currAcres, jg, bList, currReg);
                             }   //  end foreach loop on groups
                         }   //  end for j loop on stratum
                         //  print cutting unit page here
@@ -947,7 +947,7 @@ namespace CruiseProcessing
                                                                 c.Area);//  if any one bioSpecies in the bList is zero, skip reporet
                         foreach (BiomassData bl in bList)
                         {
-                            if (bl.bioSpecies == 0)
+                            if (bl.SpeciesFIA == 0)
                             {
                                 noDataForReport(strWriteOut, currentReport, " >>>Missing some FIA codes.  Cannot produce report.");
                                 return;
@@ -963,110 +963,94 @@ namespace CruiseProcessing
             return;
         }   //  end processSlashLoad
 
+        // used by WT2 and WT3
         private int CalculateComponentValues(List<TreeCalculatedValuesDO> currentData, double currAcres,
-                                            LCDDO jg, List<BiomassData> bList,
-                                            string currReg, string currFor, string currDist)
+                                            LCDDO lcdSpecies, List<BiomassData> bList,
+                                            string region)
         {
-            int currFIA = 0;
-            //  load biomass list
-            
-            float topwoodWGT = 0;
-            float cullLogWGT = 0;
-            float cullChunkWGT = 0;
-
-            //  have to convert acres to float because of biomass function calls -- they only take float values
-            float floatAcres = (float)currAcres;
             // find FIA for current group
             int nthRow = bList.FindIndex(
                 delegate (BiomassData b)
                 {
-                    return b.userStratum == jg.Stratum &&
-                            b.userSG == jg.SampleGroup && b.userSpecies == jg.Species;
+                    return b.StratumCode == lcdSpecies.Stratum &&
+                            b.SampleGroupCode == lcdSpecies.SampleGroup && b.SpeciesCode == lcdSpecies.Species;
                 });
             if (nthRow >= 0)
             {
-                currFIA = bList[nthRow].bioSpecies;
-                if (currFIA == 0) return -1;
-                //  need percent removed to calculate fraction left in the woods
-                //  Per K.Cormier, FLIW = 1.0 - percent removed
-                //  August 2013
-                List<BiomassEquationDO> beList = DataLayer.getBiomassEquations();
-                int mthRow = beList.FindIndex(
-                    delegate (BiomassEquationDO be)
-                    {
-                        return be.Species == jg.Species && be.FIAcode == currFIA;
-                    });
-                float currFLIW = 0;
-                if (mthRow >= 0)
-                {
-                    currFLIW = (float)1.0 - (beList[mthRow].PercentRemoved / 100);
-                    bList[nthRow].FLIW = currFLIW;
-                }   //  endif
-
-                //  crown section and damaged small trees
-                foreach (TreeCalculatedValuesDO cd in currentData)
-                {
-                    float[] crownFractionWGT = new float[VolumeLibraryInterop.CROWN_FACTOR_WEIGHT_ARRAY_LENGTH];
-
-                    float currDBH = cd.Tree.DBH;
-                    float currHGT = 0;
-                    float CR = 0;
-                    if (currReg == "9" || currReg == "09")
-                    {
-                        currHGT = cd.Tree.TotalHeight;
-                        VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR, crownFractionWGT);
-                    }
-                    else
-                    {
-                        currHGT = cd.Tree.MerchHeightPrimary;
-                        VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR, crownFractionWGT);
-                    }       //  endif
-                    if (cd.Tree.DBH > 6)
-                    {
-                        //  load crown section
-                        bList[nthRow].needles += crownFractionWGT[0];
-                        bList[nthRow].quarterInch += crownFractionWGT[1];
-                        bList[nthRow].oneInch += crownFractionWGT[2];
-                        bList[nthRow].threeInch += crownFractionWGT[3];
-                        bList[nthRow].threePlus += crownFractionWGT[4];
-                    }
-                    else if (cd.Tree.DBH <= 6)
-                    {
-                        //  load into damaged small trees
-                        bList[nthRow].DSTneedles += crownFractionWGT[0];
-                        bList[nthRow].DSTquarterInch += crownFractionWGT[1];
-                        bList[nthRow].DSToneInch += crownFractionWGT[2];
-                        bList[nthRow].DSTthreeInch += crownFractionWGT[3];
-                        bList[nthRow].DSTthreePlus += crownFractionWGT[4];
-                    }   //  endif on DBH
-
-                    //  Sum up values for three-inch plus section
-                    float grsVol = 0;
-                    float netVol = 0;
-                    //  Topwood weight
-                    grsVol = currentData.Sum(c => c.GrossCUFTSP * c.Tree.ExpansionFactor);
-                    grsVol = grsVol * floatAcres;
-                    VolLib.BrownTopwood(currFIA, ref grsVol, ref topwoodWGT);
-                    bList[nthRow].topwoodDryWeight = topwoodWGT;
-
-                    //  Cull chunk weight
-                    grsVol = cd.GrossCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
-                    netVol = cd.NetCUFTPP * cd.Tree.ExpansionFactor * floatAcres;
-                    VolLib.BrownCullChunk(currFIA, ref grsVol, ref netVol, ref currFLIW, ref cullChunkWGT);
-                    bList[nthRow].cullChunkWgt += cullChunkWGT;
-
-                    //  Pull grade 9 logs for current group
-                    List<LogStockDO> justCullLogs = DataLayer.getCullLogs((long)cd.Tree_CN, "9");
-                    foreach (LogStockDO jcl in justCullLogs)
-                    {
-                        grsVol = jcl.GrossCubicFoot;
-                        VolLib.BrownCullLog(currFIA, ref grsVol, ref cullLogWGT);
-                        bList[nthRow].cullLogWgt = cullLogWGT * jcl.Tree.ExpansionFactor * floatAcres;
-                    }   //  end foreach loop
-                }   //  end foreach loop
+                float floatAcres = (float)currAcres;
+                var bioData = bList[nthRow];
+                return CalculateComponentValues(currentData, lcdSpecies, region, floatAcres, bioData);
             }   //  endif nthRow
             return 1;
         }   //  end CalculateComponentValues
+
+        private int CalculateComponentValues(List<TreeCalculatedValuesDO> currentData, LCDDO lcdSpecies, string region, float floatAcres, BiomassData bioData)
+        {
+            var currFIA = bioData.SpeciesFIA;
+            if (currFIA == 0) return -1;
+            //  need percent removed to calculate fraction left in the woods
+            //  Per K.Cormier, FLIW = 1.0 - percent removed
+            //  August 2013
+
+            var percentRemoved = DataLayer.GetPrecentRemoved(lcdSpecies.Species, lcdSpecies.PrimaryProduct);
+            bioData.FractionLeftInWoods = 1.0d - ((double)percentRemoved / 100.0d);
+
+            //  crown section and damaged small trees
+            foreach (TreeCalculatedValuesDO cd in currentData)
+            {
+                var tree = cd.Tree;
+
+                float currDBH = cd.Tree.DBH;
+                float currHGT = (region == "9" || region == "09") ? tree.TotalHeight : tree.MerchHeightPrimary;
+                float CR = 0;
+                var crfwt = VolLib.BrownCrownFraction(currFIA, currDBH, currHGT, CR);
+                if (tree.DBH > 6)
+                {
+                    //  load crown section
+                    bioData.Needles += crfwt.Needles;
+                    bioData.QuarterInch += crfwt.QuarterInch;
+                    bioData.OneInch += crfwt.OneInch;
+                    bioData.ThreeInch += crfwt.ThreeInch;
+                    bioData.ThreePlus += crfwt.ThreePlus;
+                }
+                else if (tree.DBH <= 6)
+                {
+                    //  load into damaged small trees
+                    bioData.DSTneedles += crfwt.Needles;
+                    bioData.DSTquarterInch += crfwt.QuarterInch;
+                    bioData.DSToneInch += crfwt.OneInch;
+                    bioData.DSTthreeInch += crfwt.ThreeInch;
+                    bioData.DSTthreePlus += crfwt.ThreePlus;
+                }
+
+                //  Sum up values for three-inch plus section
+                float grsVol = 0;
+                float netVol = 0;
+                //  Topwood weight
+                grsVol = currentData.Sum(c => c.GrossCUFTSP * c.Tree.ExpansionFactor);
+                grsVol = grsVol * floatAcres;
+                VolLib.BrownTopwood(currFIA, grsVol, out var topwoodWGT);
+                bioData.TopwoodDryWeight = topwoodWGT;
+
+                //  Cull chunk weight
+                grsVol = cd.GrossCUFTPP * tree.ExpansionFactor * floatAcres;
+                netVol = cd.NetCUFTPP * tree.ExpansionFactor * floatAcres;
+                var fliw = (float)bioData.FractionLeftInWoods;
+                VolLib.BrownCullChunk(currFIA, grsVol, netVol, fliw, out var cullChunkWGT);
+                bioData.CullChunkWgt += cullChunkWGT;
+
+                //  Pull grade 9 logs for current group
+                List<LogStockDO> justCullLogs = DataLayer.getCullLogs((long)cd.Tree_CN, "9");
+                foreach (LogStockDO jcl in justCullLogs)
+                {
+                    grsVol = jcl.GrossCubicFoot;
+                    VolLib.BrownCullLog(currFIA, grsVol, out var cullLogWGT);
+                    bioData.CullLogWgt = cullLogWGT * tree.ExpansionFactor * floatAcres;
+                }   //  end foreach loop
+            }   //  end foreach loop
+
+            return 1;
+        }
 
         private List<BiomassData> SumUpUnitList(TextWriter strWriteOut, ref int pageNumb, List<BiomassData> bList,
                                         string currCU, float unitAcres)
@@ -1084,15 +1068,15 @@ namespace CruiseProcessing
 
             foreach (BiomassData b in bList)
             {
-                if (currST != b.userStratum)
+                if (currST != b.StratumCode)
                 {
                     //  need stratum acres, method, and proration factor
                     jthRow = sList.FindIndex(
                         delegate (StratumDO s)
                         {
-                            return s.Code == b.userStratum;
+                            return s.Code == b.StratumCode;
                         });
-                    currSTacres = Utilities.AcresLookup((long)sList[jthRow].Stratum_CN, DataLayer, b.userStratum);
+                    currSTacres = Utilities.AcresLookup((long)sList[jthRow].Stratum_CN, DataLayer, b.StratumCode);
                     currMeth = sList[jthRow].Method;
                     switch (currMeth)
                     {
@@ -1102,8 +1086,8 @@ namespace CruiseProcessing
                             jthRow = proList.FindIndex(
                             delegate (PRODO p)
                             {
-                                return p.CutLeave == "C" && p.Stratum == b.userStratum &&
-                                    p.CuttingUnit == currCU && p.SampleGroup == b.userSG;
+                                return p.CutLeave == "C" && p.Stratum == b.StratumCode &&
+                                    p.CuttingUnit == currCU && p.SampleGroup == b.SampleGroupCode;
                             });
                             if (jthRow >= 0)
                                 currProFac = proList[jthRow].ProrationFactor;
@@ -1113,7 +1097,7 @@ namespace CruiseProcessing
                             currProFac = 1.0;
                             break;
                     }   //  end switch on method for proration factor
-                    currST = b.userStratum;
+                    currST = b.StratumCode;
                 }   //  endif
 
                 //  stratum must match so check for species group in new list and add if not there
@@ -1121,16 +1105,16 @@ namespace CruiseProcessing
                 int ithRow = unitList.FindIndex(
                     delegate (BiomassData ul)
                     {
-                        return ul.userStratum == b.userStratum && ul.userSG == b.userSG &&
-                                ul.userSpecies == b.userSpecies;
+                        return ul.StratumCode == b.StratumCode && ul.SampleGroupCode == b.SampleGroupCode &&
+                                ul.SpeciesCode == b.SpeciesCode;
                     });
                 if (ithRow < 0)
                 {
                     //  Add to list
                     BiomassData bd = new BiomassData();
-                    bd.userStratum = b.userStratum;
-                    bd.userSG = b.userSG;
-                    bd.userSpecies = b.userSpecies;
+                    bd.StratumCode = b.StratumCode;
+                    bd.SampleGroupCode = b.SampleGroupCode;
+                    bd.SpeciesCode = b.SpeciesCode;
                     unitList.Add(bd);
                     ithRow = unitList.Count - 1;
                 }   //  endif ithRow
@@ -1141,35 +1125,35 @@ namespace CruiseProcessing
                     case "3P":
                     case "STR":
                     case "S3P":
-                        unitList[ithRow].needles += (b.needles * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].quarterInch += (b.quarterInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].oneInch += (b.oneInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].threeInch += (b.threeInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].threePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].topwoodDryWeight += (b.topwoodDryWeight * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].cullLogWgt += (b.cullLogWgt * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].cullChunkWgt += (b.cullChunkWgt * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].Needles += (b.Needles * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].QuarterInch += (b.QuarterInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].OneInch += (b.OneInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].ThreeInch += (b.ThreeInch * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].ThreePlus += (b.ThreePlus * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].TopwoodDryWeight += (b.TopwoodDryWeight * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].CullLogWgt += (b.CullLogWgt * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].CullChunkWgt += (b.CullChunkWgt * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSTneedles += (b.DSTneedles * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSTquarterInch += (b.DSTquarterInch * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSToneInch += (b.DSToneInch * currSTacres * currProFac) / unitAcres;
                         unitList[ithRow].DSTthreeInch += (b.DSTthreeInch * currSTacres * currProFac) / unitAcres;
-                        unitList[ithRow].DSTthreePlus += (b.threePlus * currSTacres * currProFac) / unitAcres;
+                        unitList[ithRow].DSTthreePlus += (b.ThreePlus * currSTacres * currProFac) / unitAcres;
                         break;
 
                     default:
-                        unitList[ithRow].needles += b.needles * currProFac;
-                        unitList[ithRow].quarterInch += b.quarterInch * currProFac;
-                        unitList[ithRow].oneInch += b.oneInch * currProFac;
-                        unitList[ithRow].threeInch += b.threeInch * currProFac;
-                        unitList[ithRow].threePlus += b.threePlus * currProFac;
-                        unitList[ithRow].topwoodDryWeight += b.topwoodDryWeight * currProFac;
-                        unitList[ithRow].cullLogWgt += b.cullLogWgt * currProFac;
-                        unitList[ithRow].cullChunkWgt += b.cullChunkWgt * currProFac;
+                        unitList[ithRow].Needles += b.Needles * currProFac;
+                        unitList[ithRow].QuarterInch += b.QuarterInch * currProFac;
+                        unitList[ithRow].OneInch += b.OneInch * currProFac;
+                        unitList[ithRow].ThreeInch += b.ThreeInch * currProFac;
+                        unitList[ithRow].ThreePlus += b.ThreePlus * currProFac;
+                        unitList[ithRow].TopwoodDryWeight += b.TopwoodDryWeight * currProFac;
+                        unitList[ithRow].CullLogWgt += b.CullLogWgt * currProFac;
+                        unitList[ithRow].CullChunkWgt += b.CullChunkWgt * currProFac;
                         unitList[ithRow].DSTneedles += b.DSTneedles * currProFac;
                         unitList[ithRow].DSTquarterInch += b.DSTquarterInch * currProFac;
                         unitList[ithRow].DSToneInch += b.DSToneInch * currProFac;
                         unitList[ithRow].DSTthreeInch += b.DSTthreeInch * currProFac;
-                        unitList[ithRow].DSTthreePlus += b.threePlus * currProFac;
+                        unitList[ithRow].DSTthreePlus += b.ThreePlus * currProFac;
                         break;
                 }   //  end switch on method
             }   //  end foreach loop
@@ -1281,13 +1265,13 @@ namespace CruiseProcessing
             foreach (BiomassData b in bList)
             {
                 double sumValue = 0;
-                sumValue += b.needles;
-                sumValue += b.quarterInch;
-                sumValue += b.threeInch;
-                sumValue += b.threePlus;
-                sumValue += b.topwoodDryWeight;
-                sumValue += b.cullLogWgt;
-                sumValue += b.cullChunkWgt;
+                sumValue += b.Needles;
+                sumValue += b.QuarterInch;
+                sumValue += b.ThreeInch;
+                sumValue += b.ThreePlus;
+                sumValue += b.TopwoodDryWeight;
+                sumValue += b.CullLogWgt;
+                sumValue += b.CullChunkWgt;
                 sumValue += b.DSTneedles;
                 sumValue += b.DSToneInch;
                 sumValue += b.DSTquarterInch;
@@ -1314,79 +1298,79 @@ namespace CruiseProcessing
                 case 1:     //  crown needles
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.needles / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.Needles / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.needles;
+                        totalLine += b.Needles;
                     }   //  end foreach loop
                     break;
 
                 case 2:     //  crown quarter inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.quarterInch / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.QuarterInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.quarterInch;
+                        totalLine += b.QuarterInch;
                     }   //  end foreach loop
                     break;
 
                 case 3:     //  crown one inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.oneInch / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.OneInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.oneInch;
+                        totalLine += b.OneInch;
                     }   //  end foreach loop
                     break;
 
                 case 4:     //  crown three inch
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.threeInch / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.ThreeInch / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.threeInch;
+                        totalLine += b.ThreeInch;
                     }   //  end foreach loop
                     break;
 
                 case 5:     //  crown three inch plus
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.threePlus / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.ThreePlus / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.threePlus;
+                        totalLine += b.ThreePlus;
                     }   //  end foreach loop
                     break;
 
                 case 6:     //  topwood
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.topwoodDryWeight / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.TopwoodDryWeight / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.topwoodDryWeight;
+                        totalLine += b.TopwoodDryWeight;
                     }   //  end foreach loop
                     break;
 
                 case 7:     //  cull volume
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.cullLogWgt / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.CullLogWgt / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.cullLogWgt;
+                        totalLine += b.CullLogWgt;
                     }   //  end foreach loop
                     break;
 
                 case 8:     //  cull chunk weight
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.cullChunkWgt / 2000).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.CullChunkWgt / 2000).PadLeft(6, ' '));
                         prtFields.Add("    ");
-                        totalLine += b.cullChunkWgt;
+                        totalLine += b.CullChunkWgt;
                     }   //  end foreach loop
                     break;
 
                 case 9:     //  FLIW -- has no total column
                     foreach (BiomassData b in bList)
                     {
-                        prtFields.Add(String.Format("{0,6:F2}", b.FLIW).PadLeft(6, ' '));
+                        prtFields.Add(String.Format("{0,6:F2}", b.FractionLeftInWoods).PadLeft(6, ' '));
                         prtFields.Add("    ");
                         totalLine = 0;
                     }   //  end foreach loop
@@ -1465,7 +1449,7 @@ namespace CruiseProcessing
             foreach (BiomassData b in bList)
             {
                 finnishHeader[3] += "    ";
-                finnishHeader[3] += b.userSpecies.PadLeft(6, ' ');
+                finnishHeader[3] += b.SpeciesCode.PadLeft(6, ' ');
             }   //  end foreach loop
 
             finnishHeader[3] += "     TOTAL";
@@ -1487,10 +1471,10 @@ namespace CruiseProcessing
                         return t.Species == sg.Species;
                     });
                 BiomassData b = new BiomassData();
-                b.userStratum = sg.Stratum;
-                b.userSG = sg.SampleGroup;
-                b.userSpecies = sg.Species;
-                b.bioSpecies = (int)tdList[nthRow].FIAcode;
+                b.StratumCode = sg.Stratum;
+                b.SampleGroupCode = sg.SampleGroup;
+                b.SpeciesCode = sg.Species;
+                b.SpeciesFIA = (int)tdList[nthRow].FIAcode;
                 summaryList.Add(b);
             }   //  end foreach loop
             return;
@@ -1505,19 +1489,19 @@ namespace CruiseProcessing
                 int ithRow = summaryList.FindIndex(
                     delegate (BiomassData sl)
                     {
-                        return sl.userSpecies == b.userSpecies && sl.userSG == b.userSG &&
-                            sl.bioSpecies == b.bioSpecies;
+                        return sl.SpeciesCode == b.SpeciesCode && sl.SampleGroupCode == b.SampleGroupCode &&
+                            sl.SpeciesFIA == b.SpeciesFIA;
                     });
                 if (ithRow >= 0)
                 {
-                    summaryList[ithRow].needles += b.needles;
-                    summaryList[ithRow].quarterInch += b.quarterInch;
-                    summaryList[ithRow].oneInch += b.oneInch;
-                    summaryList[ithRow].threeInch += b.threeInch;
-                    summaryList[ithRow].threePlus += b.threePlus;
-                    summaryList[ithRow].topwoodDryWeight += b.topwoodDryWeight;
-                    summaryList[ithRow].cullLogWgt += b.cullLogWgt;
-                    summaryList[ithRow].cullChunkWgt += b.cullChunkWgt;
+                    summaryList[ithRow].Needles += b.Needles;
+                    summaryList[ithRow].QuarterInch += b.QuarterInch;
+                    summaryList[ithRow].OneInch += b.OneInch;
+                    summaryList[ithRow].ThreeInch += b.ThreeInch;
+                    summaryList[ithRow].ThreePlus += b.ThreePlus;
+                    summaryList[ithRow].TopwoodDryWeight += b.TopwoodDryWeight;
+                    summaryList[ithRow].CullLogWgt += b.CullLogWgt;
+                    summaryList[ithRow].CullChunkWgt += b.CullChunkWgt;
                     summaryList[ithRow].DSTneedles += b.DSTneedles;
                     summaryList[ithRow].DSTquarterInch += b.DSTquarterInch;
                     summaryList[ithRow].DSToneInch += b.DSToneInch;
@@ -1531,19 +1515,21 @@ namespace CruiseProcessing
 
         protected class BiomassData
         {
-            public string userStratum { get; set; }
-            public string userSG { get; set; }
-            public string userSpecies { get; set; }
-            public int bioSpecies { get; set; }
-            public double needles { get; set; }
-            public double quarterInch { get; set; }
-            public double oneInch { get; set; }
-            public double threeInch { get; set; }
-            public double threePlus { get; set; }
-            public double topwoodDryWeight { get; set; }
-            public double cullLogWgt { get; set; }
-            public double cullChunkWgt { get; set; }
-            public double FLIW { get; set; }
+            public string StratumCode { get; set; }
+            public string SampleGroupCode { get; set; }
+            public string SpeciesCode { get; set; }
+            public int SpeciesFIA { get; set; }
+            public double Needles { get; set; }
+            public double QuarterInch { get; set; }
+            public double OneInch { get; set; }
+            public double ThreeInch { get; set; }
+            public double ThreePlus { get; set; }
+            public double TopwoodDryWeight { get; set; }
+            public double CullLogWgt { get; set; }
+            public double CullChunkWgt { get; set; }
+            public double FractionLeftInWoods { get; set; }
+
+            //  damaged small trees (DST)
             public double DSTneedles { get; set; }
             public double DSTquarterInch { get; set; }
             public double DSToneInch { get; set; }
