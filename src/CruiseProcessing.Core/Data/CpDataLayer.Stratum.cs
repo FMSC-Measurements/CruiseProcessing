@@ -25,11 +25,10 @@ namespace CruiseProcessing.Data
             return DAL.QueryScalar<string>("SELECT st.Code FROM CuttingUnitStratum AS cust JOIN CuttingUnit AS cu USING (CuttingUnit_CN) JOIN Stratum AS st USING (Stratum_CN) WHERE cu.Code = @p1", currUnit);
         }
 
-        public List<StratumDO> GetCurrentStratum(string currentStratum)
+        public StratumDO GetStratum(string stratumCode)
         {
-            //  Pull current stratum from table
-            return DAL.From<StratumDO>().Where("Code = @p1").Read(currentStratum).ToList();
-        }   //  end GetCurrentStratum
+            return DAL.From<StratumDO>().Where("Code = @p1").Read(stratumCode).FirstOrDefault();
+        }
 
 
         //  just FIXCNT methods
