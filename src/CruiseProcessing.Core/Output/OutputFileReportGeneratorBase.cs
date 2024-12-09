@@ -21,7 +21,7 @@ namespace CruiseProcessing.Output
             HeaderData = headerData;
         }
 
-        protected void printOneRecord(int[] fieldLengths, IEnumerable<string> prtFields, TextWriter strWriteOut)
+        protected void printOneRecord(IReadOnlyList<int> fieldLengths, IEnumerable<string> prtFields, TextWriter strWriteOut)
         {
             var oneRecord = buildPrintLine(fieldLengths, prtFields);
             strWriteOut.WriteLine(oneRecord);
@@ -327,6 +327,24 @@ namespace CruiseProcessing.Output
             strWriteOut.Write(reportToPrint);
             strWriteOut.WriteLine(reportMessage);
             strWriteOut.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        }
+
+        // used in Wt Reports
+        protected bool CheckForCubicFootVolumeAndWeights(TextWriter writer)
+        {
+            List<LCDDO> wholeList = DataLayer.getLCD();
+            if (wholeList.Sum(l => l.SumGCUFT) == 0)
+            {
+                noDataForReport(writer, currentReport, ">>  No cubic foot volume for this report");
+                return false;
+            }
+
+            if (wholeList.Sum(l => l.SumWgtMSP) == 0)
+            {
+                noDataForReport(writer, currentReport, ">>  No weight for this report");
+                return false;
+            }
+            return true;
         }
 
         public static string buildPrintLine(IReadOnlyList<int> fieldLengths, IEnumerable<string> fieldValues)
