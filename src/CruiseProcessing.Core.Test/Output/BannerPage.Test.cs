@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
+using CruiseProcessing.OutputModels;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
