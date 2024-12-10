@@ -1,25 +1,22 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
-using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CruiseProcessing.Output
 {
-    public class Wt5ReportGenerator : OutputFileReportGeneratorBase
+    public class Wt5ReportGenerator : OutputFileReportGeneratorBase, IReportGenerator
     {
         //  WT5 report
         private readonly string[] WT5columns = new string[4] {"    STRATUM:  XX                      GREEN TONS",
                                                     "__________________________________________________________________________________________________",
                                                     "                   PRIMARY    SECONDARY   --------BIOMASS COMPONENTS------- |------STEM WGT-------",
                                                     " SPECIES       |   PRODUCT    PRODUCT        TIP     BRANCHES     FOLIAGE   |    MERCH*    TOTAL**"};
+
         private readonly string[] WT5footer = new string[2] {" * WHOLE TREE (ABOVE GROUND) BIOMASS AS CALCULATED USING THE TOT TREE EQN SPECIFIED IN DEFAULTS (REGIONAL).",
                                                    " ** TOTAL IS THE ADDITION OF PRIMARY PRODUCT, SECONDARY PRODUCT, TIP, BRANCHES AND FOLIAGE."};
 
@@ -27,10 +24,10 @@ namespace CruiseProcessing.Output
 
         private List<StratumDO> Stratum = new List<StratumDO>();
 
-        ILogger Logger { get; }
+        private ILogger Logger { get; }
 
-        public Wt5ReportGenerator(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData, ILogger logger)
-            : base(dataLayer, volLib, headerData, "WT5")
+        public Wt5ReportGenerator(CpDataLayer dataLayer, HeaderFieldData headerData, ILogger logger)
+            : base(dataLayer, headerData, "WT5")
         {
             Logger = logger;
 
@@ -39,9 +36,9 @@ namespace CruiseProcessing.Output
             SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
         }
 
-
-        public void GenerateReport(TextWriter strWriteOut, ref int pageNumb)
+        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
         {
+            var pageNumb = startPageNum;
             numOlines = 0;
             Logger.LogInformation("Generating WT5 report");
 
@@ -49,6 +46,7 @@ namespace CruiseProcessing.Output
             processSaleSummaryWT5(strWriteOut, ref pageNumb);
 
             Logger.LogInformation("WT5 report generation complete");
+            return pageNumb;
         }
 
         private void processSaleSummaryWT5(TextWriter strWriteOut, ref int pageNumb)
@@ -92,7 +90,6 @@ namespace CruiseProcessing.Output
                     subtotBran += totBran;
                     subtotFol += totFol;
                     subtotTree += totTree;
-
                 }   //  end foreach loop
                     //  print subtotal line here
                 OutputSubtotal(strWriteOut, ref pageNumb, subtotPrim, subtotSec, subtotTip, subtotBran, subtotFol,
@@ -222,7 +219,6 @@ namespace CruiseProcessing.Output
             completeHeader[0] = columnsToUpdate[0].Replace("XX", currST);
             for (int k = 1; k < 4; k++)
                 completeHeader[k] = columnsToUpdate[k];
-
         }
     }
 }
