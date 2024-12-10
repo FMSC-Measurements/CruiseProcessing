@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace CruiseProcessing.Interop
 {
-    public class VolumeLibrary_20241115 : VolumeLibraryInterop, IVolumeLibrary
+    public class VolumeLibrary_20241118 : VolumeLibraryInterop, IVolumeLibrary
     {
-        private const string DLL_NAME = "vollib_20241115.dll";
+        private const string DLL_NAME = "vollib_20241118.dll";
 
         [DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         public static extern void VERNUM2(out int a);

@@ -43,7 +43,7 @@ namespace CruiseProcessing.Processing
         { }
 
         public CalculateTreeValues3(CpDataLayer dataLayer,
-                                            [FromKeyedServices(nameof(VolumeLibrary_20241115))] IVolumeLibrary volLib,
+                                            [FromKeyedServices(nameof(VolumeLibrary_20241118))] IVolumeLibrary volLib,
                                             ILogger<CalculateTreeValues3> log)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
