@@ -52,7 +52,7 @@ namespace CruiseProcessing.Data
         {
             // rewritten Dec 2020 - Ben
 
-            StringBuilder sb = new StringBuilder(); ;
+            StringBuilder sb = new StringBuilder();
             switch (currRPT)
             {
                 case 1:         //  VSM1
