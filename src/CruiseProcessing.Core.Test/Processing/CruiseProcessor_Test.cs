@@ -459,13 +459,13 @@ namespace CruiseProcessing.Test.Processing
                 },
                 new CruiseProcessorItem
                 {
-                    Name = "OldProcess_20241115",
-                    Processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues2(dataLayer, new VolumeLibrary_20241115(), CreateLogger<CalculateTreeValues2>()), CreateLogger<CruiseProcessor>())
+                    Name = "OldProcess_20241118",
+                    Processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues2(dataLayer, new VolumeLibrary_20241118(), CreateLogger<CalculateTreeValues2>()), CreateLogger<CruiseProcessor>())
                 },
                 new CruiseProcessorItem
                 {
-                    Name = "NewProcess_20241115",
-                    Processor = new CruiseProcessor_20241101_Preview(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues3(dataLayer, new VolumeLibrary_20241115(), CreateLogger<CalculateTreeValues3>()), CreateLogger<CruiseProcessor_20241101_Preview>())
+                    Name = "NewProcess_20241118",
+                    Processor = new CruiseProcessor_20241101_Preview(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues3(dataLayer, new VolumeLibrary_20241118(), CreateLogger<CalculateTreeValues3>()), CreateLogger<CruiseProcessor_20241101_Preview>())
                 },
             };
 
