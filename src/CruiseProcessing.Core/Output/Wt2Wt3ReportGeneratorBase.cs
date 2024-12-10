@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CruiseProcessing.Output
 {
@@ -18,6 +16,7 @@ namespace CruiseProcessing.Output
         protected readonly string[] WT2columns = new string[3] {"STRATUM:  XXXX",
                                                     "SLASH LOAD            SPECIES",
                                                     "CUTTING UNIT:  XXXX"};
+
         protected readonly string[] WT2crown = new string[5] { "   NEEDLES |", "  0 - 1/4\" |", "  1/4 - 1\" |", "    1 - 3\" |", "       3\"+ |" };
         protected readonly string[] WT2threeplus = new string[4] { "    TOPWOOD |", "CULL VOLUME |", "     CHUNKS |", "       FLIW |" };
 
@@ -46,7 +45,6 @@ namespace CruiseProcessing.Output
                     completeHeader = completeHeaderColumns(currCU, bList);
                     break;
             }   //  end switch on current report
-
 
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 completeHeader, 13, ref pageNumb, "");
@@ -106,8 +104,6 @@ namespace CruiseProcessing.Output
             //  print footer
             strWriteOut.WriteLine(" ");
             strWriteOut.WriteLine("   FLIW = Fraction Left In Woods");
-
-            
         }   //  end WriteCurrentGroup
 
         protected void WriteTotals(TextWriter strWriteOut, string currST, List<BiomassData> bList, string currCU)
@@ -136,7 +132,6 @@ namespace CruiseProcessing.Output
             foreach (BiomassData b in bList)
                 strWriteOut.Write("          ");
             strWriteOut.WriteLine("  ALL SPECIES");
-
 
             var prtFields = new List<string>();
             prtFields.Add("OVEN DRY TONS/AC    |");
@@ -417,7 +412,6 @@ namespace CruiseProcessing.Output
             return 1;
         }
 
-
         protected class BiomassData
         {
             public string StratumCode { get; set; }
@@ -436,6 +430,7 @@ namespace CruiseProcessing.Output
 
             //  damaged small trees (DST)
             public double DSTneedles { get; set; }
+
             public double DSTquarterInch { get; set; }
             public double DSToneInch { get; set; }
             public double DSTthreeInch { get; set; }

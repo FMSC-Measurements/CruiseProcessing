@@ -1,20 +1,14 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
-using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static CruiseDAL.Schema.PRO;
 
 namespace CruiseProcessing.Output
 {
-    public class Wt4ReportGenerator : OutputFileReportGeneratorBase
+    public class Wt4ReportGenerator : OutputFileReportGeneratorBase, IReportGenerator
     {
         //  WT4 report
         private readonly string[] WT4columns = new string[3] {"                                           SAWTIMBER         NON-SAWTIMBER        NON-SAWTIMBER",
@@ -22,11 +16,12 @@ namespace CruiseProcessing.Output
                                                     "   UNIT         ACRES       SPECIES        GREEN TONS        GREEN TONS           GREEN TONS"};
 
         //private List<string> prtFields;
-        ILogger Logger { get; }
+        private ILogger Logger { get; }
+
         private readonly IReadOnlyList<int> _fieldLengths;
 
-        public Wt4ReportGenerator(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData, ILogger logger)
-            : base(dataLayer, volLib, headerData, "WT4")
+        public Wt4ReportGenerator(CpDataLayer dataLayer, HeaderFieldData headerData, ILogger logger)
+            : base(dataLayer, headerData, "WT4")
         {
             Logger = logger;
             _fieldLengths = new int[] { 3, 11, 13, 17, 18, 19, 5 };
@@ -36,20 +31,23 @@ namespace CruiseProcessing.Output
             reportTitles[2] = reportConstants.FCTO;
         }
 
-        public void GenerateReport(TextWriter strWriteOut, ref int pageNumb)
+        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
         {
+            var pageNumb = startPageNum;
             numOlines = 0;
             Logger.LogInformation("Generating WT4 report");
 
             if (!CheckForCubicFootVolumeAndWeights(strWriteOut))
             {
-                return;
+                return startPageNum;
             }
 
             var cList = DataLayer.getCuttingUnits();
             processUnits(strWriteOut, cList, ref pageNumb);
 
             Logger.LogInformation("WT4 report generation complete");
+
+            return pageNumb;
         }
 
         private void processUnits(TextWriter strWriteOut, List<CuttingUnitDO> cList, ref int pageNumb)

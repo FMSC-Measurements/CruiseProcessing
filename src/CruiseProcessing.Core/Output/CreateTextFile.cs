@@ -336,13 +336,35 @@ namespace CruiseProcessing
                             break;
 
                         case "WT1":
+                            {
+                                var ow1 = new Wt1ReportGenerator(DataLayer, headerData, Log);
+                                reportPageNum = ow1.GenerateReport(strWriteOut, reportPageNum);
+                                break;
+                            }
                         case "WT2":
+                            {
+                                var reportGenerator = new Wt2ReportGenerator(DataLayer, VolLib, headerData);
+                                reportPageNum = reportGenerator.GenerateReport(strWriteOut, reportPageNum);
+                                break;
+                            }
                         case "WT3":
+                                                        {
+                                var reportGenerator = new Wt3ReportGenerator(DataLayer, VolLib, headerData);
+                                reportPageNum = reportGenerator.GenerateReport(strWriteOut, reportPageNum);
+                                break;
+                            }
                         case "WT4":
+                            {
+                                var reportGenerator = new Wt4ReportGenerator(DataLayer, headerData, Log);
+                                reportPageNum = reportGenerator.GenerateReport(strWriteOut, reportPageNum);
+                                break;
+                            }
                         case "WT5":
-                            OutputWeight ow = new OutputWeight(DataLayer, VolLib, headerData, rdo.ReportID);
-                            ow.OutputWeightReports(strWriteOut, ref reportPageNum);
-                            break;
+                            {
+                                var reportGenerator = new Wt5ReportGenerator(DataLayer, headerData, Log);
+                                reportPageNum = reportGenerator.GenerateReport(strWriteOut, reportPageNum);
+                                break;
+                            }
 
                         case "LD1":
                         case "LD2":

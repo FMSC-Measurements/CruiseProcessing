@@ -2,17 +2,12 @@
 using CruiseProcessing.Data;
 using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CruiseProcessing.Output
 {
-    public class Wt3ReportGenerator : Wt2Wt3ReportGeneratorBase
+    public class Wt3ReportGenerator : Wt2Wt3ReportGeneratorBase, IReportGenerator
     {
         //private List<StratumDO> Stratum = new List<StratumDO>();
         private List<CuttingUnitDO> cList = new List<CuttingUnitDO>();
@@ -24,12 +19,15 @@ namespace CruiseProcessing.Output
             SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
         }
 
-        public void GenerateReport(TextWriter strWriteOut, ref int pageNumb)
+        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
         {
+            var pageNumb = startPageNum;
             numOlines = 0;
             //Stratum = DataLayer.GetStrata();
             cList = DataLayer.getCuttingUnits();
             processSlashLoad(strWriteOut, ref pageNumb);
+
+            return pageNumb;
         }
 
         private void processSlashLoad(TextWriter strWriteOut, ref int pageNumb)

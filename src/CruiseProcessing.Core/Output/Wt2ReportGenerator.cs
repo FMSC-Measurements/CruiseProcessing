@@ -2,20 +2,13 @@
 using CruiseProcessing.Data;
 using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static CruiseDAL.Schema.PRO;
 
 namespace CruiseProcessing.Output
 {
-    public class Wt2ReportGenerator : Wt2Wt3ReportGeneratorBase
+    public class Wt2ReportGenerator : Wt2Wt3ReportGeneratorBase, IReportGenerator
     {
-
         private List<StratumDO> Stratum = new List<StratumDO>();
 
         public Wt2ReportGenerator(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData)
@@ -25,11 +18,14 @@ namespace CruiseProcessing.Output
             SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
         }
 
-        public void GenerateReport(TextWriter strWriteOut, ref int pageNumb)
+        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
         {
+            var pageNumb = startPageNum;
             numOlines = 0;
             Stratum = DataLayer.GetStrata();
             processSlashLoad(strWriteOut, ref pageNumb);
+
+            return pageNumb;
         }
 
         private void processSlashLoad(TextWriter strWriteOut, ref int pageNumb)
@@ -42,7 +38,6 @@ namespace CruiseProcessing.Output
             string currST;
 
             numOlines = 0;
-            
 
             List<TreeDefaultValueDO> tdvList = DataLayer.getTreeDefaults();
             //  Load summary groups for last page
@@ -134,8 +129,6 @@ namespace CruiseProcessing.Output
             }
         }
 
-
-
         private void AcumilateWt2BioDataTotals(List<BiomassData> summaryList, List<BiomassData> bList)
         {
             //  update summary list with current stratum/cutting unit list
@@ -165,9 +158,6 @@ namespace CruiseProcessing.Output
                     summaryList[ithRow].DSTthreePlus += b.DSTthreePlus;
                 }   //  endif ithRow
             }   //  end foreach loop
-
         }   //  end UpdateSummaryList
-
-
     }
 }

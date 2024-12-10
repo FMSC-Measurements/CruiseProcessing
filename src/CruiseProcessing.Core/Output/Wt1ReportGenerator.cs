@@ -1,27 +1,23 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
-using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static CruiseDAL.Schema.PRO;
 
 namespace CruiseProcessing.Output
 {
-    public class Wt1ReprtGenerator : OutputFileReportGeneratorBase
+    public class Wt1ReportGenerator : OutputFileReportGeneratorBase, IReportGenerator
     {
-        protected enum CompnentType { Primary, Secondary };
+        protected enum CompnentType
+        { Primary, Secondary };
 
         //  WT1 report
         private readonly string[] WT1columns = new string[3] {  "                                                                 (1)             (2)       (3)            (4)            (5)",
                                                                 "           CRUISE    CONTRACT             LIVE        GROSS     WEIGHT         POUNDS   PERCENT         POUNDS          TONS",
                                                                 "          SPECIES     SPECIES    PRODUCT  DEAD         CUFT     FACTOR       STANDING   REMOVED        REMOVED       REMOVED"};
+
         private readonly int[] WT1_FIELD_LENGTHS = new int[] { 12, 14, 10, 3, 6, 6, 11, 12, 15, 10, 15, 10 };
 
         private readonly string[] WT1footer = new string[5] {  "         (1)  WEIGHT FACTOR = POUNDS PER GROSS CUFT",
@@ -29,17 +25,18 @@ namespace CruiseProcessing.Output
                                                                "         (3)  PERCENT REMOVED = % MATERIAL HAULED OUT ON TRUCKS",
                                                                "         (4)  POUNDS REMOVED =  POUNDS STANDING x (PERCENT REMOVED/100)",
                                                                "         (5)  TONS REMOVED = POUNDS REMOVED / 2,000"};
+
         private readonly string[] WT1total = new string[3] {"                                 SUMMARY",
                                                   "                 CONTRACT                         TONS",
                                                   "                  SPECIES        PRODUCT       REMOVED"};
 
-        ILogger Logger { get; }
+        private ILogger Logger { get; }
 
         private readonly IReadOnlyList<int> _fieldLengths;
         private bool ShowMissingWeightFactorFooter = false;
 
-        public Wt1ReprtGenerator(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData, ILogger logger)
-            : base(dataLayer, volLib, headerData, "WT1")
+        public Wt1ReportGenerator(CpDataLayer dataLayer, HeaderFieldData headerData, ILogger logger)
+            : base(dataLayer, headerData, "WT1")
         {
             Logger = logger;
             _fieldLengths = WT1_FIELD_LENGTHS;
@@ -48,20 +45,28 @@ namespace CruiseProcessing.Output
             SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
         }
 
-        public void GenerateReport(TextWriter strWriteOut, ref int pageNumb)
+        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
         {
+            var pageNumb = startPageNum;
             numOlines = 0;
             Logger.LogInformation("Generating WT1 report");
 
             if (!CheckForCubicFootVolumeAndWeights(strWriteOut))
             {
-                return;
+                return pageNumb;
             }
 
             var rptSubtotals = ProcessWT1LCDGroups(strWriteOut, ref pageNumb);
             WriteWT1Subtotal(strWriteOut, rptSubtotals, ref pageNumb);
 
+            if (ShowMissingWeightFactorFooter)
+            {
+                //  write note that weight factor could not be found
+                strWriteOut.WriteLine("\n", "NOTE:  Weight factor could not be found for certain groups.\nGroup not printed in report.");
+            }
+
             Logger.LogInformation("WT1 report generation complete");
+            return pageNumb;
         }
 
         private IReadOnlyList<ReportSubtotal> ProcessWT1LCDGroups(TextWriter strWriteOut, ref int pageNumb)
@@ -75,11 +80,13 @@ namespace CruiseProcessing.Output
 
             foreach (LCDDO group in lcdGroups)
             {
+                Logger.LogTrace("Processing group: Sp:{Species} Prod:{Prod} SProd:{SProd} LD:{LD} ConSp{ConSp}"
+                    , group.Species, group.PrimaryProduct, group.SecondaryProduct, group.LiveDead, group.ContractSpecies);
+
                 //  get all LCD elements for current group
                 var whereClause = "WHERE Species = @p1 AND PrimaryProduct = @p2 AND SecondaryProduct = @p3 AND " +
                     " LiveDead = @p4 AND ContractSpecies = @p5 AND CutLeave = @p6";
                 List<LCDDO> groupData = DataLayer.GetLCDdata(whereClause, group, 4, "");
-
 
                 double grossCuFtPrimary = 0.0;
                 double grossCuFtSecondary = 0.0;
@@ -127,59 +134,50 @@ namespace CruiseProcessing.Output
                     var poundsRemoved = poundsStanding * (percentRemovedSecondary / 100);
                     tonsRemovedSecondary = poundsRemoved / 2000;
                     WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary.Value, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
-
                 }
 
                 UpdateWT1Subtotal(rptSubtotals, group.ContractSpecies, group.PrimaryProduct, group.SecondaryProduct, tonsRemovedPrimary, tonsRemovedSecondary);
-
             }
             return rptSubtotals;
         }
 
         private void UpdateWT1Subtotal(List<ReportSubtotal> rptSubtotals, string currCS, string currPP, string currSP, double tonsRemovedPP, double tonsRemovedSP)
         {
-            //  currently works for WT1
             //  calculate tons removed to update subtotal
 
-            //  find group in subtotal list
-            int nthRow = rptSubtotals.FindIndex(
-                delegate (ReportSubtotal rs)
-                {
-                    return rs.Value1 == currCS && rs.Value2 == currPP;
-                });
-            if (nthRow >= 0)
+            var primarySubTotal = rptSubtotals.Find(x => x.Value1 == currCS && x.Value2 == currPP);
+
+            if (primarySubTotal != null)
             {
-                rptSubtotals[nthRow].Value3 += tonsRemovedPP;
+                primarySubTotal.Value3 += tonsRemovedPP;
             }
             else
             {
-                //  group not in the subtotal list so add it
-                ReportSubtotal rs = new ReportSubtotal();
-                rs.Value1 = currCS;
-                rs.Value2 = currPP;
-                rs.Value3 = tonsRemovedPP;
-                rptSubtotals.Add(rs);
-            }   //  endif
-
-            //  repeat for secondary product
-            nthRow = rptSubtotals.FindIndex(
-                delegate (ReportSubtotal rs)
+                primarySubTotal = new ReportSubtotal
                 {
-                    return rs.Value1 == currCS && rs.Value2 == currSP;
-                });
-            if (nthRow >= 0)
-                rptSubtotals[nthRow].Value4 += tonsRemovedSP;
+                    Value1 = currCS,
+                    Value2 = currPP,
+                    Value3 = tonsRemovedPP
+                };
+                rptSubtotals.Add(primarySubTotal);
+            }
+
+            var secondarySubTotal = rptSubtotals.Find(x => x.Value1 == currCS && x.Value2 == currSP);
+            if (secondarySubTotal != null)
+            {
+                secondarySubTotal.Value4 += tonsRemovedSP;
+            }
             else
             {
-                //  add group
-                ReportSubtotal rs = new ReportSubtotal();
-                rs.Value1 = currCS;
-                rs.Value2 = currSP;
-                rs.Value4 = tonsRemovedSP;
-                rptSubtotals.Add(rs);
-            }   //  endif
-            return;
-        }   //  end UpdateSubtotal
+                secondarySubTotal = new ReportSubtotal
+                {
+                    Value1 = currCS,
+                    Value2 = currSP,
+                    Value4 = tonsRemovedSP
+                };
+                rptSubtotals.Add(secondarySubTotal);
+            }
+        }
 
         private void WriteWT1Group(TextWriter writer,
             LCDDO group,
@@ -268,11 +266,6 @@ namespace CruiseProcessing.Output
             for (int k = 0; k < 5; k++)
                 strWriteOut.WriteLine(WT1footer[k]);
 
-            if (ShowMissingWeightFactorFooter)
-            {
-                //  write note that weight factor could not be found
-                strWriteOut.WriteLine("\n", "NOTE:  Weight factor could not be found for certain groups.\nGroup not printed in report.");
-            }   //  endif footFlag
             return;
         }   //  end WriteSubtotal
     }
