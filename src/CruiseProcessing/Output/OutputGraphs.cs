@@ -1,6 +1,7 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Output;
+using CruiseProcessing.OutputModels;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -326,7 +327,7 @@ namespace CruiseProcessing
                     }   //  endif
                     List<TreeDO> uniqueSpecies = DataLayer.GetUniqueSpecies();
                     List<CountTreeDO> cList = DataLayer.getCountTrees();
-                    List<ReportGeneratorBase.ReportSubtotal> graphData = new List<ReportGeneratorBase.ReportSubtotal>();
+                    List<ReportSubtotal> graphData = new List<ReportSubtotal>();
                     foreach (TreeDO u in uniqueSpecies)
                     {
                         //  pull all tree default value for current species
@@ -346,7 +347,7 @@ namespace CruiseProcessing
                             if (justEst.Count > 0) buildKPIdata(justEst, graphData);
                         }   //  end foreach loop
                         //  reset categories based on Ken's logic
-                        List<ReportGeneratorBase.ReportSubtotal> categoryData = new List<ReportGeneratorBase.ReportSubtotal>();
+                        List<ReportSubtotal> categoryData = new List<ReportSubtotal>();
                         if (graphData.Count > 0)
                         {
                             resetCategories(graphData, categoryData);
@@ -374,7 +375,7 @@ namespace CruiseProcessing
                     break;
 
                 case "GR10":
-                    List<ReportGeneratorBase.ReportSubtotal> dataToGraph = new List<ReportGeneratorBase.ReportSubtotal>();
+                    List<ReportSubtotal> dataToGraph = new List<ReportSubtotal>();
                     //  need to loop by stratum
                     foreach (StratumDO s in sList)
                     {
@@ -405,13 +406,13 @@ namespace CruiseProcessing
 
                                 //  Load into graphData --  see if species is already in the list
                                 int nthRow = dataToGraph.FindIndex(
-                                    delegate (ReportGeneratorBase.ReportSubtotal cr)
+                                    delegate (ReportSubtotal cr)
                                     {
                                         return cr.Value1 == js.Species;
                                     });
                                 if (nthRow < 0)
                                 {
-                                    ReportGeneratorBase.ReportSubtotal rs = new ReportGeneratorBase.ReportSubtotal();
+                                    ReportSubtotal rs = new ReportSubtotal();
                                     rs.Value1 = js.Species;
                                     rs.Value3 = (s.BasalAreaFactor * justTrees.Count) / numplots;
                                     dataToGraph.Add(rs);
@@ -708,21 +709,21 @@ namespace CruiseProcessing
         }   //  end LoadLogs
 
         //  this works just for graph 9 -- by KPI
-        private void buildKPIdata(List<TreeEstimateDO> KPIgroups, List<ReportGeneratorBase.ReportSubtotal> graphData)
+        private void buildKPIdata(List<TreeEstimateDO> KPIgroups, List<ReportSubtotal> graphData)
         {
             //  total up number of trees from tree estimate data for each KPI/species group
             foreach (TreeEstimateDO kg in KPIgroups)
             {
                 // loop through these KPIs and store
                 int nthRow = graphData.FindIndex(
-                    delegate (ReportGeneratorBase.ReportSubtotal r)
+                    delegate (ReportSubtotal r)
                     {
                         return r.Value4 == kg.KPI;
                     });
                 if (nthRow == -1)
                 {
                     //  add new group
-                    ReportGeneratorBase.ReportSubtotal rs = new ReportGeneratorBase.ReportSubtotal();
+                    ReportSubtotal rs = new ReportSubtotal();
                     rs.Value4 = kg.KPI;
                     rs.Value3++;
                     graphData.Add(rs);
@@ -734,8 +735,8 @@ namespace CruiseProcessing
         }   //  end buildKPIdata
 
         //  this works for graph 9 and set specific categories for KPI data
-        private void resetCategories(List<ReportGeneratorBase.ReportSubtotal> graphData,
-                                    List<ReportGeneratorBase.ReportSubtotal> categoryData)
+        private void resetCategories(List<ReportSubtotal> graphData,
+                                    List<ReportSubtotal> categoryData)
         {
             double[] scalingData = new double[4] { 0.25, 0.5, 1.0, 2.0 };
             //  create categories in categoryData
@@ -745,7 +746,7 @@ namespace CruiseProcessing
             double scaleInterval = Math.Floor(dataRange / 20);
             if (scaleInterval <= 0.0) scaleInterval = 1.0;
             //  first position in categoryData
-            ReportGeneratorBase.ReportSubtotal rs = new ReportGeneratorBase.ReportSubtotal();
+            ReportSubtotal rs = new ReportSubtotal();
             rs.Value4 = Math.Floor((scaleInterval * scalingData[0] + MinKPI));
             categoryData.Add(rs);
             int prevRow = categoryData.Count - 1;
@@ -753,7 +754,7 @@ namespace CruiseProcessing
             //  three times for first scaling factor
             for (int j = 0; j < 3; j++)
             {
-                ReportGeneratorBase.ReportSubtotal r1 = new ReportGeneratorBase.ReportSubtotal();
+                ReportSubtotal r1 = new ReportSubtotal();
                 r1.Value4 = Math.Floor((scaleInterval * scalingData[0] + categoryData[prevRow].Value4));
                 categoryData.Add(r1);
                 prevRow++;
@@ -761,7 +762,7 @@ namespace CruiseProcessing
             //  next group
             for (int j = 0; j < 4; j++)
             {
-                ReportGeneratorBase.ReportSubtotal r2 = new ReportGeneratorBase.ReportSubtotal();
+                ReportSubtotal r2 = new ReportSubtotal();
                 r2.Value4 = Math.Floor((scaleInterval * scalingData[1] + categoryData[prevRow].Value4));
                 categoryData.Add(r2);
                 prevRow++;
@@ -769,7 +770,7 @@ namespace CruiseProcessing
             //  third group
             for (int j = 0; j < 4; j++)
             {
-                ReportGeneratorBase.ReportSubtotal r3 = new ReportGeneratorBase.ReportSubtotal();
+                ReportSubtotal r3 = new ReportSubtotal();
                 r3.Value4 = Math.Floor((scaleInterval * scalingData[2] + categoryData[prevRow].Value4));
                 categoryData.Add(r3);
                 prevRow++;
@@ -777,14 +778,14 @@ namespace CruiseProcessing
             //  and last group
             for (int j = 0; j < 4; j++)
             {
-                ReportGeneratorBase.ReportSubtotal r4 = new ReportGeneratorBase.ReportSubtotal();
+                ReportSubtotal r4 = new ReportSubtotal();
                 r4.Value4 = Math.Floor((scaleInterval * scalingData[3] + categoryData[prevRow].Value4));
                 categoryData.Add(r4);
                 prevRow++;
             }   //  end for j loop
 
             //  now accumulate graphData into categoryData
-            foreach (ReportGeneratorBase.ReportSubtotal gd in graphData)
+            foreach (ReportSubtotal gd in graphData)
             {
                 for (int j = 0; j < categoryData.Count; j++)
                 {
