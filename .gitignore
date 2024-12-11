@@ -1,4 +1,6 @@
 *.local.cs
+TestFiles/Temp/
+TestFiles/**/*.dmp
 
 
 
