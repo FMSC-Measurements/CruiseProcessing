@@ -1,5 +1,7 @@
 ﻿using Bogus;
 using Castle.Core.Logging;
+using CruiseDAL;
+using CruiseProcessing.Data;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Collections;
@@ -92,11 +94,15 @@ public class TestBase
         return tempFilePath;
     }
 
-    public string GetTestFile(string fileName) => InitializeTestFile(fileName);
-
-    protected string InitializeTestFile(string fileName)
+    public string GetTestFile(string fileName)
     {
         var sourcePath = Path.Combine(TestFilesDirectory, fileName);
+        return GetTestFileFromFullPath(sourcePath);
+    }
+
+    protected string GetTestFileFromFullPath(string sourcePath)
+    {
+        var fileName = Path.GetFileName(sourcePath);
         if (File.Exists(sourcePath) == false) { throw new FileNotFoundException(sourcePath); }
 
         var targetPath = Path.Combine(TestTempPath, fileName);
@@ -111,11 +117,35 @@ public class TestBase
         return targetPath;
     }
 
+    protected CpDataLayer GetCpDataLayer(string filePath)
+    {
+        var fileExtention = System.IO.Path.GetExtension(filePath);
+        if (fileExtention == ".crz3")
+        {
+            var migrator = new DownMigrator();
+            var v3Db = new CruiseDatastore_V3(filePath);
+            var v2Db = new DAL();
+            var cruiseID = v3Db.QueryScalar<string>("SELECT CruiseID FROM Cruise").First();
+            migrator.MigrateFromV3ToV2(cruiseID, v3Db, v2Db);
+            return new CpDataLayer(v2Db, Substitute.For<ILogger<CpDataLayer>>(), biomassOptions: null);
+        }
+        else
+        {
+            var db = new DAL(filePath);
+            return new CpDataLayer(db, Substitute.For<ILogger<CpDataLayer>>(), biomassOptions: null);
+        }
+    }
+
     public void RegesterFileForCleanUp(string path)
     {
         FilesToBeDeleted.Add(path);
     }
 
+    /// <summary>
+    /// creates a logger that uses the log level set on the test base
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public ILogger<T> CreateLogger<T>()
     {
         var typeName = typeof(T).Name;
@@ -125,6 +155,26 @@ public class TestBase
             .Do(x =>
             {
                 if (x.Arg<LogLevel>() >= LogLevel)
+                { Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()); }
+            });
+        return logger;
+    }
+
+    /// <summary>
+    /// creates a logger with its own log level setting
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="logLevel"></param>
+    /// <returns></returns>
+    public ILogger<T> CreateLogger<T>(LogLevel logLevel)
+    {
+        var typeName = typeof(T).Name;
+
+        var logger = Substitute.For<ILogger<T>>();
+        logger.When(x => x.Log<object>(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>()))
+            .Do(x =>
+            {
+                if (x.Arg<LogLevel>() >= logLevel)
                 { Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()); }
             });
         return logger;
