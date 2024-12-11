@@ -226,7 +226,9 @@ namespace CruiseProcessing.Processing
             float AVGZ2 = 0.0f;
             int HTREF = 0;
 
-            int FCLASS = (int)tree.FormClass;
+            // diameter at the top of the first log (used by R6 where most species use same VolEq)
+            // in Regions that do multi stem (R2, R3, R5?) Form Class can be the number of stems on the tree
+            int FCLASS = (int)tree.FormClass; 
             if (FCLASS == 0)
             {
                 FCLASS = (int)tdv.FormClass;
