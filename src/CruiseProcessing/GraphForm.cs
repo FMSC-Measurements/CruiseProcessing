@@ -12,6 +12,7 @@ using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using CruiseProcessing.Data;
 using CruiseProcessing.Output;
+using CruiseProcessing.OutputModels;
 using Microsoft.Extensions.Logging;
 using ZedGraph;
 
@@ -28,7 +29,7 @@ namespace CruiseProcessing
         public string cruiseNum;
         public string currSaleName;
         public List<TreeDO> treeList = new List<TreeDO>();
-        public List<ReportGeneratorBase.ReportSubtotal> graphData = new List<ReportGeneratorBase.ReportSubtotal>();
+        public List<ReportSubtotal> graphData = new List<ReportSubtotal>();
         public List<LogStockDO> logStockList = new List<LogStockDO>();
         public List<LCDDO> lcdList = new List<LCDDO>();
 
@@ -223,7 +224,7 @@ namespace CruiseProcessing
                     currPane.XAxis.Scale.MajorStep = 2;
                     break;
                 case 9:
-                    foreach (ReportGeneratorBase.ReportSubtotal gd in graphData)
+                    foreach (ReportSubtotal gd in graphData)
                         graphList.Add(gd.Value4, gd.Value3);
                     legendTitle = "NUMBER OF TREES";
                     double MaxKPI = Math.Floor(graphData.Max(g => g.Value4));
@@ -411,7 +412,7 @@ namespace CruiseProcessing
                     break;
                 case 10:
                     //  dump needed values into arrays
-                    foreach (ReportGeneratorBase.ReportSubtotal gd in graphData)
+                    foreach (ReportSubtotal gd in graphData)
                     {
                         valuesForSlices[listCnt] = gd.Value3;
                         combinedLabel.Append(gd.Value1);
