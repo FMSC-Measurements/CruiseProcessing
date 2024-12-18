@@ -11,6 +11,7 @@ namespace CruiseProcessing.Output
     {
         public static IServiceCollection AddOutputReportGenerators(this IServiceCollection serviceProvider)
         {
+            serviceProvider.AddTransient<BiomassEquationReportGenerator>();
 
             serviceProvider.AddTransient<Wt1ReportGenerator>();
             serviceProvider.AddTransient<Wt2ReportGenerator>();
