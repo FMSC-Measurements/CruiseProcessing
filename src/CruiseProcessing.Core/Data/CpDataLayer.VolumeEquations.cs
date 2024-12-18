@@ -36,7 +36,7 @@ namespace CruiseProcessing.Data
             return jstDIBs;
         }   //  end GetJustDIBs
 
-        public void SaveVolumeEquations(List<VolumeEquationDO> volumeEquationList)
+        public void SaveVolumeEquations(IReadOnlyCollection<VolumeEquationDO> volumeEquationList)
         {
 
             //  need to delete equations in order to update the database

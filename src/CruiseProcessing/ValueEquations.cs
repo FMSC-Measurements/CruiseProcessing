@@ -75,7 +75,7 @@ namespace CruiseProcessing
                 return -1;
             }   //  endif
 
-            var justProducts = DataLayer.GetDistincePrimaryProductCodes();
+            var justProducts = DataLayer.GetDistinctPrimaryProductCodes();
             foreach(var prod in  justProducts)
             {
                 primaryProdList.Items.Add(prod);

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
+using CruiseProcessing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing
@@ -131,18 +132,20 @@ namespace CruiseProcessing
         protected CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
         public IDialogService DialogService { get; }
+        public VolumeEquationsViewModel VolEqViewModel { get; }
 
         protected R8VolEquation()
         {
             InitializeComponent();
         }
 
-        public R8VolEquation(CpDataLayer dataLayer, IServiceProvider services, IDialogService dialogService)
+        public R8VolEquation(CpDataLayer dataLayer, IServiceProvider services, VolumeEquationsViewModel volEqViewModel, IDialogService dialogService)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            VolEqViewModel = volEqViewModel ?? throw new ArgumentNullException(nameof(volEqViewModel));
         }
 
 
@@ -230,8 +233,8 @@ namespace CruiseProcessing
 
             if (calculateBiomass)
             {
-                VolumeEquations ve = Services.GetRequiredService<VolumeEquations>();
-                ve.UpdateBiomass(volList);
+                var ve = Services.GetRequiredService<VolumeEquationsViewModel>();
+                VolEqViewModel.UpdateBiomass(volList);
             }   //  endif calculate biomass
             Close();
         }

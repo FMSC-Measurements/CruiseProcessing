@@ -1,0 +1,364 @@
+﻿<Window x:Class="CruiseProcessing.Views.VolumeEquationsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CruiseProcessing.Views"
+        mc:Ignorable="d"
+        Title="VolumeEquationsView"
+        Height="529"
+        Width="646">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Height"
+                    Value="30" />
+            <Setter Property="Width"
+                    Value="81" />
+        </Style>
+    </Window.Resources>
+
+
+    <Grid Margin="30,9">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <!-- header text-->
+            <RowDefinition Height="Auto" />
+            <!-- header info-->
+            <RowDefinition Height="Auto" />
+            <!-- insert volume equation -->
+            <RowDefinition Height="*" />
+            <!-- data grid -->
+            <RowDefinition Height="Auto" />
+            <!-- buttons -->
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Volume Equations"
+                   FontSize="16"
+                   FontWeight="Bold" />
+
+        <TextBlock Grid.Row="1"
+                   FontSize="12"
+                   Margin="0,10"
+                   TextWrapping="Wrap">
+            <Run Text="When adding or editing equations, select a region and forest to get a list of equations.  Select equation and then complete the information on the row." /> <LineBreak />
+            <Run Text="For new equations, select a species and equation from the lists provided.  Complete the product code, minimum DIBs, and stump height." /> <LineBreak />
+            <Run Text="Finally, check the volume flags to include BDFT, CUFT or Cords and whether secondary volume is to be calculated as well as total cubic volume." /> <LineBreak />
+            <Run Text="Use the slider bar at the bottom to view remaining fields." />
+        </TextBlock>
+
+
+
+        <DataGrid Grid.Row="3"
+                  HorizontalScrollBarVisibility="Visible"
+                  SelectionMode="Single"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  ItemsSource="{Binding VolumeEquations}"
+                  SelectedItem="{Binding SelectedVolumeEquation}">
+            <DataGrid.InputBindings>
+                <KeyBinding Key="Delete"
+                            Command="{Binding DeleteVolumeEquationCommand}" />
+            </DataGrid.InputBindings>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="121">
+                    <DataGridTemplateColumn.Header>
+                        <TextBlock Text="Volume Equation Number"
+                                   TextWrapping="Wrap" />
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True"
+                                      Text="{Binding VolumeEquationNumber}"
+                                      ItemsSource="{Binding DataContext.VolumeEquationNumbers, RelativeSource={RelativeSource AncestorType=DataGrid, Mode=FindAncestor}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Header="Model"
+                                    Width="150"
+                                    IsReadOnly="True"
+                                    Binding="{Binding Model}" />
+
+                <DataGridTextColumn Binding="{Binding CommonSpeciesName}"
+                                    IsReadOnly="True"
+                                    Width="100">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Common Species Name"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTemplateColumn Header="Species">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True"
+                                      Text="{Binding Species}"
+                                      ItemsSource="{Binding DataContext.SpeciesCodes, RelativeSource={RelativeSource AncestorType=DataGrid, Mode=FindAncestor}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.Header>
+                        <TextBlock>
+                            <Run Text="Primary" /><LineBreak />
+                            <Run Text="Product" />
+                        </TextBlock>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox IsEditable="True"
+                                      Text="{Binding PrimaryProduct}"
+                                      ItemsSource="{Binding DataContext.ProductCodes, RelativeSource={RelativeSource AncestorType=DataGrid, Mode=FindAncestor}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Width="65"
+                                    Binding="{Binding TopDIBPrimary}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Top DIB Primary"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+
+                <DataGridTextColumn Width="100"
+                                    Binding="{Binding TopDIBSecondary}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Top DIB Secondary"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Width="65"
+                                    Binding="{Binding StumpHeight}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Stump Height"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridCheckBoxColumn Width="100"
+                                        Binding="{Binding CalcTotal, Converter={StaticResource longToBoolConverter}}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="Calc Total Cubic"
+                                   TextWrapping="Wrap" />
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+
+                <DataGridCheckBoxColumn Width="100"
+                                        Binding="{Binding CalcBoard, Converter={StaticResource longToBoolConverter}}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="Calc BDFT Primary"
+                                   TextWrapping="Wrap" />
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+
+                <DataGridCheckBoxColumn Width="100"
+                                        Binding="{Binding CalcCubic, Converter={StaticResource longToBoolConverter}}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="Calc CUFT Primary"
+                                   TextWrapping="Wrap" />
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+
+                <DataGridCheckBoxColumn Width="100"
+                                        Binding="{Binding CalcCord, Converter={StaticResource longToBoolConverter}}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="Calc Cords"
+                                   TextWrapping="Wrap" />
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+
+                <DataGridCheckBoxColumn Width="100"
+                                        Binding="{Binding CalcTopwood, Converter={StaticResource longToBoolConverter}}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="Calc Topwood"
+                                   TextWrapping="Wrap" />
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+
+                <DataGridCheckBoxColumn Width="100"
+                                        Binding="{Binding CalcBiomass, Converter={StaticResource longToBoolConverter}}">
+                    <DataGridCheckBoxColumn.Header>
+                        <TextBlock Text="Calc Biomass"
+                                   TextWrapping="Wrap" />
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+
+                <!--<DataGridTextColumn Width="65"
+                                    Binding="{Binding Trim}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Trim"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Width="65"
+                                    Binding="{Binding SegmentationLogic}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Segmentation Logic"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Width="65"
+                                    Binding="{Binding MinLogLengthPrimary}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Min Log Length Primary"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Width="65"
+                                    Binding="{Binding MaxLogLengthPrimary}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Max Log Length Primary"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Width="65"
+                                    Binding="{Binding MinMerchLength}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Text="Min Merch Length"
+                                   TextWrapping="Wrap" />
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>-->
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="2"
+              Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <!-- region selection -->
+                <ColumnDefinition Width="Auto" />
+                <!-- forest selection -->
+                <ColumnDefinition Width="*" />
+                <!-- spacer -->
+                <ColumnDefinition Width="Auto" />
+                <!-- equation selection -->
+                <ColumnDefinition Width="Auto" />
+                <!-- species selection -->
+                <ColumnDefinition Width="Auto" />
+                <!-- product selection -->
+                
+                <ColumnDefinition Width="Auto" />
+                <!-- insert button -->
+            </Grid.ColumnDefinitions>
+
+            <Grid.Resources>
+                <Style TargetType="HeaderedContentControl">
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           FontWeight="Bold"
+                                           FontSize="16" />
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Margin"
+                                Value="0,0,10,0" />
+                </Style>
+            </Grid.Resources>
+
+            <HeaderedContentControl Header="Region"
+                                    Grid.Column="0">
+                <ComboBox SelectedValue="{Binding Region}"
+                          ItemsSource="{Binding RegionOptions}" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Forest"
+                                    Grid.Column="1">
+                <ComboBox SelectedValue="{Binding Forest}"
+                          ItemsSource="{Binding ForestOptions}" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Equation"
+                                    Width="121"
+                                    Grid.Column="3">
+                <ComboBox x:Name="_volumeEquationComboBox"
+                          Text="{Binding SelectedVolumeEquationNumber}"
+                          ItemsSource="{Binding VolumeEquationNumbers}"
+                          IsEditable="True" />
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Species"
+                                    Grid.Column="4">
+                <ComboBox x:Name="_speciesComboBox"
+                          Text="{Binding SelectedSpecies}"
+                          ItemsSource="{Binding SpeciesCodes}"
+                          IsEditable="True"/>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Header="Product"
+                                    Grid.Column="5">
+                <ComboBox x:Name="_productComboBox"
+                          Text="{Binding SelectedProduct}"
+                          ItemsSource="{Binding ProductCodes}"
+                          IsEditable="True"/>
+            </HeaderedContentControl>
+
+            <Button Grid.Column="6"
+                    Content="Insert"
+                    Width="81"
+                    IsDefault="True"
+                    VerticalAlignment="Bottom"
+                    Command="{Binding InsertVolumeEquationCommand}">
+                <!--<Button.IsEnabled>
+                    <MultiBinding Converter="{}" >
+                        <Binding Path="Region" />
+                        <Binding Path="Forest" />
+                        <Binding Path="SelectedValue"
+                                 ElementName="_volumeEquationComboBox" />
+                        <Binding Path="SelectedValue"
+                                 ElementName="_speciesComboBox" />
+                        <Binding Path="SelectedValue"
+                                 ElementName="_productComboBox" />
+                    </MultiBinding>
+                </Button.IsEnabled>-->
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="4"
+              Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Content="Delete"
+                    ToolTip="Delete Selected Volume Equation"
+                    Command="{Binding DeleteVolumeEquationCommand}">
+            </Button>
+
+            <Button Grid.Column="1"
+                    Margin="15,0"
+                    Width="90"
+                    Visibility="{Binding IsCruise, Converter={StaticResource isVisableConverter}}"
+                    Content="Clean Unused"
+                    ToolTip="Remove Volume Equations With No Associated Tree Data"
+                    Command="{Binding DeleteUnusedVolumeEquationsCommand}" />
+
+            <Button Grid.Column="3"
+                    Margin="15,0"
+                    Content="Save"
+                    Command="{Binding SaveVolumeEquationsCommand}" />
+
+            <Button Grid.Column="4"
+                    x:Name="_cancelButton"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Click="_cancelButton_Click" />
+        </Grid>
+    </Grid>
+</Window>

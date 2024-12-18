@@ -33,7 +33,7 @@ namespace CruiseProcessing.Data
             return DAL.ExecuteScalar<int>("SELECT FIAcode FROM TreeDefaultValue WHERE Species = @p1 LIMIT 1", species);
         }
 
-        public IEnumerable<string> GetDistincePrimaryProductCodes()
+        public IEnumerable<string> GetDistinctPrimaryProductCodes()
         {
             return DAL.QueryScalar<string>("SELECT DISTINCT PrimaryProduct FROM TreeDefaultValue").ToList();
         }
