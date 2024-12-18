@@ -54,6 +54,8 @@ namespace CruiseProcessing.Interop
         void BrownCullLog(int fiaCode, float GCUFTS, out float cullLogWGT);
 
         void BrownCullChunk(int fiaCode, float GCUFT, float NCUFT, float FLIW, out float cullChunkWGT);
+
+        MRules GetMRules(int region, string volEq, string product);
     }
 
     public static class VolumeLibraryExtensions
