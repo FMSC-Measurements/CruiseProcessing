@@ -18,6 +18,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
+using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
@@ -56,12 +57,15 @@ namespace CruiseProcessing
                  .ConfigureLogging(ConfigureLogging).Build();
 
             Services = _host.Services;
-            await _host.StartAsync();
+            CruiseProcessing.Services.Logging.LoggerProvider.Initialize(Services);
+            
 
-            var loggerProvider = Services.GetRequiredService<ILoggerProvider>();
-            TaskExtentions.Logger = loggerProvider.CreateLogger(nameof(TaskExtentions));
+            var loggerFactory = Services.GetRequiredService<ILoggerFactory>();
+            TaskExtentions.Logger = loggerFactory.CreateLogger(nameof(TaskExtentions));
 
             DataLayerContext = _host.Services.GetRequiredService<DataLayerContext>();
+
+            await _host.StartAsync();
 
             var mainWindow = Services.GetRequiredService<MainWindow>();
             MainWindow = mainWindow;
@@ -106,9 +110,9 @@ namespace CruiseProcessing
 
 
             // register volume libraries
-            services.AddSingleton<IVolumeLibrary>(VolumeLibraryInterop.Default);
+            services.AddSingleton<IVolumeLibrary, VolumeLibrary_20241118>();
             services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20240626>(nameof(VolumeLibrary_20240626));
-            services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20241101>(nameof(VolumeLibrary_20241101));
+            services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20241118>(nameof(VolumeLibrary_20241118));
 
 
             // register WPF views
@@ -163,6 +167,9 @@ namespace CruiseProcessing
             services.AddTransient<IDialogService>(x => x.GetRequiredService<DialogService>());
             services.AddSingleton<DataLayerContext>();
             services.AddTransient<CpDataLayer>(x => x.GetRequiredService<DataLayerContext>().DataLayer);
+
+            // register report generators
+            services.AddOutputReportGenerators();
         }
     }
 }

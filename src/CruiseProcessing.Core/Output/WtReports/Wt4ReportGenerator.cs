@@ -16,14 +16,14 @@ namespace CruiseProcessing.Output
                                                     "   UNIT         ACRES       SPECIES        GREEN TONS        GREEN TONS           GREEN TONS"};
 
         //private List<string> prtFields;
-        private ILogger Logger { get; }
+        private ILogger Log { get; }
 
         private readonly IReadOnlyList<int> _fieldLengths;
 
-        public Wt4ReportGenerator(CpDataLayer dataLayer, HeaderFieldData headerData, ILogger logger)
-            : base(dataLayer, headerData, "WT4")
+        public Wt4ReportGenerator(CpDataLayer dataLayer, ILogger<Wt4ReportGenerator> logger)
+            : base(dataLayer, "WT4")
         {
-            Logger = logger;
+            Log = logger;
             _fieldLengths = new int[] { 3, 11, 13, 17, 18, 19, 5 };
 
             string currentTitle = fillReportTitle(currentReport);
@@ -31,11 +31,12 @@ namespace CruiseProcessing.Output
             reportTitles[2] = reportConstants.FCTO;
         }
 
-        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
+        public int GenerateReport(TextWriter strWriteOut, HeaderFieldData headerData, int startPageNum)
         {
+            HeaderData = headerData;
             var pageNumb = startPageNum;
             numOlines = 0;
-            Logger.LogInformation("Generating WT4 report");
+            Log.LogInformation("Generating WT4 report");
 
             if (!CheckForCubicFootVolumeAndWeights(strWriteOut))
             {
@@ -45,7 +46,7 @@ namespace CruiseProcessing.Output
             var cList = DataLayer.getCuttingUnits();
             processUnits(strWriteOut, cList, ref pageNumb);
 
-            Logger.LogInformation("WT4 report generation complete");
+            Log.LogInformation("WT4 report generation complete");
 
             return pageNumb;
         }

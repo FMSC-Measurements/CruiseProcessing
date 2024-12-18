@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
 using Microsoft.Extensions.Logging;
 using System;
@@ -30,26 +31,29 @@ namespace CruiseProcessing.Output
                                                   "                 CONTRACT                         TONS",
                                                   "                  SPECIES        PRODUCT       REMOVED"};
 
-        private ILogger Logger { get; }
+        private ILogger Log { get; }
+        public IVolumeLibrary VolumeLibrary { get; }
 
         private readonly IReadOnlyList<int> _fieldLengths;
         private bool ShowMissingWeightFactorFooter = false;
 
-        public Wt1ReportGenerator(CpDataLayer dataLayer, HeaderFieldData headerData, ILogger logger)
-            : base(dataLayer, headerData, "WT1")
+        public Wt1ReportGenerator(CpDataLayer dataLayer, IVolumeLibrary volumeLibrary, ILogger<Wt1ReportGenerator> logger)
+            : base(dataLayer, "WT1")
         {
-            Logger = logger;
+            Log = logger;
+            VolumeLibrary = volumeLibrary;
             _fieldLengths = WT1_FIELD_LENGTHS;
 
             string currentTitle = fillReportTitle(currentReport);
             SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
         }
 
-        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
+        public int GenerateReport(TextWriter strWriteOut, HeaderFieldData headerData, int startPageNum)
         {
+            HeaderData = headerData;
             var pageNumb = startPageNum;
             numOlines = 0;
-            Logger.LogInformation("Generating WT1 report");
+            Log.LogInformation("Generating WT1 report");
 
             if (!CheckForCubicFootVolumeAndWeights(strWriteOut))
             {
@@ -65,7 +69,7 @@ namespace CruiseProcessing.Output
                 strWriteOut.WriteLine("\n", "NOTE:  Weight factor could not be found for certain groups.\nGroup not printed in report.");
             }
 
-            Logger.LogInformation("WT1 report generation complete");
+            Log.LogInformation("WT1 report generation complete");
             return pageNumb;
         }
 
@@ -80,7 +84,7 @@ namespace CruiseProcessing.Output
 
             foreach (LCDDO group in lcdGroups)
             {
-                Logger.LogTrace("Processing group: Sp:{Species} Prod:{Prod} SProd:{SProd} LD:{LD} ConSp{ConSp}"
+                Log.LogTrace("Processing group: Sp:{Species} Prod:{Prod} SProd:{SProd} LD:{LD} ConSp{ConSp}"
                     , group.Species, group.PrimaryProduct, group.SecondaryProduct, group.LiveDead, group.ContractSpecies);
 
                 //  get all LCD elements for current group
@@ -98,19 +102,8 @@ namespace CruiseProcessing.Output
                     grossCuFtSecondary += gd.SumGCUFTtop * stratumAcres;
                 }
 
-                var primaryBioValues = DataLayer.GetPrimaryWeightFactorAndMoistureContent(group.Species, group.PrimaryProduct, group.LiveDead);
-                var weightFactorSecondary = DataLayer.GetSecondaryWeightFactor(group.Species, group.SecondaryProduct, group.LiveDead);
-                if (primaryBioValues == null || primaryBioValues.WeightFactor == 0.0
-                    || weightFactorSecondary == null)
-                {
-                    Logger.LogInformation($"Weight factor not found for group: Sp:{group.Species} Prod:{group.PrimaryProduct} SProd:{group.SecondaryProduct} LD:{group.LiveDead}");
-                    ShowMissingWeightFactorFooter = true;  // set flag to indicate group wasn't printed in footer
-                    continue;
-                }
-
-                var weightFactorPrimary = primaryBioValues.WeightFactor;
-                var percentRemovedPrimary = DataLayer.GetPrecentRemoved(group.Species, group.SecondaryProduct);
-                var percentRemovedSecondary = percentRemovedPrimary; // secondary percent removed is the same as primary
+                var weightFactor = DataLayer.GetWeightFactor(group.Species, group.PrimaryProduct, group.LiveDead, VolumeLibrary);
+                var percentRemoved = DataLayer.GetPercentRemoved(group.Species, group.SecondaryProduct);
 
                 double tonsRemovedPrimary = 0.0;
                 double tonsRemovedSecondary = 0.0;
@@ -120,20 +113,20 @@ namespace CruiseProcessing.Output
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                WT1columns, 3, ref pageNumb, "");
 
-                    var poundsStanding = Math.Round(grossCuFtPrimary, 0, MidpointRounding.AwayFromZero) * weightFactorPrimary;
-                    var poundsRemoved = poundsStanding * (percentRemovedPrimary / 100);
+                    var poundsStanding = Math.Round(grossCuFtPrimary, 0, MidpointRounding.AwayFromZero) * weightFactor;
+                    var poundsRemoved = poundsStanding * (percentRemoved / 100);
                     tonsRemovedPrimary = poundsRemoved / 2000;
-                    WriteWT1Group(strWriteOut, group, CompnentType.Primary, grossCuFtPrimary, weightFactorPrimary, poundsStanding, percentRemovedPrimary, poundsRemoved, tonsRemovedPrimary);
+                    WriteWT1Group(strWriteOut, group, CompnentType.Primary, grossCuFtPrimary, weightFactor, poundsStanding, percentRemoved, poundsRemoved, tonsRemovedPrimary);
                 }
                 if (grossCuFtSecondary > 0)
                 {
                     WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                WT1columns, 3, ref pageNumb, "");
 
-                    var poundsStanding = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * weightFactorSecondary.Value;
-                    var poundsRemoved = poundsStanding * (percentRemovedSecondary / 100);
+                    var poundsStanding = Math.Round(grossCuFtSecondary, 0, MidpointRounding.AwayFromZero) * weightFactor;
+                    var poundsRemoved = poundsStanding * (percentRemoved / 100);
                     tonsRemovedSecondary = poundsRemoved / 2000;
-                    WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactorSecondary.Value, poundsStanding, percentRemovedSecondary, poundsRemoved, tonsRemovedSecondary);
+                    WriteWT1Group(strWriteOut, group, CompnentType.Secondary, grossCuFtSecondary, weightFactor, poundsStanding, percentRemoved, poundsRemoved, tonsRemovedSecondary);
                 }
 
                 UpdateWT1Subtotal(rptSubtotals, group.ContractSpecies, group.PrimaryProduct, group.SecondaryProduct, tonsRemovedPrimary, tonsRemovedSecondary);
