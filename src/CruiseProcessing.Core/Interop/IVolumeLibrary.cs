@@ -7,97 +7,42 @@ namespace CruiseProcessing.Interop
     {
         int GetVersionNumber();
 
-        //void CalculateVolumeAndBiomassNSVB(
-        //    int region,
-        //    string forest,
-        //    string volumeEquation,
-        //    float topDIBPrimary,
-        //    float topDIBSecondary,
-
-        //    float stumpHeight,
-        //    float dbh,
-        //    float drc,
-        //    string merchHeightType,
-        //    float totalHeight,
-
-        //    int merchHeightLogLength,
-        //    float merchHeightPrimary,
-        //    float merchHeightSecondary,
-        //    float upperStemHeight,
-        //    float upperStemHeight2,
-
-        //    float upperStemDiameter,
-        //    float upperStemDiameter2,
-        //    int referenceHeightPercent,
-        //    float averageZ,
-        //    float averageZ2,
-
-        //    int formClass,
-        //    float dbhDoubleBarkThickness,
-        //    float barkThicknessRatio,
-        //    float[] volumes, //output
-        //    float[] logVolumes, //output
-
-        //    float[] logDiameters, //output
-        //    float[] logLengths, //output
-        //    float[] bottomOfLogHeights, //output
-        //    int totalLogs, //output
-        //    float noLogsPrimary, //output
-
-        //    float noLogsSecondary, //output
-        //    bool calcTotal,
-        //    bool calcBoard,
-        //    bool calcCubic,
-        //    bool calcCords,
-
-        //    bool calcTopwood,
-        //    string contractSpecies,
-        //    string product,
-        //    int heightToFirstLiveLimb,
-        //    string liveDead,
-
-        //    int ba, //unused - basal area of stand
-        //    int si, //unused - site index
-        //    string ctype, // cruise type: 'C', 'F', 'V', 'I'
-        //    int errorCode,
-        //    int pmFlag, //unused, unknown purpose
-
-        //    MRules mchRules,
-        //    int iDist, // district number
-
-        //    float brkht, // unused, unknown purpose
-        //    float brkhtd, // unused, unknown purpose
-        //    int fiaSpcd, // fiacode from volume equation
-        //    float[] dryBiomass,
-        //    float[] greenBiomass,
-
-        //    float cr, // unused, The percent of the tree bole supporting live, healthy foliage
-        //    float cull, // unused, The percent of the tree bole that is cull
-        //    int decayCode // unused, Code indicating stage of decay
-        //    );
+        VolLibNVBoutput CalculateVolumeNVB(
+            int regn, string forst, string voleq, float mtopp, float mtops,
+            float stump, float dbhob, float drcob, string httype, float httot,
+            int htlog, float ht1prd, float ht2prd, float upsht1, float upsht2,
+            float upsd1, float upsd2, int htref, float avgz1, float avgz2,
+            int fclass, float dbtbh, float btr, int cutflg, int bfpflg, int cupflg, int cdpflg,
+            int spflg, string conspec, string prod, int httfll, string live,
+            int ba, int si, string ctype, int pmtflg,
+            MRules mRules, int idist,
+            float brkht, float brkhtd, int fiaspcd,
+            float cr, float cull, int decaycd);
 
         void CalculateVolumeNVB(
             int regn, string forst, string voleq, float mtopp, float mtops,
             float stump, float dbhob, float drcob, string httype, float httot,
             int htlog, float ht1prd, float ht2prd, float upsht1, float upsht2,
             float upsd1, float upsd2, int htref, float avgz1, float avgz2,
-            int fclass, float dbtbh, float btr, float[] vol, float[,] logvol,
-            float[,] logdia, float[] loglen, float[] bohlt, ref int tlogs, out float nologp,
+            int fclass, float dbtbh, float btr, out float[] vol, out float[,] logvol,
+            out float[,] logdia, out float[] loglen, out float[] bolht, out int tlogs, out float nologp,
             out float nologs, int cutflg, int bfpflg, int cupflg, int cdpflg,
             int spflg, string conspec, string prod, int httfll, string live,
-            out int ba, out int si, string ctype, out int errflg, int pmtflg,
-            ref MRules mRules, int idist,
-            float brkht, float brkhtd, int fiaspcd, float[] drybio, float[] grnbio,
+            int ba, int si, string ctype, out int errflg, int pmtflg,
+            MRules mRules, int idist,
+            float brkht, float brkhtd, int fiaspcd, out float[] drybio, out float[] grnbio,
             float cr, float cull, int decaycd);
 
-        void CalculateBiomass(
+        CrzBiomassResult CalculateBiomass(
             int regn, string forst, int spcd, float dbhob, float drcob,
-            float httot, int fclass, float[] vol, float[] wf, float[] bms,
+            float httot, int fclass, float[] vol, float[] wf,
             out int errflg, string prod);
 
-        float[] LookupWeightFactors(int region, string forest, ref int fiaCode);
+        float[] LookupWeightFactorsCRZSPDFT(int region, string forest, string product, int fiaCode);
 
-        void LookupWeightFactors2(int regin, string forest, int fiaCode, string prod, out float greenWf, out float deadWf);
+        float[] LookupWeightFactorsCRZSPDFTRaw(int region, string forest, int fiaCode);
+
+        void LookupWeightFactorsNVB(int regin, string forest, int fiaCode, string prod, out float greenWf, out float deadWf);
 
         [Obsolete]
         void BrownCrownFraction(int fiaCode, float DBH, float THT, float CR, float[] crownFractionWGT);
