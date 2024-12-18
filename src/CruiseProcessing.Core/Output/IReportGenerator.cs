@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CruiseProcessing.OutputModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace CruiseProcessing.Output
 {
     public interface IReportGenerator
     {
-        int GenerateReport(TextWriter strWriteOut, int startPageNum);
+        int GenerateReport(TextWriter strWriteOut, HeaderFieldData headerData, int startPageNum);
     }
 }

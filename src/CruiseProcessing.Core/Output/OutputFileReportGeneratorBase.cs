@@ -14,12 +14,18 @@ namespace CruiseProcessing.Output
     {
         public readonly string[] reportTitles = new string[3];
 
-        public HeaderFieldData HeaderData { get; set; }
+        public HeaderFieldData HeaderData { get; protected set; }
 
+        [Obsolete("ReportGenerator should implement IReportGenerator and pass header data in when calling Generate Report")]
         public OutputFileReportGeneratorBase(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID = "") : base(dataLayer, reportID)
         {
             HeaderData = headerData;
         }
+
+        public OutputFileReportGeneratorBase(CpDataLayer dataLayer, string reportID = "") : base(dataLayer, reportID)
+        {
+        }
+
 
         protected void printOneRecord(IReadOnlyList<int> fieldLengths, IEnumerable<string> prtFields, TextWriter strWriteOut)
         {

@@ -40,13 +40,16 @@ namespace CruiseProcessing.ReferenceImplmentation
         private MRules mRules;
         protected CpDataLayer DataLayer { get; }
         public ILogger Log { get; }
+        CalculateNetVolume NetVolumeCalculator { get; }
 
-        
+
+
 
         public RefCalculateTreeValues(CpDataLayer dataLayer, ILogger<RefCalculateTreeValues> logger)
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Log = logger ?? throw new ArgumentNullException(nameof(logger));
+            NetVolumeCalculator = new CalculateNetVolume();
         }
 
         [DllImport("vollib_20240626.dll", CallingConvention = CallingConvention.Cdecl)]//, CallingConvention = CallingConvention.StdCall)]
@@ -205,7 +208,7 @@ namespace CruiseProcessing.ReferenceImplmentation
         {
             //  Also need tree calculated values by stratum
             List<TreeCalculatedValuesDO> tcList = new List<TreeCalculatedValuesDO>();
-            CalculateNetVolume CalcNet = new CalculateNetVolume();
+           
             //  Definitions for the Fortran DLL call
             int I3 = 3;
             int I7 = 7;
@@ -398,7 +401,7 @@ namespace CruiseProcessing.ReferenceImplmentation
                             UpdateLogStock(justTreeLogs, logStockList, (int)td.Tree_CN, LOGVOL, LOGDIA, LOGLEN, TLOGS);
 
                             //  Next, calculate net volumes
-                            CalcNet.calcNetVol(CTYPE.ToString(), VOL, LOGVOL, logStockList, td, currRegion,
+                            NetVolumeCalculator.calcNetVol(CTYPE.ToString(), VOL, LOGVOL, logStockList, td, currRegion,
                                                           NOLOGP, NOLOGS, TLOGS, MTOPP, td.SampleGroup.PrimaryProduct);
 
                             //  Update number of logs

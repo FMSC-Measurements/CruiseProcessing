@@ -29,15 +29,13 @@ namespace CruiseProcessing.Data
         public string CPVersion { get; }
         public string VolLibVersion
         {
-            get => _volumeLibraryVersion ?? VolumeLibrary.GetVersionNumberString();
+            get => _volumeLibraryVersion;
             set => _volumeLibraryVersion = value;
         }
 
         public bool IsTemplateFile { get; }
 
         protected ILogger Log { get; }
-
-        protected IVolumeLibrary VolumeLibrary { get; }
 
         public bool IsProcessed
         {
@@ -49,7 +47,6 @@ namespace CruiseProcessing.Data
         protected CpDataLayer()
         {
             BiomassOptions = new BiomassEquationOptions();
-            VolumeLibrary = new VolumeLibrary_20240626();
         }
 
         public CpDataLayer(DAL dal, ILogger<CpDataLayer> logger, IOptions<BiomassEquationOptions> biomassOptions, bool isTemplateFile = false)
@@ -59,7 +56,6 @@ namespace CruiseProcessing.Data
             IsTemplateFile = isTemplateFile;
             Log = logger;
             BiomassOptions = biomassOptions?.Value ?? new BiomassEquationOptions();
-            VolumeLibrary = VolumeLibraryInterop.Default;
 
             var verson = Assembly.GetExecutingAssembly().GetName().Version.ToString(3); // only get the major.minor.build components of the version
             CPVersion = DateTime.Parse(verson).ToString("MM.dd.yyyy");

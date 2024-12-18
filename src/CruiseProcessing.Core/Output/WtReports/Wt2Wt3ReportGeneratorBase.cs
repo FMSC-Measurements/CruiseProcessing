@@ -2,6 +2,7 @@
 using CruiseProcessing.Data;
 using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,9 +22,10 @@ namespace CruiseProcessing.Output
         protected readonly string[] WT2threeplus = new string[4] { "    TOPWOOD |", "CULL VOLUME |", "     CHUNKS |", "       FLIW |" };
 
         public IVolumeLibrary VolLib { get; }
+        public ILogger Log { get; }
 
-        public Wt2Wt3ReportGeneratorBase(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData, string reportID)
-            : base(dataLayer, headerData, reportID)
+        public Wt2Wt3ReportGeneratorBase(CpDataLayer dataLayer, IVolumeLibrary volLib, string reportID, ILogger logger)
+            : base(dataLayer, reportID)
         {
             VolLib = volLib ?? throw new ArgumentNullException(nameof(volLib));
         }
@@ -352,7 +354,7 @@ namespace CruiseProcessing.Output
             //  Per K.Cormier, FLIW = 1.0 - percent removed
             //  August 2013
 
-            var percentRemoved = DataLayer.GetPrecentRemoved(lcdSpecies.Species, lcdSpecies.PrimaryProduct);
+            var percentRemoved = DataLayer.GetPercentRemoved(lcdSpecies.Species, lcdSpecies.PrimaryProduct);
             bioData.FractionLeftInWoods = 1.0d - ((double)percentRemoved / 100.0d);
 
             //  crown section and damaged small trees

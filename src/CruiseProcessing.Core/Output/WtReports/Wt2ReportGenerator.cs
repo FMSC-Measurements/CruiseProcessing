@@ -2,6 +2,8 @@
 using CruiseProcessing.Data;
 using CruiseProcessing.Interop;
 using CruiseProcessing.OutputModels;
+using FMSC.ORM.Logging;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 
@@ -11,15 +13,16 @@ namespace CruiseProcessing.Output
     {
         private List<StratumDO> Stratum = new List<StratumDO>();
 
-        public Wt2ReportGenerator(CpDataLayer dataLayer, IVolumeLibrary volLib, HeaderFieldData headerData)
-            : base(dataLayer, volLib, headerData, "WT2")
+        public Wt2ReportGenerator(CpDataLayer dataLayer, IVolumeLibrary volLib, ILogger<Wt2ReportGenerator> logger)
+            : base(dataLayer, volLib, "WT2", logger)
         {
             string currentTitle = fillReportTitle(currentReport);
             SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
         }
 
-        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
+        public int GenerateReport(TextWriter strWriteOut, HeaderFieldData headerData, int startPageNum)
         {
+            HeaderData = headerData;
             var pageNumb = startPageNum;
             numOlines = 0;
             Stratum = DataLayer.GetStrata();

@@ -24,28 +24,29 @@ namespace CruiseProcessing.Output
 
         private List<StratumDO> Stratum = new List<StratumDO>();
 
-        private ILogger Logger { get; }
+        private ILogger Log { get; }
 
-        public Wt5ReportGenerator(CpDataLayer dataLayer, HeaderFieldData headerData, ILogger logger)
-            : base(dataLayer, headerData, "WT5")
+        public Wt5ReportGenerator(CpDataLayer dataLayer, ILogger<Wt5ReportGenerator> logger)
+            : base(dataLayer, "WT5")
         {
-            Logger = logger;
+            Log = logger;
 
             _fieldLengths = new int[] { 1, 10, 4, 3, 11, 12, 12, 12, 11, 2, 11, 8 };
             string currentTitle = fillReportTitle(currentReport);
             SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
         }
 
-        public int GenerateReport(TextWriter strWriteOut, int startPageNum)
+        public int GenerateReport(TextWriter strWriteOut, HeaderFieldData headerData, int startPageNum)
         {
+            HeaderData = headerData;
             var pageNumb = startPageNum;
             numOlines = 0;
-            Logger.LogInformation("Generating WT5 report");
+            Log.LogInformation("Generating WT5 report");
 
             Stratum = DataLayer.GetStrata();
             processSaleSummaryWT5(strWriteOut, ref pageNumb);
 
-            Logger.LogInformation("WT5 report generation complete");
+            Log.LogInformation("WT5 report generation complete");
             return pageNumb;
         }
 

@@ -117,7 +117,7 @@ namespace CruiseProcessing
             {
                 var reports = DataLayer.GetSelectedReports();
 
-                var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
+                var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, DataLayer);
                 writer.Write(bannerPage);
                 pageNumber++;
             }   //  endif
