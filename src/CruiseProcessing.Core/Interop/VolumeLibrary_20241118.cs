@@ -339,7 +339,7 @@ namespace CruiseProcessing.Interop
             BROWNCULLCHUNK(ref fiaCode, ref GCUFT, ref NCUFT, ref FLIW, ref cullChunkWGT);
         }
 
-        public MRules GetMRules(int region, string volEq, string product)
+        public override MRules GetMRules(int region, string volEq, string product)
         {
             StringBuilder VOLEQ = new StringBuilder(STRING_BUFFER_SIZE).Append(volEq);
             StringBuilder PROD = new StringBuilder(STRING_BUFFER_SIZE).Append(product);
