@@ -208,6 +208,11 @@ namespace CruiseProcessing.Data
             return speciesProduct;
         }   //  end GetUniqueSpeciesProduct
 
+        public IReadOnlyCollection<string> GetUniqueSpeciesCodesFromTrees()
+        {
+            return DAL.QueryScalar<string>("SELECT DISTINCT Species FROM Tree WHERE Species IS NOT NULL AND length(Species) > 0").ToArray();
+        }
+
         public IReadOnlyCollection<SpeciesProduct> GetUniqueSpeciesProductFromTrees()
         {
             return DAL.Query<SpeciesProduct>("SELECT DISTINCT t.Species AS SpeciesCode, sg.PrimaryProduct AS ProductCode " +

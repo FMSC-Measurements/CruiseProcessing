@@ -1,24 +1,21 @@
 ﻿using CruiseProcessing.Async;
-using CruiseProcessing.Config;
 using CruiseProcessing.Data;
 using CruiseProcessing.Interop;
+using CruiseProcessing.Output;
 using CruiseProcessing.Processing;
-using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using CruiseProcessing.Services.Logging;
 using CruiseProcessing.ViewModel;
+using CruiseProcessing.ViewModels;
 using CruiseProcessing.Views;
 using Microsoft.AppCenter;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
-using CruiseProcessing.Output;
 
 namespace CruiseProcessing
 {
@@ -43,7 +40,7 @@ namespace CruiseProcessing
             Microsoft.AppCenter.AppCenter.Start(Secrets.CRUISEPROCESSING_APPCENTER_KEY_WINDOWS,
                                typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes));
 #else
-            
+
             ApplicationLifecycleHelper.Instance.UnhandledExceptionOccurred += Instance_UnhandledExceptionOccurred;
 
             static void Instance_UnhandledExceptionOccurred(object sender, Microsoft.AppCenter.Utils.UnhandledExceptionOccurredEventArgs e)
@@ -58,7 +55,6 @@ namespace CruiseProcessing
 
             Services = _host.Services;
             CruiseProcessing.Services.Logging.LoggerProvider.Initialize(Services);
-            
 
             var loggerFactory = Services.GetRequiredService<ILoggerFactory>();
             TaskExtentions.Logger = loggerFactory.CreateLogger(nameof(TaskExtentions));
@@ -96,11 +92,9 @@ namespace CruiseProcessing
             // add service collection so that we can programmatic detect what processors are registered
             services.AddSingleton<IServiceCollection>(services);
 
-
             services.AddTransient<ICruiseProcessor, CruiseProcessor>();
             //services.RegisterReferenceImplimentations();
             services.AddKeyedTransient<ICruiseProcessor, CruiseProcessor_20241101_Preview>(nameof(CruiseProcessor_20241101_Preview));
-
 
             // register tree value calculators
             services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
@@ -108,20 +102,18 @@ namespace CruiseProcessing
             services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues3>(nameof(CalculateTreeValues3));
             //services.AddKeyedTransient<ICalculateTreeValues, RefCalculateTreeValues>(nameof(RefCalculateTreeValues));
 
-
             // register volume libraries
             services.AddSingleton<IVolumeLibrary, VolumeLibrary_20241118>();
             services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20240626>(nameof(VolumeLibrary_20240626));
             services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20241118>(nameof(VolumeLibrary_20241118));
 
-
             // register WPF views
             services.AddSingleton<MainWindow>();
             services.AddTransient<ProcessCruiseDialog>();
+            services.AddTransient<VolumeEquationsView>();
 
             // register all forms
             //services.AddSingleton<MainMenu>();
-
 
             services.RegisterForm<CapturePercentRemoved>();
             services.RegisterForm<GraphForm>();
@@ -161,6 +153,7 @@ namespace CruiseProcessing
             // register View Models
             services.AddTransient<MainWindowViewModel>();
             services.AddTransient<ProcessCruiseViewModel>();
+            services.AddTransient<VolumeEquationsViewModel>();
 
             // register other services
             services.AddSingleton<DialogService>();

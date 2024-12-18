@@ -1,5 +1,9 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Services;
+using CruiseProcessing.ViewModels;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +18,7 @@ namespace CruiseProcessing.Test
     // from CruiseProcessing.Core because it is very useful for testing to make sure the biomass equations are updated exactly how they are in the application
     public class BiomassHelpers
     {
-
-        public static void UpdateBiomass(CpDataLayer dataLayer)
-        {
-            var volumeEquations = dataLayer.getVolumeEquations();
-            var sale = dataLayer.GetSale();
-            var region = sale.Region;
-            var forest = sale.Forest;
-
-            UpdateBiomass(dataLayer, region, forest, volumeEquations);
-        }
-
-        public static void UpdateBiomass(CpDataLayer dataLayer, List<VolumeEquationDO> equationList, string region = null, string forest = null)
+        public static void UpdateBiomass(CpDataLayer dataLayer, IReadOnlyCollection<VolumeEquationDO> equationList = null, string region = null, string forest = null, IVolumeLibrary volumeLibrary = null)
         {
             if (string.IsNullOrEmpty(region) || string.IsNullOrEmpty(forest))
             {
@@ -37,12 +30,7 @@ namespace CruiseProcessing.Test
                 }
             }
 
-            UpdateBiomass(dataLayer, region, forest, equationList);
-        }
-
-        public static void UpdateBiomass(CpDataLayer dataLayer, string region, string forest, IReadOnlyCollection<VolumeEquationDO> equationList)
-        {
-            int REGN = Convert.ToInt32(region);
+            equationList ??= dataLayer.getVolumeEquations();
 
             var prList = equationList.Where(x => x.CalcBiomass == 1).Select(x => new PercentRemoved
             {
@@ -51,10 +39,13 @@ namespace CruiseProcessing.Test
                 bioPCremoved = "95.0"
             }).ToList();
 
-            var biomassEquations = dataLayer.CreateBiomassEquations(equationList, REGN, forest, prList);
+            var mockDialogService = Substitute.For<IDialogService>();
+            mockDialogService.ShowPercentRemovedDialog(Arg.Any<IEnumerable<VolumeEquationDO>>())
+                .Returns(prList);
 
-            dataLayer.ClearBiomassEquations();
-            dataLayer.SaveBiomassEquations(biomassEquations);
+            volumeLibrary ??= new VolumeLibrary_20241118();
+            var volEqViewModel = new VolumeEquationsViewModel(dataLayer, mockDialogService, volumeLibrary, biomassOptions: null, logger: null);
+            volEqViewModel.UpdateBiomass(equationList.ToList(), region, forest);
         }
     }
 }

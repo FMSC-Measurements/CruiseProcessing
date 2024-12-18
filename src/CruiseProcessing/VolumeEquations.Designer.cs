@@ -100,7 +100,7 @@
             this.label1.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(33, 402);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(58, 16);
+            this.label1.Size = new System.Drawing.Size(57, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "REGION";
             // 
@@ -111,7 +111,7 @@
             this.label2.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
             this.label2.Location = new System.Drawing.Point(95, 402);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(60, 16);
+            this.label2.Size = new System.Drawing.Size(59, 16);
             this.label2.TabIndex = 1;
             this.label2.Text = "FOREST";
             // 
@@ -152,13 +152,13 @@
             this.label6.Size = new System.Drawing.Size(588, 40);
             this.label6.TabIndex = 16;
             this.label6.Text = "When adding or editing equations, select a region and forest to get a list of equ" +
-                "ations.  Select equation and then complete the information on the row.";
+    "ations.  Select equation and then complete the information on the row.";
             // 
             // volumeEquationList
             // 
-            this.volumeEquationList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.volumeEquationList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.volumeEquationList.AutoGenerateColumns = false;
             this.volumeEquationList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.volumeEquationList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -188,10 +188,10 @@
             this.errorDataGridViewTextBoxColumn,
             this.tagDataGridViewTextBoxColumn});
             this.volumeEquationList.DataSource = this.volumeEquationDOBindingSource;
-            this.volumeEquationList.Location = new System.Drawing.Point(31, 166);
+            this.volumeEquationList.Location = new System.Drawing.Point(33, 166);
             this.volumeEquationList.Name = "volumeEquationList";
             this.volumeEquationList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.volumeEquationList.Size = new System.Drawing.Size(570, 226);
+            this.volumeEquationList.Size = new System.Drawing.Size(568, 226);
             this.volumeEquationList.TabIndex = 20;
             this.volumeEquationList.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.onCellClick);
             // 
@@ -422,7 +422,7 @@
             this.label3.Size = new System.Drawing.Size(588, 38);
             this.label3.TabIndex = 30;
             this.label3.Text = "For new equations, select a species and equation from the lists provided.  Comple" +
-                "te the product code, minimum DIBs, and stump height.";
+    "te the product code, minimum DIBs, and stump height.";
             // 
             // label4
             // 
@@ -432,7 +432,7 @@
             this.label4.Size = new System.Drawing.Size(571, 39);
             this.label4.TabIndex = 31;
             this.label4.Text = "Finally, check the volume flags to include BDFT, CUFT or Cords and whether second" +
-                "ary volume is to be calculated as well as total cubic volume.";
+    "ary volume is to be calculated as well as total cubic volume.";
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -493,7 +493,7 @@
             this.label7.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
             this.label7.Location = new System.Drawing.Point(158, 402);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(74, 16);
+            this.label7.Size = new System.Drawing.Size(73, 16);
             this.label7.TabIndex = 35;
             this.label7.Text = "EQUATION";
             // 
@@ -518,7 +518,7 @@
             this.label8.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
             this.label8.Location = new System.Drawing.Point(302, 402);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(64, 16);
+            this.label8.Size = new System.Drawing.Size(63, 16);
             this.label8.TabIndex = 36;
             this.label8.Text = "SPECIES";
             // 
@@ -529,7 +529,7 @@
             this.label9.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
             this.label9.Location = new System.Drawing.Point(395, 402);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(71, 16);
+            this.label9.Size = new System.Drawing.Size(70, 16);
             this.label9.TabIndex = 37;
             this.label9.Text = "PRODUCT";
             // 
@@ -569,7 +569,7 @@
             this.label10.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
             this.label10.Location = new System.Drawing.Point(30, 9);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(142, 16);
+            this.label10.Size = new System.Drawing.Size(141, 16);
             this.label10.TabIndex = 42;
             this.label10.Text = "VOLUME EQUATIONS";
             // 
