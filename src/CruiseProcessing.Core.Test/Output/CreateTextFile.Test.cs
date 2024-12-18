@@ -59,12 +59,11 @@ namespace CruiseProcessing.Test.Output
         [InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")]
         public void CreateOutFile(string testFileName)
         {
-
+            var host = ImplicitHost;
             var filePath = GetTestFile(testFileName);
             using var dal = new DAL(filePath);
 
-            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
+            var dataLayer = new CpDataLayer(dal, CreateLogger<CpDataLayer>(), biomassOptions: null);
 
             List<TreeDO> tList = dataLayer.getTrees();
             double summedEF = tList.Sum(t => t.ExpansionFactor);
@@ -86,7 +85,7 @@ namespace CruiseProcessing.Test.Output
             using StringWriter strWriteOut = new StringWriter();
 
             var headerData = dataLayer.GetReportHeaderData();
-            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
+            var ctf = new CreateTextFile(dataLayer, host.Services, VolumeLibraryInterop.Default, CreateLogger<CreateTextFile>());
             _ = ctf.CreateOutFile(selectedReports, headerData, strWriteOut, out var failedReports, out var hasWarnings);
 
             strWriteOut.ToString().Should().NotBeNullOrEmpty();

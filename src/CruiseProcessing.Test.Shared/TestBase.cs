@@ -1,7 +1,9 @@
 ﻿using Bogus;
-using Castle.Core.Logging;
 using CruiseDAL;
 using CruiseProcessing.Data;
+using CruiseProcessing.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Collections;
@@ -19,6 +21,8 @@ public class TestBase
     protected Randomizer Rand { get; }
     protected Stopwatch _stopwatch;
     private string _testTempPath;
+    private IHost _implicitHost;
+
     protected LogLevel LogLevel { get; set; } = LogLevel.Information;
 
     private List<string> FilesToBeDeleted { get; } = new List<string>();
@@ -28,9 +32,16 @@ public class TestBase
         Output = output;
         Output.WriteLine($"CodeBase: {System.Reflection.Assembly.GetExecutingAssembly().CodeBase}");
         Rand = new Randomizer(this.GetType().Name.GetHashCode()); // make the randomizer fixed based on the test class
-
+        //LoggerFactory = new TestLoggerFactory
+        //{
+        //    Output = output,
+        //    MinLogLevel = minLogLevel
+        //};
+        //CruiseProcessing.Services.Logging.LoggerProvider.DefaultLoggerFactory = LoggerFactory;
 
     }
+
+    public IHost ImplicitHost => _implicitHost ??= CreateTestHost();
 
     ~TestBase()
     {
@@ -57,6 +68,34 @@ public class TestBase
     }
 
     public string TestTempPath => _testTempPath ??= Path.Combine(Path.GetTempPath(), "TestTemp", Assembly.GetExecutingAssembly().GetName().Name, this.GetType().FullName);
+
+    protected IHost CreateTestHost(Action<IServiceCollection> configureServices = null)
+    {
+        var builder = new HostBuilder()
+            .ConfigureServices(configureServices)
+            .ConfigureLogging(ConfigureLogging);
+
+        if(configureServices != null)
+        {
+            builder.ConfigureServices(configureServices);
+        }
+
+        var host = builder.Build();
+        CruiseProcessing.Services.Logging.LoggerProvider.Initialize(host.Services);
+
+        return builder.Build();
+    }
+
+    protected virtual void ConfigureServices(IServiceCollection services)
+    {
+        services.AddSingleton<IDialogService>((x) => Substitute.For<IDialogService>());
+    }
+
+    protected virtual void ConfigureLogging(ILoggingBuilder loggingBuilder)
+    {
+        var testLoggerProvider = new TestLoggingProvider(Output, LogLevel);
+        loggingBuilder.AddProvider(testLoggerProvider);
+    }
 
     protected string GetTestTempPath()
     {
@@ -148,35 +187,6 @@ public class TestBase
     /// <returns></returns>
     public ILogger<T> CreateLogger<T>()
     {
-        var typeName = typeof(T).Name;
-
-        var logger = Substitute.For<ILogger<T>>();
-        logger.When(x => x.Log<object>(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>()))
-            .Do(x =>
-            {
-                if (x.Arg<LogLevel>() >= LogLevel)
-                { Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()); }
-            });
-        return logger;
-    }
-
-    /// <summary>
-    /// creates a logger with its own log level setting
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="logLevel"></param>
-    /// <returns></returns>
-    public ILogger<T> CreateLogger<T>(LogLevel logLevel)
-    {
-        var typeName = typeof(T).Name;
-
-        var logger = Substitute.For<ILogger<T>>();
-        logger.When(x => x.Log<object>(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>()))
-            .Do(x =>
-            {
-                if (x.Arg<LogLevel>() >= logLevel)
-                { Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()); }
-            });
-        return logger;
+        return ImplicitHost.Services.GetRequiredService<ILogger<T>>();
     }
 }
