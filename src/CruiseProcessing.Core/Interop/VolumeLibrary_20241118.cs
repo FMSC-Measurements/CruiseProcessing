@@ -130,6 +130,11 @@ namespace CruiseProcessing.Interop
         [DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
 
+        [DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void MRULESCS(ref int regn, StringBuilder voleq, StringBuilder prod, out float trim,
+                                    out float minlen, out float maxlen, out int opt, out float merchl,
+                                    int l1, int l2);
+
         public VolumeLibrary_20241118()
             : base(LoggerProvider.CreateLogger<VolumeLibrary_20241118>())
         { }
@@ -334,6 +339,23 @@ namespace CruiseProcessing.Interop
             BROWNCULLCHUNK(ref fiaCode, ref GCUFT, ref NCUFT, ref FLIW, ref cullChunkWGT);
         }
 
-        
+        public MRules GetMRules(int region, string volEq, string product)
+        {
+            StringBuilder VOLEQ = new StringBuilder(STRING_BUFFER_SIZE).Append(volEq);
+            StringBuilder PROD = new StringBuilder(STRING_BUFFER_SIZE).Append(product);
+
+            MRULESCS(ref region, VOLEQ, PROD, out float trim,
+                                    out float minlen, out float maxlen, out int opt, out float merchl,
+                                    STRING_BUFFER_SIZE, STRING_BUFFER_SIZE);
+
+            return new MRules()
+            {
+                trim = trim,
+                minlen = minlen,
+                maxlen = maxlen,
+                opt = opt,
+                merchl = merchl
+            };
+        }
     }
 }

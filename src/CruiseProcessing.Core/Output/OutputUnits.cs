@@ -134,10 +134,10 @@ namespace CruiseProcessing
         {
             //  This generates VSM4 as well as UC reports 1-6 -- remaining UC reports are stand table format
             string currentTitle = fillReportTitle(currentReport);
-            var sList = DataLayer.GetStrata();
-            var cList = DataLayer.getCuttingUnits();
+
+
             proList = DataLayer.getPRO();
-            string orderBy = "";
+
             // reset summation variables
             numTrees = 0.0;
             estTrees = 0.0;
@@ -157,210 +157,227 @@ namespace CruiseProcessing
             recoveredFlag = "n";
             switch (currentReport)
             {
-                case "UC1":     case "UC2":     
-                case "UC3":     case "UC4":
-                    //  process by stratum because data comes from different sources based on method
-                    foreach (StratumDO s in sList)
+                case "UC1":
+                case "UC2":
+                case "UC3":
+                case "UC4":
                     {
-                        s.CuttingUnits.Populate();
-                        currSTcn = (long) s.Stratum_CN;
-                        //  Create report title
-                        SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                        switch(currentReport)
+                        var sList = DataLayer.GetStrata();
+                        //  process by stratum because data comes from different sources based on method
+                        foreach (StratumDO s in sList)
                         {
-                            case "UC1":
-                                finishColumnHeaders(UC1columns, UC1UC2right);
-                                orderBy = "Species";
-                                fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
-                                break;
-                            case "UC2":
-                                finishColumnHeaders(UC2left, UC1UC2right);
-                                orderBy = "Species";
-                                fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
-                                break;
-                            case "UC3":
-                                finishColumnHeaders(UC3left, UC3TO6right);
-                                orderBy = "Species";
-                                fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
-                                break;
-                            case "UC4":
-                                finishColumnHeaders(UC4left, UC3TO6right);
-                                orderBy = "Species";
-                                fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
-                                break;
-                        }   //  end switch
+                            string orderBy = "";
 
-                        //  process by method as data comes from different places
-                        switch (s.Method)
-                        {
-                            case "100":
-                                //  select cut trees from tree calculated values
-                                List<TreeCalculatedValuesDO> treeList = DataLayer.getTreeCalculatedValues((int) s.Stratum_CN, orderBy);
-                                tcvList = treeList.FindAll(
-                                    delegate(TreeCalculatedValuesDO tdo)
-                                    {
-                                        return tdo.Tree.SampleGroup.CutLeave == "C";
-                                    });
-                                break;
-                            case "STR":
-                            case "S3P":
-                            case "3P":
-                                lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2", orderBy);                        
-                                break;
-                            default:
-                                lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2 ", orderBy);
-                                break;
-                        }   //  end switch on method
-                        LoadAndPrintProrated_UC1to4(strWriteOut, s, currentReport, ref pageNumb);
-                    
-                    }   //  end foreach loop
-                    //  Output grand total for the report
-                    OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
-                    break;
-                case "UC5":     case "UC6":     case "LV05": 
-                    summaryList.Clear();
-                    // needs to run by cutting unit
-                    foreach (CuttingUnitDO c in cList)
-                    {
-                        c.Strata.Populate();
-                        currCUcn = (long)c.CuttingUnit_CN;
-                        //  Create report title
-                        if (currentReport == "LV05")
-                            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FLTO, "");
-                        else SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                        switch (currentReport)
-                        {
-                            case "UC5":         case "LV05":
-                                finishColumnHeaders(UC5left, UC3TO6right);
-                                break;
-                            case "UC6":
-                                finishColumnHeaders(UC6left, UC3TO6right);
-                                break;
-                        }   //  end switch on report
-                        fieldLengths = new int[] { 1, 4, 13, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10, 10 };
-
-                        //  Load and print data for current cutting unit
-                        LoadAndPrintProrated_UC5and6(strWriteOut, c, ref pageNumb, summaryList);
-                        if(unitSubtotal.Count > 0)
-                            OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
-                        unitSubtotal.Clear();
-                    }   //  end foreach loop
-                    //  output Subtotal Summary and grand total for the report
-                    OutputSubtotalSummary(strWriteOut, ref pageNumb, summaryList);
-                    OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
-                    break;
-                case "VSM4":        //  3P Tree report (CP4)
-                    //  first see if these methods exist in the cruise file
-                    int nthRow = findMethods(sList);
-                    if (nthRow == -1)
-                    {
-                        strWriteOut.WriteLine("\f");
-                        strWriteOut.WriteLine("REPORT VSM4 CANNOT BE CREATED");
-                        strWriteOut.WriteLine("NO CRUISE METHODS USED IN THIS REPORT EXIST IN THE CRUISE FILE");
-                        numOlines += 3;
-                        return;
-                    }   //  endif nthRow
-                    //  pull data to process 
-                    foreach (StratumDO s in sList)
-                    {
-                        if (s.Method == "S3P" || s.Method == "F3P" || s.Method == "3P")
-                        {
                             s.CuttingUnits.Populate();
-                            //  need current UOM to set report title
-                            string currUOM = DataLayer.getUOM((int)s.Stratum_CN);
-                            //  Create report heading
-                            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO_PPO, "");
-                            //  Fix reportTitles accordingly
-                            reportTitles[2] = reportTitles[1];
-                            switch (currUOM)
+                            currSTcn = (long)s.Stratum_CN;
+                            //  Create report title
+                            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                            switch (currentReport)
                             {
-                                case "03":
-                                    reportTitles[1] = "CUFT VOLUME";
+                                case "UC1":
+                                    finishColumnHeaders(UC1columns, UC1UC2right);
+                                    orderBy = "Species";
+                                    fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
                                     break;
-                                case "01":
-                                    reportTitles[1] = "BDFT VOLUME";
+                                case "UC2":
+                                    finishColumnHeaders(UC2left, UC1UC2right);
+                                    orderBy = "Species";
+                                    fieldLengths = new int[] { 1, 3, 4, 7, 3, 12, 8, 8, 11, 9, 11, 12, 11, 10, 11, 10 };
                                     break;
-                                case "05":
-                                    reportTitles[1] = "WEIGHTS";
+                                case "UC3":
+                                    finishColumnHeaders(UC3left, UC3TO6right);
+                                    orderBy = "Species";
+                                    fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
                                     break;
-                                case "02":
-                                    reportTitles[1] = "CORD VOLUME";
+                                case "UC4":
+                                    finishColumnHeaders(UC4left, UC3TO6right);
+                                    orderBy = "Species";
+                                    fieldLengths = new int[] { 1, 3, 5, 9, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10 };
                                     break;
                             }   //  end switch
 
-                            fieldLengths = new int[] { 3, 9, 8, 7, 7, 6, 9, 7, 9, 10, 10, 7, 8, 10, 13, 4 };
-
-                            //  process by groups so each cutting unit and sample group is on a separate page 
-                            List<SampleGroupDO> sgList = DataLayer.getSampleGroups((int)s.Stratum_CN);
-                            foreach (CuttingUnitDO cud in s.CuttingUnits)
+                            //  process by method as data comes from different places
+                            switch (s.Method)
                             {
-                                //  pull calculated values for this group
-                                tcvList = DataLayer.getTreeCalculatedValues((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
-                                 //  August 2016 -- also need count records from tree table in case method is F3P
-                                List<TreeDO> tUnitsList = DataLayer.JustUnitTrees((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
-                                List<TreeCalculatedValuesDO> justSampleGroups = new List<TreeCalculatedValuesDO>();
-                                foreach (SampleGroupDO sg in sgList)
-                                {
-                                    justSampleGroups = tcvList.FindAll(
-                                        delegate(TreeCalculatedValuesDO tdo)
+                                case "100":
+                                    //  select cut trees from tree calculated values
+                                    List<TreeCalculatedValuesDO> treeList = DataLayer.getTreeCalculatedValues((int)s.Stratum_CN, orderBy);
+                                    tcvList = treeList.FindAll(
+                                        delegate (TreeCalculatedValuesDO tdo)
                                         {
-                                            return tdo.Tree.SampleGroup.Code == sg.Code;
+                                            return tdo.Tree.SampleGroup.CutLeave == "C";
                                         });
-                                    if (s.Method == "3P" || s.Method == "S3P")
-                                    {
-                                        if (justSampleGroups.Count > 0)
-                                        {
-                                            WriteCurrentGroup(s.Code, justSampleGroups, currUOM, cud.Code, strWriteOut,
-                                                            ref pageNumb, sg.Code, tUnitsList, s.Method);
+                                    break;
+                                case "STR":
+                                case "S3P":
+                                case "3P":
+                                    lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2", orderBy);
+                                    break;
+                                default:
+                                    lcdList = DataLayer.GetLCDdata(s.Code, "WHERE Stratum = @p1 AND CutLeave = @p2 ", orderBy);
+                                    break;
+                            }   //  end switch on method
+                            LoadAndPrintProrated_UC1to4(strWriteOut, s, currentReport, ref pageNumb);
 
-                                            //  print subtotal for current cutting unit and sample group
-                                            OutputSubtotal(strWriteOut, currentReport);
-                                        }   //  endif sample groups to print
-                                    }
-                                    else if (s.Method == "F3P")
-                                    {
-                                        //  need to find this sample group for printing
-                                        List<TreeDO> justSamples = tUnitsList.FindAll(
-                                            delegate(TreeDO td)
-                                            {
-                                                return td.SampleGroup.Code == sg.Code;
-                                            });
-                                        if(justSamples.Count > 0 || justSampleGroups.Count > 0)
-                                        {
-                                            WriteCurrentGroup(s.Code, justSampleGroups, currUOM, cud.Code, strWriteOut,
-                                                        ref pageNumb, sg.Code, justSamples, s.Method);
-
-                                            //  print subtotal for current cutting unit and sample group
-                                            OutputSubtotal(strWriteOut, currentReport);
-                                        }
-                                    }   //  endif on method
-                                }   //  end foreach sample group
-                            }   //  end foreach cutting unit
-
-                        }   //  endif method
-                    }   //  end foreach stratum loop
-                    break;
-                case "VSM5":        //  summary by cutting unit
-                    orderBy = "Species";
-                    fieldLengths = new int[] { 13, 10, 12, 8, 11, 9, 9, 13, 9, 5 };
-                    List<ReportSubtotal> speciesList = new List<ReportSubtotal>();
-                    summaryList.Clear();
-                    //  process by cutting unit
-                    foreach (CuttingUnitDO cud in cList) 
+                        }   //  end foreach loop
+                            //  Output grand total for the report
+                        OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
+                        break;
+                    }
+                case "UC5":
+                case "UC6":
+                case "LV05":
                     {
-                        //  create report header
-                        SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
-                        LoadAndPrintProrated_VSM5(speciesList, strWriteOut, cud, ref pageNumb);
-                    }   //  end foreach on cutting unit
-                    //  output summary table before the grand total
-                    OutputSummaryList(strWriteOut, ref pageNumb, summaryList);
-                    //  output grand total
-                    OutputGrandTotal(strWriteOut, ref pageNumb);
-                    break;
+                        var cList = DataLayer.getCuttingUnits();
+                        summaryList.Clear();
+                        // needs to run by cutting unit
+                        foreach (CuttingUnitDO c in cList)
+                        {
+                            c.Strata.Populate();
+                            currCUcn = (long)c.CuttingUnit_CN;
+                            //  Create report title
+                            if (currentReport == "LV05")
+                                SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FLTO, "");
+                            else SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                            switch (currentReport)
+                            {
+                                case "UC5":
+                                case "LV05":
+                                    finishColumnHeaders(UC5left, UC3TO6right);
+                                    break;
+                                case "UC6":
+                                    finishColumnHeaders(UC6left, UC3TO6right);
+                                    break;
+                            }   //  end switch on report
+                            fieldLengths = new int[] { 1, 4, 13, 9, 9, 10, 11, 11, 12, 10, 11, 10, 10, 10, 10 };
+
+                            //  Load and print data for current cutting unit
+                            LoadAndPrintProrated_UC5and6(strWriteOut, c, ref pageNumb, summaryList);
+                            if (unitSubtotal.Count > 0)
+                                OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
+                            unitSubtotal.Clear();
+                        }   //  end foreach loop
+                            //  output Subtotal Summary and grand total for the report
+                        OutputSubtotalSummary(strWriteOut, ref pageNumb, summaryList);
+                        OutputGrandTotal(strWriteOut, currentReport, ref pageNumb);
+                        break;
+                    }
+                case "VSM4":        //  3P Tree report (CP4)
+                    {
+                        var sList = DataLayer.GetStrata();
+                        //  first see if these methods exist in the cruise file
+                        int nthRow = findMethods(sList);
+                        if (nthRow == -1)
+                        {
+                            strWriteOut.WriteLine("\f");
+                            strWriteOut.WriteLine("REPORT VSM4 CANNOT BE CREATED");
+                            strWriteOut.WriteLine("NO CRUISE METHODS USED IN THIS REPORT EXIST IN THE CRUISE FILE");
+                            numOlines += 3;
+                            return;
+                        }   //  endif nthRow
+                            //  pull data to process 
+                        foreach (StratumDO s in sList)
+                        {
+                            if (s.Method == "S3P" || s.Method == "F3P" || s.Method == "3P")
+                            {
+                                s.CuttingUnits.Populate();
+                                //  need current UOM to set report title
+                                string currUOM = DataLayer.getUOM((int)s.Stratum_CN);
+                                //  Create report heading
+                                SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO_PPO, "");
+                                //  Fix reportTitles accordingly
+                                reportTitles[2] = reportTitles[1];
+                                switch (currUOM)
+                                {
+                                    case "03":
+                                        reportTitles[1] = "CUFT VOLUME";
+                                        break;
+                                    case "01":
+                                        reportTitles[1] = "BDFT VOLUME";
+                                        break;
+                                    case "05":
+                                        reportTitles[1] = "WEIGHTS";
+                                        break;
+                                    case "02":
+                                        reportTitles[1] = "CORD VOLUME";
+                                        break;
+                                }   //  end switch
+
+                                fieldLengths = new int[] { 3, 9, 8, 7, 7, 6, 9, 7, 9, 10, 10, 7, 8, 10, 13, 4 };
+
+                                //  process by groups so each cutting unit and sample group is on a separate page 
+                                List<SampleGroupDO> sgList = DataLayer.getSampleGroups((int)s.Stratum_CN);
+                                foreach (CuttingUnitDO cud in s.CuttingUnits)
+                                {
+                                    //  pull calculated values for this group
+                                    tcvList = DataLayer.getTreeCalculatedValues((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
+                                    //  August 2016 -- also need count records from tree table in case method is F3P
+                                    List<TreeDO> tUnitsList = DataLayer.JustUnitTrees((int)s.Stratum_CN, (int)cud.CuttingUnit_CN);
+                                    foreach (SampleGroupDO sg in sgList)
+                                    {
+                                        List<TreeCalculatedValuesDO> justSampleGroups = tcvList.FindAll(
+                                            delegate (TreeCalculatedValuesDO tdo)
+                                            {
+                                                return tdo.Tree.SampleGroup.Code == sg.Code;
+                                            });
+                                        if (s.Method == "3P" || s.Method == "S3P")
+                                        {
+                                            if (justSampleGroups.Count > 0)
+                                            {
+                                                WriteCurrentGroup(s.Code, justSampleGroups, currUOM, cud.Code, strWriteOut,
+                                                                ref pageNumb, sg.Code, tUnitsList, s.Method);
+
+                                                //  print subtotal for current cutting unit and sample group
+                                                OutputSubtotal(strWriteOut, currentReport);
+                                            }   //  endif sample groups to print
+                                        }
+                                        else if (s.Method == "F3P")
+                                        {
+                                            //  need to find this sample group for printing
+                                            List<TreeDO> justSamples = tUnitsList.FindAll(
+                                                delegate (TreeDO td)
+                                                {
+                                                    return td.SampleGroup.Code == sg.Code;
+                                                });
+                                            if (justSamples.Count > 0 || justSampleGroups.Count > 0)
+                                            {
+                                                WriteCurrentGroup(s.Code, justSampleGroups, currUOM, cud.Code, strWriteOut,
+                                                            ref pageNumb, sg.Code, justSamples, s.Method);
+
+                                                //  print subtotal for current cutting unit and sample group
+                                                OutputSubtotal(strWriteOut, currentReport);
+                                            }
+                                        }   //  endif on method
+                                    }   //  end foreach sample group
+                                }   //  end foreach cutting unit
+
+                            }   //  endif method
+                        }   //  end foreach stratum loop
+                        break;
+                    }
+                case "VSM5":        //  summary by cutting unit
+                    {
+                        var cList = DataLayer.getCuttingUnits();
+                        var orderBy = "Species";
+                        fieldLengths = new int[] { 13, 10, 12, 8, 11, 9, 9, 13, 9, 5 };
+                        List<ReportSubtotal> speciesList = new List<ReportSubtotal>();
+                        summaryList.Clear();
+                        //  process by cutting unit
+                        foreach (CuttingUnitDO cud in cList)
+                        {
+                            //  create report header
+                            SetReportTitles(currentTitle, 5, 0, 0, reportConstants.FCTO, "");
+                            LoadAndPrintProrated_VSM5(speciesList, strWriteOut, cud, ref pageNumb);
+                        }   //  end foreach on cutting unit
+                            //  output summary table before the grand total
+                        OutputSummaryList(strWriteOut, ref pageNumb, summaryList);
+                        //  output grand total
+                        OutputGrandTotal(strWriteOut, ref pageNumb);
+                        break;
+                    }
             }   //  end switch on current report
 
-            return;
-        }   //  end OutputUnitReports
+        }
 
 
         private void WriteCurrentGroup(string currST, List<TreeCalculatedValuesDO> currData, string currUOM,
@@ -422,7 +439,7 @@ namespace CruiseProcessing
             {
                 //  pull current sample group from unit trees and print
                 List<TreeDO> justGroups = justUnits.FindAll(
-                    delegate(TreeDO td)
+                    delegate (TreeDO td)
                     {
                         return td.CountOrMeasure == "C" && td.SampleGroup.Code == currSG;
                     });
@@ -457,8 +474,8 @@ namespace CruiseProcessing
                         prtFields.Add("  ");        //  blank sample group
                     }   //  endif firstLine
                     prtFields.Add(jg.CuttingUnit.Code.PadLeft(3, ' '));
-                    prtFields.Add(jg.Plot.PlotNumber.ToString().PadLeft(4,' '));      //  plot
-                    prtFields.Add(jg.TreeNumber.ToString().PadLeft(4,' '));      //  tree number
+                    prtFields.Add(jg.Plot.PlotNumber.ToString().PadLeft(4, ' '));      //  plot
+                    prtFields.Add(jg.TreeNumber.ToString().PadLeft(4, ' '));      //  tree number
                     prtFields.Add(jg.Species.PadRight(6, ' '));
                     // intervening fields are zero
                     prtFields.Add("  0.0");     //  DBH
@@ -484,7 +501,7 @@ namespace CruiseProcessing
         {
             int nthRow = -1;
             nthRow = sList.FindIndex(
-                delegate(StratumDO s)
+                delegate (StratumDO s)
                 {
                     return s.Method == "S3P" || s.Method == "F3P" || s.Method == "3P";
                 });
@@ -579,7 +596,7 @@ namespace CruiseProcessing
             WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                     completeHeader, 13, ref pageNumb, "");
             switch (currRPT)
-            {   
+            {
                 case "UC1":
                 case "UC2":
                     strWriteOut.Write("              ");
@@ -595,21 +612,23 @@ namespace CruiseProcessing
                     strWriteOut.Write("  {0,9:F0}", unitSubtotal[0].Value4);
                     strWriteOut.Write("   {0,9:F0}", unitSubtotal[0].Value5);
                     strWriteOut.Write("  {0,9:F0}", unitSubtotal[0].Value6);
-                    strWriteOut.Write(" {0,9:F0}", unitSubtotal[0].Value7); 
+                    strWriteOut.Write(" {0,9:F0}", unitSubtotal[0].Value7);
                     strWriteOut.WriteLine("  {0,10:F2}", unitSubtotal[0].Value8);
                     strWriteOut.WriteLine(" ");
                     numOlines += 3;
                     break;
-                case "UC3":     case "UC4":
-                case "UC5":     case "UC6":
+                case "UC3":
+                case "UC4":
+                case "UC5":
+                case "UC6":
                 case "LV05":
                     strWriteOut.Write("                  ");
                     strWriteOut.WriteLine(reportConstants.subtotalLine1);
                     strWriteOut.Write("  UNIT ");
-                    strWriteOut.Write(unitSubtotal[0].Value1.PadLeft(3,' '));
+                    strWriteOut.Write(unitSubtotal[0].Value1.PadLeft(3, ' '));
                     strWriteOut.Write(" TOTAL ");
                     strWriteOut.Write(" {0,7:F0}", unitSubtotal[0].Value3);
-                    strWriteOut.Write("  {0,7:F0}", unitSubtotal[0].Value13);  
+                    strWriteOut.Write("  {0,7:F0}", unitSubtotal[0].Value13);
                     strWriteOut.Write("  {0,9:F0}", unitSubtotal[0].Value4);
                     strWriteOut.Write(" {0,9:F0}", unitSubtotal[0].Value5);
                     strWriteOut.Write("  {0,9:F0}", unitSubtotal[0].Value6);
@@ -624,7 +643,7 @@ namespace CruiseProcessing
                         strWriteOut.WriteLine("{0,9:F2}", unitSubtotal[0].Value8);
                         recoveredFlag = "n";
                     }
-                    else if(recoveredFlag  =="n")
+                    else if (recoveredFlag == "n")
                     {
                         strWriteOut.Write(" {0,9:F0}", unitSubtotal[0].Value12);
                         strWriteOut.WriteLine(" {0,10:F2}", unitSubtotal[0].Value8);
@@ -671,10 +690,10 @@ namespace CruiseProcessing
                     strWriteOut.Write("                  ");
                     strWriteOut.WriteLine(reportConstants.subtotalLine1);
                     strWriteOut.Write(" STRATA ");
-                    strWriteOut.Write(currST.PadLeft(2,' '));
+                    strWriteOut.Write(currST.PadLeft(2, ' '));
                     strWriteOut.Write("  TOTAL ");
                     strWriteOut.Write("{0,7:F0}", strataSubtotal[0].Value3);
-                    strWriteOut.Write("  {0,7:F0}", strataSubtotal[0].Value13); 
+                    strWriteOut.Write("  {0,7:F0}", strataSubtotal[0].Value13);
                     strWriteOut.Write("  {0,9:F0}", strataSubtotal[0].Value4);
                     strWriteOut.Write(" {0,9:F0}", strataSubtotal[0].Value5);
                     strWriteOut.Write("  {0,9:F0}", strataSubtotal[0].Value6);
@@ -689,7 +708,7 @@ namespace CruiseProcessing
                         strWriteOut.WriteLine("{0,9:F2}", strataSubtotal[0].Value8);
                         recoveredFlag = "n";
                     }
-                    else if(recoveredFlag == "n")
+                    else if (recoveredFlag == "n")
                     {
                         strWriteOut.Write(" {0,9:F0}", strataSubtotal[0].Value12);
                         strWriteOut.WriteLine(" {0,10:F2}", strataSubtotal[0].Value8);
@@ -750,7 +769,7 @@ namespace CruiseProcessing
                     strWriteOut.WriteLine("");
                     strWriteOut.Write(" OVERALL TOTALS-- ");
                     strWriteOut.Write("{0,7:F0}", grandTotal[0].Value3);
-                    strWriteOut.Write("  {0,7:F0}", grandTotal[0].Value13);    
+                    strWriteOut.Write("  {0,7:F0}", grandTotal[0].Value13);
                     strWriteOut.Write("  {0,9:F0}", grandTotal[0].Value4);
                     strWriteOut.Write(" {0,9:F0}", grandTotal[0].Value5);
                     strWriteOut.Write("  {0,9:F0}", grandTotal[0].Value6);
@@ -775,7 +794,7 @@ namespace CruiseProcessing
                 case "UC5":
                 case "UC6":
                 case "LV05":
-                    
+
                     strWriteOut.WriteLine("");
                     strWriteOut.WriteLine("");
                     strWriteOut.Write(" OVERALL TOTALS-- ");
@@ -797,7 +816,7 @@ namespace CruiseProcessing
                             strWriteOut.WriteLine("{0,10:F2}", grandTotal[0].Value12);
                             recoveredFlag = "n";
                         }
-                        else if(recoveredFlag == "n")
+                        else if (recoveredFlag == "n")
                         {
                             strWriteOut.Write(" {0,9:F0}", grandTotal[0].Value11);
                             strWriteOut.WriteLine(" {0,10:F2}", grandTotal[0].Value12);
@@ -870,7 +889,7 @@ namespace CruiseProcessing
                                         List<ReportSubtotal> summaryList)
         {
             //  works for VSM5 only
-            if(numOlines >= 50)
+            if (numOlines >= 50)
                 WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], reportTitles[2],
                                 VSM5columns, 12, ref pageNumb, "");
             else
@@ -887,15 +906,15 @@ namespace CruiseProcessing
                 strWriteOut.Write("                       ");
                 strWriteOut.Write(sl.Value1.PadRight(12, ' '));
                 strWriteOut.Write(sl.Value2);
-                strWriteOut.Write(Math.Round(sl.Value3,0).ToString().PadLeft(11,' '));
-                strWriteOut.Write(Math.Round(sl.Value4,0).ToString().PadLeft(11,' '));
-                strWriteOut.Write(Math.Round(sl.Value5,0).ToString().PadLeft(9,' '));
-                strWriteOut.Write(Math.Round(sl.Value6,0).ToString().PadLeft(9,' '));
+                strWriteOut.Write(Math.Round(sl.Value3, 0).ToString().PadLeft(11, ' '));
+                strWriteOut.Write(Math.Round(sl.Value4, 0).ToString().PadLeft(11, ' '));
+                strWriteOut.Write(Math.Round(sl.Value5, 0).ToString().PadLeft(9, ' '));
+                strWriteOut.Write(Math.Round(sl.Value6, 0).ToString().PadLeft(9, ' '));
                 //  QMD
                 if (sl.Value8 > 0)
                 {
                     double calcValue = Math.Sqrt(sl.Value7 / sl.Value8);
-                    strWriteOut.Write(Math.Round(calcValue,1).ToString().PadLeft(13, ' '));
+                    strWriteOut.Write(Math.Round(calcValue, 1).ToString().PadLeft(13, ' '));
                 }
                 else strWriteOut.Write("          0.0");
 
@@ -903,7 +922,7 @@ namespace CruiseProcessing
                 if (sl.Value9 > 0)
                 {
                     double calcValue = CommonEquations.BoardCubicRatio(sl.Value9, sl.Value5);
-                    strWriteOut.WriteLine(Math.Round(calcValue,4).ToString().PadLeft(11,' '));
+                    strWriteOut.WriteLine(Math.Round(calcValue, 4).ToString().PadLeft(11, ' '));
                 }
                 else strWriteOut.WriteLine("        ");
 
@@ -948,11 +967,11 @@ namespace CruiseProcessing
                 if (prevCU == "**")
                 {
                     prevCU = cuttingUnit.Code;
-                    if(currRPT == "UC1" || currRPT == "UC2" || currRPT == "UC3" || currRPT == "UC4")
+                    if (currRPT == "UC1" || currRPT == "UC2" || currRPT == "UC3" || currRPT == "UC4")
                         prtFields.Add(sdo.Code.PadLeft(2, ' '));
                     prtFields.Add(cuttingUnit.Code.PadLeft(3, ' '));
                 }
-                else if(prevCU != cuttingUnit.Code)
+                else if (prevCU != cuttingUnit.Code)
                 {
                     //  print unit total and reset values
                     unitSubtotal[0].Value1 = prevCU.PadLeft(3, ' '); ;
@@ -961,7 +980,7 @@ namespace CruiseProcessing
                     prtFields.Clear();
                     unitSubtotal.Clear();
                     prtFields.Add("");
-                    if(currRPT == "UC1" || currRPT == "UC2" || currRPT == "UC3" || currRPT == "UC4")
+                    if (currRPT == "UC1" || currRPT == "UC2" || currRPT == "UC3" || currRPT == "UC4")
                         prtFields.Add(sdo.Code.PadLeft(2, ' '));
                     prtFields.Add(cuttingUnit.Code.PadLeft(3, ' '));
                 }   //  endif 
@@ -970,33 +989,39 @@ namespace CruiseProcessing
                 switch (sdo.Method)
                 {
                     case "100":
-                        //  pull current unit from trees
-                        List<TreeCalculatedValuesDO> justCurrentGroup = tcvList.FindAll(
-                            delegate(TreeCalculatedValuesDO tdo)
-                            {
-                                return tdo.Tree.CuttingUnit.Code == prevCU;
-                            });
+                        {
+                            //  pull current unit from trees
+                            List<TreeCalculatedValuesDO> justCurrentGroup = tcvList.FindAll(
+                                delegate (TreeCalculatedValuesDO tdo)
+                                {
+                                    return tdo.Tree.CuttingUnit.Code == prevCU;
+                                });
 
-                        //  sum up groups
-                        SumUpGroups_UC1to4_hpct(justCurrentGroup, currentReport, strWriteOut, ref pageNumb);
-                        break;
+                            //  sum up groups
+                            SumUpGroups_UC1to4_hpct(justCurrentGroup, currentReport, strWriteOut, ref pageNumb);
+                            break;
+                        }
                     case "STR":
                     case "3P":
                     case "S3P":
-                        SumUpGroups_UC1to4(currentReport, prevCU, strWriteOut, ref pageNumb);
-                        break;
+                        {
+                            SumUpGroups_UC1to4(currentReport, prevCU, strWriteOut, ref pageNumb);
+                            break;
+                        }
                     default:        //  area based methods
-                        //  sum up groups in the strata and output for current unit
-                        SumUpGroups_UC1to4(currentReport, prevCU, strWriteOut, ref pageNumb);
-                        break;
+                        {
+                            //  sum up groups in the strata and output for current unit
+                            SumUpGroups_UC1to4(currentReport, prevCU, strWriteOut, ref pageNumb);
+                            break;
+                        }
                 }   //  end switch on method
             }   //  end for k loop
             //  output last group, unit subtotal and strata subtotal
             UpdateUnitTotal_UCreports(currentReport);
             UpdateStrataTotal_UC1to4(currentReport);
-            unitSubtotal[0].Value1 = prevCU.PadLeft(3,' ');
+            unitSubtotal[0].Value1 = prevCU.PadLeft(3, ' ');
             OutputUnitSubtotal(strWriteOut, ref pageNumb, currentReport);
-            if(currentReport != "UC5" || currentReport != "UC6")
+            if (currentReport != "UC5" || currentReport != "UC6")
                 OutputStrataSubtotal(strWriteOut, ref pageNumb, sdo.Code, currentReport);
             unitSubtotal.Clear();
             strataSubtotal.Clear();
@@ -1016,6 +1041,20 @@ namespace CruiseProcessing
                 groupsToProcess = DataLayer.GetDistinctSampleGroupCodes();
             foreach (string gtp in groupsToProcess)
             {
+                prtFields.Clear();
+                // reset summation variables
+                numTrees = 0.0;
+                estTrees = 0.0;
+                currGBDFT = 0.0;
+                currNBDFT = 0.0;
+                currGCUFT = 0.0;
+                currNCUFT = 0.0;
+                currCords = 0.0;
+                currGBDFTnonsaw = 0.0;
+                currNBDFTnonsaw = 0.0;
+                currGCUFTnonsaw = 0.0;
+                currNCUFTnonsaw = 0.0;
+
                 //  pull data based on strata method and species
                 foreach (StratumDO stratum in cdo.Strata)
                 {
@@ -1030,7 +1069,7 @@ namespace CruiseProcessing
                             {
                                 //  find cut trees and species to process
                                 currentGroup = tcvList.FindAll(
-                                    delegate(TreeCalculatedValuesDO tdo)
+                                    delegate (TreeCalculatedValuesDO tdo)
                                     {
                                         return tdo.Tree.Species == gtp && tdo.Tree.SampleGroup.CutLeave == currCL;
                                     });
@@ -1039,12 +1078,12 @@ namespace CruiseProcessing
                             {
                                 //  find cut trees and sample groups to process
                                 currentGroup = tcvList.FindAll(
-                                    delegate(TreeCalculatedValuesDO tdo)
+                                    delegate (TreeCalculatedValuesDO tdo)
                                     {
                                         return tdo.Tree.SampleGroup.Code == gtp && tdo.Tree.SampleGroup.CutLeave == currCL;
                                     });
                             }   //  endif on current report
-                            if(currentGroup.Count > 0) SumUpGroups_UC5UC6VSM5_hpct(currentGroup);
+                            if (currentGroup.Count > 0) SumUpGroups_UC5UC6VSM5_hpct(currentGroup);
                             break;
                         default:
                             //  otherwise data comes from LCD and is NOT expanded
@@ -1054,7 +1093,7 @@ namespace CruiseProcessing
                             {
                                 //  find species to process
                                 currGroup = lcdList.FindAll(
-                                    delegate(LCDDO l)
+                                    delegate (LCDDO l)
                                     {
                                         return l.Species == gtp;
                                     });
@@ -1063,12 +1102,12 @@ namespace CruiseProcessing
                             {
                                 //  find sample groups to process
                                 currGroup = lcdList.FindAll(
-                                    delegate(LCDDO l)
+                                    delegate (LCDDO l)
                                     {
                                         return l.SampleGroup == gtp;
                                     });
                             }   //  endif current report
-                            if(currGroup.Count > 0) SumUpGroups_UC5and6(currGroup,cdo.Code);
+                            if (currGroup.Count > 0) SumUpGroups_UC5and6(currGroup, cdo.Code);
                             break;
                     }   //  end switch on method
                 }   //  end for loop on strata
@@ -1079,28 +1118,15 @@ namespace CruiseProcessing
                     prtFields.Add(cdo.Code.PadLeft(3, ' '));
                     if (currentReport == "UC5" || currentReport == "LV05")
                         prtFields.Add(gtp.PadRight(6, ' '));
-                    else if (currentReport == "UC6") prtFields.Add(gtp.PadRight(6,' '));   //  sample group
+                    else if (currentReport == "UC6") prtFields.Add(gtp.PadRight(6, ' '));   //  sample group
                     WriteCurrentGroup_CUreports(strWriteOut, ref pageNumb);
                     UpdateSubtotalSummary_UC5and6(gtp, summaryList);
                     UpdateUnitTotal_UCreports(currentReport);
                     unitSubtotal[0].Value1 = cdo.Code;
                 }   //  endif something to print -- numTrees is not zero
-                prtFields.Clear();
-                // reset summation variables
-                numTrees = 0.0;
-                estTrees = 0.0;
-                currGBDFT = 0.0;
-                currNBDFT = 0.0;
-                currGCUFT = 0.0;
-                currNCUFT = 0.0;
-                currCords = 0.0;
-                currGBDFTnonsaw = 0.0;
-                currNBDFTnonsaw = 0.0;
-                currGCUFTnonsaw = 0.0;
-                currNCUFTnonsaw = 0.0;
+
             }   //  end foreach loop on species
 
-            return;
         }   //  end LoadAndPrintProrated (just UC5-UC6)
 
 
@@ -1125,7 +1151,7 @@ namespace CruiseProcessing
                             case "100":
                                 tcvList = DataLayer.getTreeCalculatedValues((int)s.Stratum_CN, (int)cdo.CuttingUnit_CN);
                                 List<TreeCalculatedValuesDO> currentGroup = tcvList.FindAll(
-                                    delegate(TreeCalculatedValuesDO tdo)
+                                    delegate (TreeCalculatedValuesDO tdo)
                                     {
                                         return tdo.Tree.Species == groupsToProcess[k, 0] &&
                                             tdo.Tree.SampleGroup.PrimaryProduct == groupsToProcess[k, 1] &&
@@ -1138,13 +1164,13 @@ namespace CruiseProcessing
                                 lcdList = DataLayer.getLCDOrdered("WHERE CutLeave = @p1 AND Stratum = @p2 ORDER BY ",
                                                     "Species", "C", s.Code, "");
                                 List<LCDDO> currGroup = lcdList.FindAll(
-                                    delegate(LCDDO l)
+                                    delegate (LCDDO l)
                                     {
                                         return l.Species == groupsToProcess[k, 0] &&
                                                 l.PrimaryProduct == groupsToProcess[k, 1];
                                     });
-                                if (currGroup.Count > 0) SumUpGroups_VSM5(currGroup, s.Method, cdo.Code, 
-                                                                        (long) cdo.CuttingUnit_CN, (long) s.Stratum_CN);
+                                if (currGroup.Count > 0) SumUpGroups_VSM5(currGroup, s.Method, cdo.Code,
+                                                                        (long)cdo.CuttingUnit_CN, (long)s.Stratum_CN);
                                 break;
                         }   //  end switch on method
                     }   //  end foreach loop on stratum
@@ -1160,7 +1186,7 @@ namespace CruiseProcessing
                         UpdateUnitTotal_VSM5();
                         unitSubtotal[0].Value1 = cdo.Code;
                         //  also need to update the summary list
-                        UpdateSummaryList_VSM5(summaryList, groupsToProcess[k,0], groupsToProcess[k,1]);
+                        UpdateSummaryList_VSM5(summaryList, groupsToProcess[k, 0], groupsToProcess[k, 1]);
                         //  reset variables
                         prtFields.Clear();
                         numTrees = 0.0;
@@ -1183,10 +1209,9 @@ namespace CruiseProcessing
             //  print unit subtotal
             OutputSubtotal(strWriteOut, currentReport);
 
-            return;
         }   //  end overloaded LoadAndPrintProrated
 
-        
+
         private void UpdateUnitTotal_VSM5()
         {
             //  works for VSM5 only
@@ -1254,7 +1279,7 @@ namespace CruiseProcessing
                 ReportSubtotal rs = new ReportSubtotal();
                 rs.Value3 += numTrees;
                 rs.Value4 += currGBDFT;
-                rs.Value5 += currGCUFT ;
+                rs.Value5 += currGCUFT;
                 rs.Value6 += currNBDFT;
                 rs.Value7 += currNCUFT;
                 rs.Value8 += currCords;
@@ -1360,7 +1385,7 @@ namespace CruiseProcessing
             //  used by UC5-UC6 only for summary at end of report
             //  see if current species is in the list
             int nthRow = summaryList.FindIndex(
-                delegate(ReportSubtotal rs)
+                delegate (ReportSubtotal rs)
                 {
                     return rs.Value1 == currSP;
                 });
@@ -1394,10 +1419,10 @@ namespace CruiseProcessing
                 rs.Value12 += currCords;
                 rs.Value13 += estTrees;
                 summaryList.Add(rs);
-            
+
             }   //  endif
 
-            
+
             //  updates grand total as well
             if (grandTotal.Count > 0)
             {
@@ -1438,7 +1463,7 @@ namespace CruiseProcessing
             //  used by VSM5 only for summary at end of report
             //  see if current species is in the list
             int nthRow = summaryList.FindIndex(
-                delegate(ReportSubtotal rs)
+                delegate (ReportSubtotal rs)
                 {
                     return rs.Value1 == currSP && rs.Value2 == currPP;
                 });
@@ -1493,7 +1518,7 @@ namespace CruiseProcessing
                 prtFields.Add(String.Format(fieldFormat2, CommonEquations.BoardCubicRatio(currNBDFT, currNCUFT)));
                 prtFields.Add(String.Format(fieldFormat3, numTrees));
             }
-            else if(currentReport == "UC3" || currentReport == "UC4" || 
+            else if (currentReport == "UC3" || currentReport == "UC4" ||
                     currentReport == "UC5" || currentReport == "UC6" ||
                     currentReport == "LV05")
             {
@@ -1509,9 +1534,10 @@ namespace CruiseProcessing
             prtFields.Add(String.Format(fieldFormat3, currGCUFT));
             prtFields.Add(String.Format(fieldFormat3, currNBDFT));
             prtFields.Add(String.Format(fieldFormat3, currNCUFT));
-            if (currentReport == "UC3" || currentReport == "UC4" || 
+            if (currentReport == "UC3" || currentReport == "UC4" ||
                 currentReport == "UC5" || currentReport == "UC6" ||
-                currentReport == "LV05")            {
+                currentReport == "LV05")
+            {
                 prtFields.Add(String.Format(fieldFormat3, currGBDFTnonsaw));
                 prtFields.Add(String.Format(fieldFormat3, currGCUFTnonsaw));
                 prtFields.Add(String.Format(fieldFormat3, currNBDFTnonsaw));
@@ -1521,7 +1547,7 @@ namespace CruiseProcessing
                     prtFields.Add(String.Format("{0,9:F2}", currCords));
                     recoveredFlag = "n";
                 }
-                else if(recoveredFlag == "n")
+                else if (recoveredFlag == "n")
                 {
                     prtFields.Add(String.Format(fieldFormat3, currNCUFTnonsaw));
                     prtFields.Add(String.Format(fieldFormat4, currCords));
@@ -1537,7 +1563,7 @@ namespace CruiseProcessing
                                         string currPP)
         {
             //  overloaded for VSM5 report
-            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1], 
+            WriteReportHeading(strWriteOut, reportTitles[0], reportTitles[1],
                                 reportTitles[2], VSM5columns, 12, ref pageNumb, "");
 
             //  load trees and volumes
@@ -1611,7 +1637,7 @@ namespace CruiseProcessing
 
                 }
                 else if ((prevSP != tcv.Tree.Species && (currRPT == "UC1" || currRPT == "UC3")) ||
-                         (prevSG != tcv.Tree.SampleGroup.Code && (currRPT == "UC2" || currRPT == "UC4"))|| 
+                         (prevSG != tcv.Tree.SampleGroup.Code && (currRPT == "UC2" || currRPT == "UC4")) ||
                             prevPP != tcv.Tree.SampleGroup.PrimaryProduct ||
                             prevUOM != tcv.Tree.SampleGroup.UOM)
                 {
@@ -1621,7 +1647,7 @@ namespace CruiseProcessing
 
                     prtFields.Clear();
                     prtFields.Add("");
-                    if(currRPT == "UC1" || currRPT == "UC2" || currRPT == "UC3" || currRPT == "UC4")
+                    if (currRPT == "UC1" || currRPT == "UC2" || currRPT == "UC3" || currRPT == "UC4")
                         prtFields.Add(tcv.Tree.Stratum.Code.PadLeft(2, ' '));
                     prtFields.Add(tcv.Tree.CuttingUnit.Code.PadLeft(3, ' '));
                     prevSG = tcv.Tree.SampleGroup.Code;
@@ -1663,9 +1689,9 @@ namespace CruiseProcessing
 
                 //retrieve proration factor for this group
                 int nthRow = proList.FindIndex(
-                    delegate(PRODO p)
+                    delegate (PRODO p)
                     {
-                        return p.CutLeave == "C" && p.Stratum == tcv.Tree.Stratum.Code && 
+                        return p.CutLeave == "C" && p.Stratum == tcv.Tree.Stratum.Code &&
                                 p.CuttingUnit == tcv.Tree.CuttingUnit.Code &&
                                 p.SampleGroup == prevSG && p.PrimaryProduct == prevPP && p.UOM == prevUOM;
                     });
@@ -1687,7 +1713,8 @@ namespace CruiseProcessing
                         currNCUFT += tcv.NetCUFTPP * tcv.Tree.ExpansionFactor;
                         currCords += tcv.CordsPP * tcv.Tree.ExpansionFactor;
                         break;
-                    case "UC3":     case "UC4":
+                    case "UC3":
+                    case "UC4":
                         //  separate sawtimber from nonsaw
                         if (tcv.Tree.SampleGroup.UOM != "05")
                         {
@@ -1699,7 +1726,7 @@ namespace CruiseProcessing
                                     currNBDFT += tcv.NetBDFTPP * tcv.Tree.ExpansionFactor;
                                     currGCUFT += tcv.GrossCUFTPP * tcv.Tree.ExpansionFactor;
                                     currNCUFT += tcv.NetCUFTPP * tcv.Tree.ExpansionFactor;
-                                    if(currMeth == "3P") estTrees = 0;
+                                    if (currMeth == "3P") estTrees = 0;
                                     else estTrees += tcv.Tree.ExpansionFactor;
                                     break;
                                 default:
@@ -1790,7 +1817,7 @@ namespace CruiseProcessing
 
                 }
                 else if ((prevSP != ldo.Species && (currRPT == "UC1" || currRPT == "UC3")) ||
-                         (prevSG != ldo.SampleGroup && (currRPT == "UC2" || currRPT == "UC4")) || 
+                         (prevSG != ldo.SampleGroup && (currRPT == "UC2" || currRPT == "UC4")) ||
                           prevPP != ldo.PrimaryProduct || prevUOM != ldo.UOM)
                 {
                     WriteCurrentGroup_CUreports(strWriteOut, ref pageNumb);
@@ -1840,7 +1867,7 @@ namespace CruiseProcessing
 
                 //retrieve proration factor for this group
                 int nthRow = proList.FindIndex(
-                    delegate(PRODO p)
+                    delegate (PRODO p)
                     {
                         return p.CutLeave == "C" && p.Stratum == ldo.Stratum && p.CuttingUnit == currCU &&
                                 p.SampleGroup == ldo.SampleGroup && p.PrimaryProduct == prevPP && p.UOM == prevUOM &&
@@ -1858,8 +1885,8 @@ namespace CruiseProcessing
                         if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3P" ||
                             Utilities.MethodLookup(ldo.Stratum, DataLayer) == "S3P")
                         {
-                            numTrees += pull3PtallyTrees_UCreports(proList, lcdList, ldo.SampleGroup, 
-                                                ldo.Species, ldo.Stratum, ldo.PrimaryProduct, 
+                            numTrees += pull3PtallyTrees_UCreports(proList, lcdList, ldo.SampleGroup,
+                                                ldo.Species, ldo.Stratum, ldo.PrimaryProduct,
                                                 ldo.LiveDead, ldo.STM, currCU);
                             estTrees = 0.0;
                         }
@@ -1890,70 +1917,69 @@ namespace CruiseProcessing
                     case "UC3":
                     case "UC4":
                         //  separate sawtimber from nonsaw
-                        if (ldo.UOM != "05")
+                        // dec 2024 - removed check that only summed group if UOM was not 05
+
+                        //  check on method since S3P and 3P use tallied trees instead of expansion factor
+                        if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3P" ||
+                            Utilities.MethodLookup(ldo.Stratum, DataLayer) == "S3P")
                         {
-                            //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                            if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3P" ||
-                                Utilities.MethodLookup(ldo.Stratum, DataLayer) == "S3P")
-                            {
-                                numTrees += pull3PtallyTrees_UCreports(proList, lcdList, ldo.SampleGroup,
-                                                    ldo.Species, ldo.Stratum, ldo.PrimaryProduct,
-                                                    ldo.LiveDead, ldo.STM, currCU);
-                                estTrees = 0.0;
-                            }
-                            else if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3PPNT")
-                            {
-                                numTrees += ldo.SumExpanFactor * proratFac;
-                                estTrees = 0.0;
-                            }
-                            else
-                            {
-                                numTrees += ldo.SumExpanFactor * proratFac;
-                                if (ldo.PrimaryProduct == "01" && (ldo.SumNBDFT > 0 || ldo.SumNCUFT > 0))
-                                    estTrees += ldo.SumExpanFactor * proratFac;
-                            }   // endif
+                            numTrees += pull3PtallyTrees_UCreports(proList, lcdList, ldo.SampleGroup,
+                                                ldo.Species, ldo.Stratum, ldo.PrimaryProduct,
+                                                ldo.LiveDead, ldo.STM, currCU);
+                            estTrees = 0.0;
+                        }
+                        else if (Utilities.MethodLookup(ldo.Stratum, DataLayer) == "3PPNT")
+                        {
+                            numTrees += ldo.SumExpanFactor * proratFac;
+                            estTrees = 0.0;
+                        }
+                        else
+                        {
+                            numTrees += ldo.SumExpanFactor * proratFac;
+                            if (ldo.PrimaryProduct == "01" && (ldo.SumNBDFT > 0 || ldo.SumNCUFT > 0))
+                                estTrees += ldo.SumExpanFactor * proratFac;
+                        }   // endif
                             //  Sum up STM trees separately as what's in the current cutting unit stays in that unit
-                            if (ldo.STM == "Y")
-                                //  calls capture method to sum expanded volume for each STM tree in the cutting unit
-                                captureSTMtrees_UCreports(currSTcn, currCUcn, ldo.SampleGroup, ldo.STM, ref currGBDFT, ref currNBDFT, 
-                                                ref currGCUFT, ref currNCUFT, ref currGBDFTnonsaw, ref currNBDFTnonsaw, 
-                                                ref currGCUFTnonsaw, ref currNCUFTnonsaw, ref currCords, proratFac);
-                            else
+                        if (ldo.STM == "Y")
+                            //  calls capture method to sum expanded volume for each STM tree in the cutting unit
+                            captureSTMtrees_UCreports(currSTcn, currCUcn, ldo.SampleGroup, ldo.STM, ref currGBDFT, ref currNBDFT,
+                                            ref currGCUFT, ref currNCUFT, ref currGBDFTnonsaw, ref currNBDFTnonsaw,
+                                            ref currGCUFTnonsaw, ref currNCUFTnonsaw, ref currCords, proratFac);
+                        else
+                        {
+                            switch (ldo.PrimaryProduct)
                             {
-                                switch (ldo.PrimaryProduct)
-                                {
-                                    case "01":
-                                        currGBDFT += ldo.SumGBDFT * proratFac;
-                                        currNBDFT += ldo.SumNBDFT * proratFac;
-                                        currGCUFT += ldo.SumGCUFT * proratFac;
-                                        currNCUFT += ldo.SumNCUFT * proratFac;
-                                        break;
-                                    default:
-                                        currGBDFTnonsaw += ldo.SumGBDFT * proratFac;
-                                        currNBDFTnonsaw += ldo.SumNBDFT * proratFac;
-                                        currGCUFTnonsaw += ldo.SumGCUFT * proratFac;
-                                        currNCUFTnonsaw += ldo.SumNCUFT * proratFac;
-                                        currCords += ldo.SumCords * proratFac;
-                                        break;
-                                }   //  end switch
+                                case "01":
+                                    currGBDFT += ldo.SumGBDFT * proratFac;
+                                    currNBDFT += ldo.SumNBDFT * proratFac;
+                                    currGCUFT += ldo.SumGCUFT * proratFac;
+                                    currNCUFT += ldo.SumNCUFT * proratFac;
+                                    break;
+                                default:
+                                    currGBDFTnonsaw += ldo.SumGBDFT * proratFac;
+                                    currNBDFTnonsaw += ldo.SumNBDFT * proratFac;
+                                    currGCUFTnonsaw += ldo.SumGCUFT * proratFac;
+                                    currNCUFTnonsaw += ldo.SumNCUFT * proratFac;
+                                    currCords += ldo.SumCords * proratFac;
+                                    break;
+                            }   //  end switch
 
-                                //  add secondary to nonsaw
-                                currGBDFTnonsaw += ldo.SumGBDFTtop * proratFac;
-                                currNBDFTnonsaw += ldo.SumNBDFTtop * proratFac;
-                                currGCUFTnonsaw += ldo.SumGCUFTtop * proratFac;
-                                currNCUFTnonsaw += ldo.SumNCUFTtop * proratFac;
-                                currCords += ldo.SumCordsTop * proratFac;
+                            //  add secondary to nonsaw
+                            currGBDFTnonsaw += ldo.SumGBDFTtop * proratFac;
+                            currNBDFTnonsaw += ldo.SumNBDFTtop * proratFac;
+                            currGCUFTnonsaw += ldo.SumGCUFTtop * proratFac;
+                            currNCUFTnonsaw += ldo.SumNCUFTtop * proratFac;
+                            currCords += ldo.SumCordsTop * proratFac;
 
-                                //  now if there is recoverd, add to secondary and set flag
-                                if (ldo.SumBDFTrecv > 0 || ldo.SumCUFTrecv > 0)
-                                {
-                                    recoveredFlag = " R";
-                                    currNBDFTnonsaw += ldo.SumBDFTrecv * proratFac;
-                                    currNCUFTnonsaw += ldo.SumCUFTrecv * proratFac;
-                                    currCords += ldo.SumCordsRecv * proratFac;
-                                }   //  endif recovered volume
-                            }   //  endif STM
-                        }   //  endif on unit of measure
+                            //  now if there is recoverd, add to secondary and set flag
+                            if (ldo.SumBDFTrecv > 0 || ldo.SumCUFTrecv > 0)
+                            {
+                                recoveredFlag = " R";
+                                currNBDFTnonsaw += ldo.SumBDFTrecv * proratFac;
+                                currNCUFTnonsaw += ldo.SumCUFTrecv * proratFac;
+                                currCords += ldo.SumCordsRecv * proratFac;
+                            }
+                        }
                         break;
                 }   //  end switch
             }   //  end foreach loop on tree calculated values
@@ -1983,60 +2009,59 @@ namespace CruiseProcessing
             //  overloaded for UC5-UC6 100% method
             foreach (TreeCalculatedValuesDO t in tList)
             {
+                // dec 2024 - removed check that only summed group if UOM was not 05
+
+                numTrees += t.Tree.ExpansionFactor;
+
                 //  separate sawtimber from non-saw
-                if(t.Tree.SampleGroup.UOM != "05")
+                switch (t.Tree.SampleGroup.PrimaryProduct)
                 {
-                    numTrees += t.Tree.ExpansionFactor;
-                    switch (t.Tree.SampleGroup.PrimaryProduct)
+                    case "01":
+                        currGBDFT += t.GrossBDFTPP * t.Tree.ExpansionFactor;
+                        currNBDFT += t.NetBDFTPP * t.Tree.ExpansionFactor;
+                        currGCUFT += t.GrossCUFTPP * t.Tree.ExpansionFactor;
+                        currNCUFT += t.NetCUFTPP * t.Tree.ExpansionFactor;
+                        estTrees += t.Tree.ExpansionFactor;
+                        break;
+                    default:
+                        currGBDFTnonsaw += t.GrossBDFTPP * t.Tree.ExpansionFactor;
+                        currNBDFTnonsaw += t.NetBDFTPP * t.Tree.ExpansionFactor;
+                        currGCUFTnonsaw += t.GrossCUFTPP * t.Tree.ExpansionFactor;
+                        currNCUFTnonsaw += t.NetCUFTPP * t.Tree.ExpansionFactor;
+                        currCords += t.CordsPP * t.Tree.ExpansionFactor;
+                        break;
+                }
+
+                //  add secondary to nonsaw
+                currGBDFTnonsaw += t.GrossBDFTSP * t.Tree.ExpansionFactor;
+                currNBDFTnonsaw += t.NetBDFTSP * t.Tree.ExpansionFactor;
+                currGCUFTnonsaw += t.GrossCUFTSP * t.Tree.ExpansionFactor;
+                currNCUFTnonsaw += t.NetCUFTSP * t.Tree.ExpansionFactor;
+                currCords += t.CordsSP * t.Tree.ExpansionFactor;
+
+                //  if there is recovered, add to secondary and set flag
+                if (t.GrossBDFTRP > 0 || t.GrossCUFTRP > 0)
+                {
+                    recoveredFlag = " R";
+                    currNBDFTnonsaw += t.GrossBDFTRP * t.Tree.ExpansionFactor;
+                    currNCUFTnonsaw += t.GrossCUFTRP * t.Tree.ExpansionFactor;
+                    currCords += t.CordsRP * t.Tree.ExpansionFactor;
+                }
+
+                //  lookup proration factor for this group
+                int nthRow = proList.FindIndex(
+                    delegate (PRODO p)
                     {
-                        case "01":
-                            currGBDFT += t.GrossBDFTPP * t.Tree.ExpansionFactor;
-                            currNBDFT += t.NetBDFTPP * t.Tree.ExpansionFactor;
-                            currGCUFT += t.GrossCUFTPP * t.Tree.ExpansionFactor;
-                            currNCUFT += t.NetCUFTPP * t.Tree.ExpansionFactor;
-                            estTrees += t.Tree.ExpansionFactor;
-                            break;
-                        default:
-                            currGBDFTnonsaw += t.GrossBDFTPP * t.Tree.ExpansionFactor;
-                            currNBDFTnonsaw += t.NetBDFTPP * t.Tree.ExpansionFactor;
-                            currGCUFTnonsaw += t.GrossCUFTPP * t.Tree.ExpansionFactor;
-                            currNCUFTnonsaw += t.NetCUFTPP * t.Tree.ExpansionFactor;
-                            currCords += t.CordsPP * t.Tree.ExpansionFactor;
-                            break;
-                    }   //  end switch on primary product
+                        return p.CutLeave == "C" && p.Stratum == t.Tree.Stratum.Code &&
+                            p.CuttingUnit == t.Tree.CuttingUnit.Code &&
+                            p.SampleGroup == t.Tree.SampleGroup.Code &&
+                            p.PrimaryProduct == t.Tree.SampleGroup.PrimaryProduct &&
+                            p.UOM == t.Tree.SampleGroup.UOM;
+                    });
+                if (nthRow >= 0) proratFac = proList[nthRow].ProrationFactor;
+            }
 
-                    //  add secondary to nonsaw
-                    currGBDFTnonsaw += t.GrossBDFTSP * t.Tree.ExpansionFactor;
-                    currNBDFTnonsaw += t.NetBDFTSP * t.Tree.ExpansionFactor;
-                    currGCUFTnonsaw += t.GrossCUFTSP * t.Tree.ExpansionFactor;
-                    currNCUFTnonsaw += t.NetCUFTSP * t.Tree.ExpansionFactor;
-                    currCords += t.CordsSP * t.Tree.ExpansionFactor;
-
-                    //  if there is recovered, add to secondary and set flag
-                    if (t.GrossBDFTRP > 0 || t.GrossCUFTRP > 0)
-                    {
-                        recoveredFlag = " R";
-                        currNBDFTnonsaw += t.GrossBDFTRP * t.Tree.ExpansionFactor;
-                        currNCUFTnonsaw += t.GrossCUFTRP * t.Tree.ExpansionFactor;
-                        currCords += t.CordsRP * t.Tree.ExpansionFactor;
-                    }   //  endif recovered
-
-                    //  lookup proration factor for this group
-                    int nthRow = proList.FindIndex(
-                        delegate(PRODO p)
-                        {
-                            return p.CutLeave == "C" && p.Stratum == t.Tree.Stratum.Code &&
-                                p.CuttingUnit == t.Tree.CuttingUnit.Code &&
-                                p.SampleGroup == t.Tree.SampleGroup.Code &&
-                                p.PrimaryProduct == t.Tree.SampleGroup.PrimaryProduct &&
-                                p.UOM == t.Tree.SampleGroup.UOM;
-                        });
-                    if (nthRow >= 0) proratFac = proList[nthRow].ProrationFactor;
-                }   // endif on unit of measure
-            }   //  end foreach loop on trees
-
-            return;
-        }   //  end SumUpGroups for 100% method
+        }
 
 
         private void SumUpGroups_UC5and6(List<LCDDO> lcdList, string currCU)
@@ -2046,7 +2071,7 @@ namespace CruiseProcessing
             {
                 //  lookup proration factor for this group
                 int nthRow = proList.FindIndex(
-                    delegate(PRODO p)
+                    delegate (PRODO p)
                     {
                         return p.CutLeave == currCL && p.Stratum == l.Stratum &&
                             p.CuttingUnit == currCU &&
@@ -2057,77 +2082,79 @@ namespace CruiseProcessing
                 if (nthRow >= 0)
                     proratFac = proList[nthRow].ProrationFactor;
 
-                // separate sawtimber from nonsaw
-                if (l.UOM != "05")
+
+                //  check on method since S3P and 3P use tallied trees instead of expansion factor
+                if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3P" ||
+                    Utilities.MethodLookup(l.Stratum, DataLayer) == "S3P")
                 {
-                    //  check on method since S3P and 3P use tallied trees instead of expansion factor
-                    if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3P" ||
-                        Utilities.MethodLookup(l.Stratum, DataLayer) == "S3P")
+                    numTrees += pull3PtallyTrees_UCreports(proList, lcdList, l.SampleGroup,
+                                            l.Species, l.Stratum, l.PrimaryProduct,
+                                            l.LiveDead, l.STM, currCU);
+                    estTrees = 0.0;
+                }
+                else if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3PPNT")
+                {
+                    numTrees += l.SumExpanFactor * proratFac;
+                    estTrees = 0.0;
+                }
+                else
+                {
+                    numTrees += l.SumExpanFactor * proratFac;
+                    if (l.PrimaryProduct == "01" && (l.SumNBDFT > 0 || l.SumNCUFT > 0))
+                        estTrees += l.SumExpanFactor * proratFac;
+                }
+
+                // dec 2024 - removed check that only summed lcd group if UOM was not 05
+
+                //  Sum up STM trees separately as what's in the current cutting unit stays in that unit
+                if (l.STM == "Y")
+                {
+                    //  calls capture method to sum expanded volume for each STM tree in the cutting unit
+                    captureSTMtrees_UCreports(currSTcn, currCUcn, l.SampleGroup, l.STM, ref currGBDFT, ref currNBDFT,
+                                    ref currGCUFT, ref currNCUFT, ref currGBDFTnonsaw, ref currNBDFTnonsaw,
+                                    ref currGCUFTnonsaw, ref currNCUFTnonsaw, ref currCords, proratFac);
+                }
+                else
+                {
+                    // separate sawtimber from nonsaw
+                    switch (l.PrimaryProduct)
                     {
-                        numTrees += pull3PtallyTrees_UCreports(proList, lcdList, l.SampleGroup,
-                                                l.Species, l.Stratum, l.PrimaryProduct,
-                                                l.LiveDead, l.STM, currCU);
-                        estTrees = 0.0;
+                        case "01":
+                            currGBDFT += l.SumGBDFT * proratFac;
+                            currNBDFT += l.SumNBDFT * proratFac;
+                            currGCUFT += l.SumGCUFT * proratFac;
+                            currNCUFT += l.SumNCUFT * proratFac;
+                            break;
+                        default:
+                            currGBDFTnonsaw += l.SumGBDFT * proratFac;
+                            currNBDFTnonsaw += l.SumNBDFT * proratFac;
+                            currGCUFTnonsaw += l.SumGCUFT * proratFac;
+                            currNCUFTnonsaw += l.SumNCUFT * proratFac;
+                            currCords += l.SumCords * proratFac;
+                            break;
+                    }   //  end switch on primary product
+
+                    //  add secondary to nonsaw
+                    currGBDFTnonsaw += l.SumGBDFTtop * proratFac;
+                    currNBDFTnonsaw += l.SumNBDFTtop * proratFac;
+                    currGCUFTnonsaw += l.SumGCUFTtop * proratFac;
+                    currNCUFTnonsaw += l.SumNCUFTtop * proratFac;
+                    currCords += l.SumCordsTop * proratFac;
+
+                    //  if there is recovered, add to secondary and set flag
+                    if (l.SumBDFTrecv > 0 || l.SumCUFTrecv > 0)
+                    {
+                        recoveredFlag = " R";
+                        currNBDFTnonsaw += l.SumBDFTrecv * proratFac;
+                        currNCUFTnonsaw += l.SumCUFTrecv * proratFac;
+                        currCords += l.SumCordsRecv * proratFac;
                     }
-                    else if (Utilities.MethodLookup(l.Stratum, DataLayer) == "3PPNT")
-                    {
-                        numTrees += l.SumExpanFactor * proratFac;
-                        estTrees = 0.0;
-                    }
-                    else
-                    {
-                        numTrees += l.SumExpanFactor * proratFac;
-                        if (l.PrimaryProduct == "01" && (l.SumNBDFT > 0 || l.SumNCUFT > 0))
-                            estTrees += l.SumExpanFactor * proratFac;
-                    }   //  endif
-                            //  Sum up STM trees separately as what's in the current cutting unit stays in that unit
-                    if (l.STM == "Y")
-                        //  calls capture method to sum expanded volume for each STM tree in the cutting unit
-                        captureSTMtrees_UCreports(currSTcn, currCUcn, l.SampleGroup, l.STM, ref currGBDFT, ref currNBDFT,
-                                        ref currGCUFT, ref currNCUFT, ref currGBDFTnonsaw, ref currNBDFTnonsaw,
-                                        ref currGCUFTnonsaw, ref currNCUFTnonsaw, ref currCords, proratFac);
-                    else
-                    {
-                        switch (l.PrimaryProduct)
-                        {
-                            case "01":
-                                currGBDFT += l.SumGBDFT * proratFac;
-                                currNBDFT += l.SumNBDFT * proratFac;
-                                currGCUFT += l.SumGCUFT * proratFac;
-                                currNCUFT += l.SumNCUFT * proratFac;
-                                break;
-                            default:
-                                currGBDFTnonsaw += l.SumGBDFT * proratFac;
-                                currNBDFTnonsaw += l.SumNBDFT * proratFac;
-                                currGCUFTnonsaw += l.SumGCUFT * proratFac;
-                                currNCUFTnonsaw += l.SumNCUFT * proratFac;
-                                currCords += l.SumCords * proratFac;
-                                break;
-                        }   //  end switch on primary product
-
-                        //  add secondary to nonsaw
-                        currGBDFTnonsaw += l.SumGBDFTtop * proratFac;
-                        currNBDFTnonsaw += l.SumNBDFTtop * proratFac;
-                        currGCUFTnonsaw += l.SumGCUFTtop * proratFac;
-                        currNCUFTnonsaw += l.SumNCUFTtop * proratFac;
-                        currCords += l.SumCordsTop * proratFac;
-
-                        //  if there is recovered, add to secondary and set flag
-                        if (l.SumBDFTrecv > 0 || l.SumCUFTrecv > 0)
-                        {
-                            recoveredFlag = " R";
-                            currNBDFTnonsaw += l.SumBDFTrecv * proratFac;
-                            currNCUFTnonsaw += l.SumCUFTrecv * proratFac;
-                            currCords += l.SumCordsRecv * proratFac;
-                        }   //  endif recovered
-                    }   //  endif sure to measure
-                }   //  endif on unit of measure
-            }   //  end foreach loop on LCD
-            return;
-        }   //  end SumUpGroups
+                }
+            }
+        }
 
 
-        private void SumUpGroups_VSM5(List<LCDDO> currGroup, string currMethod, 
+        private void SumUpGroups_VSM5(List<LCDDO> currGroup, string currMethod,
                                     string currCU, long currCU_CN, long currST_CN)
         {
             //  overloaded to sum up volumes for VSM5 report
@@ -2136,7 +2163,7 @@ namespace CruiseProcessing
                 double justTalliedTrees = 0;
                 //  what is the proration factor current group?
                 int nthRow = proList.FindIndex(
-                    delegate(PRODO p)
+                    delegate (PRODO p)
                     {
                         return p.CutLeave == "C" && p.Stratum == cg.Stratum &&
                             p.CuttingUnit == currCU && p.SampleGroup == cg.SampleGroup &&
@@ -2190,25 +2217,25 @@ namespace CruiseProcessing
             return;
         }   //  end overloaded SumUpGroups
 
-        private void sumSTMtrees_VSM5(LCDDO currGroup, string currentUnit, 
+        private void sumSTMtrees_VSM5(LCDDO currGroup, string currentUnit,
                                     long currCU_CN, long currST_CN)
         {
             //  sums sure-to-measure trees for VSM5 report
-            List<TreeCalculatedValuesDO> tList = DataLayer.getTreeCalculatedValues((int) currST_CN,(int) currCU_CN);
+            List<TreeCalculatedValuesDO> tList = DataLayer.getTreeCalculatedValues((int)currST_CN, (int)currCU_CN);
             //  find all trees for this group
             List<TreeCalculatedValuesDO> justSTM = tList.FindAll(
-                delegate(TreeCalculatedValuesDO tdo)
+                delegate (TreeCalculatedValuesDO tdo)
                 {
-                    return tdo.Tree.Species == currGroup.Species && 
-                        tdo.Tree.SampleGroup.PrimaryProduct == currGroup.PrimaryProduct  &&
+                    return tdo.Tree.Species == currGroup.Species &&
+                        tdo.Tree.SampleGroup.PrimaryProduct == currGroup.PrimaryProduct &&
                         tdo.Tree.SampleGroup.Code == currGroup.SampleGroup &&
                         tdo.Tree.SampleGroup.CutLeave == "C" &&
                         tdo.Tree.STM == "Y";
                 });
 
-            foreach(TreeCalculatedValuesDO js in justSTM)
+            foreach (TreeCalculatedValuesDO js in justSTM)
             {
-                switch(js.Tree.SampleGroup.PrimaryProduct)
+                switch (js.Tree.SampleGroup.PrimaryProduct)
                 {
                     case "01":
                         currGBDFT += js.GrossBDFTPP * js.Tree.ExpansionFactor;
@@ -2239,8 +2266,8 @@ namespace CruiseProcessing
             return;
         }   //  end sumSTMtrees
 
-        private double pull3PtallyTrees_UCreports(List<PRODO> proList, List<LCDDO> lcdList, string currSG, 
-                                        string currSP, string currST, string currPP, string currLD, 
+        private double pull3PtallyTrees_UCreports(List<PRODO> proList, List<LCDDO> lcdList, string currSG,
+                                        string currSP, string currST, string currPP, string currLD,
                                         string currSTM, string currCU)
         {
             double talliedTrees = 0;
@@ -2251,7 +2278,7 @@ namespace CruiseProcessing
                 lcdList = DataLayer.getLCD();
 
             List<LCDDO> justGroups = lcdList.FindAll(
-                delegate(LCDDO l)
+                delegate (LCDDO l)
                 {
                     return l.Stratum == currST && l.SampleGroup == currSG && l.STM == "N";
                 });
@@ -2259,7 +2286,7 @@ namespace CruiseProcessing
             {
                 //  find number of tallied trees in LCD for current species
                 int nthRow = lcdList.FindIndex(
-                    delegate(LCDDO l)
+                    delegate (LCDDO l)
                     {
                         return l.Stratum == currST && l.Species == currSP &&
                             l.SampleGroup == currSG && l.PrimaryProduct == currPP &&
@@ -2273,7 +2300,7 @@ namespace CruiseProcessing
                 //  that means only one species per sample group
                 //  so return number of tallied trees from the PRO table
                 int nthRow = proList.FindIndex(
-                    delegate(PRODO p)
+                    delegate (PRODO p)
                     {
                         return p.Stratum == currST && p.SampleGroup == currSG &&
                             p.CuttingUnit == currCU && p.PrimaryProduct == currPP &&
