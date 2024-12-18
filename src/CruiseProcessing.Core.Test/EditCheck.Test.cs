@@ -50,7 +50,7 @@ namespace CruiseProcessing.Test
 
         [InlineData("Version3Testing\\STR\\98765 test STR TS.cruise")]
         [InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_26082021.process")]
-        [InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_30092021.process")]
+        [InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_30092021.crz3")]
 
         [InlineData("Version3Testing\\TestMeth\\99996_TestMeth_TS_202310040107_KC'sTabActive3-R9Q8.process")]
 
@@ -58,12 +58,10 @@ namespace CruiseProcessing.Test
         [InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")]
         public void CheckErrors(string fileName)
         {
+            Output.WriteLine("File: " + fileName);
 
             var filePath = GetTestFile(fileName);
-            using var dal = new DAL(filePath);
-
-            var mockLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var dataLayer = new CpDataLayer(dal, mockLogger, biomassOptions: null);
+            var dataLayer = GetCpDataLayer(filePath);
 
 
             var errors = EditChecks.CheckErrors(dataLayer);

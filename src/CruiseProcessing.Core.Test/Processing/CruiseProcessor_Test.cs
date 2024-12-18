@@ -350,7 +350,7 @@ namespace CruiseProcessing.Test.Processing
         [InlineData("OgTest\\Region3\\R3_PNT_FIXCNT.cruise")]
         //[InlineData("OgTest\\Region4\\R4_McDougal.cruise")]
         [InlineData("OgTest\\Region5\\R5.cruise")]
-        //[InlineData("OgTest\\Region6\\R6.cruise")]
+        [InlineData("OgTest\\Region6\\R6.cruise")]
         [InlineData("OgTest\\Region8\\R8.cruise")]
         //[InlineData("OgTest\\Region9\\R9.cruise")]
         //[InlineData("OgTest\\Region10\\R10.cruise")]
@@ -625,7 +625,8 @@ namespace CruiseProcessing.Test.Processing
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
+            var host = ImplicitHost;
+            var ctf = new CreateTextFile(dataLayer, host.Services, VolumeLibraryInterop.Default, CreateLogger<CreateTextFile>());
 
             var stringWriter = new StringWriter();
 
@@ -675,7 +676,8 @@ namespace CruiseProcessing.Test.Processing
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
+            var host = ImplicitHost;
+            var ctf = new CreateTextFile(dataLayer, host.Services, VolumeLibraryInterop.Default, CreateLogger<CreateTextFile>());
 
             var stringWriter = new StringWriter();
 
