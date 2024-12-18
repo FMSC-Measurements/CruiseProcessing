@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using CruiseProcessing.Services.Logging;
+using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CruiseProcessing.Interop
@@ -124,32 +126,42 @@ namespace CruiseProcessing.Interop
         [DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern void BROWNCULLCHUNK(ref int SPN, ref float GCUFT, ref float NCUFT, ref float FLIW, ref float WT);
 
-        public int GetVersionNumber()
+        public VolumeLibrary_20241101()
+            : base(LoggerProvider.CreateLogger<VolumeLibrary_20241101>())
+        { }
+
+        public override int GetVersionNumber()
         {
             VERNUM2(out var i);
             return i;
         }
 
-        public void CalculateVolumeNVB(
+        public override void CalculateVolumeNVB(
             int regn, string forst, string voleq, float mtopp, float mtops,
             float stump, float dbhob, float drcob, string httype, float httot,
             int htlog, float ht1prd, float ht2prd, float upsht1, float upsht2,
             float upsd1, float upsd2, int htref, float avgz1, float avgz2,
-            int fclass, float dbtbh, float btr, float[] vol, float[,] logvol,
-            float[,] logdia, float[] loglen, float[] bohlt, ref int tlogs, out float nologp,
+            int fclass, float dbtbh, float btr, out float[] vol, out float[,] logvol,
+            out float[,] logdia, out float[] loglen, out float[] bolht, out int tlogs, out float nologp,
             out float nologs, int cutflg, int bfpflg, int cupflg, int cdpflg,
             int spflg, string conspec, string prod, int httfll, string live,
-            out int ba, out int si, string ctype, out int errflg, int pmtflg,
-            ref MRules mRules, int idist,
-            float brkht, float brkhtd, int fiaspcd, float[] drybio, float[] grnbio,
+            int ba, int si, string ctype, out int errflg, int pmtflg,
+            MRules mRules, int idist,
+            float brkht, float brkhtd, int fiaspcd, out float[] drybio, out float[] grnbio,
             float cr, float cull, int decaycd)
         {
             tlogs = 0;
             nologp = 0f;
             nologs = 0f;
             errflg = 0;
-            ba = 0;
-            si = 0;
+
+            vol = new float[VOLLIBNVB_VOL_SIZE];
+            logvol = new float[VOLLIBNVB_LOGVOL_SIZE_X, VOLLIBNVB_LOGVOL_SIZE_Y];
+            logdia = new float[VOLLIBNVB_LOGDIA_SIZE_X, VOLLIBNVB_LOGDIA_SIZE_Y];
+            loglen = new float[VOLLIBNVB_LOGLEN_SIZE];
+            bolht = new float[VOLLIBNVB_BOLHT_SIZE];
+            drybio = new float[DRYBIO_ARRAY_SIZE];
+            grnbio = new float[GRNBIO_ARRAY_SIZE];
 
             StringBuilder FORST = new StringBuilder(STRING_BUFFER_SIZE).Append(forst);
             StringBuilder VOLEQ = new StringBuilder(STRING_BUFFER_SIZE).Append(voleq);
@@ -160,12 +172,36 @@ namespace CruiseProcessing.Interop
             StringBuilder LIVE = new StringBuilder(STRING_BUFFER_SIZE).Append(live);
             StringBuilder HTTYPE = new StringBuilder(STRING_BUFFER_SIZE).Append(httype);
 
+            Log?.LogTrace("VOLLIBCSNVB Prams \r\n" +
+                            "{regn}, {forst}, {voleq}, {mtopp}, {mtops}, " +
+                            "{stump}, {dbhob}, {drcob}, {httype}, {httot}, " +
+                            "{htlog}, {ht1prd}, {ht2prd}, {upsht1}, {upsht2}, " +
+                            "{upsd1}, {upsd2}, {htref}, {avgz1}, {avgz2}, " +
+                            "{fclass}, {dbtbh}, {btr}, " +
+                            "{cutflg}, {bfpflg}, {cupflg}, {cdpflg}, " +
+                            "{spflg}, {conspec}, {prod}, {httfll}, {live}, " +
+                            "{ba}, {si}, {ctype}, {pmtflg}, " +
+                            //"{mRules}, {idist}, " +
+                            "{brkht}, {brkhtd}, {fiaspcd}, " +
+                            "{cr}, {cull}, {decaycd}",
+                            regn, forst, voleq, mtopp, mtops,
+                            stump, dbhob, drcob, httype, httot,
+                            htlog, ht1prd, ht2prd, upsht1, upsht2,
+                            upsd1, upsd2, htref, avgz1, avgz2,
+                            fclass, dbtbh, btr,
+                            cutflg, bfpflg, cupflg, cdpflg,
+                            spflg, conspec, prod, httfll, live,
+                            ba, si, ctype, pmtflg,
+                            //mRules, idist,
+                            brkht, brkhtd, fiaspcd,
+                            cr, cull, decaycd);
+
             VOLLIBCSNVB(ref regn, FORST, VOLEQ, ref mtopp, ref mtops,
                ref stump, ref dbhob, ref drcob, HTTYPE, ref httot,
                ref htlog, ref ht1prd, ref ht2prd, ref upsht1, ref upsht2,
                ref upsd1, ref upsd2, ref htref, ref avgz1, ref avgz2,
                ref fclass, ref dbtbh, ref btr, vol, logvol,
-               logdia, loglen, bohlt, ref tlogs, ref nologp,
+               logdia, loglen, bolht, ref tlogs, ref nologp,
                ref nologs, ref cutflg, ref bfpflg, ref cupflg, ref cdpflg,
                ref spflg, CONSPEC, PROD, ref httfll, LIVE,
                ref ba, ref si, CTYPE, ref errflg, ref pmtflg,
@@ -174,19 +210,31 @@ namespace CruiseProcessing.Interop
                ref cr, ref cull, ref decaycd,
                STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE,
                     STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE, CHARLEN);
+
+            if (errflg > 0)
+            {
+                Log?.LogInformation($"VOLLIBCSNVB Error Flag {errflg} - " + ErrorReport.GetWarningMessage(errflg.ToString()));
+            }
         }
 
-        public void CalculateBiomass(int regn, string forst, int spcd, float dbhob, float drcob, float httot, int fclass, float[] vol, float[] wf, float[] bms, out int errflg, string prod)
+        public override CrzBiomassResult CalculateBiomass(int regn, string forst, int spcd, float dbhob, float drcob, float httot, int fclass, float[] vol, float[] wf, out int errflg, string prod)
         {
+            var calculatedBiomass = new float[CRZBIOMASSCS_BMS_SIZE];
             StringBuilder FORST = new StringBuilder(STRING_BUFFER_SIZE).Append(forst);
             StringBuilder PROD = new StringBuilder(STRING_BUFFER_SIZE).Append(prod);
             errflg = 0;
 
             CRZBIOMASSCS(ref regn, FORST, ref spcd, ref dbhob, ref drcob, ref httot, ref fclass, vol, wf,
-                                    bms, ref errflg, PROD, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE);
+                                    calculatedBiomass, ref errflg, PROD, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE);
+
+            if (errflg > 0)
+            {
+                Log?.LogInformation($"CRZBIOMASSCS Error Flag {errflg} - " + ErrorReport.GetWarningMessage(errflg.ToString()));
+            }
+            return CrzBiomassResult.FromArray(calculatedBiomass);
         }
 
-        public float[] LookupWeightFactors(int region, string forest, ref int fiaCode)
+        public override float[] LookupWeightFactorsCRZSPDFTRaw(int region, string forest, int fiaCode)
         {
             float[] WF = new float[3];
             var FORST = new StringBuilder(CRZSPDFTCS_STRINGLENGTH).Append(forest);
@@ -205,6 +253,7 @@ namespace CruiseProcessing.Interop
             var TIPREF = new StringBuilder(CRZSPDFTCS_STRINGLENGTH);
             int REGN = region;
             int SPCD = fiaCode;
+
             CRZSPDFTCS(ref REGN,
                        FORST,
                        ref fiaCode,
@@ -241,7 +290,7 @@ namespace CruiseProcessing.Interop
             return WF;
         }
 
-        public void LookupWeightFactors2(int regin, string forest, int fiaCode, string prod, out float greenWf, out float deadWf)
+        public override void LookupWeightFactorsNVB(int regin, string forest, int fiaCode, string prod, out float greenWf, out float deadWf)
         {
             var FORST = new StringBuilder(STRING_BUFFER_SIZE).Append(forest);
             var PROD = new StringBuilder(STRING_BUFFER_SIZE).Append(prod);
@@ -249,31 +298,31 @@ namespace CruiseProcessing.Interop
             GETREGNWFCS(ref regin, FORST, ref fiaCode, PROD, out greenWf, out deadWf, STRING_BUFFER_SIZE, STRING_BUFFER_SIZE);
         }
 
-        public void BrownCrownFraction(int fiaCode, float DBH, float THT, float CR, float[] crownFractionWGT)
+        public override void BrownCrownFraction(int fiaCode, float DBH, float THT, float CR, float[] crownFractionWGT)
         {
             BROWNCROWNFRACTION(ref fiaCode, ref DBH, ref THT, ref CR, crownFractionWGT);
         }
 
-        public CrownFractionWeight BrownCrownFraction(int fiaCode, float DBH, float THT, float CR)
+        public override CrownFractionWeight BrownCrownFraction(int fiaCode, float DBH, float THT, float CR)
         {
             var crownFractionWGT = new float[VolumeLibraryInterop.CROWN_FACTOR_WEIGHT_ARRAY_LENGTH];
             BROWNCROWNFRACTION(ref fiaCode, ref DBH, ref THT, ref CR, crownFractionWGT);
             return CrownFractionWeight.FromArray(crownFractionWGT);
         }
 
-        public void BrownTopwood(int fiaCode, float grsVol, out float topwoodWGT)
+        public override void BrownTopwood(int fiaCode, float grsVol, out float topwoodWGT)
         {
             topwoodWGT = 0;
             BROWNTOPWOOD(ref fiaCode, ref grsVol, ref topwoodWGT);
         }
 
-        public void BrownCullLog(int fiaCode, float GCUFTS, out float cullLogWGT)
+        public override void BrownCullLog(int fiaCode, float GCUFTS, out float cullLogWGT)
         {
             cullLogWGT = 0;
             BROWNCULLLOG(ref fiaCode, ref GCUFTS, ref cullLogWGT);
         }
 
-        public void BrownCullChunk(int fiaCode, float GCUFT, float NCUFT, float FLIW, out float cullChunkWGT)
+        public override void BrownCullChunk(int fiaCode, float GCUFT, float NCUFT, float FLIW, out float cullChunkWGT)
         {
             cullChunkWGT = 0;
             BROWNCULLCHUNK(ref fiaCode, ref GCUFT, ref NCUFT, ref FLIW, ref cullChunkWGT);

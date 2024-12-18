@@ -9,25 +9,31 @@ using CruiseProcessing.Data;
 using System.Collections;
 using Microsoft.Extensions.Logging;
 using CruiseProcessing.Interop;
+using CruiseProcessing.Services.Logging;
 
 namespace CruiseProcessing.Processing
 {
     public partial class CalculateTreeValues2 : ICalculateTreeValues
     {
-        #region
 
         private string Region { get; }
         private string Forest { get; }
         private string District { get; }
         private string CruiseNumber { get; }
 
+        protected CalculateNetVolume NetVolumeCalculator { get; }
         protected CpDataLayer DataLayer { get; }
         public IVolumeLibrary VolLib { get; }
         public ILogger Log { get; }
         public List<VolumeEquationDO> VolumeEquations { get; }
 
+        public CalculateTreeValues2(CpDataLayer dataLayer)
+            : this(dataLayer, new VolumeLibrary_20241118(), LoggerProvider.CreateLogger<CalculateTreeValues2>())
+        { }
+
         public CalculateTreeValues2(CpDataLayer dataLayer, IVolumeLibrary volumeLibrary, ILogger<CalculateTreeValues2> log)
         {
+            NetVolumeCalculator = new CalculateNetVolume();
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             VolLib = volumeLibrary ?? throw new ArgumentNullException(nameof(volumeLibrary));
             Log = log;
@@ -41,7 +47,6 @@ namespace CruiseProcessing.Processing
             VolumeEquations = dataLayer.getVolumeEquations();
         }
 
-        #endregion
 
         public string GetVersion()
         {
@@ -153,7 +158,7 @@ namespace CruiseProcessing.Processing
             var currEquations = VolumeEquations.Where(ved => ved.Species == tree.Species && ved.PrimaryProduct == tree.SampleGroup.PrimaryProduct);
             foreach (VolumeEquationDO ved in currEquations)
             {
-                tcv = CalculateTreeVolume(ved, tcv, logStockList, tree, hasRecoverablePrimary, REGN, IDIST, CTYPE, ref TLOGS);
+                tcv = CalculateTreeVolume(ved, tcv, logStockList, tree, hasRecoverablePrimary, REGN, IDIST, CTYPE, out TLOGS);
             }   //  end for each loop of volume equations
 
             //  and make sure modified log stock list is saved
@@ -163,25 +168,14 @@ namespace CruiseProcessing.Processing
             return tcv;
         }
 
-        protected TreeCalculatedValuesDO CalculateTreeVolume(VolumeEquationDO volEq, TreeCalculatedValuesDO tcv, List<LogStockDO> logStockList, TreeDO tree, bool hasRecoverablePrimary, int REGN, int IDIST, string CTYPE, ref int TLOGS)
+        protected TreeCalculatedValuesDO CalculateTreeVolume(VolumeEquationDO volEq, TreeCalculatedValuesDO tcv, List<LogStockDO> logStockList, TreeDO tree, bool hasRecoverablePrimary, int REGN, int IDIST, string CTYPE, out int TLOGS)
         {
-            // TODO make calculate Nev volume methods static so we don't need to instantiate a calculator class
-            CalculateNetVolume netVolumeCalculator = new CalculateNetVolume();
+            
 
-            //  Outputs
+            // Inputs
             int BA = 0;
             int SI = 0;
             int INDEB = 0;
-            //float NOLOGP = 0; // Number of Logs Primary Product
-            //float NOLOGS = 0; // Number of Logs Secondary Product
-            //int TLOGS = 0; // Total Logs (NoLogP + NoLogS)
-            float[] VOL = new float[VolumeLibraryInterop.I15];
-            float[] LOGLEN = new float[VolumeLibraryInterop.I20];
-            float[] BOLHT = new float[VolumeLibraryInterop.I21];
-            float[,] LOGVOL = new float[VolumeLibraryInterop.I20, VolumeLibraryInterop.I7];
-            float[,] LOGDIA = new float[VolumeLibraryInterop.I3, VolumeLibraryInterop.I21];
-
-            // Inputs
             float DBHOB = tree.DBH;
             float DRCOB = tree.DRC;
 
@@ -219,12 +213,12 @@ namespace CruiseProcessing.Processing
             // and at the time isn't settable by the user
             if (CTYPE.ToString() == "V" && numLogs > 0)
             {
-                //  load LOGLEN with values or zeros
-                for (int n = 0; n < numLogs; n++)
-                    LOGLEN[n] = treeLogs[n].Length;
+                ////  load LOGLEN with values or zeros
+                //for (int n = 0; n < numLogs; n++)
+                //    LOGLEN[n] = treeLogs[n].Length;
 
-                for (int n = numLogs; n < VolumeLibraryInterop.I20; n++)
-                    LOGLEN[n] = 0;
+                //for (int n = numLogs; n < VolumeLibraryInterop.I20; n++)
+                //    LOGLEN[n] = 0;
 
                 TLOGS = numLogs;
             }
@@ -262,8 +256,6 @@ namespace CruiseProcessing.Processing
             float cr = 0.0f;
             float cull = 0.0f;
             int decaycd = 0;
-            float[] drybio = new float[VolumeLibraryInterop.DRYBIO_ARRAY_SIZE];
-            float[] grnbio = new float[VolumeLibraryInterop.GRNBIO_ARRAY_SIZE];
 
             Log?.LogDebug("Calculating Volume VolEq: {VolumeEquationNumber}", volEq.VolumeEquationNumber);
             Log?.LogTrace("VolLib Prams " +
@@ -283,13 +275,13 @@ namespace CruiseProcessing.Processing
                 STUMP, DBHOB, DRCOB, tree.TreeDefaultValue.MerchHeightType, HTTOT,
                 HTLOG, HT1PRD, HT2PRD, UPSHT1, UPSHT2,
                 UPSD1, UPSD2, HTREF, AVGZ1, AVGZ2,
-                FCLASS, DBTBH, BTR, VOL, LOGVOL,
-                LOGDIA, LOGLEN, BOLHT, ref TLOGS, out var NOLOGP,
+                FCLASS, DBTBH, BTR, out var VOL, out var LOGVOL,
+                out var LOGDIA, out var LOGLEN, out var BOLHT, out TLOGS, out var NOLOGP,
                 out var NOLOGS, CUTFLG, BFPFLG, CUPFLG, CDPFLG,
                 SPFLG, tree.TreeDefaultValue.ContractSpecies, tree.SampleGroup.PrimaryProduct, HTTFLL, tree.LiveDead,
-                out BA, out SI, CTYPE, out var ERRFLAG, PMTFLG,
-                ref mRules, IDIST,
-                brkht, brkhtd, fiaspcd, drybio, grnbio,
+                BA, SI, CTYPE, out var ERRFLAG, PMTFLG,
+                mRules, IDIST,
+                brkht, brkhtd, fiaspcd, out var drybio, out var grnbio,
                 cr, cull, decaycd);
 
             if (ERRFLAG > 0)
@@ -304,7 +296,7 @@ namespace CruiseProcessing.Processing
             logStockList.AddRange(GetLogStockList(treeLogs, (int)tree.Tree_CN, LOGVOL, LOGDIA, LOGLEN, TLOGS));
 
             //  Next, calculate net volumes
-            netVolumeCalculator.calcNetVol(CTYPE.ToString(), VOL, LOGVOL, logStockList, tree, Region,
+            NetVolumeCalculator.calcNetVol(CTYPE.ToString(), VOL, LOGVOL, logStockList, tree, Region,
                                           NOLOGP, NOLOGS, TLOGS, MTOPP, tree.SampleGroup.PrimaryProduct);
 
             //  Update number of logs
@@ -325,8 +317,11 @@ namespace CruiseProcessing.Processing
             }   //  endif
 
             //  Need to see if biomass calculation is needed here since it needs VOL[13] and VOL[14] for the call
-            float[] treeBiomassCalulations = volEq.CalcBiomass == 1 ? CalculateBiomass(tree, VOL, Region, Forest)
-                : new float[VolumeLibraryInterop.CRZBIOMASSCS_BMS_SIZE];
+            if(volEq.CalcBiomass == 1)
+            {
+                var calculatedBiomass = CalculateBiomass(tree, VOL, Region, Forest);
+                calculatedBiomass.CopyValuesToTreeCalculatedValues(tcv);
+            }
 
             //  Store volumes in tree calculated values
             //  because of the change made to how these calculations work, the TreeCalculatedValues table is emptied
@@ -340,7 +335,7 @@ namespace CruiseProcessing.Processing
 
             SetTreeCalculatedValues(tcv, VOL, LOGVOL, CUTFLG, BFPFLG, CUPFLG, CDPFLG,
                              SPFLG, hasRecoverablePrimary, tree.TreeDefaultValue.CullPrimary, hiddenDefect, tree.SeenDefectPrimary, tree.RecoverablePrimary,
-                             treeBiomassCalulations, TLOGS, NOLOGP, NOLOGS, Region, DataLayer);
+                             TLOGS, NOLOGP, NOLOGS, Region, DataLayer);
 
             //  update volume calcs in logstock if log volume calculated
             for (int k = 0; k < TLOGS; k++)
@@ -399,25 +394,13 @@ namespace CruiseProcessing.Processing
                     });
                 if (nthRow >= 0)
                 {
-                    tcList[nthRow].BiomassMainStemPrimary = calculatedBiomass[4];
-                    tcList[nthRow].BiomassMainStemSecondary = calculatedBiomass[5];
-                    tcList[nthRow].Biomasstotalstem = calculatedBiomass[0];
-                    tcList[nthRow].Biomasslivebranches = calculatedBiomass[1];
-                    tcList[nthRow].Biomassdeadbranches = calculatedBiomass[2];
-                    tcList[nthRow].Biomassfoliage = calculatedBiomass[3];
-                    tcList[nthRow].BiomassTip = calculatedBiomass[6];
+                    calculatedBiomass.CopyValuesToTreeCalculatedValues(tcList[nthRow]);
                 }
                 else if (nthRow < 0)
                 {
                     TreeCalculatedValuesDO tcvdo = new TreeCalculatedValuesDO();
                     tcvdo.Tree_CN = td.Tree_CN;
-                    tcvdo.BiomassMainStemPrimary = calculatedBiomass[4];
-                    tcvdo.BiomassMainStemSecondary = calculatedBiomass[5];
-                    tcvdo.Biomasstotalstem = calculatedBiomass[0];
-                    tcvdo.Biomasslivebranches = calculatedBiomass[1];
-                    tcvdo.Biomassdeadbranches = calculatedBiomass[2];
-                    tcvdo.Biomassfoliage = calculatedBiomass[3];
-                    tcvdo.BiomassTip = calculatedBiomass[6];
+                    calculatedBiomass.CopyValuesToTreeCalculatedValues(tcvdo);
                     tcList.Add(tcvdo);
                 }   //  endif on nthRow
             }   //  end foreach loop
@@ -425,9 +408,9 @@ namespace CruiseProcessing.Processing
             return tcList;
         }
 
-        public float[] CalculateBiomass(TreeDO tree, float[] VOL, string region, string forest)
+        public CrzBiomassResult CalculateBiomass(TreeDO tree, float[] VOL, string region, string forest)
         {
-            var calculatedBiomass = new float[VolumeLibraryInterop.CRZBIOMASSCS_BMS_SIZE];
+            
             var species = tree.Species;
             var product = tree.SampleGroup.PrimaryProduct;
             var liveDead = tree.LiveDead;
@@ -441,49 +424,14 @@ namespace CruiseProcessing.Processing
             int SPCD = (int)currFIA;
             int iRegn = int.Parse(region);
             int ERRFLAG = 0;
-            float[] WF = new float[3];
+            var WF = DataLayer.GetWeightFactorArray(species, product, liveDead, VolLib);
 
-            // in older versions Cruise Processing ignored the liveDead value
-            // to maintian some backwards compatibility we will try to use the
-            // liveDead specific biomass equations first, then fall back to the
-            // to whichever biomass equation is available.
-
-            // Oct 2024 - added new biomass service that will attempt to get weight factors
-            // from volume library if not found in the database
-
-            var pProdBiomassValues = DataLayer.GetPrimaryWeightFactorAndMoistureContent(species, product, liveDead);
-            if (pProdBiomassValues != null)
-            {
-                WF[0] = pProdBiomassValues.WeightFactor;
-                WF[2] = pProdBiomassValues.MoistureContent;
-            }
-            else
-            {
-                Log?.LogWarning("No Biomass Calculated: Unable to get primary prod values");
-                DataLayer.LogError("Tree", (int)tree.Tree_CN, "W", "No Biomass Calculated: Unable to get primary prod weight factor", columnName: "");
-                return calculatedBiomass;
-            }
-
-            var sProdBiomassValue = DataLayer.GetSecondaryWeightFactor(species, product, liveDead);
-            if (sProdBiomassValue != null)
-            {
-                WF[1] = sProdBiomassValue.Value;
-            }
-            else
-            {
-                Log?.LogWarning("No Biomass Calculated: Unable to get secondary prod values");
-                DataLayer.LogError("Tree", (int)tree.Tree_CN, "W", "No Biomass Calculated: Unable to get secondary prod weight factors", columnName: "");
-                return calculatedBiomass;
-            }
-
-            //  WHY?                            //if(currRegion == "9" || currRegion == "09")
-            //    CRZBIOMASSCS(ref REGN,FORST,ref SPCD,ref DBHOB,ref HTTOT,VOL,WF,calculatedBiomass,ref ERRFLAG,strlen);
-            //else
-
+            
+            CrzBiomassResult calculatedBiomass;
             try
             {
-                VolLib.CalculateBiomass(iRegn, forest, SPCD, currDBH, currDRC,
-                    currHGT, currFC, VOL, WF, calculatedBiomass,
+                calculatedBiomass = VolLib.CalculateBiomass(iRegn, forest, SPCD, currDBH, currDRC,
+                    currHGT, currFC, VOL, WF,
                     out ERRFLAG, product);
             }
             catch (AccessViolationException e)
@@ -494,12 +442,8 @@ namespace CruiseProcessing.Processing
 
             // Apply percent removed if greater than zero
             // seems like each BioEq for a given species/prod has the same PercentRemoved value
-            var pctRemv = DataLayer.GetPrecentRemoved(species, product);
-            if (pctRemv > 0)
-            {
-                for (int j = 0; j < VolumeLibraryInterop.CRZBIOMASSCS_BMS_SIZE; j++)
-                { calculatedBiomass[j] = calculatedBiomass[j] * pctRemv / 100.0f; }
-            }
+            var pctRemv = DataLayer.GetPercentRemoved(species, product);
+            calculatedBiomass.AdjustForPercentRemoved(pctRemv);
 
             return calculatedBiomass;
         }
@@ -556,7 +500,6 @@ namespace CruiseProcessing.Processing
             float hidDef,
             float seenDef,
             float recvDef,
-            float[] biomassCalcs,
             int TLOGS,
             float numberOfLogsPrimary,
             float numberOfLogsSecondary,
@@ -621,15 +564,6 @@ namespace CruiseProcessing.Processing
             {
                 SetTcvRecoveredVolume(tcv, cullDef, hidDef, seenDef, recvDef, currRegion, errorLogDataService);
             }
-
-            //  Store biomass if there is any
-            tcv.BiomassMainStemPrimary = biomassCalcs[4];
-            tcv.BiomassMainStemSecondary = biomassCalcs[5];
-            tcv.Biomasstotalstem = biomassCalcs[0];
-            tcv.Biomasslivebranches = biomassCalcs[1];
-            tcv.Biomassdeadbranches = biomassCalcs[2];
-            tcv.Biomassfoliage = biomassCalcs[3];
-            tcv.BiomassTip = biomassCalcs[6];
 
             static void SetTcvRecoveredVolume(TreeCalculatedValuesDO tcv, float cullDef, float hidDef,
                                             float seenDef, float recvDef, string currRegion, IErrorLogDataService errorLogDataService)
