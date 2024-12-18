@@ -151,6 +151,9 @@ namespace CruiseProcessing
             int pageNumber = 2;
 
             //  Output equation tables as needed
+            var biomassReportGenerator = Services.GetRequiredService<BiomassEquationReportGenerator>();
+            pageNumber = biomassReportGenerator.GenerateReport(strWriteOut, headerData, pageNumber);
+
             OutputEquationTables oet = new OutputEquationTables(DataLayer, headerData);
             oet.outputEquationTable(strWriteOut, ref pageNumber);
 
