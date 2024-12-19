@@ -3,6 +3,7 @@ using CruiseProcessing.Data;
 using CruiseProcessing.Interop;
 using CruiseProcessing.Output;
 using CruiseProcessing.Processing;
+using CruiseProcessing.ReferenceImplmentation;
 using CruiseProcessing.Services;
 using CruiseProcessing.Services.Logging;
 using CruiseProcessing.ViewModel;
@@ -92,20 +93,21 @@ namespace CruiseProcessing
             // add service collection so that we can programmatic detect what processors are registered
             services.AddSingleton<IServiceCollection>(services);
 
-            services.AddTransient<ICruiseProcessor, CruiseProcessor>();
-            //services.RegisterReferenceImplimentations();
-            services.AddKeyedTransient<ICruiseProcessor, CruiseProcessor_20241101_Preview>(nameof(CruiseProcessor_20241101_Preview));
+            
+            services.AddTransient<ICruiseProcessor, CruiseProcessor3>();
+            //services.AddKeyedTransient<ICruiseProcessor, CruiseProcessor3>(nameof(CruiseProcessor3));
+            services.AddKeyedTransient<ICruiseProcessor, CruiseProcessor>("CRZBIOMASS Legacy Processor");
+            services.AddKeyedTransient<ICruiseProcessor, RefCruiseProcessor>("Reference Legacy Processor");
 
             // register tree value calculators
-            services.AddTransient<ICalculateTreeValues, CalculateTreeValues2>();
-            services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues2>(nameof(CalculateTreeValues2));
-            services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues3>(nameof(CalculateTreeValues3));
+            //services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues2>(nameof(CalculateTreeValues2));
+            //services.AddKeyedTransient<ICalculateTreeValues, CalculateTreeValues3>(nameof(CalculateTreeValues3));
             //services.AddKeyedTransient<ICalculateTreeValues, RefCalculateTreeValues>(nameof(RefCalculateTreeValues));
 
             // register volume libraries
             services.AddSingleton<IVolumeLibrary, VolumeLibrary_20241118>();
-            services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20240626>(nameof(VolumeLibrary_20240626));
-            services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20241118>(nameof(VolumeLibrary_20241118));
+            //services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20240626>(nameof(VolumeLibrary_20240626));
+            //services.AddKeyedSingleton<IVolumeLibrary, VolumeLibrary_20241118>(nameof(VolumeLibrary_20241118));
 
             // register WPF views
             services.AddSingleton<MainWindow>();

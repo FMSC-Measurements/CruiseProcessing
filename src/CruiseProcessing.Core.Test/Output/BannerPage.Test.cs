@@ -1,7 +1,10 @@
 ﻿using CruiseDAL.DataObjects;
+using CruiseProcessing.Data;
 using CruiseProcessing.Output;
 using CruiseProcessing.OutputModels;
 using FluentAssertions;
+using NSubstitute;
+using NSubstitute.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,9 +100,9 @@ FORT COLLINS, COLORADO (970)295-5776                                            
                 new ReportsDO { ReportID = "UC1"},
                 new ReportsDO { ReportID = "UC2"},
             };
-        IEnumerable<VolumeEquationDO> volumeEquations = new[] // only for BLM to see if using 32 ft vol Eqs
+        List<VolumeEquationDO> volumeEquations = new() // only for BLM to see if using 32 ft vol Eqs
             {
-                new VolumeEquationDO{ },
+                new VolumeEquationDO() { },
             };
 
 
@@ -112,7 +115,10 @@ FORT COLLINS, COLORADO (970)295-5776                                            
             Date = currentDate,
         };
 
-        var result = BannerPage.GenerateBannerPage(filename, headerData, sale, reports, volumeEquations);
+        var mockDataLayer = Substitute.For<CpDataLayer>();
+        //mockDataLayer.getValueEquations().Returns(volumeEquations, volumeEquations );
+
+        var result = BannerPage.GenerateBannerPage(filename, headerData, sale, reports, mockDataLayer);
         VerifyLines(result.Split(new[] { Environment.NewLine, }, StringSplitOptions.None),
             expected.Split(new[] { Environment.NewLine, }, StringSplitOptions.None));
 
@@ -125,7 +131,7 @@ FORT COLLINS, COLORADO (970)295-5776                                            
     {
         resultLines.Should().HaveSameCount(expectedLines);
 
-        foreach(var (r,ex) in resultLines.Zip(expectedLines, (x, y) => (x,y)))
+        foreach (var (r, ex) in resultLines.Zip(expectedLines, (x, y) => (x, y)))
         {
             //if (r.StartsWith("RUN DATE & TIME:")) { continue; }
 

@@ -121,8 +121,7 @@ namespace CruiseProcessing.Test.Processing
             }
 
             var mockDialogService = new Mock<IDialogService>();
-            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, CreateLogger<CruiseProcessor>());
 
 
 
@@ -242,8 +241,7 @@ namespace CruiseProcessing.Test.Processing
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = CreateLogger<CruiseProcessor>();
 
-            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, CreateLogger<CruiseProcessor>());
 
 
 
@@ -431,16 +429,8 @@ namespace CruiseProcessing.Test.Processing
                 throw new Exception("Skip - Cruise errors");
             }
 
-
-            var defaultProcessor = new CruiseProcessorItem
-            {
-                Name = "OldProcess_20240626",
-                Processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>()), CreateLogger<CruiseProcessor>())
-            };
-
             var processors = new[]
             {
-                defaultProcessor,
                 //new CruiseProcessorItem
                 //{
                 //    Name = "Reference",
@@ -449,23 +439,13 @@ namespace CruiseProcessing.Test.Processing
 
                 new CruiseProcessorItem
                 {
-                    Name = "OldProcess_20241101",
-                    Processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues2(dataLayer, new VolumeLibrary_20241101(), CreateLogger<CalculateTreeValues2>()), CreateLogger<CruiseProcessor>())
-                },
-                new CruiseProcessorItem
-                {
-                    Name = "NewProcess_20241101",
-                    Processor = new CruiseProcessor_20241101_Preview(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues3(dataLayer, new VolumeLibrary_20241101(), CreateLogger<CalculateTreeValues3>()), CreateLogger<CruiseProcessor_20241101_Preview>())
-                },
-                new CruiseProcessorItem
-                {
                     Name = "OldProcess_20241118",
-                    Processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues2(dataLayer, new VolumeLibrary_20241118(), CreateLogger<CalculateTreeValues2>()), CreateLogger<CruiseProcessor>())
+                    Processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), CreateLogger<CruiseProcessor>())
                 },
                 new CruiseProcessorItem
                 {
                     Name = "NewProcess_20241118",
-                    Processor = new CruiseProcessor_20241101_Preview(dataLayer, Substitute.For<IDialogService>(), new CalculateTreeValues3(dataLayer, new VolumeLibrary_20241118(), CreateLogger<CalculateTreeValues3>()), CreateLogger<CruiseProcessor_20241101_Preview>())
+                    Processor = new CruiseProcessor3(dataLayer, Substitute.For<IDialogService>(), CreateLogger<CruiseProcessor3>())
                 },
             };
 
@@ -483,6 +463,7 @@ namespace CruiseProcessing.Test.Processing
             var headerPad = 24;
             var dataColPad = processors.Max(x => x.Name.Length) + 2;
 
+            var defaultProcessor = processors.First();
             foreach (var tcv in defaultProcessor.TreeCalculatedValueResults)
             {
                 var tree = dataLayer.GetTree(tcv.Tree_CN);

@@ -68,7 +68,7 @@ namespace CruiseProcessing.Processing
 
         public string GetVersion()
         {
-            return VolLib.GetVersionNumberString() + "Preview";
+            return VolLib.GetVersionNumberString();
         }
 
         public void ProcessTrees(string currST, string currMethod, long currST_CN)

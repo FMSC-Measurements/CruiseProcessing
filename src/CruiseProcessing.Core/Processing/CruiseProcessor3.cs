@@ -5,18 +5,21 @@ using Microsoft.Extensions.Logging;
 
 namespace CruiseProcessing.Processing
 {
-    public class CruiseProcessor_20241101_Preview : CruiseProcessor
+    public class CruiseProcessor3 : CruiseProcessor
     {
-        public CruiseProcessor_20241101_Preview(CpDataLayer dataLayer,
+        public CruiseProcessor3(CpDataLayer dataLayer,
+                                      IDialogService dialogService,
+                                      ILogger<CruiseProcessor3> logger)
+            : base(dataLayer, dialogService, new CalculateTreeValues3(dataLayer), logger)
+        {
+        }
+
+        protected CruiseProcessor3(CpDataLayer dataLayer,
                                       IDialogService dialogService,
                                       [FromKeyedServices(nameof(CalculateTreeValues3))] ICalculateTreeValues calculateTreeValues,
-                                      ILogger<CruiseProcessor_20241101_Preview> logger)
+                                      ILogger<CruiseProcessor3> logger)
             : base(dataLayer, dialogService, calculateTreeValues, logger)
         {
-            DataLayer = dataLayer;
-            DialogService = dialogService;
-            Logger = logger;
-            TreeValCalculator = calculateTreeValues;
         }
     }
 }
