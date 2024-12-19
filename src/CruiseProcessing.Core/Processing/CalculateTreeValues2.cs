@@ -50,7 +50,7 @@ namespace CruiseProcessing.Processing
 
         public string GetVersion()
         {
-            return VolLib.GetVersionNumberString();
+            return VolLib.GetVersionNumberString() + ":CRZBIOMASS";
         }
 
         public void ProcessTrees(string currST, string currMethod, long currST_CN)

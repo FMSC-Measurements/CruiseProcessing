@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using CruiseDAL;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 using CruiseProcessing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -89,6 +90,7 @@ public class TestBase
     protected virtual void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<IDialogService>((x) => Substitute.For<IDialogService>());
+        services.AddTransient<IVolumeLibrary, VolumeLibrary_20241118>();
     }
 
     protected virtual void ConfigureLogging(ILoggingBuilder loggingBuilder)

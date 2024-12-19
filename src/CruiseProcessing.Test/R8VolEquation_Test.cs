@@ -13,6 +13,7 @@ using TreeV3 = CruiseDAL.V3.Models.Tree;
 using CruiseDAL;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing.Test
 {
@@ -20,6 +21,12 @@ namespace CruiseProcessing.Test
     {
         public R8VolEquation_Test(ITestOutputHelper output) : base(output)
         {
+        }
+
+        protected override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+            services.AddTransient<R8VolEquation>();
         }
 
         [Fact]
@@ -48,7 +55,11 @@ namespace CruiseProcessing.Test
 
             v2Db.From<VolumeEqV2>().Query().Count().Should().Be(0);
 
-            var form = new R8VolEquation(DataContext.DataLayer, MockServiceProvider, MockDialogService);
+            var host = CreateTestHost((serv) =>
+            {
+                serv.AddSingleton<CpDataLayer>(dataLayer);
+            });
+            var form = host.Services.GetRequiredService<R8VolEquation>();
 
             form.Finish(false, true);
 
@@ -97,7 +108,11 @@ namespace CruiseProcessing.Test
             v2db.From<VolumeEqV2>().Query().Count().Should().Be(0);
             v2db.From<TreeV2>().Query().Count().Should().Be(3);
 
-            var form = new R8VolEquation(DataContext.DataLayer, MockServiceProvider, MockDialogService);
+            var host = CreateTestHost((serv) =>
+            {
+                serv.AddSingleton<CpDataLayer>(dataLayer);
+            });
+            var form = host.Services.GetRequiredService<R8VolEquation>();
 
             form.Finish(false, true);
 

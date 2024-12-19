@@ -172,7 +172,7 @@ namespace CruiseProcessing.ReferenceImplmentation
         {
             int volLibVersion = 0;
             RefCalculateTreeValues.VERNUM2(ref volLibVersion);
-            return VolumeLibraryExtensions.VolLibVersionNumberToString(volLibVersion);
+            return VolumeLibraryExtensions.VolLibVersionNumberToString(volLibVersion) + ":Ref";
         }
 
         public void ProcessTrees(string currST, string currMethod, long currST_CN)

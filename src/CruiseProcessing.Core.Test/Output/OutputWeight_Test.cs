@@ -188,8 +188,7 @@ namespace CruiseProcessing.Test.Output
                     throw new Exception("Skip - Cruise errors");
                 }
 
-                var calculateTreeValues = new CalculateTreeValues2(dataLayer, volumeLibrary, CreateLogger<CalculateTreeValues2>());
-                var processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), calculateTreeValues, CreateLogger<CruiseProcessor>());
+                var processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), CreateLogger<CruiseProcessor>());
                 processor.ProcessCruise(null);
             }
 
