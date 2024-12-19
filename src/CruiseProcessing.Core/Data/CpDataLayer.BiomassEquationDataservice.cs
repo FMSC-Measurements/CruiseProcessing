@@ -13,7 +13,7 @@ namespace CruiseProcessing.Data
 
         public BiomassEquationOptions BiomassOptions { get; }
 
-        protected Dictionary<(string species, string product, string liveDead), float[]> CRZSPDFTWeightFactorCache
+        public Dictionary<(string species, string product, string liveDead), float[]> CRZSPDFTWeightFactorCache
             = new Dictionary<(string species, string product, string liveDead), float[]>();
 
         public Dictionary<(string species, string product, string liveDead), float> NVBWeightFactorCache

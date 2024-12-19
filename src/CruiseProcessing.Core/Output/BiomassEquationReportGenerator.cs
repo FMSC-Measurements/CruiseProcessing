@@ -2,6 +2,7 @@
 using CruiseProcessing.Data;
 using CruiseProcessing.OutputModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace CruiseProcessing.Output
 
         public int GenerateReport(TextWriter strWriteOut, HeaderFieldData headerData, int startPageNum)
         {
+            int[] fieldLengths = new int[12] { 2, 8, 5, 20, 7, 8, 8, 4, 6, 9, 6, 1 };
             string currRegion = DataLayer.getRegion();
             if (currRegion == "7" || currRegion == "07") { return startPageNum; }
 
@@ -31,10 +33,6 @@ namespace CruiseProcessing.Output
             {
                 WriteReportHeading(strWriteOut, "BIOMASS EQUATION TABLE", "", "", BiomassHeaders, 10, ref pageNumb, "");
 
-                int[] fieldLengths = new int[12] { 2, 8, 5, 20, 7, 8, 8, 4, 6, 9, 6, 1 };
-                string prevSP = "**";
-                string prevPP = "**";
-                int printSpecies = 0;
                 foreach (var key in DataLayer.NVBWeightFactorCache.Keys)
                 {
                     var weightFactor = DataLayer.NVBWeightFactorCache[key];
@@ -46,60 +44,89 @@ namespace CruiseProcessing.Output
                     WriteReportHeading(strWriteOut, "BIOMASS EQUATION TABLE", "", "", BiomassHeaders, 10, ref pageNumb, "");
 
 
-                    var prtFields = BuildPrintArray(species, product, liveDead, weightFactor, percentRemoved);
+                    var prtFields = BuildPrintArray(species, product, (float?)null, percentRemoved, liveDead, weightFactor);
                     var oneRecord = buildPrintLine(fieldLengths, prtFields);
                     strWriteOut.WriteLine(oneRecord);
                     numOlines++;
                 }
+
+                return pageNumb;
             }
-            else
-            {
-                var spProdValues = DataLayer.GetUniqueSpeciesProductFromTrees()
+            var spProdValues = DataLayer.GetUniqueSpeciesProductFromTrees()
                 .Select(x => (x.SpeciesCode, x.ProductCode))
                 .ToHashSet();
 
-                //  Biomass equations
-                var bioList = DataLayer.getBiomassEquations()
-                    .Where(x => spProdValues.Contains((x.Species, x.Product))).ToList();
-                if (bioList.Count > 0)
+            //  Biomass equations
+            var bioList = DataLayer.getBiomassEquations()
+                .Where(x => spProdValues.Contains((x.Species, x.Product))).ToList();
+            if (bioList.Count > 0)
+            {
+                numOlines = 0;
+                WriteReportHeading(strWriteOut, "BIOMASS EQUATION TABLE", "", "", BiomassHeaders, 10, ref pageNumb, "");
+
+                string prevSP = "**";
+                string prevPP = "**";
+                int printSpecies = 0;
+                foreach (BiomassEquationDO bel in bioList)
                 {
-                    numOlines = 0;
+                    //  new header?
                     WriteReportHeading(strWriteOut, "BIOMASS EQUATION TABLE", "", "", BiomassHeaders, 10, ref pageNumb, "");
 
-                    int[] fieldLengths = new int[12] { 2, 8, 5, 20, 7, 8, 8, 4, 6, 9, 6, 1 };
-                    string prevSP = "**";
-                    string prevPP = "**";
-                    int printSpecies = 0;
-                    foreach (BiomassEquationDO bel in bioList)
+                    if (prevSP != bel.Species || prevPP != bel.Product)
                     {
-                        //  new header?
+                        printSpecies = 1;
+                        prevSP = bel.Species;
+                        //  find biomass product in the sample group table
+
+                        prevPP = bel.Product;
+                    }
+                    else if (prevSP == bel.Species || prevPP == bel.Product)
+                    {
+                        printSpecies = 0;
+                    }   //  endif
+                        //  build array for creating equation line
+                    var prtFields = buildPrintArray(bel, printSpecies);
+                    var oneRecord = buildPrintLine(fieldLengths, prtFields);
+                    strWriteOut.WriteLine(oneRecord);
+                    numOlines++;
+                }
+
+                return pageNumb;
+            }
+            else
+            {
+                // no biomass equations
+                // lets see of there is anything in the CRZSPDFTWeightFactorCache
+
+                if(DataLayer.CRZSPDFTWeightFactorCache.Any())
+                {
+                    WriteReportHeading(strWriteOut, "BIOMASS EQUATION TABLE", "", "", BiomassHeaders, 10, ref pageNumb, "");
+
+                    foreach (var key in DataLayer.CRZSPDFTWeightFactorCache.Keys)
+                    {
+                        var weightFactors = DataLayer.CRZSPDFTWeightFactorCache[key];
+                        var species = key.species;
+                        var product = key.product;
+                        var liveDead = key.liveDead;
+                        var percentRemoved = DataLayer.GetPercentRemoved(species, product);
+
                         WriteReportHeading(strWriteOut, "BIOMASS EQUATION TABLE", "", "", BiomassHeaders, 10, ref pageNumb, "");
 
-                        if (prevSP != bel.Species || prevPP != bel.Product)
-                        {
-                            printSpecies = 1;
-                            prevSP = bel.Species;
-                            //  find biomass product in the sample group table
 
-                            prevPP = bel.Product;
-                        }
-                        else if (prevSP == bel.Species || prevPP == bel.Product)
-                        {
-                            printSpecies = 0;
-                        }   //  endif
-                            //  build array for creating equation line
-                        var prtFields = buildPrintArray(bel, printSpecies);
+                        var prtFields = BuildPrintArray(species, product, weightFactors[2], percentRemoved, liveDead, weightFactors[0], weightFactors[1]);
                         var oneRecord = buildPrintLine(fieldLengths, prtFields);
                         strWriteOut.WriteLine(oneRecord);
                         numOlines++;
-                    }   //  end foreach loop
-                }   //  endif biomass equations exist
+                    }
+                }
+
+
             }
 
             return pageNumb;
         }
 
-        public static List<string> BuildPrintArray(string species, string product, string livedead, float weightFactor, float percentRemoved)
+        public static List<string> BuildPrintArray(string species, string product, float? percentMoisture, float percentRemoved, string livedead, float weightFactor, float? weightFactor2 = null)
         {
             string fieldFormat = "{0,5:F1}";
             var printArray = new List<string>();
@@ -108,12 +135,12 @@ namespace CruiseProcessing.Output
             printArray.Add(product.PadLeft(2, '0'));
             printArray.Add("                 ");
             printArray.Add("   ");
-            printArray.Add("     ");
+            printArray.Add(string.Format(fieldFormat, percentMoisture));
             printArray.Add(string.Format(fieldFormat, percentRemoved));
             printArray.Add(livedead);
             printArray.Add("   ");
             printArray.Add(string.Format(fieldFormat, weightFactor));
-            printArray.Add("     ");
+            printArray.Add(string.Format(fieldFormat, weightFactor2));
             printArray.Add("  ");
 
             return printArray;
