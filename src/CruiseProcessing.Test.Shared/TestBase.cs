@@ -73,7 +73,7 @@ public class TestBase
     protected IHost CreateTestHost(Action<IServiceCollection> configureServices = null)
     {
         var builder = new HostBuilder()
-            .ConfigureServices(configureServices)
+            .ConfigureServices(ConfigureServices)
             .ConfigureLogging(ConfigureLogging);
 
         if(configureServices != null)
@@ -84,7 +84,7 @@ public class TestBase
         var host = builder.Build();
         CruiseProcessing.Services.Logging.LoggerProvider.Initialize(host.Services);
 
-        return builder.Build();
+        return host;
     }
 
     protected virtual void ConfigureServices(IServiceCollection services)
