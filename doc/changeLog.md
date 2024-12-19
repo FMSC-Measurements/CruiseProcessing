@@ -1,3 +1,25 @@
+# Version 12.18.2024
+
+## Fixes 
+ - Fixed Percent Removed not saving
+ - Fixed UC3, UC4, UC5, and UC6 reports showing 0 for all volumes when UOM was 05
+ - Fixed WT reports not generating sometimes even though biomass was calculated
+
+## Changes
+ - Updated Volume Library version to 11.18.2024
+ - Changed biomass calculations from using CrzBiomass method to using to the National Volume Estimator (NVB) method. 
+   - Simplify Biomass Equation report: Values no longer separated out by component. Percent Moisture no longer shown.
+Previously sometimes two weight factors were shown, although always the same. Now just one weight factor for each species/product/LiveDead is shown.
+   - Weight factors are determined by the National Volume Estimator and cant be changed via the modify weight factors page, 
+   and weight factors that had been previously defined in the cruise are not used and may be different. 
+   - Main stem and tip calculated biomass values should remain similar to previous calculated values, but branches, foliage and total values should be significantly different.
+ - FIA code for volume calculation now uses the FIA code defined by the Species record (V3) or Tree Default Value (V2), rather than by extracting the FIA code from the Volume Equation number
+ - Added button to Volume Equations dialog to remove unused volume equations
+ - Added drop down selection when editing volume equations
+ - Volume Equation, Biomass Equations and Value Equation reports only show equations for species/products that have trees
+ 
+
+
 # Version 11.08.2024
 
 ## Fixes
@@ -10,9 +32,6 @@
 ## Changes
  - Added error message when multiple volume equations for a species/product exist and calculate the components
  - No longer necessary to go into volume equations page ensure biomass equation info is generated, unless percent removed needs to be changed from default of 95
-
-
-
 
 # Version 09.18.2024
 
