@@ -15,6 +15,11 @@ namespace CruiseProcessing.Data
             return DAL.From<TreeDO>().Read().ToList();
         }   //  end getTrees
 
+        public TreeDO GetTree(long? treeCN)
+        {
+            return DAL.From<TreeDO>().Where("Tree_CN = @p1").Query(treeCN).FirstOrDefault();
+        }
+
         public List<TreeDO> GetUniqueSpecies()
         {
             // TODO optimize this method and calling methods
@@ -202,6 +207,11 @@ namespace CruiseProcessing.Data
 
             return speciesProduct;
         }   //  end GetUniqueSpeciesProduct
+
+        public IReadOnlyCollection<string> GetUniqueSpeciesCodesFromTrees()
+        {
+            return DAL.QueryScalar<string>("SELECT DISTINCT Species FROM Tree WHERE Species IS NOT NULL AND length(Species) > 0").ToArray();
+        }
 
         public IReadOnlyCollection<SpeciesProduct> GetUniqueSpeciesProductFromTrees()
         {

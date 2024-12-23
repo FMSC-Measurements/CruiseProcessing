@@ -14,11 +14,12 @@ using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace CruiseProcessing.Test
+namespace CruiseProcessing.Test.Processing
 {
     public class CruiseProcessor_Test : TestBase
     {
@@ -120,8 +121,7 @@ namespace CruiseProcessing.Test
             }
 
             var mockDialogService = new Mock<IDialogService>();
-            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, CreateLogger<CruiseProcessor>());
 
 
 
@@ -241,8 +241,7 @@ namespace CruiseProcessing.Test
             var mockDialogService = new Mock<IDialogService>();
             var mockLogger = CreateLogger<CruiseProcessor>();
 
-            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
-            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, ctv, CreateLogger<CruiseProcessor>());
+            var cruiseProcessor = new CruiseProcessor(dataLayer, mockDialogService.Object, CreateLogger<CruiseProcessor>());
 
 
 
@@ -293,7 +292,7 @@ namespace CruiseProcessing.Test
             }
 
             lcdsAgain.Should().HaveSameCount(lcds);
-            foreach(var lcd in lcds)
+            foreach (var lcd in lcds)
             {
                 var match = lcdsAgain.SingleOrDefault(x => x.Stratum == lcd.Stratum && x.SampleGroup == lcd.SampleGroup && x.Species == lcd.Species && x.STM == lcd.STM && x.LiveDead == lcd.LiveDead && x.TreeGrade == lcd.TreeGrade);
                 match.Should().NotBeNull();
@@ -309,7 +308,7 @@ namespace CruiseProcessing.Test
                 });
             }
 
-            foreach(var pop in pops)
+            foreach (var pop in pops)
             {
                 var match = popsAgain.SingleOrDefault(x => x.Stratum == pop.Stratum && x.SampleGroup == pop.SampleGroup && x.STM == pop.STM);
                 match.Should().NotBeNull();
@@ -323,7 +322,7 @@ namespace CruiseProcessing.Test
                 });
             }
 
-            foreach(var pro in pros)
+            foreach (var pro in pros)
             {
                 var match = prosAgain.SingleOrDefault(x => x.Stratum == pro.Stratum && x.SampleGroup == pro.SampleGroup && x.CuttingUnit == pro.CuttingUnit && x.STM == pro.STM);
                 match.Should().NotBeNull();
@@ -336,6 +335,230 @@ namespace CruiseProcessing.Test
 
 
 
+        }
+
+        [Theory]
+        //[InlineData("OgTest\\BLM\\Hammer Away.cruise")]
+        //[InlineData("OgTest\\BLM\\Long Nine.cruise")]
+        //[InlineData("OgTest\\Region1\\R1_FrenchGulch.cruise")]
+        //[InlineData("OgTest\\Region2\\R2_Test.cruise")]
+        //[InlineData("OgTest\\Region2\\R2_Test_V3.process")]
+        //[InlineData("OgTest\\Region3\\R3_FCM_100.cruise")]
+        //[InlineData("OgTest\\Region3\\R3_PCM_FIXCNT.cruise")]
+        [InlineData("OgTest\\Region3\\R3_PNT_FIXCNT.cruise")]
+        //[InlineData("OgTest\\Region4\\R4_McDougal.cruise")]
+        [InlineData("OgTest\\Region5\\R5.cruise")]
+        [InlineData("OgTest\\Region6\\R6.cruise")]
+        [InlineData("OgTest\\Region8\\R8.cruise")]
+        //[InlineData("OgTest\\Region9\\R9.cruise")]
+        //[InlineData("OgTest\\Region10\\R10.cruise")]
+
+        //[InlineData("Version3Testing\\3P\\87654 test 3P TS.cruise")]
+        //[InlineData("Version3Testing\\3P\\87654_test 3P_Timber_Sale_26082021.process")]
+        //[InlineData("Version3Testing\\3P\\87654_test 3P_Timber_Sale_26082021_fixedTallyBySp.process")]
+        //[InlineData("Version3Testing\\3P\\87654_Test 3P_Timber_Sale_30092021.process")]
+
+        //[InlineData("Version3Testing\\FIX\\20301 Cold Springs Recon.cruise")]
+        //[InlineData("Version3Testing\\FIX\\20301_Cold Springs_Timber_Sale_29092021.process")]
+
+        //[InlineData("Version3Testing\\FIX and PNT\\99996_TestMeth_Timber_Sale_08072021.process")]
+
+        //[InlineData("Version3Testing\\PCM\\27504_Spruce East_TS.cruise")]
+
+        //[InlineData("Version3Testing\\PNT\\Exercise3_Dead_LP_Recon.cruise")]
+
+        //[InlineData("Version3Testing\\STR\\98765 test STR TS.cruise")]
+        //[InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_26082021.process")]
+        //[InlineData("Version3Testing\\STR\\98765_test STR_Timber_Sale_30092021.process", Skip = "Has Blank Tree Grades")]
+
+        //[InlineData("Version3Testing\\TestMeth\\99996_TestMeth_TS_202310040107_KC'sTabActive3-R9Q8.process")]
+
+        //[InlineData("Version3Testing\\27504PCM_Spruce East_Timber_Sale.cruise")]
+        //[InlineData("Version3Testing\\99996FIX_PNT_Timber_Sale_08242021.cruise")]
+
+        //[InlineData("Temp\\21853\\21853 Swanson Creek TS Data Checked.cruise")]
+        //[InlineData("Temp\\21853\\21853 Swanson Creek TS Data Checked_withTallySetup.cruise")]
+        public void ProcessCruise_CompareImplimentations_TreeCalculatedValues(string testFileName)
+        {
+            //
+            // initialize datalayer for test file
+            //
+            string filePath = null;
+
+            var extention = Path.GetExtension(testFileName);
+            if (extention == ".crz3")
+            {
+                var v3Path = GetTestFile(testFileName);
+                using var v3db = new CruiseDatastore_V3(v3Path);
+                var cruiseID = v3db.From<CruiseDAL.V3.Models.Cruise>().Query().Single().CruiseID;
+
+                var v2Path = GetTempFilePath(".process", Path.GetFileNameWithoutExtension(testFileName) + ".ProcessAndVerityOutput_V3");
+                using var v2Db = new DAL(v2Path, true);
+
+                var migrator = new DownMigrator();
+                migrator.MigrateFromV3ToV2(cruiseID, v3db, v2Db);
+
+                filePath = v2Path;
+            }
+            else
+            {
+                filePath = GetTestFile(testFileName);
+            }
+
+            var dal = new DAL(filePath);
+
+            var mockDlLogger = CreateLogger<CpDataLayer>();
+            var dataLayer = new CpDataLayer(dal, mockDlLogger, biomassOptions: null);
+
+            //
+            // check cruise for errors
+            //
+
+            List<ErrorLogDO> fscList = dataLayer.getErrorMessages("E", "FScruiser");
+            var errors = EditChecks.CheckErrors(dataLayer);
+
+            if (fscList.Any())
+            { throw new Exception("Skip - Cruise FSC errors"); }
+            if (errors.Any())
+            {
+                foreach (var error in errors)
+                {
+                    Output.WriteLine($"Table: {error.TableName} CN:{error.CN_Number} Column:{error.ColumnName} Message:{ErrorReport.GetErrorMessage(error.Message)}");
+                }
+
+                throw new Exception("Skip - Cruise errors");
+            }
+
+            var processors = new[]
+            {
+                //new CruiseProcessorItem
+                //{
+                //    Name = "Reference",
+                //    Processor = new RefCruiseProcessor(dataLayer, Substitute.For<ILogger<RefCruiseProcessor>>(), CreateLogger<RefCalculateTreeValues>())
+                //},
+
+                new CruiseProcessorItem
+                {
+                    Name = "OldProcess_20241118",
+                    Processor = new CruiseProcessor(dataLayer, Substitute.For<IDialogService>(), CreateLogger<CruiseProcessor>())
+                },
+                new CruiseProcessorItem
+                {
+                    Name = "NewProcess_20241118",
+                    Processor = new CruiseProcessor3(dataLayer, Substitute.For<IDialogService>(), CreateLogger<CruiseProcessor3>())
+                },
+            };
+
+            BiomassHelpers.UpdateBiomass(dataLayer, dataLayer.getVolumeEquations());
+
+            foreach (var processor in processors)
+            {
+                processor.Processor.ProcessCruise(Substitute.For<IProgress<string>>());
+
+                processor.TreeCalculatedValueResults = dataLayer.getTreeCalculatedValues();
+                processor.LCDResults = dataLayer.getLCD();
+                processor.POPResults = dataLayer.getPOP();
+            }
+
+            var headerPad = 24;
+            var dataColPad = processors.Max(x => x.Name.Length) + 2;
+
+            var defaultProcessor = processors.First();
+            foreach (var tcv in defaultProcessor.TreeCalculatedValueResults)
+            {
+                var tree = dataLayer.GetTree(tcv.Tree_CN);
+
+                var treeCnStr = tcv.Tree_CN.ToString().PadLeft(4);
+                var treeNumStr = tree.TreeNumber.ToString().PadLeft(4);
+                var dbhStr = tree.DBH.ToString().PadLeft(6);
+                var totHtStr = tree.TotalHeight.ToString().PadLeft(6);
+                var species = tree.Species.PadLeft(4);
+                var fiaCode = tree.TreeDefaultValue.FIAcode.ToString().PadLeft(4);
+                var liveDead = tree.LiveDead.PadLeft(1);
+                Output.WriteLine($"Tree_CN {treeCnStr} TreeNum:{treeNumStr} Sp:{species} FIA:{fiaCode} LD:{liveDead} DBH:{dbhStr} TotHt:{totHtStr}");
+
+                var tcvResults = processors
+                    //.Where(p => !object.ReferenceEquals(p, defaultProcessor))
+                    .Select(x => x.GetTcvResult(tcv.Tree_CN)).ToArray();
+
+
+                // write header for each tree
+                Output.WriteLine($"{string.Empty.PadRight(headerPad)}  {string.Join(",", processors.Select(x => x.Name.PadLeft(dataColPad).Substring(0, dataColPad)))}");
+
+                WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.Biomasstotalstem);
+
+                WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.BiomassMainStemPrimary);
+                WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.BiomassMainStemSecondary);
+                WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.BiomassTip);
+                WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.Biomasslivebranches);
+                WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.Biomassfoliage);
+
+                //WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.BiomassProd);
+                //WriteProperty(Output, tcv, tcvResults, headerPad, dataColPad, x => x.Biomassdeadbranches);
+
+
+
+
+
+                Output.WriteLine("");
+            }
+
+            void WriteProperty<A, T>(ITestOutputHelper output, A firstData, IEnumerable<A> moreData, int headerPad, int dataPad, Expression<Func<A, T>> accessorExpr)
+            {
+
+                // Get the property name
+                if (accessorExpr.Body is MemberExpression memberExpression)
+                {
+                    var propertyName = memberExpression.Member.Name;
+
+                    // Compile the expression to get the property value
+                    var func = accessorExpr.Compile();
+                    var firstValue = func.Invoke(firstData);
+
+
+                    var moreValues = moreData.Select(x => (func.Invoke(x)?.ToString() ?? "").PadLeft(dataPad).Substring(0, dataPad)).ToArray();
+                    //var firstValueStr = (firstValue?.ToString() ?? "").PadLeft(dataPad).Substring(0, dataPad);
+                    // Write the property name and value to the output stream
+                    output.WriteLine($"{propertyName.ToString().PadRight(headerPad)}: {string.Join(",", moreValues)}");
+                }
+                else
+                {
+                    throw new ArgumentException("The expression must be a member expression", nameof(accessorExpr));
+                }
+            }
+        }
+
+        private class CruiseProcessorItem
+        {
+            public string Name { get; set; }
+            public ICruiseProcessor Processor { get; set; }
+
+            public IEnumerable<TreeCalculatedValuesDO> TreeCalculatedValueResults { get; set; }
+            public IEnumerable<LCDDO> LCDResults { get; set; }
+            public IEnumerable<POPDO> POPResults { get; set; }
+            public IEnumerable<PRODO> PROResults { get; set; }
+
+            public TreeCalculatedValuesDO GetTcvResult(long? tree_CN)
+            {
+                return TreeCalculatedValueResults.Single(x => x.Tree_CN == tree_CN);
+            }
+
+            public LCDDO GetLCDResult(LCDDO lcd)
+            {
+                return LCDResults.SingleOrDefault(x => x.Stratum == lcd.Stratum
+                && x.SampleGroup == lcd.SampleGroup
+                && x.Species == lcd.Species
+                && x.STM == lcd.STM
+                && x.LiveDead == lcd.LiveDead
+                && x.TreeGrade == lcd.TreeGrade);
+            }
+
+            public POPDO GetPOPResult(POPDO pop)
+            {
+                return POPResults.SingleOrDefault(x => x.Stratum == pop.Stratum
+                && x.SampleGroup == pop.SampleGroup
+                && x.STM == pop.STM);
+            }
         }
 
 
@@ -383,7 +606,8 @@ namespace CruiseProcessing.Test
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
+            var host = ImplicitHost;
+            var ctf = new CreateTextFile(dataLayer, host.Services, VolumeLibraryInterop.Default, CreateLogger<CreateTextFile>());
 
             var stringWriter = new StringWriter();
 
@@ -433,7 +657,8 @@ namespace CruiseProcessing.Test
         {
             using var dataLayer = ProcessCruiseHelper(testFileName);
 
-            var ctf = new CreateTextFile(dataLayer, VolumeLibraryInterop.Default, Substitute.For<ILogger<CreateTextFile>>());
+            var host = ImplicitHost;
+            var ctf = new CreateTextFile(dataLayer, host.Services, VolumeLibraryInterop.Default, CreateLogger<CreateTextFile>());
 
             var stringWriter = new StringWriter();
 

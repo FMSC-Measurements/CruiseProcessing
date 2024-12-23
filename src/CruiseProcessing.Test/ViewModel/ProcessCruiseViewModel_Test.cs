@@ -144,9 +144,8 @@ namespace CruiseProcessing.Test.ViewModel
             var mockServiceProvider = GetServiceProviderMock(dataLayer);
             var mockServiceCollection = Substitute.For<IServiceCollection>();
 
-            var ctv = new CalculateTreeValues2(dataLayer, VolumeLibraryInterop.Default, CreateLogger<CalculateTreeValues2>());
             mockServiceProvider.GetService(typeof(ICruiseProcessor))
-                .Returns(new CruiseProcessor(dataLayer, mockDialogService, ctv, Substitute.For<ILogger<CruiseProcessor>>()));
+                .Returns(new CruiseProcessor(dataLayer, mockDialogService, Substitute.For<ILogger<CruiseProcessor>>()));
 
             var processStatus = new ProcessCruiseViewModel(dataLayer, mockDialogService, mockServiceProvider, CreateLogger<ProcessCruiseViewModel>(), mockServiceCollection);
 

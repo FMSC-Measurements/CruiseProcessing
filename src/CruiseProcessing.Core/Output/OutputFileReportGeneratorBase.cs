@@ -1,5 +1,6 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
+using CruiseProcessing.OutputModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,14 +14,20 @@ namespace CruiseProcessing.Output
     {
         public readonly string[] reportTitles = new string[3];
 
-        public HeaderFieldData HeaderData { get; set; }
+        public HeaderFieldData HeaderData { get; protected set; }
 
+        [Obsolete("ReportGenerator should implement IReportGenerator and pass header data in when calling Generate Report")]
         public OutputFileReportGeneratorBase(CpDataLayer dataLayer, HeaderFieldData headerData, string reportID = "") : base(dataLayer, reportID)
         {
             HeaderData = headerData;
         }
 
-        protected void printOneRecord(int[] fieldLengths, IEnumerable<string> prtFields, TextWriter strWriteOut)
+        public OutputFileReportGeneratorBase(CpDataLayer dataLayer, string reportID = "") : base(dataLayer, reportID)
+        {
+        }
+
+
+        protected void printOneRecord(IReadOnlyList<int> fieldLengths, IEnumerable<string> prtFields, TextWriter strWriteOut)
         {
             var oneRecord = buildPrintLine(fieldLengths, prtFields);
             strWriteOut.WriteLine(oneRecord);
@@ -326,6 +333,24 @@ namespace CruiseProcessing.Output
             strWriteOut.Write(reportToPrint);
             strWriteOut.WriteLine(reportMessage);
             strWriteOut.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        }
+
+        // used in Wt Reports
+        protected bool CheckForCubicFootVolumeAndWeights(TextWriter writer)
+        {
+            List<LCDDO> wholeList = DataLayer.getLCD();
+            if (wholeList.Sum(l => l.SumGCUFT) == 0)
+            {
+                noDataForReport(writer, currentReport, ">>  No cubic foot volume for this report");
+                return false;
+            }
+
+            if (wholeList.Sum(l => l.SumWgtMSP) == 0)
+            {
+                noDataForReport(writer, currentReport, ">>  No weight for this report");
+                return false;
+            }
+            return true;
         }
 
         public static string buildPrintLine(IReadOnlyList<int> fieldLengths, IEnumerable<string> fieldValues)

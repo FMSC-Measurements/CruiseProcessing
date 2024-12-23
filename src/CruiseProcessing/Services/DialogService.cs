@@ -69,6 +69,13 @@ namespace CruiseProcessing.Services
             return result == System.Windows.MessageBoxResult.Yes ? DialogServiceResult.Yes : DialogServiceResult.No;
         }
 
+        public (string Region, string Forest) AskTemplateRegionForest()
+        {
+            var dialog = Services.GetRequiredService<TemplateRegionForest>();
+            dialog.ShowDialog();
+            return (dialog.currentRegion, dialog.currentForest);
+        }
+
         public void ShowError(string message)
         {
             MessageBox.Show(Window, message, "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -119,7 +126,7 @@ namespace CruiseProcessing.Services
 
         public void ShowAbout()
         {
-            ShowInformation("CruiseProcessing Version " + App.AppVersion.ToString(3) 
+            ShowInformation("CruiseProcessing Version " + App.AppVersion.ToString(3)
                 + "\r\nForest Management Service Center\nFort Collins, Colorado");
         }
 
@@ -163,7 +170,7 @@ namespace CruiseProcessing.Services
             tfo.setupDialog();
             tfo.ShowDialog();
 
-            if(tfo.retrnState == 0)
+            if (tfo.retrnState == 0)
             {
                 return tfo.outFile;
             }
@@ -210,25 +217,30 @@ namespace CruiseProcessing.Services
 
         public void ShowVolumeEquations(bool isTemplateFile)
         {
-            VolumeEquations volEqObj = Services.GetRequiredService<VolumeEquations>();
+            var window = Services.GetRequiredService<VolumeEquationsView>();
+            window.Owner = Window;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            window.ShowDialog();
 
-            if (isTemplateFile)
-            {
-                int nResult = volEqObj.setupTemplateDialog();
-                if (nResult == 1)
-                {
-                    volEqObj.templateFlag = 1;
-                    volEqObj.ShowDialog();
-                }   //  endif
-            }
-            else
-            {
-                int nResult = volEqObj.setupDialog();
-                if (nResult != -1)
-                {
-                    volEqObj.ShowDialog();
-                }
-            }
+            //VolumeEquations volEqObj = Services.GetRequiredService<VolumeEquations>();
+
+            //if (isTemplateFile)
+            //{
+            //    int nResult = volEqObj.setupTemplateDialog();
+            //    if (nResult == 1)
+            //    {
+            //        volEqObj.templateFlag = 1;
+            //        volEqObj.ShowDialog();
+            //    }   //  endif
+            //}
+            //else
+            //{
+            //    int nResult = volEqObj.setupDialog();
+            //    if (nResult != -1)
+            //    {
+            //        volEqObj.ShowDialog();
+            //    }
+            //}
         }
 
         public void ShowR8VolumeEquations()
@@ -264,7 +276,7 @@ namespace CruiseProcessing.Services
         public void ShowCreateCsv()
         {
             SelectCSV sc = Services.GetRequiredService<SelectCSV>();
-            if(sc.setupDialog())
+            if (sc.setupDialog())
             {
                 sc.ShowDialog();
             }

@@ -18,42 +18,44 @@ namespace CruiseProcessing.Test.ViewModel
 {
     public class MainWindowViewModelTest : TestBase
     {
-        public IServiceProvider MockServiceProvider { get; }
-        public IDialogService MockDialogService { get; }
-        public ILogger<MainWindowViewModel> MockLogger { get; }
-        public DataLayerContext Dsp { get; private set; }
-        public MainWindowViewModel ViewModel { get; private set; }
 
         public MainWindowViewModelTest(ITestOutputHelper output) : base(output)
         {
-            
-            MockDialogService = Substitute.For<IDialogService>();
-            MockLogger = Substitute.For<ILogger<MainWindowViewModel>>();
-            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
-            var mockSp = MockServiceProvider = Substitute.For<IServiceProvider>();
-
-            mockSp.GetService<ILogger<CpDataLayer>>().Returns(mockDlLogger);
-
         }
 
         [Theory]
         [InlineData("12345 Region6TestTemplateData Timber Sale - TS.crz3")]
         public void OpenFile_V3(string testFileName)
         {
+            var viewModel = OpenFileHelper(testFileName);
+            viewModel.DataLayer.Dispose();
+        }
+
+        protected MainWindowViewModel OpenFileHelper(string testFileName)
+        {
             var filePath = GetTestFile(testFileName);
 
-            Dsp = new DataLayerContext()
+            var mockDialogService = Substitute.For<IDialogService>();
+            var mockLogger = Substitute.For<ILogger<MainWindowViewModel>>();
+            var mockDlLogger = Substitute.For<ILogger<CpDataLayer>>();
+            var mockServiceProvider = Substitute.For<IServiceProvider>();
+
+            mockServiceProvider.GetService<ILogger<CpDataLayer>>().Returns(mockDlLogger);
+
+            var dsc = new DataLayerContext()
             {
             };
 
-            ViewModel = new MainWindowViewModel(MockServiceProvider, MockDialogService, Dsp, MockLogger);
+            var viewModel = new MainWindowViewModel(mockServiceProvider, mockDialogService, dsc, mockLogger);
 
-            ViewModel.OpenFile(filePath);
+            viewModel.OpenFile(filePath);
 
-            Dsp.DataLayer.Should().NotBeNull();
-            Dsp.DataLayer.DAL.Should().NotBeNull();
-            Dsp.DataLayer.DAL_V3.Should().NotBeNull();
-            Dsp.DataLayer.CruiseID.Should().NotBeNull();
+            dsc.DataLayer.Should().NotBeNull();
+            dsc.DataLayer.DAL.Should().NotBeNull();
+            dsc.DataLayer.DAL_V3.Should().NotBeNull();
+            dsc.DataLayer.CruiseID.Should().NotBeNull();
+
+            return viewModel;
         }
 
 
@@ -62,22 +64,25 @@ namespace CruiseProcessing.Test.ViewModel
         [Fact]
         public void Issue35_AddStandardReports_V3()
         {
-            OpenFile_V3("12345 Region6TestTemplateData Timber Sale - TS.crz3");
+            var viewModel = OpenFileHelper("12345 Region6TestTemplateData Timber Sale - TS.crz3");
+            var dsc = viewModel.DataserviceProvider;
 
-            var v2SelectedCount = Dsp.DataLayer.DAL.From<ReportsDO>().Query().Where(x => x.Selected == true).Count();
-            var v3SelectedCount = Dsp.DataLayer.DAL_V3.From<CruiseDAL.V3.Models.Reports>().Query().Where(x => x.Selected == true).Count();
+            var v2SelectedCount = dsc.DataLayer.DAL.From<ReportsDO>().Query().Where(x => x.Selected == true).Count();
+            var v3SelectedCount = dsc.DataLayer.DAL_V3.From<CruiseDAL.V3.Models.Reports>().Query().Where(x => x.Selected == true).Count();
 
             v3SelectedCount.Should().Be(v2SelectedCount);
 
 
-            ViewModel.AddStandardReports();
+            viewModel.AddStandardReports();
 
-            var v2SelectedCountAgain = Dsp.DataLayer.DAL.From<ReportsDO>().Query().Where(x => x.Selected == true).Count();
-            var v3SelectedCountAgain = Dsp.DataLayer.DAL_V3.From<CruiseDAL.V3.Models.Reports>().Query().Where(x => x.Selected == true).Count();
+            var v2SelectedCountAgain = dsc.DataLayer.DAL.From<ReportsDO>().Query().Where(x => x.Selected == true).Count();
+            var v3SelectedCountAgain = dsc.DataLayer.DAL_V3.From<CruiseDAL.V3.Models.Reports>().Query().Where(x => x.Selected == true).Count();
 
             v3SelectedCountAgain.Should().Be(v2SelectedCountAgain);
 
-            MockDialogService.Received().ShowStandardReports(Arg.Any<List<ReportsDO>>(), Arg.Any<bool>());
+            viewModel.DialogService.Received().ShowStandardReports(Arg.Any<List<ReportsDO>>(), Arg.Any<bool>());
+
+            viewModel.DataLayer.Dispose();
         }
     }
 }

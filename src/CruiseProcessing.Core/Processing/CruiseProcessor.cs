@@ -22,7 +22,11 @@ namespace CruiseProcessing.Processing
         {
         }
 
-        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, [FromKeyedServices(nameof(CalculateTreeValues2))] ICalculateTreeValues calculateTreeValues, ILogger<CruiseProcessor> logger)
+        public CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, ILogger<CruiseProcessor> logger)
+            : this(dataLayer, dialogService, new CalculateTreeValues2(dataLayer), logger)
+        { }
+
+        protected CruiseProcessor(CpDataLayer dataLayer, IDialogService dialogService, [FromKeyedServices(nameof(CalculateTreeValues2))] ICalculateTreeValues calculateTreeValues, ILogger<CruiseProcessor> logger)
         {
             DataLayer = dataLayer;
             DialogService = dialogService;

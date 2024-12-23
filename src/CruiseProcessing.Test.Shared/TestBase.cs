@@ -1,5 +1,10 @@
 ﻿using Bogus;
-using Castle.Core.Logging;
+using CruiseDAL;
+using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
+using CruiseProcessing.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Collections;
@@ -17,6 +22,8 @@ public class TestBase
     protected Randomizer Rand { get; }
     protected Stopwatch _stopwatch;
     private string _testTempPath;
+    private IHost _implicitHost;
+
     protected LogLevel LogLevel { get; set; } = LogLevel.Information;
 
     private List<string> FilesToBeDeleted { get; } = new List<string>();
@@ -26,9 +33,16 @@ public class TestBase
         Output = output;
         Output.WriteLine($"CodeBase: {System.Reflection.Assembly.GetExecutingAssembly().CodeBase}");
         Rand = new Randomizer(this.GetType().Name.GetHashCode()); // make the randomizer fixed based on the test class
-
+        //LoggerFactory = new TestLoggerFactory
+        //{
+        //    Output = output,
+        //    MinLogLevel = minLogLevel
+        //};
+        //CruiseProcessing.Services.Logging.LoggerProvider.DefaultLoggerFactory = LoggerFactory;
 
     }
+
+    public IHost ImplicitHost => _implicitHost ??= CreateTestHost();
 
     ~TestBase()
     {
@@ -55,6 +69,35 @@ public class TestBase
     }
 
     public string TestTempPath => _testTempPath ??= Path.Combine(Path.GetTempPath(), "TestTemp", Assembly.GetExecutingAssembly().GetName().Name, this.GetType().FullName);
+
+    protected IHost CreateTestHost(Action<IServiceCollection> configureServices = null)
+    {
+        var builder = new HostBuilder()
+            .ConfigureServices(ConfigureServices)
+            .ConfigureLogging(ConfigureLogging);
+
+        if(configureServices != null)
+        {
+            builder.ConfigureServices(configureServices);
+        }
+
+        var host = builder.Build();
+        CruiseProcessing.Services.Logging.LoggerProvider.Initialize(host.Services);
+
+        return host;
+    }
+
+    protected virtual void ConfigureServices(IServiceCollection services)
+    {
+        services.AddSingleton<IDialogService>((x) => Substitute.For<IDialogService>());
+        services.AddTransient<IVolumeLibrary, VolumeLibrary_20241118>();
+    }
+
+    protected virtual void ConfigureLogging(ILoggingBuilder loggingBuilder)
+    {
+        var testLoggerProvider = new TestLoggingProvider(Output, LogLevel);
+        loggingBuilder.AddProvider(testLoggerProvider);
+    }
 
     protected string GetTestTempPath()
     {
@@ -92,11 +135,15 @@ public class TestBase
         return tempFilePath;
     }
 
-    public string GetTestFile(string fileName) => InitializeTestFile(fileName);
-
-    protected string InitializeTestFile(string fileName)
+    public string GetTestFile(string fileName)
     {
         var sourcePath = Path.Combine(TestFilesDirectory, fileName);
+        return GetTestFileFromFullPath(sourcePath);
+    }
+
+    protected string GetTestFileFromFullPath(string sourcePath)
+    {
+        var fileName = Path.GetFileName(sourcePath);
         if (File.Exists(sourcePath) == false) { throw new FileNotFoundException(sourcePath); }
 
         var targetPath = Path.Combine(TestTempPath, fileName);
@@ -111,22 +158,37 @@ public class TestBase
         return targetPath;
     }
 
+    protected CpDataLayer GetCpDataLayer(string filePath)
+    {
+        var fileExtention = System.IO.Path.GetExtension(filePath);
+        if (fileExtention == ".crz3")
+        {
+            var migrator = new DownMigrator();
+            var v3Db = new CruiseDatastore_V3(filePath);
+            var v2Db = new DAL();
+            var cruiseID = v3Db.QueryScalar<string>("SELECT CruiseID FROM Cruise").First();
+            migrator.MigrateFromV3ToV2(cruiseID, v3Db, v2Db);
+            return new CpDataLayer(v2Db, Substitute.For<ILogger<CpDataLayer>>(), biomassOptions: null);
+        }
+        else
+        {
+            var db = new DAL(filePath);
+            return new CpDataLayer(db, Substitute.For<ILogger<CpDataLayer>>(), biomassOptions: null);
+        }
+    }
+
     public void RegesterFileForCleanUp(string path)
     {
         FilesToBeDeleted.Add(path);
     }
 
+    /// <summary>
+    /// creates a logger that uses the log level set on the test base
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public ILogger<T> CreateLogger<T>()
     {
-        var typeName = typeof(T).Name;
-
-        var logger = Substitute.For<ILogger<T>>();
-        logger.When(x => x.Log<object>(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<object>(), Arg.Any<Exception>(), Arg.Any<Func<object, Exception, string>>()))
-            .Do(x =>
-            {
-                if (x.Arg<LogLevel>() >= LogLevel)
-                { Output.WriteLine("Logger:" + typeName + "::::" + x.ArgAt<object>(2).ToString()); }
-            });
-        return logger;
+        return ImplicitHost.Services.GetRequiredService<ILogger<T>>();
     }
 }

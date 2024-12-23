@@ -1,6 +1,7 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Output;
+using CruiseProcessing.OutputModels;
 using CruiseProcessing.Services;
 using System;
 using System.Collections;
@@ -255,9 +256,9 @@ namespace CruiseProcessing
                 foreach (LCDDO cs in currentSpecies)
                 {
                     //  need acres for current stratum
-                    List<StratumDO> sList = DataLayer.GetCurrentStratum(cs.Stratum);
-                    currAcres = Utilities.ReturnCorrectAcres(cs.Stratum, DataLayer, (long)sList[0].Stratum_CN);
-                    AccumulateExpFac(r, sList[0].Method, currentSpecies, cs, 2);
+                    var stratum = DataLayer.GetStratum(cs.Stratum);
+                    currAcres = Utilities.ReturnCorrectAcres(cs.Stratum, DataLayer, (long)stratum.Stratum_CN);
+                    AccumulateExpFac(r, stratum.Method, currentSpecies, cs, 2);
                     //  need all trees for the current species and stratum
                     AccumulateVolume(r, cs.Stratum, currAcres, cs.STM, cs.SampleGroup, cs.Species);
                 }   //  end foreach loop
@@ -288,22 +289,22 @@ namespace CruiseProcessing
                 //  accumulate volume
                 foreach (StratumDO stratum in cud.Strata)
                 {
-                    List<StratumDO> currStratum = DataLayer.GetCurrentStratum(stratum.Code);
+                    var currStratum = DataLayer.GetStratum(stratum.Code);
                     //  strata acres for expansion
-                    double currAcres = Utilities.ReturnCorrectAcres(currStratum[0].Code, DataLayer, (long)currStratum[0].Stratum_CN);
+                    double currAcres = Utilities.ReturnCorrectAcres(currStratum.Code, DataLayer, (long)currStratum.Stratum_CN);
 
-                    if (currStratum[0].Method != "100")
+                    if (currStratum.Method != "100")
                     {
-                        currMethod = currStratum[0].Method;
+                        currMethod = currStratum.Method;
                         //  need to accumulate by strata and sample group for proper proration
-                        List<LCDDO> justStrata = LCDmethods.GetCutOrLeave(lcdList, "C", "", currStratum[0].Code, "");
+                        List<LCDDO> justStrata = LCDmethods.GetCutOrLeave(lcdList, "C", "", currStratum.Code, "");
                         foreach (LCDDO js in justStrata)
                         {
                             if (js.STM == "N")
                             {
                                 //  just for non sure-to-measure
                                 ReportSubtotal ss = new ReportSubtotal();
-                                ss.Value1 = currStratum[0].Code;
+                                ss.Value1 = currStratum.Code;
                                 ss.Value2 = js.SampleGroup;
                                 //  Accumulate expansion factor, DBH squared
                                 ss.Value15 = js.SumDBHOBsqrd * currAcres;
@@ -311,7 +312,7 @@ namespace CruiseProcessing
                                 ss.Value16 = js.SumExpanFactor * currAcres;
                                 //  curracres needs to be 1.0 because area-based methods have proration factor set to acres.
                                 currAcres = 1.0;
-                                AccumulateUnitVolume(ss, currStratum[0].Code, "N", currAcres, js.Species);
+                                AccumulateUnitVolume(ss, currStratum.Code, "N", currAcres, js.Species);
                                 strataSums.Add(ss);
                             }
                             else if (js.STM == "Y")
@@ -320,14 +321,14 @@ namespace CruiseProcessing
                                 ReportSubtotal uu = new ReportSubtotal();
                                 uu.Value1 = cud.Code;
                                 uu.Value2 = js.SampleGroup;
-                                AccumulateUnitVolume(uu, currStratum[0].Code, currAcres, cud.Code, (long)currStratum[0].Stratum_CN, (long)cud.CuttingUnit_CN, js.STM);
+                                AccumulateUnitVolume(uu, currStratum.Code, currAcres, cud.Code, (long)currStratum.Stratum_CN, (long)cud.CuttingUnit_CN, js.STM);
                                 uu.Value16 = js.SumExpanFactor * currAcres;
                                 uu.Value15 = js.SumDBHOBsqrd * currAcres;
                                 //  for 3P methods find unit talled trees in pro list
                                 int mthRow = proList.FindIndex(
                                     delegate (PRODO p)
                                     {
-                                        return p.Stratum == currStratum[0].Code && p.CuttingUnit == cud.Code &&
+                                        return p.Stratum == currStratum.Code && p.CuttingUnit == cud.Code &&
                                             p.STM == "Y" && p.SampleGroup == js.SampleGroup;
                                     });
                                 if (mthRow >= 0)
@@ -337,11 +338,11 @@ namespace CruiseProcessing
                             }   //  endif
                         }   //  end foreach
                     }
-                    else if (currStratum[0].Method == "100")
+                    else if (currStratum.Method == "100")
                     {
                         ReportSubtotal uu = new ReportSubtotal();
                         uu.Value1 = cud.Code;
-                        AccumulateUnitVolume(uu, currStratum[0].Code, currAcres, cud.Code, (long)currStratum[0].Stratum_CN, (long)cud.CuttingUnit_CN, "N");
+                        AccumulateUnitVolume(uu, currStratum.Code, currAcres, cud.Code, (long)currStratum.Stratum_CN, (long)cud.CuttingUnit_CN, "N");
                         unitSums.Add(uu);
                     }   //  endif on method
                 }   //  end for k loop
@@ -428,11 +429,11 @@ namespace CruiseProcessing
                 foreach (StratumDO stratum in currUnit.Strata)
                 {
                     //  Get current acres
-                    List<StratumDO> currStratum = DataLayer.GetCurrentStratum(stratum.Code);
-                    currAcres = Utilities.ReturnCorrectAcres(currStratum[0].Code, DataLayer, (long)currStratum[0].Stratum_CN);
-                    currMethod = currStratum[0].Method;
+                    var currStratum = DataLayer.GetStratum(stratum.Code);
+                    currAcres = Utilities.ReturnCorrectAcres(currStratum.Code, DataLayer, (long)currStratum.Stratum_CN);
+                    currMethod = currStratum.Method;
                     //  need sample groups for current species to ensure proration factor is applied appropriately
-                    List<LCDDO> justSpecies = LCDmethods.GetCutOrLeave(lcdList, "C", sg.Species, currStratum[0].Code, "");
+                    List<LCDDO> justSpecies = LCDmethods.GetCutOrLeave(lcdList, "C", sg.Species, currStratum.Code, "");
 
                     if (currMethod != "100")
                     {
@@ -471,7 +472,7 @@ namespace CruiseProcessing
                             uu.Value15 = sg.SumDBHOBsqrd * currAcres;
                             uu.Value16 = sg.SumExpanFactor * currAcres;
                             //AccumulateUnitVolume(uu, sg.Stratum, currAcres, currUnit.Code, (long)currStratum[0].Stratum_CN, (long)currUnit.CuttingUnit_CN, "N");
-                            AccumulateVolume((long)currStratum[0].Stratum_CN, (long)currUnit.CuttingUnit_CN, uu, currAcres, js.Species);
+                            AccumulateVolume((long)currStratum.Stratum_CN, (long)currUnit.CuttingUnit_CN, uu, currAcres, js.Species);
                             unitSums.Add(uu);
                         }   //  endif
                     }   //  endif method
@@ -482,7 +483,7 @@ namespace CruiseProcessing
                     List<LCDDO> strataGroups = lcdList.FindAll(
                         delegate (LCDDO ld)
                         {
-                            return ld.Species == sg.Species && ld.Stratum == currStratum[0].Code;
+                            return ld.Species == sg.Species && ld.Stratum == currStratum.Code;
                         });
                     foreach (LCDDO str in strataGroups)
                     {
@@ -492,7 +493,7 @@ namespace CruiseProcessing
                             int mthRow = proList.FindIndex(
                                 delegate (PRODO p)
                                 {
-                                    return p.Stratum == currStratum[0].Code && p.SampleGroup == str.SampleGroup &&
+                                    return p.Stratum == currStratum.Code && p.SampleGroup == str.SampleGroup &&
                                             p.CuttingUnit == currUnit.Code && p.CutLeave == "C" &&
                                             p.STM == str.STM;
                                 });

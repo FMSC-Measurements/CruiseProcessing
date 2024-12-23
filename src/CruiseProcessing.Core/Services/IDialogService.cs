@@ -13,6 +13,8 @@ namespace CruiseProcessing.Services
 
         DialogServiceResult AskYesNo(string message, DialogServiceResult defaultOption = DialogServiceResult.Yes);
 
+        (string Region, string Forest) AskTemplateRegionForest();
+
         void ShowAbout();
 
         void ShowMessage(string message, string caption = null);

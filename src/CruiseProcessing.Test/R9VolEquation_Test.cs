@@ -15,6 +15,7 @@ using Xunit.Abstractions;
 
 using VolumeEqV2 = CruiseDAL.V2.Models.VolumeEquation;
 using TreeV2 = CruiseDAL.V2.Models.Tree;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CruiseProcessing.Test
 {
@@ -22,6 +23,13 @@ namespace CruiseProcessing.Test
     {
         public R9VolEquation_Test(ITestOutputHelper output) : base(output)
         {
+        }
+
+        protected override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+
+            services.AddTransient<R9VolEquation>();
         }
 
         [Fact]
@@ -53,7 +61,11 @@ namespace CruiseProcessing.Test
 
             v2Db.From<VolumeEqV2>().Query().Count().Should().Be(0);
 
-            var form = new R9VolEquation(DataContext.DataLayer, MockDialogService, MockServiceProvider);
+            var host = CreateTestHost((serv) =>
+            {
+                serv.AddSingleton<CpDataLayer>(dataLayer);
+            });
+            var form = host.Services.GetRequiredService<R9VolEquation>();
             //MockDialogService.Received(1).ShowError(It.IsAny<string>()); form.setupDialog();
 
             if (calcTopwood)

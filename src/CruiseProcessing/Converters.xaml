@@ -4,5 +4,6 @@
     <converters:BoolToVisibilityConverter x:Key="isVisableConverter" />
 
     <converters:NotConverter x:Key="notConverter" />
+    <converters:LongToBoolConverter x:Key="longToBoolConverter" />
 
 </ResourceDictionary>

@@ -1,6 +1,7 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
+using CruiseProcessing.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections;
@@ -27,27 +28,23 @@ namespace CruiseProcessing
         public int templateFlag;
         private int trackRow = -1;
 
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void CRZSPDFTCS(ref int regn, StringBuilder forst, out int spcd, float[] wf, StringBuilder agteq, StringBuilder lbreq,
-            StringBuilder dbreq, StringBuilder foleq, StringBuilder tipeq, StringBuilder wf1ref, StringBuilder wf2ref, StringBuilder mcref,
-            StringBuilder agtref, StringBuilder lbrref, StringBuilder dbrref, StringBuilder folref, StringBuilder tipref,
-            int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int i10, int i11, int i12, int i13, int i14);
-
         public CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
         public IDialogService DialogService { get; }
+        public VolumeEquationsViewModel ViewModel { get; }
 
         protected VolumeEquations()
         {
             InitializeComponent();
         }
 
-        public VolumeEquations(CpDataLayer dataLayer, IDialogService dialogService, IServiceProvider services)
+        public VolumeEquations(CpDataLayer dataLayer, VolumeEquationsViewModel viewModel, IDialogService dialogService, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
         }
 
         public int setupDialog()
@@ -111,7 +108,7 @@ namespace CruiseProcessing
                 speciesList.Items.Add(sp);
             }
 
-            var justProduct = DataLayer.GetDistincePrimaryProductCodes();
+            var justProduct = DataLayer.GetDistinctPrimaryProductCodes();
             foreach(var prod in  justProduct)
             {
                 productList.Items.Add(prod);
@@ -388,7 +385,7 @@ namespace CruiseProcessing
 
                 if (calcBioVolEqs.Any())
                 {
-                    UpdateBiomass(calcBioVolEqs);
+                    ViewModel.UpdateBiomass(calcBioVolEqs);
                 }
                 else
                 {
@@ -407,68 +404,7 @@ namespace CruiseProcessing
             Close();
         }
 
-        public void UpdateBiomass(List<VolumeEquationDO> equationList, string region = null, string forest = null)
-        {
-            var prList = DialogService.ShowPercentRemovedDialog(equationList);
 
-            
-            if (string.IsNullOrEmpty(region) || string.IsNullOrEmpty(forest) )
-            {
-                var sale = DataLayer.GetSale();
-                if(sale != null)
-                {
-                    region = sale.Region;
-                    forest = sale.Forest;
-                }
-            }
-
-            if (string.IsNullOrEmpty(region) || string.IsNullOrEmpty(forest))
-            {
-                TemplateRegionForest trf = Services.GetRequiredService<TemplateRegionForest>();
-                trf.ShowDialog();
-
-                region = trf.currentRegion;
-                forest = trf.currentForest;
-            }
-
-            UpdateBiomass(region, forest, equationList, prList);
-        }
-
-        //public void UpdateBiomass(CpDataLayer dataLayer, IReadOnlyCollection<VolumeEquationDO> equationList, IReadOnlyCollection<PercentRemoved> prList, string region, string forest)
-        //{
-        //    if(string.IsNullOrEmpty(region)) { throw new ArgumentNullException(nameof(region)); }
-        //    if(string.IsNullOrEmpty(forest)) { throw new ArgumentNullException(nameof(forest)); }
-
-        //    UpdateBiomass(region, forest, dataLayer, equationList, prList);
-        //}
-
-        public void UpdateBiomass(string region, string forest, IReadOnlyCollection<VolumeEquationDO> equationList, IReadOnlyCollection<PercentRemoved> prList)
-        {
-            int REGN = Convert.ToInt32(region);
-
-            var biomassEquations = new List<BiomassEquationDO>();
-
-            
-
-            //  update biomass equations
-            foreach (VolumeEquationDO volEq in equationList.GroupBy(x => x.Species + ";" + x.PrimaryProduct).Select(x => x.First()))
-            {
-                if(volEq.CalcBiomass != 1) { continue; }
-
-                var percentRemoved = prList.FirstOrDefault(pr => pr.bioSpecies == volEq.Species && pr.bioProduct == volEq.PrimaryProduct);
-                float percentRemovedValue = (percentRemoved != null && float.TryParse(percentRemoved.bioPCremoved, out var pct))
-                    ? pct : 95.0f;
-
-                var treeDefaults = DataLayer.GetTreeDefaultValues(volEq.Species, volEq.PrimaryProduct);
-
-                //BiomassEquationService
-            }
-
-            DataLayer.CreateBiomassEquations(equationList, REGN, forest, prList);
-
-            DataLayer.ClearBiomassEquations();
-            DataLayer.SaveBiomassEquations(biomassEquations);
-        }
 
         
 

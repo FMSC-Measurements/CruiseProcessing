@@ -6,6 +6,7 @@ using System.IO;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Output;
 using CruiseProcessing.Data;
+using CruiseProcessing.OutputModels;
 
 
 namespace CruiseProcessing
@@ -73,7 +74,6 @@ namespace CruiseProcessing
             //  Data arrays for the banner page
             var sale = bslyr.GetSale();
             List<ReportsDO> rList = bslyr.GetSelectedReports();
-            List<VolumeEquationDO> vList = bslyr.getVolumeEquations();
 
             //  Is this a BLM file?
             bool isBLM = sale.Region == "7" || sale.Region == "07";
@@ -170,8 +170,9 @@ namespace CruiseProcessing
             //  output BLM line
             if (isBLM == true)
             {
+                List<VolumeEquationDO> vList = bslyr.getVolumeEquations();
                 //  write reports line
-                
+
                 sb.Clear();
                 sb.Append("VOLUME BASED ON ");
                 //  need volume equation type for BLM here
@@ -251,7 +252,7 @@ namespace CruiseProcessing
 
         }   //  end outputBannerPage
 
-        public static string GenerateBannerPage(string fileName, HeaderFieldData headerData, SaleDO sale, IEnumerable<ReportsDO> reports, IEnumerable<VolumeEquationDO> volumeEquations)
+        public static string GenerateBannerPage(string fileName, HeaderFieldData headerData, SaleDO sale, IEnumerable<ReportsDO> reports, CpDataLayer bslyr)
         {
             var strWriter = new StringWriter();
 
@@ -324,6 +325,7 @@ namespace CruiseProcessing
             //  output BLM line
             if (isBLM == true)
             {
+                List<VolumeEquationDO> volumeEquations = bslyr.getVolumeEquations();
                 //  write reports line
 
                 var logLength = volumeEquations.Any(x => x.VolumeEquationNumber.Substring(3, 4) == "B32W") 

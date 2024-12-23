@@ -2,6 +2,7 @@
 using CruiseDAL.Schema;
 using CruiseProcessing.Data;
 using CruiseProcessing.Output;
+using CruiseProcessing.OutputModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -116,7 +117,7 @@ namespace CruiseProcessing
             {
                 var reports = DataLayer.GetSelectedReports();
 
-                var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, Enumerable.Empty<VolumeEquationDO>());
+                var bannerPage = BannerPage.GenerateBannerPage(FilePath, HeaderData, Sale, reports, DataLayer);
                 writer.Write(bannerPage);
                 pageNumber++;
             }   //  endif

@@ -15,16 +15,14 @@ namespace CruiseProcessing
         public static double AcresLookup(long currStrCN, CpDataLayer bslyr, string currStratum)
         {
             //  Need call to CP business layer to get all CUs for this stratum
-            List<StratumDO> stratumList = bslyr.GetCurrentStratum(currStratum);
+            var stratum = bslyr.GetStratum(currStratum);
 
             float stratumAcres = 0;
-            foreach (StratumDO sdo in stratumList)
+            stratum.CuttingUnits.Populate();
+            foreach (CuttingUnitDO cudo in stratum.CuttingUnits)
             {
-                sdo.CuttingUnits.Populate();
-                foreach (CuttingUnitDO cudo in sdo.CuttingUnits)
-                    stratumAcres += cudo.Area;
-                
-            }   //  end foreach loop
+                stratumAcres += cudo.Area;
+            }
             return stratumAcres;
         }   //  end AcresLookup
 
@@ -86,12 +84,9 @@ namespace CruiseProcessing
 
         public static string MethodLookup(string currentStratum, CpDataLayer bslyr)
         {
-            //  Need to call CP business layer to get stratum list
-            List<StratumDO> stratumList = bslyr.GetCurrentStratum(currentStratum);
-            if (stratumList.Count > 0)
-                return stratumList[0].Method;
-            else return "";            
-        }   //  end MethodLookup
+            var stratumList = bslyr.GetStratum(currentStratum);
+            return stratumList?.Method ?? "";          
+        } 
 
         
 

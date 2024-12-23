@@ -11,18 +11,12 @@ using System.Runtime.InteropServices;
 using CruiseDAL.DataObjects;
 using CruiseDAL.Schema;
 using CruiseProcessing.Data;
+using CruiseProcessing.Interop;
 
 namespace CruiseProcessing
 {
     public partial class ModifyMerchRules : Form
     {
-        //  definitions for volume library function call
-        [DllImport("vollib.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void MRULESCS(ref int regn, StringBuilder voleq, StringBuilder prod, ref float trim,
-                                    ref float minlen, ref float maxlen, ref int opt, ref float merchl,
-                                    int l1, int l2);
-
-
         private List<VolumeEquationDO> vList = new List<VolumeEquationDO>();
         private List<VolumeEquationDO> justProducts = new List<VolumeEquationDO>();
         private int nthRow = 0;
@@ -30,23 +24,23 @@ namespace CruiseProcessing
                                                         "22 -- Top placed with next lowest log and segmented",
                                                         "23 -- Top segment stands on its own",
                                                         "24 -- If top seg < 1/4 log len drop the top.  If top >= 1/4 and <= 3/4 nom length, top is 1/2 of nom log lenght, else top is nom log len."};
-        private const int strlen = 256;
-        private float TRIM, MINLEN, MAXLEN, MERCHL;
-        private int OPT;
+
         private int EVOD;
        
 
         public CpDataLayer DataLayer { get; }
+        public IVolumeLibrary VolumeLibrary { get; }
 
         protected ModifyMerchRules()
         {
             InitializeComponent();
         }
 
-        public ModifyMerchRules(CpDataLayer dataLayer)
+        public ModifyMerchRules(CpDataLayer dataLayer, IVolumeLibrary volumeLibrary)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
+            VolumeLibrary = volumeLibrary;
         }
 
         public void setupDialog()
@@ -67,18 +61,14 @@ namespace CruiseProcessing
                     if (ve.PrimaryProduct != "01")
                     {
                         //  need to convert volume equation and product to StringBuilder
-                        StringBuilder VOLEQ = new StringBuilder(256);
-                        VOLEQ.Append(ve.VolumeEquationNumber);
-                        StringBuilder PROD = new StringBuilder(256);
-                        PROD.Append(ve.PrimaryProduct);
-                        MRULESCS(ref currReg, VOLEQ, PROD, ref TRIM, ref MINLEN, ref MAXLEN, ref OPT, 
-                                        ref MERCHL, strlen, strlen);
+                        var mRules = VolumeLibrary.GetMRules(currReg, ve.VolumeEquationNumber, ve.PrimaryProduct);
+
                         //  store return values
-                        ve.Trim = TRIM;
-                        ve.MinLogLengthPrimary = MINLEN;
-                        ve.MaxLogLengthPrimary = MAXLEN;
-                        ve.SegmentationLogic = OPT;
-                        ve.MinMerchLength = MERCHL;
+                        ve.Trim = mRules.trim;
+                        ve.MinLogLengthPrimary = mRules.minlen;
+                        ve.MaxLogLengthPrimary = mRules.maxlen;
+                        ve.SegmentationLogic = mRules.opt;
+                        ve.MinMerchLength = mRules.merchl;
                         ve.EvenOddSegment = 2;
                     }   //  endif
                 }   //  end foreach loop

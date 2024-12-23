@@ -1,6 +1,7 @@
 ﻿using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Output;
+using CruiseProcessing.OutputModels;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System;

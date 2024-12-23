@@ -14,6 +14,7 @@ namespace CruiseProcessing.Config
 
         //public bool UseWightFactorsFromVolumeLibrary { get; set; } = true;
 
+        [Obsolete]
         public bool UseWeightFactorsFromBiomassEquations { get; set; } = true;
     }
 }

@@ -14,5 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IEnumerableExtentions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TemplateDatabaseInitializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TestBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestLogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestLoggingProvider.cs" />
   </ItemGroup>
 </Project>

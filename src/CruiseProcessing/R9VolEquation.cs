@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using CruiseDAL.DataObjects;
 using CruiseProcessing.Data;
 using CruiseProcessing.Services;
+using CruiseProcessing.ViewModels;
 using FMSC.ORM.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ namespace CruiseProcessing
         public CpDataLayer DataLayer { get; }
         public IServiceProvider Services { get; }
         public IDialogService DialogService { get; }
+        public VolumeEquationsViewModel VolEqViewModel { get; }
 
         List<VolumeEquationDO> volList = new List<VolumeEquationDO>();
         ArrayList topwoodSpecies = new ArrayList();
@@ -36,12 +38,13 @@ namespace CruiseProcessing
             InitializeComponent();
         }
 
-        public R9VolEquation(CpDataLayer dataLayer, IDialogService dialogService, IServiceProvider services)
+        public R9VolEquation(CpDataLayer dataLayer, IDialogService dialogService, VolumeEquationsViewModel volEqViewModel, IServiceProvider services)
             : this()
         {
             DataLayer = dataLayer ?? throw new ArgumentNullException(nameof(dataLayer));
             Services = services ?? throw new ArgumentNullException(nameof(services));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            VolEqViewModel = volEqViewModel ?? throw new ArgumentNullException(nameof(volEqViewModel));
         }
 
 
@@ -163,8 +166,7 @@ namespace CruiseProcessing
             DataLayer.SaveVolumeEquations(volList);
             if (calculateBiomass == true)
             {
-                VolumeEquations ve = Services.GetRequiredService<VolumeEquations>();
-                ve.UpdateBiomass(volList);
+                VolEqViewModel.UpdateBiomass(volList);
             }   //  endif calculate biomass
         }
 
